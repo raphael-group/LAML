@@ -2,21 +2,10 @@
 from math import log,exp
 from sequence_lib import read_sequences
 from scipy import optimize
-from random import random
+from random import random,seed
+from treeswift import *
 
 q = 0.1
-
-def simple_pairwise_estimate(a,b):
-    za = 0
-    zb = 0
-    z = 0
-    for ca,cb in zip(a,b):
-        za += (ca == 0)	
-        zb += (cb == 0)
-        z += (ca == 0 or cb == 0 or ca != cb)	
-    da = -log(za/z)	
-    db = -log(zb/z)
-    return da,db
 
 def ML_pairwise_estimate(a,b,initials=20):
     def __sets__(seq_a, seq_b):
@@ -72,19 +61,6 @@ def ML_pairwise_estimate(a,b,initials=20):
             f_star = out.fun 
     return x_star,f_star
 
-def triplet_estimate_old(d_ab,d_ac,d_bc):
-# Note: d_xy = (d(x,LCA(x,y)),d(y,LCA(x,y)))
-    delta_a = abs(d_ab[0]-d_ac[0])
-    delta_b = abs(d_ab[1]-d_bc[0])
-    delta_c = abs(d_ac[1]-d_bc[1])
-    delta = min(delta_a,delta_b,delta_c)
-    if delta == delta_a:
-        return 1 # a|bc
-    if delta == delta_b:
-        return 2 # b|ac
-    else:
-        return 3 # c|ab        
-
 def triplet_estimate(dr_ab,dr_ac,dr_bc):
 # test the topology of the triplet (a,b,c)
     dr_max = max(dr_ab,dr_bc,dr_ac)
@@ -92,28 +68,80 @@ def triplet_estimate(dr_ab,dr_ac,dr_bc):
         return 1 # a|bc
     if dr_max == dr_ac:
         return 2 # b|ac
-    return 3 # c|ab        
+    return 3 # c|ab       
+
+def greedy_triplet(sequences):
+# sequences is a dictionary mapping a name to a sequence 
+    def __get_key__(a,b):
+        return (a,b) if a<=b else (b,a)
+    def __add_one_seq__(c,sc,root_node,Dr,sequences):
+    # find a branch to add c to the tree by greedily checking the triplets
+    # return the node below the branch
+        if root_node.is_leaf():
+            return root_node
+        left_child, right_child = root_node.children # assuming a perfect binary tree
+        a = list(x.label for x in left_child.traverse_leaves())[0]
+        b = list(x.label for x in right_child.traverse_leaves())[0]
+        sa = sequences[a]
+        sb = sequences[b]
+        key_ab = __get_key__(a,b)
+        key_ac = __get_key__(a,c)
+        key_bc = __get_key__(b,c)
+        if key_ab in Dr:
+            dr_ab = Dr[key_ab] 
+        else:    
+            dr_ab = ML_pairwise_estimate(sa,sb)[0][2]    
+            Dr[key_ab] = dr_ab
+        if key_ac in Dr:
+            dr_ac = Dr[key_ac] 
+        else:    
+            dr_ac = ML_pairwise_estimate(sa,sc)[0][2]    
+            Dr[key_ac] = dr_ac
+        if key_bc in Dr:
+            dr_bc = Dr[key_bc] 
+        else:    
+            dr_bc = ML_pairwise_estimate(sb,sc)[0][2]    
+            Dr[key_bc] = dr_bc
+        trpl_abc = triplet_estimate(dr_ab,dr_ac,dr_bc)
+        
+        if trpl_abc == 1: # a|bc --> recurse on the right side of the tree
+            return __add_one_seq__(c,sc,right_child,Dr,sequences)
+        elif trpl_abc == 2: # b|ac --> recurse on the left side of the tree
+            return __add_one_seq__(c,sc,left_child,Dr,sequences)
+        else: # c|ab --> c is an outgroup of root_node
+            return root_node
+    def __add_node__(c,T,v):
+        # add c on the branch above the specified v
+        w = Node()
+        w.label = c
+        u = Node()
+        if v.is_root():
+            T.root = u
+        else:    
+            p = v.parent
+            p.remove_child(v)
+            p.add_child(u)
+        u.add_child(v)
+        u.add_child(w)
+                    
+    Dr = {} # mapping a pair of sequence names to their dr
+    seq_names = list(sequences.keys())
+    a,b = seq_names[:2]
+    sa,sb = sequences[a],sequences[b]
+    tree = read_tree_newick("("+a+","+b+");")
+    
+    for c in seq_names[2:]:
+        sc = sequences[c]
+        v = __add_one_seq__(c,sc,tree.root,Dr,sequences)
+        __add_node__(c,tree,v)
+    return tree.newick()
 
 '''
-S = read_sequences("../MP_inconsistent/seqs_m10_k40.txt")
-count = 0
+S = read_sequences("../MP_inconsistent/seqs_m10_k1000.txt")
 i = 0
 for D in S:
-    a = D['a']
-    b = D['b']
-    c = D['c']
-    d = D['d']
-
-    dr_ab = ML_pairwise_estimate(a,b)[0][2]
-    dr_ac = ML_pairwise_estimate(a,c)[0][2]
-    dr_bc = ML_pairwise_estimate(b,c)[0][2]
-    t_abc = triplet_estimate(dr_ab,dr_ac,dr_bc)
-
-    dr_ad = ML_pairwise_estimate(a,d)[0][2]
-    dr_cd = ML_pairwise_estimate(c,d)[0][2]
-    t_acd = triplet_estimate(dr_ac,dr_ad,dr_cd)
-    
+    print(greedy_triplet(D))
     i += 1
-    count += (t_abc == 3 and t_acd == 1)
-    print(i,count)
-'''    
+    if i >= 100:
+        break
+'''        
