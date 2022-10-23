@@ -230,13 +230,13 @@ def felsenstein(T, Q, msa, ordering, root_edge_len=0.2, use_log=False):
                     if use_log:
                         tree_likelihood += (-root_edge_len) + np.log(q_ialpha) + np.log(prob_rootchar)
                     else:
-                    tree_likelihood *= (math.exp(-root_edge_len)) * q_ialpha * prob_rootchar
+                        tree_likelihood *= (math.exp(-root_edge_len)) * q_ialpha * prob_rootchar
                     
                 else:
                     if use_log:
                         tree_likelihood += np.log((1 - math.exp(-root_edge_len))) + np.log(q_ialpha) + np.log(prob_rootchar)
                     else:
-                    tree_likelihood *= ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
+                        tree_likelihood *= ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
     
     return tree_likelihood
 
@@ -256,7 +256,7 @@ def main():
                 [0, 1, 2],
                 [0, 1, 2]
                 ]
-    likelihood = felsenstein(t, q, msa, q_ordering, 0.14, use_log=False)
+    likelihood = felsenstein(t, q, msa, q_ordering, 0.14, use_log=True)
     print("Tree Likelihood:", likelihood)
 
 if __name__ == "__main__":
