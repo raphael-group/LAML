@@ -1,8 +1,11 @@
 import numpy as np
 import dendropy
 import math
+from treeswift import *
+from math import *
+from random import random
+from sys import argv
 
-import math
 
 # def prob_same(nodedict, node_likelihood, char, site, curr_node):
 #     all_child_prob = 1.0
@@ -41,7 +44,7 @@ def prob_change(msa, q_dict, node_likelihood, site, curr_node, use_log):
             tp = q_ialpha * (1 - math.exp(-get_branchlen(c)))
             all_child_prob *= tp * node_likelihood[c][site][char]
             # print("tp:", tp)
-            # print("nl", node_likelihood[c][site][char])
+            # print("nl", node_likelihood[c][site][char], "char", char)
         else:
             #char = get_char(msa, c, site)
             #print("other zero child", char, "should be 0")
@@ -90,7 +93,7 @@ def likelihood_under_n(nodedict, node_likelihood, n, site, msa, q_dict, use_log)
                     
     parent_poss_states = dict()
 
-    # print("Child states:", child_states)
+    print("Child states:", child_states)
     if 0 in child_states: # probability 0 -> 0
         if len(set(child_states)) == 1: # both children are state 0 
             # print("both children are 0")
@@ -110,7 +113,7 @@ def likelihood_under_n(nodedict, node_likelihood, n, site, msa, q_dict, use_log)
             # print("Probability of 0->", child_states, "is:", prob_change(msa, q_dict, node_likelihood, site, n))
     else:
         if len(set(child_states)) == 1: # both children are same nonzero state
-            # print("both children are alpha")
+            # print("both children are alpha", site)
             c = child_states[0]
             # if use_log:
             #     parent_poss_states[c] = 0.0
@@ -125,7 +128,7 @@ def likelihood_under_n(nodedict, node_likelihood, n, site, msa, q_dict, use_log)
             # else:
             parent_poss_states[0] = 1.0
             # print("Probability of ALPHA->(ALPHA, BETA) is: 1.0")
-    # print("parent possible states")
+    # print("parent possible states", "site", site)
     # print(parent_poss_states)
 
     for x in parent_poss_states.keys():
@@ -146,33 +149,25 @@ def get_branchlen(child_node):
 def get_char(msa, leaf_node, site):
     return msa[int(leaf_node.taxon.__str__().replace("'", ""))-1][site]
 
-def felsenstein(T, Q, msa, ordering, root_edge_len=0.2, use_log=False):
+# def felsenstein(T, Q, msa, ordering, root_edge_len=0.2, use_log=False):
+def felsenstein(T, Q, msa, root_edge_len=0.2, use_log=False):
     # takes in tree with branch lengths as input
     # output a likelihood
 
     ## HOUSEKEEPING 
     numsites = len(msa[0])
-        
-    # char_probs = dict()
-    # for site in range(numsites):
-    #     char_probs[site] = dict()
-    #     chars, counts = np.unique(msa.T[site], return_counts=True)
-    #     for i in range(len(chars)):
-    #         char_probs[site][chars[i]] = counts[i]/len(msa.T[site])
-    def char_to_index(c, site, ordering):
-        return ordering[site].index(c)
 
-    q_dict = dict()
-    for site in range(numsites):
-        q_dict[site] = dict()
-        # get alphabet 
-        for char in np.unique(msa.T[site]):
-            q_dict[site][char] = Q[site][char_to_index(char, site, ordering)]
+    # q_dict = dict()
+    # for site in range(numsites):
+    #     q_dict[site] = dict()
+    #     # get alphabet 
+    #     for char in np.unique(msa.T[site]):
+    #         q_dict[site][char] = Q[site][char]
     alphabet = dict()
     for site in range(numsites):
-        alphabet[site] = q_dict[site].keys()
+        alphabet[site] = Q[site].keys()
 
-    print("q_dict", q_dict)
+    print("q_dict", Q)
 
     nwkt = dendropy.Tree.get(data=T, schema="newick")
     print(nwkt)
@@ -208,12 +203,15 @@ def felsenstein(T, Q, msa, ordering, root_edge_len=0.2, use_log=False):
                 node_likelihood[n][site] = dict()
                 
                 # nodedict[n][site] = dict()
+                # if use_log: 
+                #   for char in alphabet[site]:
+                #       node_likelihood[n][site][char] = 1.0
                 for char in alphabet[site]:
-                    node_likelihood[n][site][char] = 1.0
+                    node_likelihood[n][site][char] = 0.0
                 
-                node_likelihood = likelihood_under_n(nodedict, node_likelihood, n, site, msa, q_dict, use_log)
+                node_likelihood = likelihood_under_n(nodedict, node_likelihood, n, site, msa, Q, use_log)
                 # node_likelihood = likelihood_under_n(nodedict, node_likelihood, n, site, msa, q_dict)
-
+    print(node_likelihood)
     # last n is the provided root node 
     # print("Calculating likelihood according to a root node r*")
     # SETTING UP r*, say r* -> r is dist 0.2
@@ -225,12 +223,12 @@ def felsenstein(T, Q, msa, ordering, root_edge_len=0.2, use_log=False):
             prob_rootchar = node_likelihood[n][site][rootchar]
             print(rootchar, prob_rootchar)
             if prob_rootchar > 0.0: 
-                q_ialpha = q_dict[site][rootchar]
+                q_ialpha = Q[site][rootchar]
                 if rootchar == 0:
                     if use_log:
-                        tree_likelihood += (-root_edge_len) + np.log(q_ialpha) + np.log(prob_rootchar)
+                        tree_likelihood += (-root_edge_len) + np.log(prob_rootchar) # + np.log(q_ialpha)
                     else:
-                        tree_likelihood *= (math.exp(-root_edge_len)) * q_ialpha * prob_rootchar
+                        tree_likelihood *= (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha
                     
                 else:
                     if use_log:
@@ -242,21 +240,55 @@ def felsenstein(T, Q, msa, ordering, root_edge_len=0.2, use_log=False):
 
 def main():
     # t = '[&R] ((1:0.5,2:0.5):0.60,(3:0.5,4:0.5):0.60);'
+    # t_A = '[&R] (1:1.10,3:1.10,2:1.10,4:1.10);' # star tree
+    # t_B = '[&R] ((1:0.96,3:0.96):0.14,2:1.10,4:1.10);' # non-star tree
+    # t_C = '[&R] (1:1.167,2:1.167,3:1.167:4:1.167);' # non-star tree
     t = '[&R] (1:0.96,3:0.96);'
+    # increase k
+    # k = 1000
+    # mu = 0.025
+    # nstate=9
+    # # borrowed from https://github.com/uym2/problin/blob/main/scripts/sim_test.py
+    # tree = read_tree_newick(t_B)
+    # tree.root.seq = '0'*k
+    # msa = []
+
+    # for node in tree.traverse_preorder():
+    #     if node.is_root():
+    #         continue
+    #     p = 1-exp(-mu*node.edge_length)
+    #     pnode = node.parent
+    #     seq = ''
+    #     for c in pnode.seq:
+    #         if c != '0':
+    #             seq += c
+    #         else:
+    #             r = random()
+    #             if r < p: # change state
+    #                 seq += str(int(random()*nstate) + 1) 
+    #             else: # add '0'
+    #                 seq += '0'  
+    #     node.seq = seq
+    #     msa.append(np.array(list(node.seq)))
+    # msa = np.array(msa)
+    # q = [[mu] * nstate] * k
+    # # need to fix this 
+    # q_ordering = [[i for i in range(nstate)] * k]
+
+    # evolve down a tree -> look at uyen's code to do this
     msa = np.array([[1,0,2], # species 1
                     [1,0,0], # species 2
                     [0,1,2], # species 3
                     [0,1,0]] # species 4
                 )
-    q = [[0.2, 0.3, 0.5], # site 1
-         [0.2, 0.3, 0.5], # site 2
-         [0.2, 0.3, 0.5]  # site 3
+    
+    # prob of transitioning 0 -> 0, 0 -> 1, 0 -> 2
+    q = [{0: 0.2, 1:0.3, 2:0.5}, # site 1
+         {0: 0.2, 1:0.3, 2:0.5}, # site 2
+         {0: 0.2, 1:0.3, 2:0.5}, # site 3
         ]
-    q_ordering = [[0, 1, 2],
-                [0, 1, 2],
-                [0, 1, 2]
-                ]
-    likelihood = felsenstein(t, q, msa, q_ordering, 0.14, use_log=True)
+
+    likelihood = felsenstein(t, q, msa, 0.14, use_log=False)
     print("Tree Likelihood:", likelihood)
 
 if __name__ == "__main__":

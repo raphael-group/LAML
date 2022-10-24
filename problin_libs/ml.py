@@ -73,21 +73,14 @@ def get_branchlen(child_node):
 def get_char(msa, leaf_node, site):
     return msa[int(leaf_node.taxon.__str__().replace("'", ""))-1][site]
 
-def felsenstein(T, Q, msa, ordering, root_edge_len=0.2, use_log=False):
+def felsenstein(T, Q, msa, root_edge_len=0.2, use_log=False):
     numsites = len(msa[0])
-    def char_to_index(c, site, ordering):
-        return ordering[site].index(c)
 
-    q_dict = dict()
-    for site in range(numsites):
-        q_dict[site] = dict()
-        for char in np.unique(msa.T[site]):
-            q_dict[site][char] = Q[site][char_to_index(char, site, ordering)]
     alphabet = dict()
     for site in range(numsites):
-        alphabet[site] = q_dict[site].keys()
+        alphabet[site] = Q[site].keys()
 
-    print("q_dict", q_dict)
+    print("q_dict", Q)
     nwkt = dendropy.Tree.get(data=T, schema="newick")
     print(nwkt)
 
@@ -115,11 +108,11 @@ def felsenstein(T, Q, msa, ordering, root_edge_len=0.2, use_log=False):
                 if n not in nodedict:
                     node_likelihood[n] = dict()
                 node_likelihood[n][site] = dict()
-                
+                print("Hi.")
                 for char in alphabet[site]:
-                    node_likelihood[n][site][char] = 1.0
+                    node_likelihood[n][site][char] = 0.0
                 
-                node_likelihood = likelihood_under_n(nodedict, node_likelihood, n, site, msa, q_dict, use_log)
+                node_likelihood = likelihood_under_n(nodedict, node_likelihood, n, site, msa, Q, use_log)
 
     tree_likelihood = 1.0
     for site in range(numsites):
@@ -127,12 +120,12 @@ def felsenstein(T, Q, msa, ordering, root_edge_len=0.2, use_log=False):
             prob_rootchar = node_likelihood[n][site][rootchar]
             print(rootchar, prob_rootchar)
             if prob_rootchar > 0.0: 
-                q_ialpha = q_dict[site][rootchar]
+                q_ialpha = Q[site][rootchar]
                 if rootchar == 0:
                     if use_log:
-                        tree_likelihood += (-root_edge_len) + np.log(q_ialpha) + np.log(prob_rootchar)
+                        tree_likelihood += (-root_edge_len) + np.log(prob_rootchar) # + np.log(q_ialpha) 
                     else:
-                        tree_likelihood *= (math.exp(-root_edge_len)) * q_ialpha * prob_rootchar
+                        tree_likelihood *= (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha 
                     
                 else:
                     if use_log:

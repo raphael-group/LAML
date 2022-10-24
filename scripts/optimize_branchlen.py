@@ -8,7 +8,9 @@ import random
 import math
 from Bio import SeqIO
 import itertools
-
+from math import log, exp
+import subprocess
+from numpy import linalg as LA
 
 def sets(seq_a, seq_b):
     # get the msa
@@ -100,10 +102,17 @@ def optimize_len(alphabet_size, a, b, x0):
             x0 = np.random.uniform(0, 5.0, 3)
         global s_0, s_1a, s_1b, s_2, s_3
         s_0, s_1a, s_1b, s_2, s_3 = sets(a, b)
-        eps = 1e-10
+        # eps = 1e-10
+        dmax = -log(1/k)*2
+        dmin = -log(1-1/k)/2
+        bound = (dmin,dmax)
 
-        out = optimize.minimize(likelihood, x0, method="SLSQP", options={'disp': False}, bounds=[(eps,None),(eps,None),(eps,None)])
+        # out = optimize.minimize(likelihood, x0, method="L-BFGS-B", options={'disp': False}, bounds=[bound, bound, bound])
+        out = optimize.minimize(likelihood, x0, method="SLSQP", options={'disp': False}, bounds=[bound, bound, bound])
+        
         x_star.append((out['fun'], out['x']))
+        w, v = LA.eig(out.hess_inv.todense())
+        print(w > 0.0)
         
     return x_star
 
@@ -120,7 +129,6 @@ def my_print_tree(t):
         n.label = ''
     print(t)
 
-
 def run_all(fname, topo, m, num_to_run=2):
     trees = []
     sets_of_four = []
@@ -135,6 +143,7 @@ def run_all(fname, topo, m, num_to_run=2):
                 four_leaves = []
             else:
                 four_leaves.append([int(x) for x in s.split('|')])
+    print(len(sets_of_four), "trees read.")
 
     all_dists = dict()
     all_seqs = dict()
@@ -212,21 +221,29 @@ def main():
     topo = '[&R] ((0,1),(2,3));'
     topo = dendropy.Tree.get(data=topo, schema="newick")
     global k 
-    k=5000
-    out5000 = run_all("MP_inconsistent/seqs_m10_k5000.txt", topo, 11)
+
+    # for k in (20, 30, 40, 50, 100, 200, 300, 400, 500, 1000, 5000):
+    #     # fname, topo, m, num_to_run=2
+    #     outdir = "/Users/gillianchu/raphael/repos/problin/results_estbl/m10_k{0}_estbl".format(k)
+    #     subprocess.run(["mkdir", "-p", outdir])
+
+    #     est_trees = run_all("MP_inconsistent/seqs_m10_k{0}.txt".format(k), topo, 11, 1000)
+    #     print("Number of est trees", len(est_trees))
+    #     for idx, tree in enumerate(est_trees):
+    #         tree.write(path=outdir+"/tree"+str(idx)+".tre", schema="newick")
 
     k=20
-    out20 = run_all("MP_inconsistent/seqs_m10_k20.txt", topo, 11)
+    out20 = run_all("MP_inconsistent/seqs_m10_k20.txt", topo, 11, 1000)
     
-    print("filename: MP_inconsistent/seqs_m10_k5000.txt")
-    for x in out5000:
-        print(x) 
-    print(true_tree)
+    # print("filename: MP_inconsistent/seqs_m10_k5000.txt")
+    # for x in out5000:
+    #     print(x) 
+    # print(true_tree)
     
-    print("filename: MP_inconsistent/seqs_m10_k20.txt")
-    for x in out20:
-        print(x)
-    print(true_tree)
+    # print("filename: MP_inconsistent/seqs_m10_k20.txt")
+    # for x in out20:
+    #     print(x)
+    # print(true_tree)
 
 if __name__ == "__main__":
     main()
