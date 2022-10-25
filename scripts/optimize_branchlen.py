@@ -11,6 +11,7 @@ import itertools
 from math import log, exp
 import subprocess
 from numpy import linalg as LA
+import pickle
 
 def sets(seq_a, seq_b):
     # get the msa
@@ -109,10 +110,10 @@ def optimize_len(alphabet_size, a, b, x0):
 
         # out = optimize.minimize(likelihood, x0, method="L-BFGS-B", options={'disp': False}, bounds=[bound, bound, bound])
         out = optimize.minimize(likelihood, x0, method="SLSQP", options={'disp': False}, bounds=[bound, bound, bound])
-        
+
         x_star.append((out['fun'], out['x']))
-        w, v = LA.eig(out.hess_inv.todense())
-        print(w > 0.0)
+        # w, v = LA.eig(out.hess_inv.todense())
+        # print(w > 0.0)
         
     return x_star
 
@@ -129,7 +130,7 @@ def my_print_tree(t):
         n.label = ''
     print(t)
 
-def run_all(fname, topo, m, num_to_run=2):
+def run_trees(fname, topo, m, num_to_run=2):
     trees = []
     sets_of_four = []
     with open(fname) as r:
@@ -200,6 +201,52 @@ def run_all(fname, topo, m, num_to_run=2):
         trees.append(topo)
     return trees
 
+
+def run_mats(fname, topo, m, num_to_run=2):
+    trees = []
+    sets_of_four = []
+    with open(fname) as r:
+        four_leaves = []
+        for record in SeqIO.parse(r, "fasta"):
+            s = str(record.seq)
+            if '_________' in record.seq:
+                s = s.replace('_________', '')
+                four_leaves.append([int(x) for x in s.split('|')])
+                sets_of_four.append(four_leaves)
+                four_leaves = []
+            else:
+                four_leaves.append([int(x) for x in s.split('|')])
+    print(len(sets_of_four), "trees read.")
+
+    all_dists = dict()
+    all_seqs = dict()
+    
+    for idx, seqs in enumerate(sets_of_four):
+        dists = dict()
+        seq_dict = dict()
+        num_seqs = len(seqs)
+
+        if idx == num_to_run:
+                break
+
+        for i in range(num_seqs):
+            seq_dict[i] = seqs[i]
+            
+        for pair in itertools.combinations(list(range(num_seqs)), 2):
+
+            a, b = pair
+            x0 = np.random.uniform(0, 5.0, 3)
+            x_star = optimize_len(m, seqs[a], seqs[b], x0) 
+            # print the stddev of x_star
+            d_ab = sorted(x_star, key=lambda x: x[0], reverse=True)[0][1]
+            d_a, d_b, d_r = d_ab
+            dists[(a, b)] = [d_a, d_b, d_r]
+
+        all_dists[idx] = dists
+        all_seqs[idx] = seq_dict
+
+    return all_dists
+
 def main():
     sets_of_four = []
     with open("MP_inconsistent/seqs_m10_k20.txt") as r:
@@ -222,18 +269,20 @@ def main():
     topo = dendropy.Tree.get(data=topo, schema="newick")
     global k 
 
-    # for k in (20, 30, 40, 50, 100, 200, 300, 400, 500, 1000, 5000):
-    #     # fname, topo, m, num_to_run=2
-    #     outdir = "/Users/gillianchu/raphael/repos/problin/results_estbl/m10_k{0}_estbl".format(k)
-    #     subprocess.run(["mkdir", "-p", outdir])
+    for k in (20, 30, 40, 50, 100, 200, 300, 400, 500, 1000, 5000):
+        outdir = "/Users/gillianchu/raphael/repos/problin/results_estbl/"
+        # subprocess.run(["mkdir", "-p", outdir])
 
-    #     est_trees = run_all("MP_inconsistent/seqs_m10_k{0}.txt".format(k), topo, 11, 1000)
-    #     print("Number of est trees", len(est_trees))
-    #     for idx, tree in enumerate(est_trees):
-    #         tree.write(path=outdir+"/tree"+str(idx)+".tre", schema="newick")
+        est_dicts = run_mats("MP_inconsistent/seqs_m10_k{0}.txt".format(k), topo, 11, 1000)
+        # print(est_dicts)
+        print("Number of est trees", len(est_dicts))
+        with open(outdir+"estdict_m10_k{0}_estbl.pkl".format(k), 'wb') as f:
+            pickle.dump(est_dicts, f)
+            # pd.DataFrame(mat).to_csv(outdir+"/mat"+str(idx)+".csv")
+            # tree.write(path=outdir+"/tree"+str(idx)+".tre", schema="newick")
 
-    k=20
-    out20 = run_all("MP_inconsistent/seqs_m10_k20.txt", topo, 11, 1000)
+    # k=20
+    # matdists = run_all("MP_inconsistent/seqs_m10_k20.txt", topo, 11, 1000)
     
     # print("filename: MP_inconsistent/seqs_m10_k5000.txt")
     # for x in out5000:

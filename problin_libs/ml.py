@@ -1,7 +1,9 @@
 import numpy as np
 import dendropy
 import math
-
+from random import random,seed
+from math import log,exp
+from scipy import optimize
 
 
 def prob_same(node_likelihood, char, site, curr_node, use_log):
@@ -26,20 +28,20 @@ def prob_change(msa, q_dict, node_likelihood, site, curr_node, use_log):
 
 
 
-def likelihood_under_n(nodedict, node_likelihood, n, site, msa, q_dict, use_log):
+def likelihood_under_n(node_likelihood, n, site, msa, q_dict, use_log):
     child_states = set()
-        
-    if n not in nodedict:
-        nodedict[n] = dict()
-        nodedict[n][site] = dict()
+    # print(n)
+    if n not in node_likelihood:
+        node_likelihood[n] = dict()
+        node_likelihood[n][site] = dict()
         
     child_states = []
     for child in n.child_nodes():
         if child.is_leaf():
             child_states.append(get_char(msa, child, site))
         else:
-            for x in nodedict[child][site]:
-                state_prob = nodedict[child][site][x]
+            for x in node_likelihood[child][site]:
+                state_prob = node_likelihood[child][site][x]
                 if state_prob > 0.0:
                     child_states.append(x)
                     
@@ -87,14 +89,12 @@ def felsenstein(T, Q, msa, root_edge_len=0.2, use_log=False):
     for n in nwkt.leaf_node_iter():
         print(n.taxon, ''.join([str(get_char(msa, n, s)) for s in range(numsites)]))
 
-    nodedict = dict()
     node_likelihood = dict()
 
     ## CALCULATE THE LIKELIHOOD
     for n in nwkt.postorder_node_iter():
         # print("node:", n)
         if n.taxon is not None: # must be a leaf node, set up 
-            nodedict[n] = dict()
             node_likelihood[n] = dict()
             for site in range(numsites):
                 node_likelihood[n][site] = dict()
@@ -105,14 +105,13 @@ def felsenstein(T, Q, msa, root_edge_len=0.2, use_log=False):
             
         elif n.taxon is None: # must be an internal node
             for site in range(numsites):
-                if n not in nodedict:
+                if n not in node_likelihood.keys():
                     node_likelihood[n] = dict()
                 node_likelihood[n][site] = dict()
-                print("Hi.")
                 for char in alphabet[site]:
                     node_likelihood[n][site][char] = 0.0
                 
-                node_likelihood = likelihood_under_n(nodedict, node_likelihood, n, site, msa, Q, use_log)
+                node_likelihood = likelihood_under_n(node_likelihood, n, site, msa, Q, use_log)
 
     tree_likelihood = 1.0
     for site in range(numsites):
@@ -135,3 +134,83 @@ def felsenstein(T, Q, msa, root_edge_len=0.2, use_log=False):
     
     return tree_likelihood
 
+
+def wrapper_felsenstein(T, Q, msa, k, root_edge_len=0.2, use_log=False, initials=20):
+    numsites = len(msa[0])
+
+    alphabet = dict()
+    for site in range(numsites):
+        alphabet[site] = Q[site].keys()
+
+    print("q_dict", Q)
+    nwkt = dendropy.Tree.get(data=T, schema="newick")
+    num_edges = len(list(nwkt.postorder_edge_iter()))
+    print(nwkt)
+
+    for n in nwkt.leaf_node_iter():
+        print(n.taxon, ''.join([str(get_char(msa, n, s)) for s in range(numsites)]))
+
+    def felsenstein(x):
+        # x is a vector containing all branch lengths
+        # map branch lengths to tree edges
+        for i, e in enumerate(nwkt.postorder_edge_iter()):
+            e.length = x[i]
+
+        node_likelihood = dict()
+
+        for n in nwkt.postorder_node_iter():
+            if n.taxon is not None: # must be a leaf node, set up 
+                node_likelihood[n] = dict()
+                for site in range(numsites):
+                    node_likelihood[n][site] = dict()
+                    for char in alphabet[site]:
+                        node_likelihood[n][site][char] = 0.0
+                    char_state = get_char(msa, n, site)
+                    node_likelihood[n][site][char_state] = 1.0
+                
+            elif n.taxon is None: # must be an internal node
+                for site in range(numsites):
+                    if n not in node_likelihood:
+                        node_likelihood[n] = dict()
+                    node_likelihood[n][site] = dict()
+                    for char in alphabet[site]:
+                        node_likelihood[n][site][char] = 0.0
+                    
+                    node_likelihood = likelihood_under_n(node_likelihood, n, site, msa, Q, use_log)
+
+        tree_likelihood = 1.0
+        for site in range(numsites):
+            for rootchar in node_likelihood[n][site].keys():
+                prob_rootchar = node_likelihood[n][site][rootchar]
+                # print(rootchar, prob_rootchar)
+                if prob_rootchar > 0.0: 
+                    q_ialpha = Q[site][rootchar]
+                    if rootchar == 0:
+                        if use_log:
+                            tree_likelihood += (-root_edge_len) + np.log(prob_rootchar) # + np.log(q_ialpha) 
+                        else:
+                            tree_likelihood *= (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha 
+                        
+                    else:
+                        if use_log:
+                            tree_likelihood += np.log((1 - math.exp(-root_edge_len))) + np.log(q_ialpha) + np.log(prob_rootchar)
+                        else:
+                            tree_likelihood *= ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
+        return tree_likelihood
+
+    x_star = []
+    dmax = -log(1/k)*2
+    dmin = -log(1-1/k)/2
+    bound = (dmin, dmax)
+    x_star = None
+    f_star = float("inf")
+
+    for i in range(initials):
+        x0 = [random()] * num_edges
+        print(x0)
+        out = optimize.minimize(felsenstein, x0, method="SLSQP", options={'disp':True,'maxiter':1000}, bounds=[bound]*num_edges)
+        if out.success and out.fun < f_star:
+            x_star = out.x
+            f_star = out.fun
+
+    return x_star, f_star

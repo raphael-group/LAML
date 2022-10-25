@@ -68,13 +68,13 @@ def prob_change(msa, q_dict, node_likelihood, site, curr_node, use_log):
 #     return all_child_prob
 
 
-def likelihood_under_n(nodedict, node_likelihood, n, site, msa, q_dict, use_log):
+def likelihood_under_n(node_likelihood, n, site, msa, q_dict, use_log):
     # n is an internal node
     child_states = set()
         
-    if n not in nodedict:
-        nodedict[n] = dict()
-        nodedict[n][site] = dict()
+    if n not in node_likelihood:
+        node_likelihood[n] = dict()
+        node_likelihood[n][site] = dict()
         
     # identify all child states. 
     # this constrains n's possible states.
@@ -83,8 +83,8 @@ def likelihood_under_n(nodedict, node_likelihood, n, site, msa, q_dict, use_log)
         if child.is_leaf():
             child_states.append(get_char(msa, child, site))
         else:
-            for x in nodedict[child][site]:
-                state_prob = nodedict[child][site][x]
+            for x in node_likelihood[child][site]:
+                state_prob = node_likelihood[child][site][x]
                 # if not use_log and state_prob > 0.0:
                 if state_prob > 0.0:
                     child_states.append(x)
@@ -175,14 +175,14 @@ def felsenstein(T, Q, msa, root_edge_len=0.2, use_log=False):
     for n in nwkt.leaf_node_iter():
         print(n.taxon, ''.join([str(get_char(msa, n, s)) for s in range(numsites)]))
 
-    nodedict = dict()
+    # nodedict = dict()
     node_likelihood = dict()
 
     ## CALCULATE THE LIKELIHOOD
     for n in nwkt.postorder_node_iter():
         # print("node:", n)
         if n.taxon is not None: # must be a leaf node, set up 
-            nodedict[n] = dict()
+            # nodedict[n] = dict()
             node_likelihood[n] = dict()
             for site in range(numsites):
                 # char_state = get_char(msa, n, site)
@@ -197,7 +197,7 @@ def felsenstein(T, Q, msa, root_edge_len=0.2, use_log=False):
         elif n.taxon is None: # must be an internal node
             for site in range(numsites):
                 # print("site:", site)
-                if n not in nodedict:
+                if n not in node_likelihood:
                     # nodedict[n] = dict()
                     node_likelihood[n] = dict()
                 node_likelihood[n][site] = dict()
@@ -209,7 +209,7 @@ def felsenstein(T, Q, msa, root_edge_len=0.2, use_log=False):
                 for char in alphabet[site]:
                     node_likelihood[n][site][char] = 0.0
                 
-                node_likelihood = likelihood_under_n(nodedict, node_likelihood, n, site, msa, Q, use_log)
+                node_likelihood = likelihood_under_n(node_likelihood, n, site, msa, Q, use_log)
                 # node_likelihood = likelihood_under_n(nodedict, node_likelihood, n, site, msa, q_dict)
     print(node_likelihood)
     # last n is the provided root node 
