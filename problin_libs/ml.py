@@ -214,3 +214,32 @@ def wrapper_felsenstein(T, Q, msa, k, root_edge_len=0.2, use_log=False, initials
             f_star = out.fun
 
     return x_star, f_star
+    
+from problin_libs.sequence_lib import read_sequences
+from treeswift import *
+k=30
+m=10
+Q = []
+for i in range(k):
+    q = {j+1:1/m for j in range(m)}
+    q[0] = 0
+    Q.append(q)
+
+S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
+D = S[1]
+print(D)
+
+lb2num = {'a':1,'b':2,'c':3,'d':4}
+tree = read_tree_newick("../MP_inconsistent/m10.tre")
+for node in tree.traverse_leaves():
+    node.label = lb2num[node.label]
+T = tree.newick()
+
+msa = []
+for x in ['a','b','c','d']:
+    seq = [y for y in D[x]]
+    msa.append(seq)
+msa = np.array(msa)
+print(msa)
+
+print("likelihood",felsenstein(T, Q, msa, root_edge_len=0, use_log=True))
