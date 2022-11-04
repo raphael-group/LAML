@@ -4,7 +4,7 @@ import math
 from random import random,seed
 from math import log,exp
 from scipy import optimize
-from sequence_lib import read_sequences
+from problin_libs.sequence_lib import read_sequences
 
 def prob_same(node_likelihood, char, site, curr_node, use_log):
     # print("prob same")
@@ -116,6 +116,7 @@ def get_char(msa, leaf_node, site):
     # print(msa)
     return msa[leaf_node.taxon.label][site]
 
+'''
 def felsenstein(T, Q, msa, use_log=False): #, root_edge_len=0.0):
     # print("MSA", msa)
     numsites = len(msa[next(iter(msa.keys()))])
@@ -194,7 +195,7 @@ def felsenstein(T, Q, msa, use_log=False): #, root_edge_len=0.0):
                             tree_likelihood *= ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
     
     return tree_likelihood
-
+'''
 
 def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlengths=False, init_tree=None):
     numsites = len(msa[next(iter(msa.keys()))])
@@ -249,10 +250,10 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
             site_likelihood = 0.0 if use_log else 1.0
             for rootchar in node_likelihood[n][site].keys():
                 prob_rootchar = node_likelihood[n][site][rootchar]
-                q_ialpha = Q[site][rootchar]
                 if rootchar == 0:
                     site_likelihood += (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha 
                 else:
+                    q_ialpha = Q[site][rootchar]
                     site_likelihood += ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
             if use_log:
                 tree_likelihood += log(site_likelihood)
@@ -283,7 +284,7 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
         dmax = -log(1/numsites)*2
         dmin = -log(1-1/numsites)/2
         bound = (dmin, dmax)
-        print("bound", bound)
+        # print("bound", bound)
 
         x_star = None
         f_star = float("inf")
@@ -293,7 +294,7 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
             init_tree = dendropy.Tree.get(data=init_tree, schema="newick", rooting="force-rooted")
             for i, e in enumerate(init_tree.postorder_edge_iter()): # visit the descendents before visiting edge
                 x0.append(e.length)
-            print("initial likelihood", -felsenstein(x0))
+            # print("initial likelihood", -felsenstein(x0))
             out = optimize.minimize(felsenstein, x0, method="SLSQP", options={'disp':False,'maxiter':1000}, bounds=[bound]*num_edges)
             x_star = out.x
             f_star = out.fun
@@ -305,9 +306,9 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
                 if out.success and out.fun < f_star:
                     x_star = out.x
                     f_star = out.fun
-                print(i, [out.fun, out.x], end='')      
+                # print(i, [out.fun, out.x], end='')      
 
-        print("optimal likelihood",-felsenstein(x_star),-f_star)
+        # print("optimal likelihood",-felsenstein(x_star),-f_star)
         for i, e in enumerate(nwkt.postorder_edge_iter()):
             e.length = x_star[i]
         return -f_star, nwkt.as_string("newick"), x_star
