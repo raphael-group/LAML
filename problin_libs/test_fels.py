@@ -2,7 +2,7 @@ from ml import wrapper_felsenstein
 from sequence_lib import read_sequences
 from distance_based_lib import ML_pairwise_estimate
 
-k= 5000
+k= 200
 m = 10
 Q = []
 for i in range(k):
@@ -17,7 +17,7 @@ T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.036097
 S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
 msa = S[0]
 #for msa in S:
-print(wrapper_felsenstein(T, Q, msa, use_log=True, optimize_branchlengths=False,initials=1))
+print(wrapper_felsenstein(T, Q, msa, use_log=True, optimize_branchlengths=True,initials=1))
 
 #print(wrapper_felsenstein(T, Q, msa, use_log=True, optimize_branchlengths=True,initials=20))
 # three-way
