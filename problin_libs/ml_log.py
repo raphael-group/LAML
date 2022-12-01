@@ -94,7 +94,7 @@ def get_branchlen(child_node):
 def get_char(msa, leaf_node, site):
     return msa[leaf_node.taxon.label][site]
 
-def wrapper_felsenstein(T, Q, msa, initials=20, optimize_branchlengths=False, init_tree=None):
+def wrapper_felsenstein(T, Q, msa, initials=20, optimize_branchlengths=False, init_tree=None, print_all=False):
     numsites = len(msa[next(iter(msa.keys()))])
     alphabet = dict()
     for site in range(numsites):
@@ -185,9 +185,9 @@ def wrapper_felsenstein(T, Q, msa, initials=20, optimize_branchlengths=False, in
                 if out.success and out.fun < f_star:
                     x_star = out.x
                     f_star = out.fun
-
-        print(all_results_x)
-        print(all_results_f)
+        if print_all:
+            print(all_results_x)
+            print(all_results_f)
         for i, e in enumerate(nwkt.postorder_edge_iter()):
             e.length = x_star[i]
         return -f_star, nwkt.as_string("newick"), x_star
@@ -200,26 +200,90 @@ def wrapper_felsenstein(T, Q, msa, initials=20, optimize_branchlengths=False, in
 
         return -felsenstein(x0), nwkt.as_string("newick"), x0
 
-def sets(seq_a, seq_b):
-    # get the msa
-    k = len(seq_a)
-    
-    ## calculate the sets  
-    s_0, s_1a, s_1b, s_2, s_3 = set(), set(), set(), set(), set()
-    for idx in range(len(seq_a)):
-        c_a, c_b = seq_a[idx], seq_b[idx]
-        if c_a == c_b:
-            if c_a == 0:
-                s_0.add(idx)
-            else:
-                s_2.add(idx)
-        elif c_a == 0: # then c_b != 0
-            s_1b.add(idx)
-        elif c_b == 0: # then c_a != 0
-            s_1a.add(idx)
-        else:
-            s_3.add(idx)
-    
-    assert len(s_0) + len(s_1a) + len(s_1b) + len(s_2) + len(s_3) == k
-    return [s_0, s_1a, s_1b, s_2, s_3]
+### Defining Max Parsimony Likelihood
+
+def sankoff(T, C, msa, site):
+    def get_state(n, site):
+        if n.is_leaf():
+            return msa[n.taxon.label][site]
+
+    # post order traversal of T
+    nodedict = dict()
+    for n in T.postorder_node_iter():
+        if n.is_leaf():
+            nodedict[n] = dict()
+            # print("n.taxon.label", n.taxon.label)
+            state = get_state(n, site)
+            nodedict[n][site] = dict()
+            nodedict[n][site][state] = 0
+        elif n.is_internal():
+            cost = 0 
+            possible_states = set()
+            child_states = set()
+            nodedict[n] = dict()
+
+            # fill in possible states for parent
+            for c in n.child_nodes():
+                if c.is_leaf():
+                    state = get_state(c, site)
+                    child_states.add(state)
+                else:
+                    for state in nodedict[c].keys():
+                        child_states.add(state)
+            if len(child_states) == 1:
+                if 0 not in child_states:
+                    child_states.add(0)
+                    possible_states = child_states
+                else:
+                    possible_states = {0}
+   
+
+            for c in n.child_nodes():
+                min_state, min_val = None, float('inf')
+                for s_p in possible_states:    
+
+                    for s_c in nodedict[c].keys():
+                        # check costs
+                        if s_c == 0 and s_p != 0:
+                            v = float('inf')
+                        else: 
+                            if s_p == s_c and s_p == 0:
+                                v = nodedict[c][site][s_c]
+                            else:
+                                v = nodedict[c][site][s_c] + C[s_p][s_c]
+                        if v < min_val:
+                            min_val = v
+                            min_state = s_c
+                    nodedict[c][site] = dict()
+                    nodedict[c][site][s_p] = min_val 
+            
+
+    return nodedict 
+
+def num_zeros(l):
+    return np.count_zeros(l)
+
+def pars_likelihood(T, labels):
+    # on each branch (i, j)
+    # p_j = 1 - z_j, z_i where these are the numbers of zeros
+    # log likelihood is sum of all log(p_j)
+    ll = 0
+    for e in T.postorder_edge_iter():
+        i, j = e.rootedge, e.head_node
+        a, b = labels[i], labels[j]
+        # count number of zeros
+        z_i, z_j = num_zeros(a), num_zeros(b)
+        p_j = 1 - z_j, z_i
+        ll += log(p_j)
+    return ll
+
+
+def mlpars(T, Q):
+    # sankoff
+    # calculate likelihood
+    pass
+
+
+
+
 
