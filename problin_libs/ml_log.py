@@ -2,7 +2,7 @@ import numpy as np
 import dendropy
 import math
 from random import random,seed
-from math import log,exp
+from math import log,exp,sqrt
 from scipy import optimize
 from problin_libs.sequence_lib import read_sequences
 
@@ -202,86 +202,64 @@ def wrapper_felsenstein(T, Q, msa, initials=20, optimize_branchlengths=False, in
 
 ### Defining Max Parsimony Likelihood
 
-def sankoff(T, C, msa, site):
-    def get_state(n, site):
+def pars_anclabels(T, C, msa):
+    def get_seq(n, nodedict):
         if n.is_leaf():
-            return msa[n.taxon.label][site]
+            return msa[n.taxon.label]
+        else:
+            return nodedict[n]
 
     # post order traversal of T
     nodedict = dict()
     for n in T.postorder_node_iter():
         if n.is_leaf():
-            nodedict[n] = dict()
-            # print("n.taxon.label", n.taxon.label)
-            state = get_state(n, site)
-            nodedict[n][site] = dict()
-            nodedict[n][site][state] = 0
-        elif n.is_internal():
-            cost = 0 
-            possible_states = set()
-            child_states = set()
-            nodedict[n] = dict()
+            nodedict[n] = get_seq(n, nodedict)
+        else:
+            a, b = n.child_nodes()
+            s1 = get_seq(a, nodedict)
+            s2 = get_seq(b, nodedict)
+            s = [x if x == y and x != 0 else 0 for x, y in zip(s1, s2)]
+            nodedict[n] = s
+    return nodedict
 
-            # fill in possible states for parent
-            for c in n.child_nodes():
-                if c.is_leaf():
-                    state = get_state(c, site)
-                    child_states.add(state)
-                else:
-                    for state in nodedict[c].keys():
-                        child_states.add(state)
-            if len(child_states) == 1:
-                if 0 not in child_states:
-                    child_states.add(0)
-                    possible_states = child_states
-                else:
-                    possible_states = {0}
-   
-
-            for c in n.child_nodes():
-                min_state, min_val = None, float('inf')
-                for s_p in possible_states:    
-
-                    for s_c in nodedict[c].keys():
-                        # check costs
-                        if s_c == 0 and s_p != 0:
-                            v = float('inf')
-                        else: 
-                            if s_p == s_c and s_p == 0:
-                                v = nodedict[c][site][s_c]
-                            else:
-                                v = nodedict[c][site][s_c] + C[s_p][s_c]
-                        if v < min_val:
-                            min_val = v
-                            min_state = s_c
-                    nodedict[c][site] = dict()
-                    nodedict[c][site][s_p] = min_val 
-            
-
-    return nodedict 
 
 def num_zeros(l):
-    return np.count_zeros(l)
+    return len(l) - np.count_nonzero(l)
 
-def pars_likelihood(T, labels):
+def pars_likelihood(T, labels, Q):
     # on each branch (i, j)
     # p_j = 1 - z_j, z_i where these are the numbers of zeros
     # log likelihood is sum of all log(p_j)
     ll = 0
     for e in T.postorder_edge_iter():
-        i, j = e.rootedge, e.head_node
-        a, b = labels[i], labels[j]
-        # count number of zeros
-        z_i, z_j = num_zeros(a), num_zeros(b)
-        p_j = 1 - z_j, z_i
-        ll += log(p_j)
+        i, j = e.tail_node, e.head_node
+        if i in labels and j in labels:
+            a, b = labels[i], labels[j]
+            # print(a, b)
+
+            k = len(a)
+            # count number of zeros
+            z_i, z_j = num_zeros(a), num_zeros(b)
+            q = Q[0][1]
+            # probability of change
+            p = 1 - (z_j / z_i)
+            if p == 0:
+                p = 1 - 1/sqrt(k) # p min
+            if p == 1:
+                p = 1 - 1/(k**2) # p max
+            p_j = z_j * log(1-p) + (z_i - z_j) * log(p * q)
+            ll += p_j
+
     return ll
 
 
-def mlpars(T, Q):
+def mlpars(T, Q, msa):
     # sankoff
+    nodedict = pars_anclabels(T, Q, msa)
+    # print(nodedict)
     # calculate likelihood
-    pass
+    return pars_likelihood(T, nodedict, Q) 
+    
 
 
 
