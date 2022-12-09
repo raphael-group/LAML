@@ -231,11 +231,13 @@ def pars_likelihood(T, labels, Q):
     # p_j = 1 - z_j, z_i where these are the numbers of zeros
     # log likelihood is sum of all log(p_j)
     ll = 0
+    branches = []
     for e in T.postorder_edge_iter():
         i, j = e.tail_node, e.head_node
+        if j == T.seed_node:
+            labels[i] = [0 for x in labels[j]]
         if i in labels and j in labels:
             a, b = labels[i], labels[j]
-            # print(a, b)
 
             k = len(a)
             # count number of zeros
@@ -249,8 +251,11 @@ def pars_likelihood(T, labels, Q):
                 p = 1 - 1/(k**2) # p max
             p_j = z_j * log(1-p) + (z_i - z_j) * log(p * q)
             ll += p_j
+            d_j = - log(1-p) # p_j)
+            e.length = d_j
+            branches.append(d_j)
 
-    return ll
+    return T, ll, branches
 
 
 def mlpars(T, Q, msa):

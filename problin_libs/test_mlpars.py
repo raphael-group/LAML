@@ -31,6 +31,9 @@ print(T)
 S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
 msa = S[0]
 print(msa)
-print("mlpars", mlpars(nwkt, Q, msa)) #sankoff(nwkt, Q, msa, 0))
-
+# print("mlpars", mlpars(nwkt, Q, msa)) #sankoff(nwkt, Q, msa, 0))
+T, ll, branches = mlpars(nwkt, Q, msa)
+print("mlpars", T.as_string("newick"))
+print("mlpars", ll)
+print("mlpars", branches)
 
