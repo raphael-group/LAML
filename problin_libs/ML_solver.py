@@ -62,29 +62,21 @@ class ML_solver:
                 if node.alpha[site] != 'z':
                     q = self.Q[site][node.alpha[site]] if node.alpha[site] != "?" else 1.0
                     if node.is_leaf():
-                        #try:
                         node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi) if node.alpha[site] != "?" else log(1-(1-phi)*p**nu)
                         node.L1[site] = nu*(-node.edge_length) + log(1-phi) if node.alpha[site] != "?" else log(1-(1-phi)*p**nu)
-                        #except:
-                        #    print(1-p,q,1-phi,1-(1-phi)*p**nu)    
                     else:
                         C = node.children
-                        L0 = (nu+1)*(-node.edge_length)
-                        L1 = log(1-p)+log(q) + nu*(-node.edge_length)
+                        l0 = l1 = 0
                         for c in C:
-                            L0 += c.L0[site]
-                            L1 += c.L1[site]
-                        L0 = exp(L0)
-                        L1 = exp(L1)
-                        if L1 == 0 and node.alpha[site]!="?":    
-                            node.L0[site] = min_llh if L0 == 0 else log(L0)
-                            node.L1[site] = min_llh
-                        else:        
-                            node.L0[site] = log(L0 + L1 + (1-p**nu)*int(node.alpha[site]=="?"))
-                            node.L1[site] = log(L1 + (1-p**nu)*int(node.alpha[site]=="?"))
+                            l0 += c.L0[site]
+                            l1 += c.L1[site]
+                        L0 = exp(l0+(nu+1)*(-node.edge_length)) + exp(l1 + log(1-p)+log(q) + nu*(-node.edge_length)) + (1-p**nu)*int(node.alpha[site]=="?")   
+                        L1 = exp(l1+nu*(-node.edge_length)) + (1-p**nu)*int(node.alpha[site]=="?")
+                        node.L0[site] = min_llh if L0==0 else log(L0)
+                        node.L1[site] = min_llh if L1==0 else log(L1)
                             
                     if node.is_root() or node.parent.alpha[site] == 'z':
-                        llh[site] += node.L0[site] 
+                        llh[site] += node.L0[site]
                 else:
                     llh[site] += (-node.edge_length + int(node.is_leaf())*log(1-phi))
         return sum(llh)         
@@ -120,7 +112,7 @@ class ML_solver:
                 randseed = int(random()*10000)
                 print("Initial point " + str(i+1) + ". Random seed: " + str(randseed))
                 seed(a=randseed)
-                x0 = [random() * (dmax - dmin) + dmin for i in range(num_edges)] + [random()*0.99,random()*0.99]
+                x0 = [random() * (dmax/2 - 2*dmin) + 2*dmin for i in range(num_edges)] + [random()*0.99,random()*0.99]
                 out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':verbose,'iprint':3,'maxiter':1000}, bounds=bounds)
                 if out.success:
                     all_failed = False
@@ -145,7 +137,7 @@ def main():
     from sequence_lib import read_sequences
     from ml_log import wrapper_felsenstein as wf_log
     
-    k = 500
+    k = 100
     m = 10
     Q = []
     for i in range(k):
@@ -154,21 +146,16 @@ def main():
         Q.append(q)
     #T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
     #T = "((a,b)e,(c,d)f)r;"
-    T = "((a:1,b:1):1,c:1):1;"
-    #S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
-    #msa = S[231]
-    msa = dict()
-    msa['a'] = [1, 1]
-    msa['b'] = [1, 1]
-    msa['c'] = [1, 1]
-    #msa['d'][1] = '?'
-    #msa['b'][0] = '?'
-    ##msa['c'][0] = '?'
-    ##msa['b'][1] = '?'
-    ##msa = {'a':[1],'b':[1],'c':[1]}
-    #print(wf_log(T, Q, msa, optimize_branchlengths=True))
-
-    mySolver = ML_solver(msa,Q,T,nu=0)
+    #T = "((a:1,b:1):1,c:1):1;"
+    S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
+    msa = S[231]
+    #msa['d'][0] = '?'
+    msa['b'][0] = '?'
+    msa['c'][0] = '?'
+    msa['a'][0] = '?'
+    #msa = {'a':[1],'b':[1],'c':[1]}
+    #print(wf_log(T, Q, msa, optimize_branchlengths=False))
+    mySolver = ML_solver(msa,Q,T,phi=0,nu=0)
     #mySolver.az_partition(mySolver.params)
     #print(mySolver.compute_llh(mySolver.params))
     print(mySolver.optimize(initials=3))
