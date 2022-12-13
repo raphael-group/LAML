@@ -7,9 +7,23 @@ from scipy import optimize
 from problin_libs.sequence_lib import read_sequences
 
 def prob_same(node_likelihood, char, site, curr_node, use_log):
-    c1,c2 = curr_node.child_nodes()
-    tp1,tp2 = exp(-get_branchlen(c1)),exp(-get_branchlen(c2))
-    return tp1*node_likelihood[c1][site][char]*tp2*node_likelihood[c2][site][char]
+    tps = []
+    nds = []
+
+    for c in curr_node.child_nodes():
+        tp = exp(-get_branchlen(c))
+        tps.append(tp)
+        nds.append(node_likelihood[c][site][char])
+
+    prod = 1.0
+    for p in range(len(tps)):
+        prod *= tps[p] * nds[p]
+    return prod
+
+# def prob_same(node_likelihood, char, site, curr_node, use_log):
+#    c1,c2 = curr_node.child_nodes()
+#    tp1,tp2 = exp(-get_branchlen(c1)),exp(-get_branchlen(c2))
+#    return tp1*node_likelihood[c1][site][char]*tp2*node_likelihood[c2][site][char]
 
 def prob_change(msa, q_dict, node_likelihood, site, curr_node, child_states, use_log):
     all_child_prob = 0.0
@@ -78,6 +92,19 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
     nwkt = dendropy.Tree.get(data=T, schema="newick", rooting="force-rooted")
     num_edges = len(list(nwkt.postorder_edge_iter()))
     
+    '''
+    # check if nwkt root has a single child
+    if len(nwkt.seed_node.child_nodes()) > 1:
+        #print("Please input a tree with a root containing only one child.")
+        #return 
+        print("seed node edge", nwkt.seed_node.edge.length)
+        r = nwkt.seed_node.insert_new_child(0, label="r")
+        nwkt.reroot_at_edge(r.edge)
+        nwkt.seed_node.remove_child(r)
+        num_edges += 1
+    print("seed node children", nwkt.seed_node.child_nodes())
+    '''
+    
     def felsenstein(x): 
         for i, e in enumerate(nwkt.postorder_edge_iter()): # visit the descendents before visiting edge
             e.length = x[i]
@@ -97,8 +124,6 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
                 node_likelihood[n] = dict()
                 for site in range(numsites):
                     node_likelihood[n][site] = dict()
-                    for char in alphabet[site]:
-                        node_likelihood[n][site][char] = 0.0
                     char_state = get_char(msa, n, site)
                     node_likelihood[n][site][char_state] = 1.0                
             elif n.is_internal(): 
@@ -106,16 +131,18 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
                     if n not in node_likelihood.keys():
                         node_likelihood[n] = dict()
                     node_likelihood[n][site] = dict()
-                    for char in alphabet[site]:
-                        node_likelihood[n][site][char] = 0.0
+                    # node likelihood will not contain the "true root"
                     node_likelihood = likelihood_under_n(node_likelihood, n, site, msa, Q, nwkt.seed_node is n, use_log)
         
         if use_log:
             tree_likelihood = 0.0
         else:
             tree_likelihood = 1.0
+
+        print(node_likelihood)
         for site in range(numsites):
             site_likelihood = 0.0 if use_log else 1.0
+            # root assumed in the tree, recall that the root edge is defined by the child node of an edge.
             for rootchar in node_likelihood[n][site].keys():
                 prob_rootchar = node_likelihood[n][site][rootchar]
                 if rootchar == 0:

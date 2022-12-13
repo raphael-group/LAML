@@ -16,7 +16,7 @@ import numpy as np
 # T = read_tree("/n/fs/ragr-research/projects/problin/trial_simulated_tree.tree", schema="newick")
 
 
-k= 10 
+k= 5000 
 m = 10 
 Q = []
 for i in range(k):
@@ -27,13 +27,14 @@ for i in range(k):
 print("TEST 1")
 T = "((a,b)e,(c,d)f)r;"
 nwkt = dendropy.Tree.get(data=T, schema="newick", rooting="force-rooted")
-print(T)
+# print(T)
 S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
-msa = S[0]
-print(msa)
-# print("mlpars", mlpars(nwkt, Q, msa)) #sankoff(nwkt, Q, msa, 0))
-T, ll, branches = mlpars(nwkt, Q, msa)
-print("mlpars", T.as_string("newick"))
-print("mlpars", ll)
-print("mlpars", branches)
-
+#msa=S[4]
+for msa in S[:10]: #msa = S[2]
+    #print(msa)
+    # print("mlpars", mlpars(nwkt, Q, msa)) #sankoff(nwkt, Q, msa, 0))
+    T, ll, branches = mlpars(nwkt, Q, msa)
+    #print("mlpars", T.as_string("newick"))
+    # print("mlpars", ll)
+    # print("mlpars", branches)
+    print(branches[-1])

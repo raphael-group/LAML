@@ -234,7 +234,7 @@ def pars_likelihood(T, labels, Q):
     branches = []
     for e in T.postorder_edge_iter():
         i, j = e.tail_node, e.head_node
-        if j == T.seed_node:
+        if j is T.seed_node:
             labels[i] = [0 for x in labels[j]]
         if i in labels and j in labels:
             a, b = labels[i], labels[j]
@@ -245,16 +245,19 @@ def pars_likelihood(T, labels, Q):
             q = Q[0][1]
             # probability of change
             p = 1 - (z_j / z_i)
-            if p == 0:
-                p = 1 - 1/sqrt(k) # p min
+            #if j is T.seed_node:
+            #    print(z_i,z_j,1 - (z_j / z_i),p)
+            pmax=1 - sqrt(1-1/k)
+            pmin=1 - sqrt(1-1/(k**2))
             if p == 1:
-                p = 1 - 1/(k**2) # p max
+                p = pmax
+            elif p == 0:
+                p = pmin
             p_j = z_j * log(1-p) + (z_i - z_j) * log(p * q)
             ll += p_j
             d_j = - log(1-p) # p_j)
             e.length = d_j
             branches.append(d_j)
-
     return T, ll, branches
 
 

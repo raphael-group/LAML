@@ -38,6 +38,14 @@ for i in range(k):
     #q[0] = 1/m
     Q.append(q)
 
+T = "((a:1,b:1)1:1,c:1)2:1;"
+msa = dict()
+msa['a'] = [1]
+msa['b'] = [1]
+msa['c'] = [1]
+print("og", wf(T, Q, msa, use_log=False, optimize_branchlengths=False))
+print("log", wf_log(T, Q, msa, optimize_branchlengths=False))
+
 # print("TEST 2")
 #T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
 #S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
@@ -65,7 +73,7 @@ print("-- %s seconds -- " % (time.time() - start_time))
 start_time = time.time()
 print("og", wf(T, Q, msa, optimize_branchlengths=True, initials=20))
 print("-- %s seconds -- " % (time.time() - start_time))
-'''
+
 def write_out(outfile, ll, t, bl, tfile, sfile, cmd):
     with open(outfile, "w+") as w:
         w.write(tfile)
@@ -74,7 +82,6 @@ def write_out(outfile, ll, t, bl, tfile, sfile, cmd):
         w.write(ll)
         w.write(t)
         w.write(bl)
-
 test_idx = 5
 # for n in [25, 30, 50, 70, 100]: 
 for n in [70]: #50, 70, 100]: 
@@ -110,7 +117,6 @@ for n in [70]: #50, 70, 100]:
     cmd = "wf(T, Q, msa, optimize_branchlengths=True, initials=20))"
     write_out(outfile, ll, t, bl, tfile, sfile, cmd)
 
-'''
 test_idx = 6
 for n in [30, 50, 70, 100]: 
     print("TEST " + str(test_idx), "(binary) n:", n)
@@ -127,6 +133,7 @@ for n in [30, 50, 70, 100]:
     start_time = time.time()
     print("og", wf(T, Q, msa, optimize_branchlengths=True, initials=20))
     print("-- %s seconds -- " % (time.time() - start_time))
+'''
 
 # T = "((a,b)e,(c,d)f)r;"
 ## print(wf(T, Q, msa, use_log=True, optimize_branchlengths=True, initials=20))

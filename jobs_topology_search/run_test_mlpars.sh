@@ -9,14 +9,28 @@
 
 # conda activate py3k
 
-idx=$1
-k=$2
-rep=$3
-logrun=$4
-
-start=`date +%s`
-echo "python test_topologies.py $idx $k $rep"
-python test_mlpars.py $idx $k $rep
-end=`date +%s`
-runtime=$( echo "$end - $start" | bc -l )
-echo "${runtime}" > ${logrun}
+k=$1
+logrun=$2
+s=$3
+e=$(($s+99))
+rep=$s
+while [ "$rep" -le "$e" ]; do
+	for idx in {0..14}
+	do
+		# mkdir -p "/n/fs/ragr-research/projects/problin/jobs_topology_search/mlpars_results_k${k}/rep${rep}"
+		outfile="/n/fs/ragr-research/projects/problin/jobs_topology_search/mlpars_results_k${k}/rep${rep}/topo${idx}.txt"
+		if [ ! -f ${outfile} ]
+		then
+			start=`date +%s`
+			echo "python test_topologies.py $idx $k $rep"
+			python test_mlpars.py $idx $k $rep
+			end=`date +%s`
+			runtime=$( echo "$end - $start" | bc -l )
+			echo "${runtime}" > ${logrun}
+		else
+			echo "${outfile} already exists."
+		fi
+			
+	done 
+	rep=$(($rep+1))
+done

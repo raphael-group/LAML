@@ -47,7 +47,8 @@ except FileExistsError:
 
 with open(dirname + "/topo" + str(idx) + ".txt",'w') as fout:
 
-    f_star, est_tree, x_star = wrapper_felsenstein(topology, Q, D, use_log=True, optimize_branchlengths=True) 
+    f_star, est_tree, x_star = wrapper_felsenstein(topology, Q, D, optimize_branchlengths=True) 
+    # f_star, est_tree, x_star = wrapper_felsenstein(topology, Q, D, use_log=True, optimize_branchlengths=True) 
 
     fout.write(topology+ "\t" + str(f_star) + "\t" + est_tree + "\t" + ','.join([str(x) for x in x_star]) + "\n")
 
