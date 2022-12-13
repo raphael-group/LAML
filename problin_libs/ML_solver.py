@@ -152,16 +152,20 @@ def main():
         q = {j+1:1/m for j in range(m)}
         q[0] = 0
         Q.append(q)
-    T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
+    #T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
     #T = "((a,b)e,(c,d)f)r;"
-    #T = "((a:1,b:1):1,c:1):1;"
-    S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
-    msa = S[231]
-    msa['d'][1] = '?'
-    msa['b'][0] = '?'
-    #msa['c'][0] = '?'
-    #msa['b'][1] = '?'
-    #msa = {'a':[1],'b':[1],'c':[1]}
+    T = "((a:1,b:1):1,c:1):1;"
+    #S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
+    #msa = S[231]
+    msa = dict()
+    msa['a'] = [1, 1]
+    msa['b'] = [1, 1]
+    msa['c'] = [1, 1]
+    #msa['d'][1] = '?'
+    #msa['b'][0] = '?'
+    ##msa['c'][0] = '?'
+    ##msa['b'][1] = '?'
+    ##msa = {'a':[1],'b':[1],'c':[1]}
     #print(wf_log(T, Q, msa, optimize_branchlengths=True))
 
     mySolver = ML_solver(msa,Q,T,nu=0)
