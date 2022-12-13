@@ -26,7 +26,7 @@ with open(args["topology"],'r') as f:
 k = len(msa[next(iter(msa.keys()))])
 Q = []
 for i in range(k):
-    m_i = len(set(msa[x][i] for x in msa if msa[x][i] not in [0,"-"]))
+    m_i = len(set(msa[x][i] for x in msa if msa[x][i] not in [0,"?"]))
     q = {j+1:1/m_i for j in range(m_i)}
     q[0] = 0
     Q.append(q)
