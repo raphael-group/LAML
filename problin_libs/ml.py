@@ -39,22 +39,31 @@ def prob_change(msa, q_dict, node_likelihood, site, curr_node, child_states, use
             all_child_prob += p1*p2
     return all_child_prob        
     
-def likelihood_under_n(node_likelihood, n, site, msa, q_dict, is_root, use_log):
+def likelihood_under_n(node_likelihood, n, site, msa, q_dict, use_log):
     child_states = set()
     if n not in node_likelihood:
         node_likelihood[n] = dict()
         node_likelihood[n][site] = dict()
         
+
+    c_states = dict()
     child_states = []
     for child in n.child_nodes():
         if child.is_leaf():
             child_states.append(get_char(msa, child, site))
+            c_states[child] = [get_char(msa, child, site)]
         else:
             for x in node_likelihood[child][site]:
                 state_prob = node_likelihood[child][site][x]
                 if state_prob > 0.0:
                     child_states.append(x)
+                if child not in c_states:
+                    c_states[child] = [x]
+                else:
+                    c_states[child].append(x)
 
+    #print(n, "child_states", child_states)
+    #print(n, "c_states", c_states)
     parent_poss_states = dict()
     if 0 in set(child_states): # probability 0 -> 0
         if len(set(child_states)) == 1: # both children are state 0 
@@ -63,13 +72,22 @@ def likelihood_under_n(node_likelihood, n, site, msa, q_dict, is_root, use_log):
         else: 
             #for c in child_states: # probability c -> c != 0
             #    parent_poss_states[c] = 0.0
-            parent_poss_states[0] = prob_change(msa, q_dict, node_likelihood, site, n, child_states, use_log)  
+            parent_poss_states[0] = prob_change(msa, q_dict, node_likelihood, site, n, child_states, use_log) 
+            # for each nonzero element that exists in both children's poss sets
+            shared_states = []
+            for c in set(child_states):
+                for child in c_states:
+                    if c in set(c_states[child]) and c != 0:
+                        shared_states.append(c)
+            for c in shared_states:
+                parent_poss_states[c] = 1.0
+
     else:
         if len(set(child_states)) == 1: # both children are same nonzero state
             c = child_states[0]
             parent_poss_states[c] = 1.0 
         parent_poss_states[0] = prob_change(msa, q_dict, node_likelihood, site, n, child_states, use_log)
-
+    #print("parent_poss_states", parent_poss_states)
     for x in parent_poss_states.keys():
         node_likelihood[n][site][x] = parent_poss_states[x]
 
@@ -132,28 +150,38 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
                         node_likelihood[n] = dict()
                     node_likelihood[n][site] = dict()
                     # node likelihood will not contain the "true root"
-                    node_likelihood = likelihood_under_n(node_likelihood, n, site, msa, Q, nwkt.seed_node is n, use_log)
+                    node_likelihood = likelihood_under_n(node_likelihood, n, site, msa, Q, use_log)
         
         if use_log:
             tree_likelihood = 0.0
         else:
             tree_likelihood = 1.0
 
-        print(node_likelihood)
+        print("node_likelihood", node_likelihood)
         for site in range(numsites):
             site_likelihood = 0.0 if use_log else 1.0
             # root assumed in the tree, recall that the root edge is defined by the child node of an edge.
+            print(node_likelihood[n][site])
             for rootchar in node_likelihood[n][site].keys():
                 prob_rootchar = node_likelihood[n][site][rootchar]
                 if rootchar == 0:
-                    site_likelihood += (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha 
+                    if use_log:
+                        site_likelihood += (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha 
+                    else:
+                        site_likelihood *= (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha 
+                    # print("rootchar eq 0", site_likelihood, math.exp(-root_edge_len), prob_rootchar)
                 else:
                     q_ialpha = Q[site][rootchar]
-                    site_likelihood += ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
+                    if use_log:
+                        site_likelihood += ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
+                    else:
+                        site_likelihood += ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
+                    # print("rootchar neq 0", site_likelihood, (1 - math.exp(-root_edge_len), q_ialpha, prob_rootchar))
             if use_log:
                 tree_likelihood += log(site_likelihood)
             else:
-                tree_likelihood *= site_likelihood        
+                tree_likelihood *= site_likelihood       
+        print(-tree_likelihood)
         return -tree_likelihood
 
     if optimize_branchlengths: 

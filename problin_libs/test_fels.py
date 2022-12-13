@@ -44,6 +44,7 @@ msa['a'] = [1]
 msa['b'] = [1]
 msa['c'] = [1]
 print("og", wf(T, Q, msa, use_log=False, optimize_branchlengths=False))
+print("og log", wf(T, Q, msa, use_log=True, optimize_branchlengths=False))
 print("log", wf_log(T, Q, msa, optimize_branchlengths=False))
 
 # print("TEST 2")
