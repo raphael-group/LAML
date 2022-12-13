@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 
-def read_sequences(inFile,filetype="fasta"):
+def read_sequences(inFile,filetype="fasta",delimiter=","):
     with open(inFile,'r') as fin:
         if filetype == "fasta":
             return read_fasta(fin)
         elif filetype == "charMtrx":
-            return read_charMtrx(fin)
+            return read_charMtrx(fin,delimiter=delimiter)
 
 def read_fasta(fin):    
     S = [] # will be a list of dictionaries
@@ -21,13 +21,13 @@ def read_fasta(fin):
             D[name] = seq       
     return S
 
-def read_charMtrx(fin):    
+def read_charMtrx(fin,delimiter=",",masked_symbol="-"):    
     D = {}
     fin.readline() # skip the header
     for line in fin:
-        line_split = line.strip().split(",")
+        line_split = line.strip().split(delimiter)
         name = line_split[0]
-        seq = [int(x) for x in line_split[1:]]
+        seq = [int(x) if x != masked_symbol else "?" for x in line_split[1:]]
         D[name] = seq
     return D    
 
