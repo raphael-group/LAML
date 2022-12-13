@@ -146,21 +146,29 @@ def main():
         Q.append(q)
     #T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
     #T = "((a,b)e,(c,d)f)r;"
-    #T = "((a:1,b:1):1,c:1):1;"
-    S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
+    T = "((a:1,b:1):1,c:1):1;"
+    # S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
+    msa = dict()
+    msa['a'] = [1, 1] 
+    msa['b'] = [1, 1]
+    msa['c'] = [1, 1]
+
+    '''
     msa = S[231]
     #msa['d'][0] = '?'
     msa['b'][0] = '?'
     msa['c'][0] = '?'
     msa['a'][0] = '?'
+    '''
+    
     #msa = {'a':[1],'b':[1],'c':[1]}
     #print(wf_log(T, Q, msa, optimize_branchlengths=False))
     mySolver = ML_solver(msa,Q,T,phi=0,nu=0)
-    #mySolver.az_partition(mySolver.params)
-    #print(mySolver.compute_llh(mySolver.params))
-    print(mySolver.optimize(initials=3))
-    print(mySolver.params.phi,mySolver.params.nu)
-    print(mySolver.params.tree.newick())
+    mySolver.az_partition(mySolver.params)
+    print(mySolver.compute_llh(mySolver.params))
+    #print(mySolver.optimize(initials=3))
+    #print(mySolver.params.phi,mySolver.params.nu)
+    #print(mySolver.params.tree.newick())
 
 if __name__ == "__main__":
     main()        
