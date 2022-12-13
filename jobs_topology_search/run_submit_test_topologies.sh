@@ -7,17 +7,18 @@
 #SBATCH --mem-per-cpu=2G         # memory per cpu-core (4G is default)
 #SBATCH --time=10:00:00          # total run time limit (HH:MM:SS)
 
+mkdir -p run_test
 
 
 m=10
-#for k in 20 30 40 50 100 200 
-# not run yet: 100 200 
+for k in 20 30 40 50 100 200 
+# not run yet: 200 
 #do
-k=100
+k=200
 outdir="/n/fs/ragr-research/projects/problin/jobs_topology_search/log_ml_results_k${k}"
 mkdir -p ${outdir}
 
-for rep in {0..99}
+for rep in {0..999}
 do 
 	for idx in {0..14}
 	do
@@ -33,4 +34,4 @@ do
 		fi
 	done
 done
-#done
+

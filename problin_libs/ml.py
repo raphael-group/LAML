@@ -7,9 +7,23 @@ from scipy import optimize
 from problin_libs.sequence_lib import read_sequences
 
 def prob_same(node_likelihood, char, site, curr_node, use_log):
-    c1,c2 = curr_node.child_nodes()
-    tp1,tp2 = exp(-get_branchlen(c1)),exp(-get_branchlen(c2))
-    return tp1*node_likelihood[c1][site][char]*tp2*node_likelihood[c2][site][char]
+    tps = []
+    nds = []
+
+    for c in curr_node.child_nodes():
+        tp = exp(-get_branchlen(c))
+        tps.append(tp)
+        nds.append(node_likelihood[c][site][char])
+
+    prod = 1.0
+    for p in range(len(tps)):
+        prod *= tps[p] * nds[p]
+    return prod
+
+# def prob_same(node_likelihood, char, site, curr_node, use_log):
+#    c1,c2 = curr_node.child_nodes()
+#    tp1,tp2 = exp(-get_branchlen(c1)),exp(-get_branchlen(c2))
+#    return tp1*node_likelihood[c1][site][char]*tp2*node_likelihood[c2][site][char]
 
 def prob_change(msa, q_dict, node_likelihood, site, curr_node, child_states, use_log):
     all_child_prob = 0.0
@@ -25,22 +39,31 @@ def prob_change(msa, q_dict, node_likelihood, site, curr_node, child_states, use
             all_child_prob += p1*p2
     return all_child_prob        
     
-def likelihood_under_n(node_likelihood, n, site, msa, q_dict, is_root, use_log):
+def likelihood_under_n(node_likelihood, n, site, msa, q_dict, use_log):
     child_states = set()
     if n not in node_likelihood:
         node_likelihood[n] = dict()
         node_likelihood[n][site] = dict()
         
+
+    c_states = dict()
     child_states = []
     for child in n.child_nodes():
         if child.is_leaf():
             child_states.append(get_char(msa, child, site))
+            c_states[child] = [get_char(msa, child, site)]
         else:
             for x in node_likelihood[child][site]:
                 state_prob = node_likelihood[child][site][x]
                 if state_prob > 0.0:
                     child_states.append(x)
+                if child not in c_states:
+                    c_states[child] = [x]
+                else:
+                    c_states[child].append(x)
 
+    #print(n, "child_states", child_states)
+    #print(n, "c_states", c_states)
     parent_poss_states = dict()
     if 0 in set(child_states): # probability 0 -> 0
         if len(set(child_states)) == 1: # both children are state 0 
@@ -49,13 +72,22 @@ def likelihood_under_n(node_likelihood, n, site, msa, q_dict, is_root, use_log):
         else: 
             #for c in child_states: # probability c -> c != 0
             #    parent_poss_states[c] = 0.0
-            parent_poss_states[0] = prob_change(msa, q_dict, node_likelihood, site, n, child_states, use_log)  
+            parent_poss_states[0] = prob_change(msa, q_dict, node_likelihood, site, n, child_states, use_log) 
+            # for each nonzero element that exists in both children's poss sets
+            shared_states = []
+            for c in set(child_states):
+                for child in c_states:
+                    if c in set(c_states[child]) and c != 0:
+                        shared_states.append(c)
+            for c in shared_states:
+                parent_poss_states[c] = 1.0
+
     else:
         if len(set(child_states)) == 1: # both children are same nonzero state
             c = child_states[0]
             parent_poss_states[c] = 1.0 
         parent_poss_states[0] = prob_change(msa, q_dict, node_likelihood, site, n, child_states, use_log)
-
+    #print("parent_poss_states", parent_poss_states)
     for x in parent_poss_states.keys():
         node_likelihood[n][site][x] = parent_poss_states[x]
 
@@ -78,6 +110,19 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
     nwkt = dendropy.Tree.get(data=T, schema="newick", rooting="force-rooted")
     num_edges = len(list(nwkt.postorder_edge_iter()))
     
+    '''
+    # check if nwkt root has a single child
+    if len(nwkt.seed_node.child_nodes()) > 1:
+        #print("Please input a tree with a root containing only one child.")
+        #return 
+        print("seed node edge", nwkt.seed_node.edge.length)
+        r = nwkt.seed_node.insert_new_child(0, label="r")
+        nwkt.reroot_at_edge(r.edge)
+        nwkt.seed_node.remove_child(r)
+        num_edges += 1
+    print("seed node children", nwkt.seed_node.child_nodes())
+    '''
+    
     def felsenstein(x): 
         for i, e in enumerate(nwkt.postorder_edge_iter()): # visit the descendents before visiting edge
             e.length = x[i]
@@ -97,8 +142,6 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
                 node_likelihood[n] = dict()
                 for site in range(numsites):
                     node_likelihood[n][site] = dict()
-                    for char in alphabet[site]:
-                        node_likelihood[n][site][char] = 0.0
                     char_state = get_char(msa, n, site)
                     node_likelihood[n][site][char_state] = 1.0                
             elif n.is_internal(): 
@@ -106,27 +149,39 @@ def wrapper_felsenstein(T, Q, msa, use_log=True, initials=20, optimize_branchlen
                     if n not in node_likelihood.keys():
                         node_likelihood[n] = dict()
                     node_likelihood[n][site] = dict()
-                    for char in alphabet[site]:
-                        node_likelihood[n][site][char] = 0.0
-                    node_likelihood = likelihood_under_n(node_likelihood, n, site, msa, Q, nwkt.seed_node is n, use_log)
+                    # node likelihood will not contain the "true root"
+                    node_likelihood = likelihood_under_n(node_likelihood, n, site, msa, Q, use_log)
         
         if use_log:
             tree_likelihood = 0.0
         else:
             tree_likelihood = 1.0
+
+        print("node_likelihood", node_likelihood)
         for site in range(numsites):
             site_likelihood = 0.0 if use_log else 1.0
+            # root assumed in the tree, recall that the root edge is defined by the child node of an edge.
+            print(node_likelihood[n][site])
             for rootchar in node_likelihood[n][site].keys():
                 prob_rootchar = node_likelihood[n][site][rootchar]
                 if rootchar == 0:
-                    site_likelihood += (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha 
+                    if use_log:
+                        site_likelihood += (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha 
+                    else:
+                        site_likelihood *= (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha 
+                    # print("rootchar eq 0", site_likelihood, math.exp(-root_edge_len), prob_rootchar)
                 else:
                     q_ialpha = Q[site][rootchar]
-                    site_likelihood += ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
+                    if use_log:
+                        site_likelihood += ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
+                    else:
+                        site_likelihood += ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
+                    # print("rootchar neq 0", site_likelihood, (1 - math.exp(-root_edge_len), q_ialpha, prob_rootchar))
             if use_log:
                 tree_likelihood += log(site_likelihood)
             else:
-                tree_likelihood *= site_likelihood        
+                tree_likelihood *= site_likelihood       
+        print(-tree_likelihood)
         return -tree_likelihood
 
     if optimize_branchlengths: 
