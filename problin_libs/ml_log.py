@@ -58,15 +58,19 @@ def likelihood_under_n(node_likelihood, n, site, msa, q_dict, is_root):
         node_likelihood[n] = dict()
         node_likelihood[n][site] = dict()
         
+    c_states = dict()
     child_states = []
     for child in n.child_nodes():
         if child.is_leaf():
             child_states.append(get_char(msa, child, site))
+            c_states[child] = [get_char(msa, child, site)]
         else:
             for x in node_likelihood[child][site]:
                 state_prob = node_likelihood[child][site][x]
                 if state_prob > 0.0:
                     child_states.append(x)
+                else:
+                    c_states[child].append(x)
 
     parent_poss_states = dict()
     if 0 in set(child_states): # probability 0 -> 0
@@ -75,6 +79,13 @@ def likelihood_under_n(node_likelihood, n, site, msa, q_dict, is_root):
             parent_poss_states[0] = tmp
         else: 
             parent_poss_states[0] = prob_change(msa, q_dict, node_likelihood, site, n, child_states)  
+            shared_states = []
+            for c in set(child_states):
+                for child in c_states:
+                    if c in set(c_states[child]) and c != 0:
+                        shared_states.append(c)
+            for c in shared_states:
+                parent_poss_states[c] = 1.0
     else:
         if len(set(child_states)) == 1: # both children are same nonzero state
             c = child_states[0]
@@ -142,6 +153,7 @@ def wrapper_felsenstein(T, Q, msa, initials=20, optimize_branchlengths=False, in
                     else:
                         site_likelihood += exp( log(math.exp(-root_edge_len)) + log(prob_rootchar) )
                     # GCLOG: site_likelihood += (math.exp(-root_edge_len)) * prob_rootchar # * q_ialpha 
+                    print("rootchar eq 0", site_likelihood, exp( log(math.exp(-root_edge_len)) + log(prob_rootchar) ))
                 else:
                     q_ialpha = Q[site][rootchar]
                     if prob_rootchar == 0:
@@ -149,6 +161,7 @@ def wrapper_felsenstein(T, Q, msa, initials=20, optimize_branchlengths=False, in
                     else:
                         site_likelihood += exp(log(1 - math.exp(-root_edge_len)) + log(q_ialpha) + log(prob_rootchar) )
                     # GCLOG: site_likelihood += ((1 - math.exp(-root_edge_len)) * q_ialpha * prob_rootchar)
+                    print("rootchar neq 0", site_likelihood,  exp(log(1 - math.exp(-root_edge_len)) + log(q_ialpha) + log(prob_rootchar) ))
             if site_likelihood > 0:
                 tree_likelihood += log(site_likelihood)
             else:
@@ -231,11 +244,13 @@ def pars_likelihood(T, labels, Q):
     # p_j = 1 - z_j, z_i where these are the numbers of zeros
     # log likelihood is sum of all log(p_j)
     ll = 0
+    branches = []
     for e in T.postorder_edge_iter():
         i, j = e.tail_node, e.head_node
+        if j is T.seed_node:
+            labels[i] = [0 for x in labels[j]]
         if i in labels and j in labels:
             a, b = labels[i], labels[j]
-            # print(a, b)
 
             k = len(a)
             # count number of zeros
@@ -243,14 +258,20 @@ def pars_likelihood(T, labels, Q):
             q = Q[0][1]
             # probability of change
             p = 1 - (z_j / z_i)
-            if p == 0:
-                p = 1 - 1/sqrt(k) # p min
+            #if j is T.seed_node:
+            #    print(z_i,z_j,1 - (z_j / z_i),p)
+            pmax=1 - sqrt(1-1/k)
+            pmin=1 - sqrt(1-1/(k**2))
             if p == 1:
-                p = 1 - 1/(k**2) # p max
+                p = pmax
+            elif p == 0:
+                p = pmin
             p_j = z_j * log(1-p) + (z_i - z_j) * log(p * q)
             ll += p_j
-
-    return ll
+            d_j = - log(1-p) # p_j)
+            e.length = d_j
+            branches.append(d_j)
+    return T, ll, branches
 
 
 def mlpars(T, Q, msa):
