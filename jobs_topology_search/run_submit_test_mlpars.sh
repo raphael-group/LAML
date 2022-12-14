@@ -13,9 +13,9 @@ mkdir -p slurm_mlpars
 m=10
 #k=20
 #for k in 20 30 # 40 50 100 200 300 400 500 5000 #1000 5000
-for k in 30 40 50 100 200 300 400 500 5000 #1000 5000
-do
-
+#for k in 30 40 50 100 200 300 400 500 5000 #1000 5000
+#do
+k=5000
 	s=0
 	outdir="/n/fs/ragr-research/projects/problin/jobs_topology_search/log_mlpars_results_k${k}"
 	mkdir -p ${outdir}
@@ -50,4 +50,4 @@ do
 			echo "${outfile} already exists."
 		fi
 	done
-done
+#done
