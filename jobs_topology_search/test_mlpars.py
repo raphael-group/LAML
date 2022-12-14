@@ -26,6 +26,7 @@ idx = int(sys.argv[1])
 k = int(sys.argv[2])
 rep = int(sys.argv[3])
 
+print("[test_mlpars.py]")
 Q = []
 for i in range(k):
     q = {j+1:1/m for j in range(m)}
@@ -39,11 +40,16 @@ D = S[rep]
 nwkt = dendropy.Tree.get(data=topology, schema="newick", rooting="force-rooted")
 
 
-dirname = "mlpars_results_k" + str(k) + "_rep" + str(rep)
+dirname = "mlpars_results_k" + str(k) + "/rep" + str(rep)
 try:
     os.makedirs(dirname)
 except FileExistsError:
     pass
 with open(dirname + "/topo" + str(idx) + ".txt",'w') as fout:
-    ll = mlpars(nwkt, Q, D)
+    T, ll, b = mlpars(nwkt, Q, D)
     fout.write(str(ll) + "\n")
+    fout.write(str(T) + "\n")
+    fout.write(str(b) + "\n")
+
+
+
