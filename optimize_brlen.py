@@ -35,6 +35,6 @@ mySolver = ML_solver(msa,Q,treeStr)
 optimal_llh = mySolver.optimize(initials=args["nInitials"])
 with open(args["output"],'w') as fout:
     fout.write("Optimal tree: " +  mySolver.params.tree.newick() + "\n")
-    fout.write("Optimal llh: " +  str(optimal_llh) + "\n")
+    fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
     fout.write("Optimal dropout rate: " + str(mySolver.params.phi) + "\n")
     fout.write("Optimal silencing rate: " + str(mySolver.params.nu) + "\n")
