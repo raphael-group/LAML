@@ -223,7 +223,8 @@ class SpaLin_solver(ML_solver):
         for node in self.params.tree.traverse_postorder():
             if not node.label in self.given_locations:
                 x_spa += [random(),random()]
-        return x_lin + x_spa
+        x_sigma = 22 # hard code for now        
+        return x_lin + x_spa + [x_sigma]
     
     def x2params(self,x,fixed_nu=None,fixed_phi=None):
         self.x2brlen(x)
@@ -234,17 +235,22 @@ class SpaLin_solver(ML_solver):
             if not node.label in self.given_locations:
                 self.inferred_locations[node.label] = (x[i],x[i+1])
                 i += 2
+        self.params.sigma = x[-1]        
                
     def bound_locations(self,lower=-np.inf,upper=np.inf):
         N = 2*len([node for node in self.params.tree.traverse_postorder() if not node.label in self.given_locations])    
         return [lower]*N,[upper]*N
+
+    def bound_sigma(self):
+        return (eps,np.inf)    
 
     def get_bound(self,keep_feasible=False,fixed_phi=None,fixed_nu=None):
         br_lower,br_upper = self.bound_brlen()  
         phi_lower,phi_upper = self.bound_phi(fixed_phi=fixed_phi)
         nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
         spa_lower,spa_upper = self.bound_locations()
-        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower]+spa_lower,br_upper+[nu_upper,phi_upper]+spa_upper,keep_feasible=keep_feasible)
+        sigma_lower,sigma_upper = self.bound_sigma()
+        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower]+spa_lower+[sigma_lower],br_upper+[nu_upper,phi_upper]+spa_upper+[sigma_upper],keep_feasible=keep_feasible)
         return bounds
 
 def main(): 

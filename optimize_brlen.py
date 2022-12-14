@@ -29,8 +29,9 @@ if args["priors"] == "uniform":
     # use the uniform Q matrix
     Q = []
     for i in range(k):
-        m_i = len(set(msa[x][i] for x in msa if msa[x][i] not in [0,"?"]))
-        q = {j+1:1/m_i for j in range(m_i)}
+        M_i = set(msa[x][i] for x in msa if msa[x][i] not in [0,"?"])
+        m_i = len(M_i)
+        q = {x:1/m_i for x in M_i}
         q[0] = 0
         Q.append(q)
 else:
@@ -43,7 +44,6 @@ else:
         q = [priors[i][x] for x in sorted(priors[i])] 
         Q.append(q)
     # print(Q)
-
 
 mySolver = ML_solver(msa,Q,treeStr)
 optimal_llh = mySolver.optimize(initials=args["nInitials"])
