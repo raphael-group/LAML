@@ -151,7 +151,7 @@ class ML_solver:
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
 
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=1):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100):
     # optimize tree branch lengths and nu and phi 
         self.az_partition(self.params)
         warnings.filterwarnings("ignore")
@@ -258,29 +258,29 @@ def main():
     from sequence_lib import read_sequences
     from ml_log import wrapper_felsenstein as wf_log
     
-    k = 1
-    m = 1
+    k = 5000
+    m = 10
     Q = []
     for i in range(k):
         q = {j+1:1/m for j in range(m)}
         q[0] = 0
         Q.append(q)
     #T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
-    #T = "((a,b)e,(c,d)f)r;"
-    T = "((a:1,b:1):1,c:1):1;"
-    #S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
-    #msa = S[21]
+    T = "((a,b)e,(c,d)f)r;"
+    #T = "((a:1,b:1):1,c:1):1;"
+    S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
+    msa = S[6]
     #msa['d'][0] = '?'
     #msa['b'][0] = '?'
     #msa['c'][0] = '?'
     #msa['a'][0] = '?'
-    msa = {'a':[0],'b':[0],'c':['?']}
-    #print(wf_log(T, Q, msa, optimize_branchlengths=False,initials=1))
+    #msa = {'a':[0],'b':[0],'c':['?']}
+    #print(wf_log(T, Q, msa, optimize_branchlengths=True,initials=1))
 
-    mySolver = ML_solver(msa,Q,T,nu=eps,phi=0.1)
+    mySolver = ML_solver(msa,Q,T,nu=eps,phi=eps)
     #mySolver.az_partition(mySolver.params)
-    print(mySolver.negative_llh())
-    #print(mySolver.optimize(initials=1,fixed_phi=eps,fixed_nu=eps,verbose=True))
+    #print(mySolver.negative_llh())
+    print(mySolver.optimize(initials=20,fixed_phi=eps,fixed_nu=eps,verbose=True))
     #print(mySolver.params.phi,mySolver.params.nu)
     #print(mySolver.params.tree.newick())
 
