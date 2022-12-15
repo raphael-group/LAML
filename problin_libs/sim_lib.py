@@ -7,7 +7,7 @@ def get_balanced_tree(tree_height,branch_length):
 # each branch length = `branch_length`
     root = Node("n0",branch_length)
     root.h = 0
-    node_list = [root]
+    node_list = [root] # serve as a stack
     idx = 1
     while node_list:
         pnode = node_list.pop()
@@ -61,4 +61,3 @@ if __name__=="__main__":
     char_mtrx = simulate_seqs(tree,Q)
     print(treeStr)
     print(char_mtrx)
-
