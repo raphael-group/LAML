@@ -138,8 +138,12 @@ class ML_solver:
         self.x2nu(x,fixed_nu=fixed_nu)
         self.x2phi(x,fixed_phi=fixed_phi)
 
+    def __llh__(self):
+        return self.lineage_llh(self.params)
+
     def negative_llh(self):
-        return -self.lineage_llh(self.params)
+        self.az_partition(self.params)
+        return -self.__llh__()
 
     def show_params(self):
         print("tree: " + self.params.tree.newick())
@@ -153,7 +157,7 @@ class ML_solver:
         warnings.filterwarnings("ignore")
         def nllh(x): 
             self.x2params(x,fixed_nu=fixed_nu,fixed_phi=fixed_phi)            
-            return self.negative_llh()
+            return -self.__llh__()
         
         bounds = self.get_bound(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         
@@ -201,7 +205,7 @@ class SpaLin_solver(ML_solver):
     def spatial_llh(self,locations):
         llh = 0
         for node in self.params.tree.traverse_preorder():
-            if node.is_root() or not node.label in locations:
+            if node.is_root() or not node.label in locations or not node.parent.label in locations:
                 continue
             d = node.edge_length
             curr_sigma = self.params.sigma*sqrt(d)
@@ -211,11 +215,8 @@ class SpaLin_solver(ML_solver):
             llh -= (0.5*((y-y_par)/curr_sigma)**2 + log(curr_sigma))
         return llh 
 
-    #def spatial_llh(self,locations):
-    #    return 0
-    
-    def negative_llh(self):
-        return -self.lineage_llh(self.params) - self.spatial_llh(self.inferred_locations)
+    def __llh__(self):
+        return self.lineage_llh(self.params) + self.spatial_llh(self.inferred_locations)
     
     def ini_all(self,fixed_phi=None,fixed_nu=None):
         x_lin = self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
@@ -257,8 +258,8 @@ def main():
     from sequence_lib import read_sequences
     from ml_log import wrapper_felsenstein as wf_log
     
-    k = 50
-    m = 10
+    k = 1
+    m = 1
     Q = []
     for i in range(k):
         q = {j+1:1/m for j in range(m)}
@@ -266,22 +267,22 @@ def main():
         Q.append(q)
     #T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
     #T = "((a,b)e,(c,d)f)r;"
-    #T = "((a:1,b:1):1,c:1):1;"
-    S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
-    msa = S[21]
+    T = "((a:1,b:1):1,c:1):1;"
+    #S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
+    #msa = S[21]
     #msa['d'][0] = '?'
     #msa['b'][0] = '?'
     #msa['c'][0] = '?'
     #msa['a'][0] = '?'
-    #msa = {'a':[1],'b':[1],'c':[1]}
-    #print(wf_log(T, Q, msa, optimize_branchlengths=True,initials=1))
+    msa = {'a':[0],'b':[0],'c':['?']}
+    #print(wf_log(T, Q, msa, optimize_branchlengths=False,initials=1))
 
-    mySolver = ML_solver(msa,Q,T)
+    mySolver = ML_solver(msa,Q,T,nu=eps,phi=0.1)
     #mySolver.az_partition(mySolver.params)
-    #print(mySolver.compute_llh(mySolver.params))
-    print(mySolver.optimize(initials=1,fixed_phi=eps,fixed_nu=eps,verbose=True))
-    print(mySolver.params.phi,mySolver.params.nu)
-    print(mySolver.params.tree.newick())
+    print(mySolver.negative_llh())
+    #print(mySolver.optimize(initials=1,fixed_phi=eps,fixed_nu=eps,verbose=True))
+    #print(mySolver.params.phi,mySolver.params.nu)
+    #print(mySolver.params.tree.newick())
 
 if __name__ == "__main__":
     main()        
