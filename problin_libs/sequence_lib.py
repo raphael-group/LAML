@@ -1,5 +1,19 @@
 #! /usr/bin/env python
 
+def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
+    with open(outFile,'w') as fout:
+        # header
+        fout.write("cell")
+        for i in range(nsites):
+            fout.write(delimiter+"r" + str(i+1))
+        fout.write("\n")
+        # actual data
+        for cell in char_mtrx:
+            fout.write(cell)
+            for x in char_mtrx[cell]:
+                fout.write(delimiter+str(x))
+            fout.write("\n")
+
 def read_sequences(inFile,filetype="fasta",delimiter=","):
     with open(inFile,'r') as fin:
         if filetype == "fasta":

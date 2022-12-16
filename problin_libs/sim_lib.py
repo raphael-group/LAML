@@ -22,25 +22,25 @@ def get_balanced_tree(tree_height,branch_length):
             node_list.append(cnode1)
             node_list.append(cnode2)
             idx += 2
-    return root.newick() + ";" 
+    tree = Tree()
+    tree.root = root
+    return tree.newick() 
 
 def simulate_seqs(tree,Q):
     k = len(Q)
-    tree.root.seq = [0]*k
+    z_seq = [0]*k
     for node in tree.traverse_preorder():
-        if node.is_root():
-            continue
-        p = 1-exp(-node.edge_length)
-        pnode = node.parent
+        d = node.edge_length if node.edge_length is not None else 0
+        p = 1-exp(-d)
+        p_seq = node.parent.seq if not node.is_root() else z_seq
         seq = []
-        for i,c in enumerate(pnode.seq):
+        for i,c in enumerate(p_seq):
             if c != 0:
                 seq += [c]
             else:
                 r = random()
                 if r < p: # change state
                     seq += choices(list(Q[i].keys()),weights=list(Q[i].values()),k=1)
-                    #seq += [int(random()*m) + 1] 
                 else: # keep 0
                     seq += [0]  
         node.seq = seq
