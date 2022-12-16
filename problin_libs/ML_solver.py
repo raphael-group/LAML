@@ -1,4 +1,3 @@
-import dendropy
 from treeswift import *
 from math import log,exp,sqrt
 from random import random, seed
