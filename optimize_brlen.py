@@ -53,7 +53,7 @@ else:
             q[0] = 0
             Q.append(q)
     else:
-        Q = [{} for i in range(k)]
+        Q = [{0:0} for i in range(k)]
         with open(args["priors"],'r') as fin:
             for line in fin:
                 site_idx,char_state,prob = line.strip().split()
