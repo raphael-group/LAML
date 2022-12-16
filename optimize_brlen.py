@@ -14,7 +14,7 @@ parser.add_argument("-t","--topology",required=True,help="Input tree topology in
 parser.add_argument("-c","--characters",required=True,help="The input character matrix. Must have header.")
 parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.")
 parser.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
-parser.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: 'uniform'.")
+parser.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
 parser.add_argument("--delimiter",required=False,default="tab",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.")
 parser.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
 parser.add_argument("-o","--output",required=True,help="The output file.")
@@ -23,7 +23,7 @@ args = vars(parser.parse_args())
 
 delim_map = {'tab':'\t','comma':',','whitespace':' '}
 delimiter = delim_map[args["delimiter"]]
-msa = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter)
+msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter)
 with open(args["topology"],'r') as f:
     treeStr = f.read().strip()
 
@@ -42,13 +42,27 @@ if args["priors"] == "uniform":
         Q.append(q)
 else:
     # read in the Q matrix
-    priors = open(args["priors"], "rb")
-    priors = pickle.load(priors)
-    # key is site
-    Q = []
-    for i in sorted(priors.keys()):
-        q = [priors[i][x] for x in sorted(priors[i])] 
-        Q.append(q)
+    file_extension = args["priors"].strip().split(".")[-1]
+    if file_extension == "pkl": # pickled file
+        infile = open(args["priors"], "rb")
+        priors = pickle.load(infile)
+        infile.close()
+        Q = []
+        for i in sorted(priors.keys()):
+            q = {int(x):priors[i][x] for x in priors[i]}
+            q[0] = 0
+            Q.append(q)
+    else:
+        Q = [{} for i in range(k)]
+        with open(args["priors"],'r') as fin:
+            for line in fin:
+                site_idx,char_state,prob = line.strip().split()
+                site_idx = int(site_idx)
+                char_state = int(char_state)
+                prob = float(prob)
+                Q[site_idx][char_state] = prob
+
+print(Q)
 
 mySolver = ML_solver(msa,Q,treeStr)
 optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu)

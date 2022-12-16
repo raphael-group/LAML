@@ -14,7 +14,7 @@ def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
                 fout.write(delimiter+str(x))
             fout.write("\n")
 
-def read_sequences(inFile,filetype="fasta",delimiter=","):
+def read_sequences(inFile,filetype="charMtrx",delimiter=","):
     with open(inFile,'r') as fin:
         if filetype == "fasta":
             return read_fasta(fin)
@@ -37,13 +37,13 @@ def read_fasta(fin):
 
 def read_charMtrx(fin,delimiter=",",masked_symbol="-"):    
     D = {}
-    fin.readline() # skip the header
+    site_names = fin.readline().strip().split()[1:]
     for line in fin:
         line_split = line.strip().split(delimiter)
         name = line_split[0]
         seq = [int(x) if x != masked_symbol else "?" for x in line_split[1:]]
         D[name] = seq
-    return D    
+    return D,site_names    
 
 def read_Q(inFile):
     with open(inFile,'r') as fin:
