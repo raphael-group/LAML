@@ -62,8 +62,6 @@ else:
                 prob = float(prob)
                 Q[site_idx][char_state] = prob
 
-print(Q)
-
 mySolver = ML_solver(msa,Q,treeStr)
 optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu)
 with open(args["output"],'w') as fout:
