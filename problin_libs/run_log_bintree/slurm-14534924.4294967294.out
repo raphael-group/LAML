@@ -1,0 +1,23 @@
+python run_test_fels.py 50 10 500
+Traceback (most recent call last):
+  File "/n/fs/ragr-research/projects/problin/problin_libs/run_test_fels.py", line 35, in <module>
+    print("og", wf(T, Q, msa, optimize_branchlengths=True, initials=20))
+  File "/n/fs/ragr-research/projects/problin/problin_libs/ml.py", line 165, in wrapper_felsenstein
+    out = optimize.minimize(felsenstein, x0, method="SLSQP", options={'disp':False,'maxiter':1000}, bounds=[bound]*num_edges)
+  File "/n/fs/ragr-research/users/gchu/miniconda3/envs/py3k/lib/python3.9/site-packages/scipy/optimize/_minimize.py", line 631, in minimize
+    return _minimize_slsqp(fun, x0, args, jac, bounds,
+  File "/n/fs/ragr-research/users/gchu/miniconda3/envs/py3k/lib/python3.9/site-packages/scipy/optimize/slsqp.py", line 375, in _minimize_slsqp
+    sf = _prepare_scalar_function(func, x, jac=jac, args=args, epsilon=eps,
+  File "/n/fs/ragr-research/users/gchu/miniconda3/envs/py3k/lib/python3.9/site-packages/scipy/optimize/optimize.py", line 261, in _prepare_scalar_function
+    sf = ScalarFunction(fun, x0, args, grad, hess,
+  File "/n/fs/ragr-research/users/gchu/miniconda3/envs/py3k/lib/python3.9/site-packages/scipy/optimize/_differentiable_functions.py", line 140, in __init__
+    self._update_fun()
+  File "/n/fs/ragr-research/users/gchu/miniconda3/envs/py3k/lib/python3.9/site-packages/scipy/optimize/_differentiable_functions.py", line 233, in _update_fun
+    self._update_fun_impl()
+  File "/n/fs/ragr-research/users/gchu/miniconda3/envs/py3k/lib/python3.9/site-packages/scipy/optimize/_differentiable_functions.py", line 137, in update_fun
+    self.f = fun_wrapped(self.x)
+  File "/n/fs/ragr-research/users/gchu/miniconda3/envs/py3k/lib/python3.9/site-packages/scipy/optimize/_differentiable_functions.py", line 134, in fun_wrapped
+    return fun(np.copy(x), *args)
+  File "/n/fs/ragr-research/projects/problin/problin_libs/ml.py", line 137, in felsenstein
+    tree_likelihood += log(site_likelihood)
+ValueError: math domain error

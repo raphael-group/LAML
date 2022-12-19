@@ -1,1 +1,4 @@
+.gitignore
+scripts/.tmux*
 .ipynb_checkpoints/*
+Experiments/*
