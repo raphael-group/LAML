@@ -64,6 +64,8 @@ class ML_solver:
             node.L1 = [0]*numsites
             for site in range(numsites):    
                 if node.alpha[site] != 'z':
+                    # print(site, node.alpha[site])
+                    print(node, node.alpha, site)
                     q = self.Q[site][node.alpha[site]] if node.alpha[site] != "?" else 1.0
                     if node.is_leaf():
                         if node.alpha[site] == "?":         
@@ -150,7 +152,7 @@ class ML_solver:
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
 
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100):
+    def optimize(self,initials=20,fixed_phi=1e-8,fixed_nu=1e-8,verbose=True,max_trials=100):
     # optimize tree branch lengths and nu and phi 
         self.az_partition(self.params)
         warnings.filterwarnings("ignore")

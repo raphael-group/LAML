@@ -239,7 +239,7 @@ def pars_anclabels(T, C, msa):
 def num_zeros(l):
     return len(l) - np.count_nonzero(l)
 
-def pars_likelihood(T, labels, Q):
+def pars_likelihood(T, labels, Q, num_mutations):
     # on each branch (i, j)
     # p_j = 1 - z_j, z_i where these are the numbers of zeros
     # log likelihood is sum of all log(p_j)
@@ -255,31 +255,39 @@ def pars_likelihood(T, labels, Q):
             k = len(a)
             # count number of zeros
             z_i, z_j = num_zeros(a), num_zeros(b)
-            q = Q[0][1]
-            # probability of change
-            p = 1 - (z_j / z_i)
-            #if j is T.seed_node:
-            #    print(z_i,z_j,1 - (z_j / z_i),p)
-            pmax=1 - sqrt(1-1/k)
-            pmin=1 - sqrt(1-1/(k**2))
-            if p == 1:
-                p = pmax
-            elif p == 0:
-                p = pmin
-            p_j = z_j * log(1-p) + (z_i - z_j) * log(p * q)
-            ll += p_j
-            d_j = - log(1-p) # p_j)
-            e.length = d_j
-            branches.append(d_j)
-    return T, ll, branches
+            if num_mutations:
+                e.length = abs(z_i - z_j)
+                branches.append(e.length)
+                
+            else:
+                q = Q[0][1]
+                # probability of change
+                p = 1 - (z_j / z_i)
+                #if j is T.seed_node:
+                #    print(z_i,z_j,1 - (z_j / z_i),p)
+                pmax=1 - sqrt(1-1/k)
+                pmin=1 - sqrt(1-1/(k**2))
+                if p == 1:
+                    p = pmax
+                elif p == 0:
+                    p = pmin
+                p_j = z_j * log(1-p) + (z_i - z_j) * log(p * q)
+                ll += p_j
+                d_j = - log(1-p) # p_j)
+                e.length = d_j
+                branches.append(d_j)
+    if num_mutations:
+        return T, branches
+    else:
+        return T, ll, branches
 
 
-def mlpars(T, Q, msa):
+def mlpars(T, Q, msa, num_mutations=False):
     # sankoff
     nodedict = pars_anclabels(T, Q, msa)
     # print(nodedict)
     # calculate likelihood
-    return pars_likelihood(T, nodedict, Q) 
+    return pars_likelihood(T, nodedict, Q, num_mutations) 
     
 
 

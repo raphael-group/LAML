@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import os.path
 import pickle
 from problin_libs.sequence_lib import read_sequences
 from problin_libs.ML_solver import ML_solver
@@ -26,10 +27,15 @@ delim_map = {'tab':'\t','comma':',','whitespace':' '}
 delimiter = delim_map[args["delimiter"]]
 msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter)
 if args["rep"]:
+    msa = read_sequences(args["characters"],filetype="fasta",delimiter=delimiter)
     print("Using rep:", args["rep"])
     msa = msa[int(args["rep"])]
-with open(args["topology"],'r') as f:
-    treeStr = f.read().strip()
+
+if os.path.isfile(args["topology"]):
+    with open(args["topology"],'r') as f:
+        treeStr = f.read().strip()
+else:
+    treeStr = args["topology"]
 
 k = len(msa[next(iter(msa.keys()))])
 fixed_phi = eps if args["noDropout"] else None

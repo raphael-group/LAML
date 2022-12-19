@@ -14,12 +14,12 @@ def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
                 fout.write(delimiter+str(x))
             fout.write("\n")
 
-def read_sequences(inFile,filetype="charMtrx",delimiter=","):
+def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol="-"):
     with open(inFile,'r') as fin:
         if filetype == "fasta":
             return read_fasta(fin)
         elif filetype == "charMtrx":
-            return read_charMtrx(fin,delimiter=delimiter)
+            return read_charMtrx(fin,delimiter=delimiter,masked_symbol=masked_symbol)
 
 def read_fasta(fin):    
     S = [] # will be a list of dictionaries
