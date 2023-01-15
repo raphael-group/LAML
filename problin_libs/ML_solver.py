@@ -64,8 +64,6 @@ class ML_solver:
             node.L1 = [0]*numsites
             for site in range(numsites):    
                 if node.alpha[site] != 'z':
-                    # print(site, node.alpha[site])
-                    print(node, node.alpha, site)
                     q = self.Q[site][node.alpha[site]] if node.alpha[site] != "?" else 1.0
                     if node.is_leaf():
                         if node.alpha[site] == "?":         
@@ -152,7 +150,7 @@ class ML_solver:
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
 
-    def optimize(self,initials=20,fixed_phi=1e-8,fixed_nu=1e-8,verbose=True,max_trials=100):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100):
     # optimize tree branch lengths and nu and phi 
         self.az_partition(self.params)
         warnings.filterwarnings("ignore")
@@ -269,19 +267,19 @@ def main():
     T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
     #T = "((a,b)e,(c,d)f)r;"
     #T = "((a:1,b:1):1,c:1):1;"
-    S = read_sequences("/Users/gillianchu/raphael/repos/problin_scp/mp_inconsistent/seqs_m10_k50.txt") #../Experiments/MP_inconsistent/seqs_m10_k" + str(k) + ".txt",filetype="fasta")
+    S = read_sequences("../tests/seqs_m10_k" + str(k) + ".txt",filetype="fasta")
     msa = S[6]
-    #msa['d'][0] = '?'
+    #msa['a'][40] = '?'
     #msa['b'][0] = '?'
-    #msa['c'][0] = '?'
+    msa['c'][0] = '?'
     #msa['a'][0] = '?'
     #msa = {'a':[0],'b':[0],'c':['?']}
     #print(wf_log(T, Q, msa, optimize_branchlengths=True,initials=1))
 
-    mySolver = ML_solver(msa,Q,T,nu=eps,phi=eps)
+    mySolver = ML_solver(msa,Q,T)
     # mySolver.az_partition(mySolver.params)
     # print(mySolver.negative_llh())
-    print(mySolver.optimize(initials=1,verbose=True))
+    print(mySolver.optimize(initials=1,verbose=True,fixed_nu=eps,fixed_phi=None))
     print("phi", mySolver.params.phi,"nu", mySolver.params.nu)
     #print(mySolver.params.tree.newick())
 
