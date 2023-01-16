@@ -150,13 +150,13 @@ class ML_solver:
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
 
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,alpha=1,beta=1):
     # optimize tree branch lengths and nu and phi 
         self.az_partition(self.params)
         warnings.filterwarnings("ignore")
         def nllh(x): 
             self.x2params(x,fixed_nu=fixed_nu,fixed_phi=fixed_phi)            
-            return -self.__llh__()
+            return -(self.__llh__()+(alpha-1)*log(self.params.phi)+(beta-1)*log(1-self.params.phi))
         
         bounds = self.get_bound(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         
@@ -253,11 +253,30 @@ class SpaLin_solver(ML_solver):
         bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower]+spa_lower+[sigma_lower],br_upper+[nu_upper,phi_upper]+spa_upper+[sigma_upper],keep_feasible=keep_feasible)
         return bounds
 
+def beta_prior(msa):
+    D = []
+    alphabet = list(msa.keys())
+    for i,x in enumerate(alphabet):
+        for y in alphabet[i+1:]:
+            A = 0
+            B = 0
+            for (a,b) in zip(msa[x],msa[y]):
+                A += (a != '?' and b != '?')
+                B += (a != '?' or b != '?')   
+            D.append((B-A)/2/B)
+    N = len(D)
+    mu = sum(D)/N
+    var = sum([(x-mu)**2 for x in D])/N
+    alpha = (mu*(1-mu)/var-1)*mu
+    beta = alpha*(1-mu)/mu
+    print(alpha,beta,mu,sqrt(var))
+    return alpha,beta
+
 def main(): 
     from sequence_lib import read_sequences
     from ml_log import wrapper_felsenstein as wf_log
     
-    k = 50
+    k = 5000
     m = 10
     Q = []
     for i in range(k):
@@ -271,17 +290,19 @@ def main():
     msa = S[6]
     #msa['a'][40] = '?'
     #msa['b'][0] = '?'
-    msa['c'][0] = '?'
+    msa['d'][0] = '?'
     #msa['a'][0] = '?'
     #msa = {'a':[0],'b':[0],'c':['?']}
     #print(wf_log(T, Q, msa, optimize_branchlengths=True,initials=1))
 
+    alpha,beta=beta_prior(msa)
     mySolver = ML_solver(msa,Q,T)
     # mySolver.az_partition(mySolver.params)
     # print(mySolver.negative_llh())
-    print(mySolver.optimize(initials=1,verbose=True,fixed_nu=eps,fixed_phi=None))
+    #print(mySolver.optimize(initials=1,verbose=True,fixed_nu=eps,fixed_phi=None,alpha=1,beta=1))
+    print(mySolver.optimize(initials=1,verbose=False,fixed_nu=eps,fixed_phi=None,alpha=alpha,beta=beta))
     print("phi", mySolver.params.phi,"nu", mySolver.params.nu)
-    #print(mySolver.params.tree.newick())
+    #print(mySolver.params.tree.newick()) 
 
 if __name__ == "__main__":
     main()        
