@@ -12,6 +12,6 @@ def read_sequences(inFile):
                 D = {}
             else:
                 seq = [int(x) for x in line.strip().split("|")]
-                D[name] = seq       
-    S.append(D)             
-    return S
+                D[name] = seq
+                S.append(D)
+        return S

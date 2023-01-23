@@ -56,3 +56,18 @@ def read_Q(inFile):
             else:
                 Q[char][int(state)] = float(prob)
     return [Q[q] for q in sorted(Q)]
+
+from treeswift import *
+
+def extract_brlens(tfile, ofile):
+
+    t = read_newick_tree(tfile)
+    t.root.h = 1
+
+    with open(ofile, "w+") as w:
+        for nidx, node in enumerate(t.traverse_preorder()):
+            if not node.is_root():
+                node.h = node.parent.h + 1
+                s = nidx + " " + str(node.h) + " " + str(node.edge_length)
+                w.write(s)
+
