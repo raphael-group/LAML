@@ -20,28 +20,51 @@ class Params:
 class ML_solver:
     # at this stage, the tree topology must be given. Only branch lengths
     # and other parameters can be optimized
-    def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps):
+    # beta_prior is a tuple (alpha,beta) that are the parameters of the beta prior of phi
+    # if beta_prior is set to 'auto', run self.compute_beta_prior to estimate alpha and beta
+    def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps,beta_prior=(1,1)):
         self.charMtrx = charMtrx
         self.Q = Q
         self.params = Params(nwkTree,nu=nu,phi=phi)
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.params.tree.traverse_postorder()))
+        if beta_prior == 'auto':
+            self.compute_beta_prior()
+        else:
+            self.alpha,self.beta = beta_prior    
+    
+    def compute_beta_prior(self):
+        msa = self.charMtrx
+        D = []
+        alphabet = list(msa.keys())
+        for i,x in enumerate(alphabet):
+            for y in alphabet[i+1:]:
+                A = 0
+                B = 0
+                for (a,b) in zip(msa[x],msa[y]):
+                    A += (a != '?' and b != '?')
+                    B += (a != '?' or b != '?')   
+                D.append((B-A)/2/B)
+        N = len(D)
+        mu = sum(D)/N
+        var = sum([(x-mu)**2 for x in D])/N
+        self.alpha = (mu*(1-mu)/var-1)*mu
+        self.beta = self.alpha*(1-mu)/mu
    
     def az_partition(self,params):
-    # partition the tree into edge-distjoint alpha-clades and z-branches
-    # there is a different partition for each target-site
-        numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
-        # a-z decomposition
+    # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
+    # Note: there is a different partition for each target-site
+    # Output: annotate each node of the tree by node.alpha
         # z-branches are given tag 'z'
         # each of other branches is given a tag 
         # alpha where alpha is the alpha-tree it belongs to
         for node in params.tree.traverse_postorder():
             if node.is_leaf():
-                node.alpha = [self.charMtrx[node.label][site] if self.charMtrx[node.label][site] != 0 else 'z' for site in range(numsites)]
+                node.alpha = [self.charMtrx[node.label][site] if self.charMtrx[node.label][site] != 0 else 'z' for site in range(self.numsites)]
             else:
                 C = node.children
-                node.alpha = [None]*numsites
-                for site in range(numsites):
+                node.alpha = [None]*self.numsites
+                for site in range(self.numsites):
                     S = set(c.alpha[site] for c in C)
                     R = S-set(['z','?'])
                     if 'z' in S or len(R)>1:
@@ -54,23 +77,19 @@ class ML_solver:
     def lineage_llh(self,params):
         # assume az_partition has been performed so
         # each node has the attribute node.alpha
-        numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         phi = params.phi
         nu = params.nu
-        llh = [0]*numsites
+        llh = [0]*self.numsites
         for node in params.tree.traverse_postorder():
             p = exp(-node.edge_length)
-            node.L0 = [0]*numsites # L0 and L1 are stored in log-scale
-            node.L1 = [0]*numsites
-            for site in range(numsites):    
+            node.L0 = [0]*self.numsites # L0 and L1 are stored in log-scale
+            node.L1 = [0]*self.numsites
+            for site in range(self.numsites):    
                 if node.alpha[site] != 'z':
-                    # print(site, node.alpha[site])
-                    print(node, node.alpha, site)
                     q = self.Q[site][node.alpha[site]] if node.alpha[site] != "?" else 1.0
                     if node.is_leaf():
                         if node.alpha[site] == "?":         
-                            #print("masked clade",node.label,site)                  
-                            masked_llh = log(1-(1-phi)*p**nu) #if (phi>0 or nu>0) else min_llh
+                            masked_llh = log(1-(1-phi)*p**nu)
                             node.L0[site] = node.L1[site] = masked_llh
                         else:    
                             node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi)
@@ -89,7 +108,7 @@ class ML_solver:
                     if node.is_root() or node.parent.alpha[site] == 'z':
                         llh[site] += node.L0[site]
                 else:
-                    llh[site] += (-node.edge_length + int(node.is_leaf())*log(1-phi))
+                    llh[site] += (-node.edge_length*(1+params.nu) + int(node.is_leaf())*log(1-phi))
         return sum(llh)         
 
     def ini_brlens(self):
@@ -140,7 +159,8 @@ class ML_solver:
         self.x2phi(x,fixed_phi=fixed_phi)
 
     def __llh__(self):
-        return self.lineage_llh(self.params)
+        return self.lineage_llh(self.params) + (self.alpha-1)*log(self.params.phi) + (self.beta-1)*log(1-self.params.phi)
+
 
     def negative_llh(self):
         self.az_partition(self.params)
@@ -152,14 +172,14 @@ class ML_solver:
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
 
-    def optimize(self,initials=20,fixed_phi=1e-8,fixed_nu=1e-8,verbose=True,max_trials=100):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,alpha=1,beta=1):
     # optimize tree branch lengths and nu and phi 
         self.az_partition(self.params)
         warnings.filterwarnings("ignore")
         def nllh(x): 
             self.x2params(x,fixed_nu=fixed_nu,fixed_phi=fixed_phi)            
             return -self.__llh__()
-        
+
         bounds = self.get_bound(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         
         x_star = None
@@ -267,23 +287,14 @@ def main():
         q[0] = 0
         Q.append(q)
     T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
-    #T = "((a,b)e,(c,d)f)r;"
-    #T = "((a:1,b:1):1,c:1):1;"
-    S = read_sequences("../Experiments/MP_inconsistent/seqs_m10_k" + str(k) + ".txt",filetype="fasta")
+    S = read_sequences("../tests/seqs_m10_k" + str(k) + ".txt",filetype="fasta")
     msa = S[6]
-    #msa['d'][0] = '?'
-    #msa['b'][0] = '?'
-    #msa['c'][0] = '?'
-    #msa['a'][0] = '?'
-    #msa = {'a':[0],'b':[0],'c':['?']}
-    #print(wf_log(T, Q, msa, optimize_branchlengths=True,initials=1))
+    msa['c'][0] = '?'
 
-    mySolver = ML_solver(msa,Q,T,nu=eps,phi=eps)
-    mySolver.az_partition(mySolver.params)
-    print(mySolver.negative_llh())
-    #print(mySolver.optimize(initials=1,fixed_phi=eps,fixed_nu=eps,verbose=True))
-    #print(mySolver.params.phi,mySolver.params.nu)
-    #print(mySolver.params.tree.newick())
+    mySolver = ML_solver(msa,Q,T)
+    print(mySolver.optimize(initials=1,verbose=True,fixed_nu=None,fixed_phi=None))
+    #print("phi", mySolver.params.phi,"nu", mySolver.params.nu)
+    #print(mySolver.params.tree.newick()) 
 
 if __name__ == "__main__":
     main()        
