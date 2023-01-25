@@ -26,38 +26,38 @@ def get_balanced_tree(tree_height,branch_length):
     tree.root = root
     return tree.newick() 
 
-def simulate_seqs(tree,Q, mu=1.0, with_heritable=False, silencing_rate=1e-4, s=1984):
-    random.seed(s)
+def simulate_seqs(tree,Q, mu=1.0, with_heritable=False, silencing_rate=1e-4, s=None ):
+    if s is not None:
+       random.seed(s)
     k = len(Q)
     z_seq = [0]*k
     for node in tree.traverse_preorder():
         d = node.edge_length * mu if node.edge_length is not None else 0
-        p = 1-exp(-d)
+        p = 1-exp(-d) # prob of nonzero mutation
         p_seq = node.parent.seq if not node.is_root() else z_seq
         seq = []
-        for i,c in enumerate(p_seq):
-            if c != 0:
-                nc = [c]
-                r = random.random()
-                if r < p and with_heritable and c != -1:
-                    r = random.random()
-                    if r < silencing_rate:
-                        nc = [-1]
-                seq += nc
-            else:
-                r = random.random()
-                if r < p: # change state
-                    seq += random.choices(list(Q[i].keys()),weights=list(Q[i].values()),k=1)
-                else: # keep 0
-                    seq += [0]  
+        for i, c in enumerate(p_seq):
+            r = random.random()
+            nc = [c]
+            # print("random", r, "mutation thresh", p)
+            if r < p: # then mutate
+                r2 = random.random()
+                if r2 < silencing_rate and with_heritable and c != -1:
+                    # apply silencing
+                    nc = [-1]
+                else:
+                    # no silencing
+                    nc = random.choices(list(Q[i].keys()), weights=list(Q[i].values()), k=1)
+            seq += nc
         node.seq = seq
     char_mtrx = {}
     for node in tree.traverse_leaves():
         char_mtrx[node.label] = node.seq
     return char_mtrx          
 
-def simulate_dropout(C, d, s):
-    random.seed(s)
+def simulate_dropout(C, d, s=None):
+    if s is not None:
+        random.seed(s)
     n_cmtx = dict()
     for nlabel in C:
         seq = C[nlabel]
@@ -83,32 +83,6 @@ def sim_Q(k, m, prior_outfile=""):
                     fout.write(str(i) + " " + str(x) + " " + str(Q[i][x]) + "\n")
     return Q
 
-def setup(tree, m, mu, k):
-    Q = sim_Q(k, m)
-    cmtx = simulate_seqs(tree, Q, mu)
-    return cmtx
-
-def count_missing(mtx):
-    nzeros, nmissing, total = 0, 0, 0
-    for c in mtx:
-        seq = mtx[c]
-        nzeros += sum([1 if ch == 0 else 0 for ch in seq])
-        nmissing += sum([1 if ch == -1 else 0 for ch in seq])
-        total += len(seq)
-
-    # print(nzeros, nmissing, total)
-    return nzeros, nmissing, total
-
-def count_all(repdict):
-    all_zero, all_missing, all_total = 0, 0, 0
-    for i in repdict:
-        mtx = repdict[i]
-        nz, nm, total = count_missing(mtx)
-        all_zero += nz
-        all_missing += nm
-        all_total += total
-    return all_zero, all_missing, all_total
-    
 if __name__=="__main__":
     treeStr = get_balanced_tree(2,1.0)
     tree = read_tree_newick(treeStr)
