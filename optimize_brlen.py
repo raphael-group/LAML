@@ -21,13 +21,14 @@ parser.add_argument("-b","--betaPrior",required=False, default=(1,1), help="The 
 parser.add_argument("--solver",required=False,default="Generic",help="Specify a solver. Options are 'Generic' or 'EM'. Caution: at current stage, EM only works with flag --noSilence. Default: 'Generic'")
 parser.add_argument("--delimiter",required=False,default="tab",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.")
 parser.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
+parser.add_argument("-m","--maskedchar",required=True,help="Masked character.")
 parser.add_argument("-o","--output",required=True,help="The output file.")
 
 args = vars(parser.parse_args())
 
 delim_map = {'tab':'\t','comma':',','whitespace':' '}
 delimiter = delim_map[args["delimiter"]]
-msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter)
+msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["maskedchar"])
 if args["rep"]:
     print("Using rep:", args["rep"])
     msa = msa[int(args["rep"])]
@@ -60,6 +61,16 @@ else:
             q = {int(x):priors[i][x] for x in priors[i]}
             q[0] = 0
             Q.append(q)
+    elif file_extension == "csv":
+        Q = [{0:0} for i in range(k)]
+        with open(args["priors"],'r') as fin:
+            lines = fin.readlines()
+            for line in lines[1:]:
+                site_idx,char_state,prob = line.strip().split(',')
+                site_idx = int(site_idx[1:])
+                char_state = int(char_state)
+                prob = float(prob)
+                Q[site_idx][char_state] = prob
     else:
         Q = [{0:0} for i in range(k)]
         with open(args["priors"],'r') as fin:
