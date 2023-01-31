@@ -243,7 +243,8 @@ class SimulatorTest(unittest.TestCase):
         Q = sim_Q(k, m)
         for rep in range(nreps):
             allreps[rep] = simulate_seqs(tree, Q, mu, with_heritable=True, silencing_rate=s)
-        for node_label in allreps[rep]:
-            self.assertTrue(calc_expected(node_label, 3.98, k, 1, Q, allreps), msg="SimulatorTest: test_15 failed, unexpected character distribution for node_label: " + str(node_label) )
+        for c in list(range(1,m)) + ["?"]:
+            for node_label in allreps[rep]:
+                self.assertTrue(calc_expected(node_label, 3.98, k, c, Q, allreps, s), msg="SimulatorTest: test_15 failed, unexpected character distribution for node_label: " + str(node_label) + " and char: " + str(c) ) 
 
 

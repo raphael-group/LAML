@@ -34,20 +34,27 @@ def chi_squared_tests(est_zeros, true_zeros):
         diffs.append(((float(oi) - ei)**2)/ei)
     return sum(diffs)
 
-def calc_expected(node_label, d, k, c, Q, allreps):
+def calc_expected(node_label, d, k, c, Q, allreps, s):
     num_deg_freedom = len(allreps.keys()) - 1
     est_char = []
     for site_i in range(k):
-        if c == 0:
-            print("Case Not Handled: provided character is 0, and is not in Q.")
-        elif c == '?':
-            print("Case Not Handled: provided character is '?', and is not in Q.")
-        qc = Q[site_i][c]
+        #if c == 0:
+        #    print("Case Not Handled: provided character is 0, and is not in Q.")
+        #if c == '?':
+        #    print("Case Not Handled: provided character is '?', and is not in Q.")
+
         site_i_seq = [allreps[rep][node_label][site_i] for rep in allreps]
         # print(site_i_seq)
         est_char.append(sum([1 if ch == c else 0 for ch in site_i_seq])/len(site_i_seq))
     #print("est_char", est_char)
-    exp_char = [qc * exp(-d) * (1 - exp(-d))] * len(site_i_seq)
+    if c != 0 and c != '?':
+        qc = Q[site_i][c]
+        exp_char = [qc * exp(-d) * (1 - exp(-d))] * len(site_i_seq)
+    elif c == 0:
+        # exp_char = [ exp(-d * (1 + s) ) ] * len(site_i_seq)
+        exp_char = [1 - sum([Q[site_i][c] * exp(-d) * 1 - exp(-d)]) for c in Q[site_i].keys() - (1 - exp(-d)) ] * len(site_i_seq)
+    else: # c == '?'
+        exp_char = [1 - exp(-d)] * len(site_i_seq)
     #print("exp_char", exp_char)
     cst = chi_squared_tests(est_char, exp_char)
     #print('cst', cst)
