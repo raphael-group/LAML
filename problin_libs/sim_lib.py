@@ -42,9 +42,9 @@ def simulate_seqs(tree,Q, mu=1.0, with_heritable=False, silencing_rate=1e-4, s=N
             # print("random", r, "mutation thresh", p)
             if r < p: # then mutate
                 r2 = random.random()
-                if r2 < silencing_rate and with_heritable and c != -1:
+                if r2 < silencing_rate and with_heritable and c != '?':
                     # apply silencing
-                    nc = [-1]
+                    nc = ['?']
                 else:
                     # no silencing
                     nc = random.choices(list(Q[i].keys()), weights=list(Q[i].values()), k=1)
@@ -65,7 +65,7 @@ def simulate_dropout(C, d, s=None):
         for c in seq:
             r = random.random()
             if r < d:
-                ns += [-1]
+                ns += ['?']
             else:
                 ns += [c]
         n_cmtx[nlabel] = ns

@@ -13,7 +13,7 @@ def count_missing(mtx):
     for c in mtx:
         seq = mtx[c]
         nzeros += sum([1 if ch == 0 else 0 for ch in seq])
-        nmissing += sum([1 if ch == -1 else 0 for ch in seq])
+        nmissing += sum([1 if ch == '?' else 0 for ch in seq])
         total += len(seq)
     return nzeros, nmissing, total
 
@@ -38,8 +38,8 @@ def calc_expected(node_label, d, k, c, Q, allreps):
     for site_i in range(k):
         if c == 0:
             print("Case Not Handled: provided character is 0, and is not in Q.")
-        elif c == -1:
-            print("Case Not Handled: provided character is -1, and is not in Q.")
+        elif c == '?':
+            print("Case Not Handled: provided character is '?', and is not in Q.")
         qc = Q[site_i][c]
         site_i_seq = [allreps[rep][node_label][site_i] for rep in allreps]
         # print(site_i_seq)
