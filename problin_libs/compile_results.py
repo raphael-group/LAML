@@ -14,7 +14,7 @@ def main(pre, out_param, out_bl, tt, nm, bm, nd, ns, rep, datatype):
     if nd:
         out_dict['nd'] = parse_resultfile(pre + "_nd.txt")
     if ns:
-        out_dict['ns'] = parse_resultfile(pre + "_nd.txt")
+        out_dict['ns'] = parse_resultfile(pre + "_ns.txt")
     
     write_outparam(out_dict, out_param, rep, datatype)
 
