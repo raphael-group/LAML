@@ -19,9 +19,9 @@ def plot_dtype(d, p, t, o):
         ed = round(mean([p[t][f][rep]['ed'] for rep in p[t][f].keys()]), 3)
         es = round(mean([p[t][f][rep]['es'] for rep in p[t][f].keys()]), 3)
 
-        bp = ax.boxplot([mean(d[t][f][rep]) for rep in d[t][f]], positions=[i], notch=True, patch_artist=True, boxprops=dict(facecolor=colors[i]))
+        bp = ax.boxplot([mean(d[t][f][rep]) for rep in d[t][f]], positions=[i], notch=True, patch_artist=True, boxprops=dict(facecolor=colors[i]), showmeans=True)
 
-        txt = 'NLL:' + str(nll) + "\nED: " + str(ed) + "\nES: " + str(es)
+        txt = 'blerr:' + str(round([item.get_ydata() for item in bp['means']][0][0], 3)) + '\nNLL:' + str(nll) + "\nED: " + str(ed) + "\nES: " + str(es)
         plt.text(i, 0.1, txt, bbox=dict(facecolor='pink', alpha=0.5), horizontalalignment='left', fontsize=8)
         bps.append(bp)
         keys.append(lookup[f])
