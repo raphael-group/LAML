@@ -244,8 +244,6 @@ class SimulatorTest(unittest.TestCase):
         for rep in range(nreps):
             allreps[rep] = simulate_seqs(tree, Q, mu, with_heritable=True, silencing_rate=s)
         for node_label in allreps[rep]:
-            csts = calc_expected(node_label, 3.98, k, 1, Q, allreps)
-            # self.assert() # 
-        # self.assert 
+            self.assertTrue(calc_expected(node_label, 3.98, k, 1, Q, allreps), msg="SimulatorTest: test_15 failed, unexpected character distribution for node_label: " + str(node_label) )
 
 

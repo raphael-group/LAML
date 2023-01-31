@@ -1,3 +1,4 @@
+import scipy.stats as stats
 import treeswift
 import unittest
 from problin_libs.sim_lib import *
@@ -30,11 +31,12 @@ def count_all(repdict):
 def chi_squared_tests(est_zeros, true_zeros):
     diffs = []
     for oi, ei in zip(est_zeros, true_zeros):
-        diffs.append((float(oi - ei)**2)/ei)
+        diffs.append(((float(oi) - ei)**2)/ei)
     return sum(diffs)
 
 def calc_expected(node_label, d, k, c, Q, allreps):
-    csts = []
+    num_deg_freedom = len(allreps.keys()) - 1
+    est_char = []
     for site_i in range(k):
         if c == 0:
             print("Case Not Handled: provided character is 0, and is not in Q.")
@@ -43,11 +45,22 @@ def calc_expected(node_label, d, k, c, Q, allreps):
         qc = Q[site_i][c]
         site_i_seq = [allreps[rep][node_label][site_i] for rep in allreps]
         # print(site_i_seq)
-        est_zeros = [1 if ch == c else 0 for ch in site_i_seq]
-        true_zeros = [qc * exp(-d) * (1 - exp(-d))] * len(site_i_seq)
-        cst = chi_squared_tests(est_zeros, true_zeros)
-        csts.append(cst)
-    return csts
+        est_char.append(sum([1 if ch == c else 0 for ch in site_i_seq])/len(site_i_seq))
+    #print("est_char", est_char)
+    exp_char = [qc * exp(-d) * (1 - exp(-d))] * len(site_i_seq)
+    #print("exp_char", exp_char)
+    cst = chi_squared_tests(est_char, exp_char)
+    #print('cst', cst)
+    
+    alpha = 0.05
+    #print(stats.chi2.cdf(cst, num_deg_freedom))
+    p_value = 1 - stats.chi2.cdf(cst, num_deg_freedom)
+    #print('pval', p_value)
+    if p_value <= alpha:
+        # the variable does not have the expected distribution
+        return False
+    else:
+        return True
 
 
 
