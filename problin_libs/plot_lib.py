@@ -1,12 +1,36 @@
 from statistics import mean
 import matplotlib.pyplot as plt
 import argparse
+import pandas as pd
+
+lookup = {'nm': "model neither", 'bm': "model both", 'nd': "model heritable", 'ns': "model dropout", 'nomissing': "no missing", 'd0.1': 'dropout 0.1', 's0.01': 'silencing 0.01', 's0.32': 'silencing 0.32'}
+colors = ['C0', 'C1', 'C2', 'C3']
+
+def read_txtfile(t, cols):
+    df = pd.read_csv(t)
+    return df[cols]
+
+def proc_to_sec(v):
+    #for k, v in df.iteritems():
+    m = v.split('m')[0]
+    s = v.split('m')[1][:-1]
+    m = int(m) * 60
+    s = float(s)
+    return m + s
+
+def plot_time(t1, t2, o):
+    fig, ax = plt.subplots()
+    bp = ax.boxplot([t1, t2], notch=True, patch_artist=True, showmeans=True, showfliers=False)
+    ax.set_ylim(ymin=0)
+    ax.set_ylabel("Time (s)")
+    ax.set_title("Compare EM vs no EM")
+    ax.legend([bp["boxes"][0] for bp in bps], keys, loc='upper right')
+    plt.savefig(o)
 
 def plot_dtype(d, p, t, o):
     outfile = o + "_" + t + ".png"
 
-    lookup = {'nm': "model neither", 'bm': "model both", 'nd': "model heritable", 'ns': "model dropout", 'nomissing': "no missing", 'd0.1': 'dropout 0.1', 's0.01': 'silencing 0.01', 's0.32': 'silencing 0.32'}
-    colors = ['C0', 'C1', 'C2', 'C3']
+
     keys = []
     # fig = plt.figure(figsize=(10, 7))
     fig, ax = plt.subplots()
@@ -68,19 +92,4 @@ def main(f1, f2, out_pre, mu):
     for dtype in datadict:
         plot_dtype(datadict, paramdict, dtype, out_pre)
 
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--blfile')
-parser.add_argument('--paramfile')
-parser.add_argument('-o', '--out_pre')
-parser.add_argument('-m', '--mu')
-
-args = parser.parse_args()
-
-blf = args.blfile
-pf = args.paramfile
-out_pre = args.out_pre
-mu = args.mu
-
-main(blf, pf, out_pre, mu)
 

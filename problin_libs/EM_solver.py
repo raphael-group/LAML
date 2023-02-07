@@ -63,11 +63,14 @@ class EM_solver(ML_solver):
                 v.out1 = [log(1-exp(-v.edge_length*params.nu))]*self.numsites
             else:
                 u = v.parent
+                w = None 
                 # get the sister
                 for x in u.children:
                     if x is not v:
                         w = x
                         break
+                if w is None:
+                    print("w is none", [x.label for x in u.traverse_leaves()])
                 # Auxiliary components
                 v.A = [None]*self.numsites
                 #v.B = [None]*self.numsites
@@ -266,7 +269,8 @@ class EM_solver(ML_solver):
     # optimize other params while fixing nu to eps
     # caution: this function will modify params in place!
         pre_llh = self.lineage_llh(params)
-        print("Initial nllh: " + str(-pre_llh))
+        if verbose:
+            print("Initial nllh: " + str(-pre_llh))
         em_iter = 1
         while 1:
             self.Estep_in_llh(params)
@@ -294,10 +298,12 @@ class EM_solver(ML_solver):
                     total += len(self.charMtrx[x])
                     missing += sum([y=='?' for y in self.charMtrx[x]])
                 phi_star = missing/total    
-            print("Optimal phi: " + str(phi_star))
+            if verbose:
+                print("Optimal phi: " + str(phi_star))
             results = []
             for rep in range(initials):
-                print("Running EM with initial point " + str(rep+1))
+                if verbose:
+                    print("Running EM with initial point " + str(rep+1))
                 x0 = self.ini_all(fixed_phi=phi_star,fixed_nu=fixed_nu)
                 self.x2params(x0,fixed_phi=phi_star,fixed_nu=fixed_nu)
                 params = self.params

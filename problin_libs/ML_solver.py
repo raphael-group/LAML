@@ -159,6 +159,7 @@ class ML_solver:
         self.x2phi(x,fixed_phi=fixed_phi)
 
     def __llh__(self):
+        # print("alpha:", self.alpha, "beta:", self.beta)
         return self.lineage_llh(self.params) + (self.alpha-1)*log(self.params.phi) + (self.beta-1)*log(1-self.params.phi)
 
 

@@ -23,6 +23,7 @@ parser.add_argument("--delimiter",required=False,default="tab",help="The delimit
 parser.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
 parser.add_argument("-m","--maskedchar",required=True,help="Masked character.")
 parser.add_argument("-o","--output",required=True,help="The output file.")
+parser.add_argument("-v","--verbose",required=False,help="Print EM updates.",default=False)
 
 args = vars(parser.parse_args())
 
@@ -95,7 +96,7 @@ else:
     print("Optimization by Generic solver")        
     
 mySolver = selected_solver(msa,Q,treeStr,beta_prior=beta_prior)
-optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=True)
+optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=False)
 with open(args["output"],'w') as fout:
     fout.write("Optimal tree: " +  mySolver.params.tree.newick() + "\n")
     fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
