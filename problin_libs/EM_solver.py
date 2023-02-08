@@ -234,7 +234,6 @@ class EM_solver(ML_solver):
             em_iter += 1
         return -curr_llh    
 
-<<<<<<< HEAD
     def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100):
         if fixed_nu is not None and fixed_nu <= eps:
             if fixed_phi is not None:
@@ -255,7 +254,6 @@ class EM_solver(ML_solver):
                     print("Running EM with initial point " + str(rep+1))
                 x0 = self.ini_all(fixed_phi=phi_star,fixed_nu=fixed_nu)
                 self.x2params(x0,fixed_phi=phi_star,fixed_nu=fixed_nu)
-=======
     def Mstep(self,params,optimize_phi=True,optimize_nu=True,verbose=True,eps_nu=1e-5,eps_s=1e-6):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
