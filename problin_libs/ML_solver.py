@@ -4,9 +4,7 @@ from random import random, seed
 from scipy import optimize
 import warnings
 import numpy as np
-
-min_llh = -1000
-eps = 1e-10
+from problin_libs import min_llh, eps
 
 class Params:
     def __init__(self,nwkTree,nu=eps,phi=eps,sigma=None):

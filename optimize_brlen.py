@@ -7,7 +7,7 @@ from treeswift import *
 import random
 import argparse
 
-eps = 1e-10
+#random.seed(a=7)
 
 parser = argparse.ArgumentParser()
 
@@ -21,6 +21,7 @@ parser.add_argument("-b","--betaPrior",required=False, default=(1,1), help="The 
 parser.add_argument("--solver",required=False,default="Generic",help="Specify a solver. Options are 'Generic' or 'EM'. Caution: at current stage, EM only works with flag --noSilence. Default: 'Generic'")
 parser.add_argument("--delimiter",required=False,default="tab",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.")
 parser.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
+parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
 parser.add_argument("-m","--maskedchar",required=True,help="Masked character.")
 parser.add_argument("-o","--output",required=True,help="The output file.")
 parser.add_argument("-v","--verbose",required=False,help="Print EM updates.",default=False)
@@ -37,9 +38,16 @@ with open(args["topology"],'r') as f:
     treeStr = f.read().strip()
 
 k = len(msa[next(iter(msa.keys()))])
-fixed_phi = eps if args["noDropout"] else None
-fixed_nu = eps if args["noSilence"] else None
+fixed_phi = 0 if args["noDropout"] else None
+fixed_nu = 0 if args["noSilence"] else None
 beta_prior = args["betaPrior"] 
+
+if args["randseeds"] is None:
+    random_seeds = None
+else:
+    random_seeds = [int(x) for x in args["randseeds"].strip().split()]
+    if args["nInitials"] != 1 and len(random_seeds) == 1:
+        random_seeds = random_seeds[0]
 
 if args["priors"] == "uniform":
     # use the uniform Q matrix
@@ -85,18 +93,18 @@ else:
 selected_solver = ML_solver
 em_selected = False
 if args["solver"].lower() == "em": 
-    if not args["noSilence"]:
-        print("WARNING: EM algorithm has not been implemented for data with gene silencing. Program automatically switches to generic solver")
-    else:
-        selected_solver = EM_solver   
-        em_selected = True
+    #if not args["noSilence"]:
+    #    print("WARNING: EM algorithm has not been implemented for data with gene silencing. Program automatically switches to generic solver")
+    #else:
+    selected_solver = EM_solver   
+    em_selected = True
 if em_selected:
     print("Optimization by EM algorithm") 
 else:    
     print("Optimization by Generic solver")        
-    
+   
 mySolver = selected_solver(msa,Q,treeStr,beta_prior=beta_prior)
-optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=False)
+optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=False,random_seeds=random_seeds)
 with open(args["output"],'w') as fout:
     fout.write("Optimal tree: " +  mySolver.params.tree.newick() + "\n")
     fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
