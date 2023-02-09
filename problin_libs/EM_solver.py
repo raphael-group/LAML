@@ -42,8 +42,14 @@ class EM_solver(ML_solver):
                     l0_alpha = [l1 + log(1-p)+log(q) + nu*(-node.edge_length)] if node.alpha[site] != 'z' else []
                     l0_masked = [log(1-p**nu)] if (node.alpha[site] == '?' and nu > 0) else []
                     node.L0[site] = log_sum_exp(l0_z + l0_alpha + l0_masked)
-                    node.L1[site] = min_llh if node.alpha[site] == 'z' else log((exp(l1+nu*(-node.edge_length)) + (1-p**nu)*int(node.alpha[site]=="?")))
-    
+                    #node.L1[site] = min_llh if node.alpha[site] == 'z' else log(exp(l1+nu*(-node.edge_length)) + (1-p**nu)*int(node.alpha[site]=="?"))
+                    if node.alpha[site] == 'z':
+                        node.L1[site] = min_llh
+                    elif node.alpha[site] != '?':
+                        node.L1[site] = l1 + nu*(-node.edge_length) 
+                    else:
+                        node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length),log(1-p**nu)])
+
     def lineage_llh(self,params):
         # override the function of the base class
         self.Estep_in_llh(params)
