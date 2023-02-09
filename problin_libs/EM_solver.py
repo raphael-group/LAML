@@ -66,11 +66,14 @@ class EM_solver(ML_solver):
                 v.out1 = [log(1-exp(-v.edge_length*params.nu))]*self.numsites if params.nu>0 else [min_llh]*self.numsites
             else:
                 u = v.parent
+                w = None 
                 # get the sister
                 for x in u.children:
                     if x is not v:
                         w = x
                         break
+                if w is None:
+                    print("w is none", [x.label for x in u.traverse_leaves()])
                 # Auxiliary components
                 v.A = [None]*self.numsites
                 v.X = [None]*self.numsites
@@ -216,7 +219,8 @@ class EM_solver(ML_solver):
     # optimize other params while fixing nu to eps
     # caution: this function will modify params in place!
         pre_llh = self.lineage_llh(params)
-        print("Initial nllh: " + str(-pre_llh))
+        if verbose:
+            print("Initial nllh: " + str(-pre_llh))
         em_iter = 1
         while 1:
             self.Estep(params)
@@ -230,6 +234,26 @@ class EM_solver(ML_solver):
             em_iter += 1
         return -curr_llh    
 
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100):
+        if fixed_nu is not None and fixed_nu <= eps:
+            if fixed_phi is not None:
+                phi_star = fixed_phi
+            else:
+                total = 0
+                missing = 0
+                for node in self.params.tree.traverse_leaves():
+                    x = node.label
+                    total += len(self.charMtrx[x])
+                    missing += sum([y=='?' for y in self.charMtrx[x]])
+                phi_star = missing/total    
+            if verbose:
+                print("Optimal phi: " + str(phi_star))
+            results = []
+            for rep in range(initials):
+                if verbose:
+                    print("Running EM with initial point " + str(rep+1))
+                x0 = self.ini_all(fixed_phi=phi_star,fixed_nu=fixed_nu)
+                self.x2params(x0,fixed_phi=phi_star,fixed_nu=fixed_nu)
     def Mstep(self,params,optimize_phi=True,optimize_nu=True,verbose=True,eps_nu=1e-5,eps_s=1e-6):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu

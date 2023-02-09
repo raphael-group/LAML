@@ -24,6 +24,7 @@ parser.add_argument("--nInitials",type=int,required=False,default=20,help="The n
 parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
 parser.add_argument("-m","--maskedchar",required=True,help="Masked character.")
 parser.add_argument("-o","--output",required=True,help="The output file.")
+parser.add_argument("-v","--verbose",required=False,help="Print EM updates.",default=False)
 
 args = vars(parser.parse_args())
 
