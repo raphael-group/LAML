@@ -3,3 +3,6 @@ scripts/.tmux*
 .ipynb_checkpoints/*
 Experiments/*
 problin_libs/__pycache__/ML_solver.cpython-39.pyc
+problin_libs/__pycache__/*
+unit_tests/__pycache__/*
+
