@@ -45,10 +45,11 @@ class EM_solver(ML_solver):
                     #node.L1[site] = min_llh if node.alpha[site] == 'z' else log(exp(l1+nu*(-node.edge_length)) + (1-p**nu)*int(node.alpha[site]=="?"))
                     if node.alpha[site] == 'z':
                         node.L1[site] = min_llh
-                    elif node.alpha[site] != '?':
+                    elif node.alpha[site] != '?' or nu == 0:
                         node.L1[site] = l1 + nu*(-node.edge_length) 
                     else:
-                        node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length),log(1-p**nu)])
+                        node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length), log(1-p**nu)])
+                       #node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length)]+[log(1-p**nu)] if nu==0 else [])
 
     def lineage_llh(self,params):
         # override the function of the base class
