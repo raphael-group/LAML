@@ -402,6 +402,8 @@ class EM_solver(ML_solver):
             print("Fatal: incorrect random_seeds type provided")        
             return None
         while all_failed and all_trials < max_trials:
+            if verbose:
+                print("Starting with initials: ", initials)
             for rep in range(initials):
                 randseed = rseeds[rep]
                 print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
@@ -422,6 +424,9 @@ class EM_solver(ML_solver):
                     results.append((nllh,params))
                 else:
                     print("Fatal: failed to optimize using initial point " + str(rep+1))    
+
+                if verbose:
+                    print("Rep: ", rep)
             all_trials += initials    
         results.sort()
         best_nllh,best_params = results[0]

@@ -59,7 +59,11 @@ else:
         infile.close()
         Q = []
         for i in sorted(priors.keys()):
-            q = {int(x):priors[i][x] for x in priors[i]}
+            #q = {int(x):priors[i][x] for x in priors[i]}
+            total_prob = sum([priors[i][x] for x in priors[i]]) 
+            q = {int(x): priors[i][x]/total_prob for x in priors[i]}
+            # assert priors[i][x] < 1.0
+            
             q[0] = 0
             Q.append(q)
     else:
