@@ -20,16 +20,18 @@ class ML_solver:
     # and other parameters can be optimized
     # beta_prior is a tuple (alpha,beta) that are the parameters of the beta prior of phi
     # if beta_prior is set to 'auto', run self.compute_beta_prior to estimate alpha and beta
-    def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps,beta_prior=(1,1)):
+    def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps):
+    #def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps,beta_prior=(1,1)):
         self.charMtrx = charMtrx
         self.Q = Q
         self.params = Params(nwkTree,nu=nu,phi=phi)
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.params.tree.traverse_postorder()))
+        '''
         if beta_prior == 'auto':
             self.compute_beta_prior()
         else:
-            self.alpha,self.beta = beta_prior    
+            self.alpha,self.beta = beta_prior'''
     
     def compute_beta_prior(self):
         msa = self.charMtrx
@@ -157,8 +159,7 @@ class ML_solver:
         self.x2phi(x,fixed_phi=fixed_phi)
 
     def __llh__(self):
-        # print("alpha:", self.alpha, "beta:", self.beta)
-        return self.lineage_llh(self.params) + (self.alpha-1)*log(self.params.phi) + (self.beta-1)*log(1-self.params.phi)
+        return self.lineage_llh(self.params) #+ (self.alpha-1)*log(self.params.phi) + (self.beta-1)*log(1-self.params.phi)
 
 
     def negative_llh(self):
