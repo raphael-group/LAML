@@ -1,5 +1,7 @@
 from problin_libs.EM_solver import EM_solver
+from problin_libs import conv_eps
 import treeswift
+import random
 #https://github.com/raphael-group/startle/blob/main/src/nni/startle.py
 
 # Input 1
@@ -48,9 +50,17 @@ def get_nnis(u):
             # nni_moves.append({"move": ((u.label, w.label), (v.label, z.label))}
     return nni_moves
 
-def main(): 
-    tree = treeswift.read_tree_newick(t)
+def stochastic_branch(t):
+    num_nodes = t.num_nodes(internal=True, leaves=False)
+    # TODO: Random seed
+    rn = random.randint(0, num_nodes - 1)
 
+    nodes = []
+    for node in t.traverse_inorder(internal=True, leaves=False):
+        nodes.append(node)
+    return nodes[rn]
+
+def longest_branch(t): 
     # find longest edge e = (u, v), incident to node u
     edgelens = dict()
     for node in tree.traverse_inorder(internal=True, leaves=False):
@@ -59,58 +69,81 @@ def main():
     u = max(edgelens, key=edgelens.get)
     maxval = edgelens[u]
     #us = [u for u in edgelens if edgelens[u] == maxval]
+    return u
 
-    #print([u.label for u in us])
-    topo_dict = {}
 
-    #for u in us:
-    print(tree)
-    print("max edge is incident to:", u, edgelens[u])
 
-    # set up all nni moves
-    nni_moves = get_nnis(u)
-    v = u.get_parent()
+def nni(t):
+    pass
 
-    opt_tree, opt_score = score_tree(msa, Q, tree)
-    topo_dict[opt_tree] = opt_score
+# TODO: Set up argument flags parsing
 
-    print(len(nni_moves), "nni moves")
+def main(): 
+    tree = treeswift.read_tree_newick(t)
+    opt_tree, pre_llh = score_tree(msa, Q, tree)
+    nn_iter = 1
+    while 1:
+        curr_tree, curr_llh = score_tree(msa, Q, tree) 
+        #print([u.label for u in us])
+        topo_dict = {}
 
-    # produce new topology
-    for i, instr in enumerate(nni_moves):
-        print("NNI idx ", str(i))
-        #nt = tree.extract_tree(None, False, False)
-        #print("original tree:", tree)
-        # print(instr['move'])
+        # pick random internal branch
+        print(tree)
+        u = stochastic_branch(tree)
+        print("chosen edge is incident to:", u) #, str(u.edge_length()))
 
-        edge1, edge2 = instr['move']
-        parenta, cladea = edge1
-        #print(parenta.label, cladea.label)
-        parentb, cladeb = edge2
-        #print(parentb.label, cladeb.label)
+        # set up all nni moves
+        nni_moves = get_nnis(u)
+        v = u.get_parent()
 
-        move_set(parenta, parentb, cladea)
-        move_set(parentb, parenta, cladeb)
-        
-        print("new tree:", tree)
-
-        # call functions to score each move
         opt_tree, opt_score = score_tree(msa, Q, tree)
         topo_dict[opt_tree] = opt_score
 
-        #print(cladea.get_parent() == parenta)
-        #print(cladeb.get_parent() == parentb)
+        print(len(nni_moves), "nni moves")
 
-        # alternatively, use label_to_node to deal with copies of trees
-        undo_move_set(parenta, parentb, cladea)
-        #print(cladea.get_parent(), parenta)
-        undo_move_set(parentb, parenta, cladeb)
-        #print(cladeb.get_parent(), parentb)
+        # produce new topology
+        for i, instr in enumerate(nni_moves):
+            print("NNI idx ", str(i))
+            #nt = tree.extract_tree(None, False, False)
+            #print("original tree:", tree)
+            # print(instr['move'])
 
-        print("reset tree:", tree)
+            edge1, edge2 = instr['move']
+            parenta, cladea = edge1
+            #print(parenta.label, cladea.label)
+            parentb, cladeb = edge2
+            #print(parentb.label, cladeb.label)
 
-    for topo in topo_dict:
-        print(topo, topo_dict[topo])
+            move_set(parenta, parentb, cladea)
+            move_set(parentb, parenta, cladeb)
+            
+            print("new tree:", tree)
+
+            # call functions to score each move
+            opt_tree, opt_score = score_tree(msa, Q, tree)
+            topo_dict[opt_tree] = opt_score
+
+            #print(cladea.get_parent() == parenta)
+            #print(cladeb.get_parent() == parentb)
+
+            # TODO: alternatively, use label_to_node to deal with copies of trees
+            undo_move_set(parenta, parentb, cladea)
+            #print(cladea.get_parent(), parenta)
+            undo_move_set(parentb, parenta, cladeb)
+            #print(cladeb.get_parent(), parentb)
+            print("reset tree:", tree)
+
+        for topo in topo_dict:
+            print(topo, topo_dict[topo])
+
+        # TODO: accept the new tree topology, and keep searching
+        
+        if curr_llh - pre_llh < conv_eps:
+            break
+        pre_llh = curr_llh
+        em_iter += 1
+
+
 
 if __name__ == "__main__":
     main()
