@@ -22,7 +22,7 @@ parser.add_argument("--solver",required=False,default="Generic",help="Specify a 
 parser.add_argument("--delimiter",required=False,default="tab",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.")
 parser.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
 parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
-parser.add_argument("-m","--maskedchar",required=True,help="Masked character.")
+parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked character. Default: if not specified, assumes '-'.")
 parser.add_argument("-o","--output",required=True,help="The output file.")
 parser.add_argument("-v","--verbose",required=False,help="Print EM updates.",default=False)
 
@@ -36,6 +36,11 @@ if args["rep"]:
     msa = msa[int(args["rep"])]
 with open(args["topology"],'r') as f:
     treeStr = f.read().strip()
+    tree = read_tree_newick(treeStr)
+    if len(tree.root.child_nodes()) != 2:
+        print("Provided topology's root does not have two nodes, resetting root.")
+        treeStr = tree.newick()[1:-2] + ";"
+
 
 k = len(msa[next(iter(msa.keys()))])
 fixed_phi = 0 if args["noDropout"] else None
@@ -104,7 +109,7 @@ else:
     print("Optimization by Generic solver")        
    
 mySolver = selected_solver(msa,Q,treeStr,beta_prior=beta_prior)
-optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=False,random_seeds=random_seeds)
+optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
 with open(args["output"],'w') as fout:
     fout.write("Optimal tree: " +  mySolver.params.tree.newick() + "\n")
     fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")

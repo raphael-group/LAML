@@ -57,7 +57,11 @@ def check_missing(seen_missing, x):
 def read_charMtrx(fin,delimiter=",",masked_symbol="-"):    
     D = {}
     site_names = fin.readline().strip().split(delimiter)[1:]
-    seen_missing = set([masked_symbol])
+
+    if masked_symbol != '-':
+        seen_missing = set([masked_symbol])
+    else: 
+        seen_missing = set([])
 
     for line in fin:
         line_split = line.strip().split(delimiter)
@@ -75,8 +79,8 @@ def read_charMtrx(fin,delimiter=",",masked_symbol="-"):
     if len(seen_missing) > 1:
         print("Warning: Found " + str(seen_missing) + " characters and treated them as missing.")
     else:
-        print("Reading sequences, using " + str(masked_symbol) + " as missing character.")
-    return D,site_names    
+        print("Warning: Reading sequences, recognizing " + str(masked_symbol) + " as missing characters. We recommend explicitly providing the missing character.")
+    return D, site_names    
 
 def read_Q(inFile):
     with open(inFile,'r') as fin:
