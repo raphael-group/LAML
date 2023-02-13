@@ -232,7 +232,6 @@ class MLTest(unittest.TestCase):
         branch = mySolver.score_branches().label
         self.assertIn(branch, correct_branches, msg="MLTest: test_21 failed.")
 
-        
     def test_22(self):
         T = "((a:0.5,b:1)e:2,(c:1,d:0.5)f:1)g:1;"
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]

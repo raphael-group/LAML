@@ -270,7 +270,35 @@ class ML_solver:
             with open("results_final_tree.nwk", "w+") as w:
                 w.write(self.params.tree.newick() + "\n")
 
+            # print([(x[0].label, x[1]) for x in branches])
+        return max(branches, key=lambda item:item[1])[0]
 
+    def apply_nni(cladea, u, cladec):
+        # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
+
+        if u.is_leaf():
+            # single nni attach to uncle
+            pass
+        else:
+            # consider two nni swap uncle 
+            p_a = cladea.get_parent()
+            p_u = u.get_parent()
+            p_c = cladec.get_parent()
+            
+            # swap cladea and u
+
+            # swap cladea and cladec
+            pass
+
+    def nni(self):
+        u = score_branches(self)
+        v = u.get_parent()
+        sister = [w for w in v.child_nodes() if w is not u]
+        gp = v.get_parent()
+        uncle = [w for w in gp.child_nodes() if w is not v]
+        apply_nni(uncle, u, sister)
+   
+>>>>>>> 462d91d (Adding nni interchange branch scoring code to the ML-solver codde.)
     def az_partition(self,params):
     # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
     # Note: there is a different partition for each target-site
