@@ -77,7 +77,7 @@ def stochastic_branch(t):
     for node in t.traverse_inorder(internal=True, leaves=False):
         if not node.is_root():
             nodes.append(node)
-    return nodes[rn]
+    return nodes[rn] # TODO: return node label
 
 def longest_branch(t): 
     # find longest edge e = (u, v), incident to node u
@@ -90,7 +90,15 @@ def longest_branch(t):
     #us = [u for u in edgelens if edgelens[u] == maxval]
     return u
 
-def nni(msa, Q, treestr):
+def inplace_nni(tree, u): 
+    # this changes the tree object inside! dangerous, but constant time 
+    # tree object and branch incident to node object u
+    # TODO: Do the NNI, after this, output the newick string
+    # TODO: Revert the tree to original state!
+    pass
+
+def nni(treestr):
+#`def nni(msa, Q, treestr):
     tree = treeswift.read_tree_newick(treestr)
     u = stochastic_branch(tree)
     nni_moves = get_nnis(u)
@@ -106,7 +114,7 @@ def nni(msa, Q, treestr):
     print(out_strs)
 
 def main():
-    nni(msa, Q, t)
+    nni(t)
 # TODO: Set up argument flags parsing
 
 def main2(): 

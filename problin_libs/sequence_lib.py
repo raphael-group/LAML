@@ -19,12 +19,13 @@ def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
             fout.write("\n")
 
 
-def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol="-"):
+def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol=None):
     with open(inFile,'r') as fin:
         if filetype == "fasta":
             print("Warning: Reading " + str(inFile) + " as fasta file. Processing missing data in these files is not yet implemented.")
             return read_fasta(fin)
         elif filetype == "charMtrx":
+
             return read_charMtrx(fin,delimiter=delimiter,masked_symbol=masked_symbol)
 
 def read_fasta(fin):    
@@ -54,9 +55,10 @@ def check_missing(seen_missing, x):
     else:
         return False
 
-def read_charMtrx(fin,delimiter=",",masked_symbol="-"):    
+def read_charMtrx(fin,delimiter=",",masked_symbol=None):
     D = {}
     site_names = fin.readline().strip().split(delimiter)[1:]
+    
 
     if masked_symbol != '-':
         seen_missing = set([masked_symbol])
@@ -78,8 +80,8 @@ def read_charMtrx(fin,delimiter=",",masked_symbol="-"):
         D[name] = seq
     if len(seen_missing) > 1:
         print("Warning: Found " + str(seen_missing) + " characters and treated them as missing.")
-    else:
-        print("Warning: Reading sequences, recognizing " + str(masked_symbol) + " as missing characters. We recommend explicitly providing the missing character.")
+    elif masked_symbol == None:
+        print("Warning: Reading sequences, detected " + str(seen_missing) + " as the missing character(s). We recommend explicitly providing the missing character.")
     return D, site_names    
 
 def read_Q(inFile):
@@ -94,7 +96,7 @@ def read_Q(inFile):
                 Q[char][int(state)] = float(prob)
     return [Q[q] for q in sorted(Q)]
 
-from treeswift import *
+#from treeswift import *
 
 def extract_brlens(tfile, ofile):
 
