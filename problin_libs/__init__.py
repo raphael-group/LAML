@@ -11,3 +11,4 @@ PROGRAM_VERSION = "0.1"
 PROGRAM_YEAR = "2023"
 PROGRAM_INSTITUTE = "Computer Science Department, Princeton University"
 PROGRAM_DESCRIPTION = "Probabilistic Lineage Tracing with Mixed-type Missing Data"
+nni_conv_eps = 1e-15 # additional NNI convergence threshold since conv_eps has several purposes
