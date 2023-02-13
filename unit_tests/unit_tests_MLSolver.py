@@ -221,3 +221,15 @@ class MLTest(unittest.TestCase):
         mySolver.az_partition(mySolver.params)
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="MLTest: test_20 failed.")
+
+    def test_21(self):
+        T = "((a:1,b:1)e:2,(c:1,d:1)f:2)g:1;"
+        Q = [{0:0, 1:0.5, 2:0.5}, {0:0, 1:0.5, 2:0.5}]
+        msa = {'a':[0, 0], 'b':[1, 1], 'c':[1, 2], 'd':[1, 2]}
+        correct_branches = set(['b', 'e'])
+        
+        mySolver = ML_solver(msa,Q,T)
+        branch = mySolver.score_branches().label
+        self.assertIn(branch, correct_branches, msg="MLTest: test_21 failed.")
+
+        

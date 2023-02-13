@@ -50,6 +50,113 @@ class ML_solver:
         var = sum([(x-mu)**2 for x in D])/N
         self.alpha = (mu*(1-mu)/var-1)*mu
         self.beta = self.alpha*(1-mu)/mu
+
+    def compare_tags(self, tags1, tags2):
+        # Purpose: compute similarity score from az-partition tags
+        total, same = 0.0, 0.0
+
+        assert len(tags1) == len(tags2)
+        for t1, t2 in zip(tags1, tags2):
+            # consider locations where neither is ?
+            if t1 == '?' or t2 == '?':
+                continue
+            else:
+                total += 1
+                if t1 == t2 and t1 != 'z':
+                    # NOTE: maybe this isn't the best way to handle comparison with z
+                    same += 1
+        return same/total
+
+    def similarity_score(self, a, b, c, strat):
+        # Purpose: score the branch according to the maximum similarity 
+        d_ab = self.compare_tags(a.alpha, b.alpha)
+        d_ac = self.compare_tags(a.alpha, c.alpha)
+        d_bc = self.compare_tags(b.alpha, c.alpha)
+
+        #print("a.alpha:", a.alpha)
+        #print("b.alpha:", b.alpha)
+        #print("c.alpha:", c.alpha)
+        if strat == "vanilla":
+            return max(d_ab, d_ac)
+        elif strat == "shouldchange":
+            return max(d_ab - d_bc, d_ac - d_bc)
+
+    def score_terminal_branch(self, u, strat):
+        v = u.get_parent()
+        gp = v.get_parent()
+        uncle = [w for w in gp.child_nodes() if w is not v][0]
+        sister = [w for w in v.child_nodes() if w is not u][0]
+        
+        d_cu = self.compare_tags(uncle.alpha, u.alpha)
+        d_su = self.compare_tags(sister.alpha, u.alpha)
+        #print("uncle.alpha:", uncle.alpha)
+        #print("u.alpha:", u.alpha)
+        #print("sister.alpha", sister.alpha)
+        
+        if strat == "vanilla":
+            return d_cu
+        elif strat == "shouldchange":
+            return d_cu - d_su
+
+    def score_internal_branch(self, u, strat):
+        v = u.get_parent()
+        cladeA, cladeB = [w for w in u.child_nodes()]
+        cladeC = [w for w in v.child_nodes() if w is not u][0]
+        return self.similarity_score(cladeC, cladeB, cladeA, strat)
+
+    def score_branches(self, strategy="vanilla"):
+        if self.params.tree.num_nodes(internal=True, leaves=False) <= 2:
+            print("Provided tree does not have enough internal branches to perform a nearest neighbor interchange operation.")
+            return None
+
+        # Purpose: Score all branches before returning one to consider nnis around
+        self.az_partition(self.params)
+        branches = []
+        for node in self.params.tree.traverse_postorder():
+            if node.is_root():
+                continue
+            # print("considering node:", node.label, node.alpha)
+            if not node.is_leaf():
+                # consider moving it inside the tree
+                #print("scoring internal branch:", node.label)
+                s = self.score_internal_branch(node, strategy)
+                branches.append((node, s))
+                #print("internal branch:", node.label, s)
+
+                # if is leaf
+                # consider moving it up the tree
+                #print("scoring terminal branch:", node.label)
+                #s = self.score_terminal_branch(node, strategy)
+                #print("terminal branch:", node.label, s)
+
+
+            # print([(x[0].label, x[1]) for x in branches])
+        return max(branches, key=lambda item:item[1])[0]
+
+    def apply_nni(cladea, u, cladec):
+        # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
+
+        if u.is_leaf():
+            # single nni attach to uncle
+            pass
+        else:
+            # consider two nni swap uncle 
+            p_a = cladea.get_parent()
+            p_u = u.get_parent()
+            p_c = cladec.get_parent()
+            
+            # swap cladea and u
+
+            # swap cladea and cladec
+            pass
+
+    def nni(self):
+        u = score_branches(self)
+        v = u.get_parent()
+        sister = [w for w in v.child_nodes() if w is not u]
+        gp = v.get_parent()
+        uncle = [w for w in gp.child_nodes() if w is not v]
+        apply_nni(uncle, u, sister)
    
     def az_partition(self,params):
     # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
@@ -346,22 +453,27 @@ def main():
     from sequence_lib import read_sequences
     from ml_log import wrapper_felsenstein as wf_log
     
-    k = 50
-    m = 10
-    Q = []
-    for i in range(k):
-        q = {j+1:1/m for j in range(m)}
-        q[0] = 0
-        Q.append(q)
-    T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
-    S = read_sequences("../tests/seqs_m10_k" + str(k) + ".txt",filetype="fasta")
-    msa = S[6]
-    msa['c'][0] = '?'
-
-    mySolver = ML_solver(msa,Q,T)
-    print(mySolver.optimize(initials=1,verbose=True,fixed_nu=None,fixed_phi=None))
+    #k = 50
+    #m = 10
+    #Q = []
+    #for i in range(k):
+    #    q = {j+1:1/m for j in range(m)}
+    #    q[0] = 0
+    #    Q.append(q)
+    #T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
+    #S = read_sequences("../tests/seqs_m10_k" + str(k) + ".txt",filetype="fasta")
+    #msa = S[6]
+    #msa['c'][0] = '?'
+    #mySolver = ML_solver(msa,Q,T)
+    #print(mySolver.optimize(initials=1,verbose=True,fixed_nu=None,fixed_phi=None))
     #print("phi", mySolver.params.phi,"nu", mySolver.params.nu)
     #print(mySolver.params.tree.newick()) 
+
+    T = "((a:1,b:1)e:2,(c:1,d:1)f:2)g:1;"
+    Q = [{0:0, 1:0.5, 2:0.5}, {0:0, 1:0.5, 2:0.5}]
+    msa = {'a':[0, 0], 'b':[1, 1], 'c':[1, 2], 'd':[1, 2]}
+    mySolver = ML_solver(msa,Q,T)
+    print(mySolver.score_branches())
 
 if __name__ == "__main__":
     main()        
