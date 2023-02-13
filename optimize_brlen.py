@@ -11,7 +11,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-t","--topology",required=True,help="Input tree topology in newick format. Branch lengths will be ignored.")
+parser.add_argument("-t","--topology",required=True,help="Binary input tree topology in newick format. Branch lengths will be ignored.") 
 parser.add_argument("-c","--characters",required=True,help="The input character matrix. Must have header.")
 parser.add_argument("-r","--rep",required=False,help="The rep index of the input character matrix.") 
 parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.")
@@ -25,6 +25,8 @@ parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a si
 parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked character. Default: if not specified, assumes '-'.")
 parser.add_argument("-o","--output",required=True,help="The output file.")
 parser.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
+parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations.")
+parser.add_argument("--strategy", required=False, help="Strategy for NNI topology search.")
 
 args = vars(parser.parse_args())
 
@@ -41,6 +43,10 @@ with open(args["topology"],'r') as f:
     if len(tree.root.child_nodes()) != 2:
         print("Provided topology's root does not have two nodes, resetting root.")
         treeStr = tree.newick()[1:-2] + ";"
+    for node in tree.traverse_inorder(tree):
+        if node.edge_length is None:
+            node.edge_length = 0.5 #0.001
+    treeStr = tree.newick()
 
 
 k = len(msa[next(iter(msa.keys()))])
@@ -106,9 +112,15 @@ if em_selected:
 else:    
     print("Optimization by Generic solver")        
    
-mySolver = selected_solver(msa,Q,treeStr)
-optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
 with open(args["output"],'w') as fout:
+    mySolver = selected_solver(msa,Q,treeStr) #,beta_prior=beta_prior)
+# print(mySolver.params.tree.newick())
+    optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+    if args["topology_search"]:
+        mySolver.topology_search(maxiter=1000, verbose=True, prefix='.'.join(args["output"].split('.')[:-1]), trynextbranch=True, strategy=args["strategy"])
+        fout.write("Optimal topology: " + mySolver.params.tree.newick() + "\n")
+        optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+
     fout.write("Optimal tree: " +  mySolver.params.tree.newick() + "\n")
     fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
     fout.write("Optimal dropout rate: " + str(mySolver.params.phi) + "\n")
