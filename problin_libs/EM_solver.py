@@ -17,6 +17,7 @@ class EM_solver(ML_solver):
         phi = params.phi
         nu = params.nu
         for node in params.tree.traverse_postorder():
+            # print(node.label, node.edge_length)
             p = exp(-node.edge_length)
             node.L0 = [0]*self.numsites # L0 and L1 are stored in log-scale
             node.L1 = [0]*self.numsites
@@ -297,7 +298,14 @@ class EM_solver(ML_solver):
                 S0[i],S1[i],S2[i],S3[i],S4[i] = s
     
             def __optimize_brlen__(nu): # nu is a single number
-                dmax = -log(1/self.numsites)*2
+                #print("[__optimize_brlen__]")
+                zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx]) 
+                totalcount = self.numsites * len(self.charMtrx)
+                zeroprop = zerocount/totalcount
+                #print("zerocount", zerocount, "totalcount", totalcount, "zeroprop", zeroprop)
+                #dmax = -log(1/self.numsites)*2
+                dmax = -log(zeroprop)
+                #print("dmax:", dmax)
                 dmin = -log(1-1/self.numsites)/2
                 D = np.zeros(N)
                 if nu <= eps_nu:
