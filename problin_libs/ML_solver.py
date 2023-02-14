@@ -273,6 +273,10 @@ class ML_solver:
             # print([(x[0].label, x[1]) for x in branches])
         return max(branches, key=lambda item:item[1])[0]
 
+    def score_tree(self):
+        self.az_partition(self.params)
+        return self.lineage_llh(self.params)
+
     def apply_nni(self, u):
         # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
         v = u.get_parent()
@@ -287,31 +291,96 @@ class ML_solver:
         d_bc = self.compare_tags(b.alpha, c.alpha)
 
         w = v_edges[0] 
-        #print("d_bc", d_bc)
-        #print("d_ac", d_ac)
+        pre_llh = self.score_tree()
+        #print("pre_llh", self.params.tree.newick(), pre_llh)
+
+        # explore in order of importance
         if d_bc > d_ac:
             # move a out
-            u_child = a 
+            u_children = [a, b] 
         else:
             # move b out
-            u_child = b 
+            u_children = [b, a] 
+        
+        for u_child in u_children:
 
-        u_child.set_parent(v)
-        u.remove_child(u_child)
-        v.add_child(u_child)
+            u_child.set_parent(v)
+            u.remove_child(u_child)
+            v.add_child(u_child)
 
-        w.set_parent(u)
-        v.remove_child(w)
-        u.add_child(w)
+            w.set_parent(u)
+            v.remove_child(w)
+            u.add_child(w)
+            
+            new_llh = self.score_tree()
+            #print("new_llh", self.params.tree.newick(), new_llh)
 
-        print(self.params.tree.newick())
+            if new_llh > pre_llh:
+                # log likelihood improved
+                return
+            elif new_llh == pre_llh:
+                #print("same log likelihood", self.params.tree.newick(), new_llh)
+                return
+            else:
+                # REVERSE IF LIKELIHOOD IS NOT BETTER
+                #print("reversing...")
+                u_child.set_parent(u)
+                v.remove_child(u_child)
+                u.add_child(u_child)
+                
+                w.set_parent(v)
+                u.remove_child(w)
+                v.add_child(w)
+                
+                new_llh = self.score_tree()
+                #print("new_llh", self.params.tree.newick(), new_llh)
+        #print(new_llh, self.params.tree.newick())
 
-    def nni(self):
+    def single_nni(self):
         u = self.score_branches()
         self.apply_nni(u)
-        llh = self.lineage_llh(self.params)
+        llh = self.score_tree()
         return llh
-   
+
+    def tree_copy(self):
+        tree = self.params.tree
+        return tree.extract_subtree(tree.root)
+
+    def topology_search(self, maxiter=100, verbose=False):
+        nni_iter = 0
+        same = 0
+        topo_dict = {}
+        seen = set()
+       
+        pre_llh = self.score_tree()
+        
+        while 1:
+            if verbose:
+                print("NNI Iter:", nni_iter)
+            opt_score = self.single_nni()
+            
+            tstr = self.params.tree.newick()
+            topo_dict[nni_iter] = (tstr, opt_score)
+            
+            seen.add(tstr)
+            new_llh = self.score_tree()
+
+            if new_llh == pre_llh:
+                same += 1
+            else:
+                same = 0
+            
+            if (new_llh - pre_llh < nni_conv_eps and tstr in seen and same > 2) or nni_iter > maxiter:
+                break
+
+            pre_llh = new_llh
+            nni_iter += 1
+        
+        if verbose:
+            for nni_iter in topo_dict:
+                print(nni_iter, topo_dict[nni_iter])
+
+
     def az_partition(self,params):
     # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
     # Note: there is a different partition for each target-site
