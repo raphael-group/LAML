@@ -273,32 +273,45 @@ class ML_solver:
             # print([(x[0].label, x[1]) for x in branches])
         return max(branches, key=lambda item:item[1])[0]
 
-    def apply_nni(cladea, u, cladec):
+    def apply_nni(self, u):
         # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
+        v = u.get_parent()
+        u_edges = [w for w in u.child_nodes()]
+        v_edges = [w for w in v.child_nodes() if w is not u]
+        nni_moves = []
 
-        if u.is_leaf():
-            # single nni attach to uncle
-            pass
+        a, b = u_edges
+        c = v_edges[0]
+        d_ab = self.compare_tags(a.alpha, b.alpha)
+        d_ac = self.compare_tags(a.alpha, c.alpha)
+        d_bc = self.compare_tags(b.alpha, c.alpha)
+
+        w = v_edges[0] 
+        #print("d_bc", d_bc)
+        #print("d_ac", d_ac)
+        if d_bc > d_ac:
+            # move a out
+            u_child = a 
         else:
-            # consider two nni swap uncle 
-            p_a = cladea.get_parent()
-            p_u = u.get_parent()
-            p_c = cladec.get_parent()
-            
-            # swap cladea and u
+            # move b out
+            u_child = b 
 
-            # swap cladea and cladec
-            pass
+        u_child.set_parent(v)
+        u.remove_child(u_child)
+        v.add_child(u_child)
+
+        w.set_parent(u)
+        v.remove_child(w)
+        u.add_child(w)
+
+        print(self.params.tree.newick())
 
     def nni(self):
-        u = score_branches(self)
-        v = u.get_parent()
-        sister = [w for w in v.child_nodes() if w is not u]
-        gp = v.get_parent()
-        uncle = [w for w in gp.child_nodes() if w is not v]
-        apply_nni(uncle, u, sister)
+        u = self.score_branches()
+        self.apply_nni(u)
+        llh = self.lineage_llh(self.params)
+        return llh
    
->>>>>>> 462d91d (Adding nni interchange branch scoring code to the ML-solver codde.)
     def az_partition(self,params):
     # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
     # Note: there is a different partition for each target-site
