@@ -116,7 +116,7 @@ with open(args["output"],'w') as fout:
 # print(mySolver.params.tree.newick())
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
     if args["topology_search"]:
-        mySolver.topology_search(maxiter=1000, verbose=True, prefix='.'.join(args["output"].split('.')[:-1]))
+        mySolver.topology_search(maxiter=1000, verbose=True, prefix='.'.join(args["output"].split('.')[:-1]), strategy="vanilla", trynextBranch=True)
         fout.write("Optimal topology: " + mySolver.params.tree.newick() + "\n")
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
 

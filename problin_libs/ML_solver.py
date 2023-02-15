@@ -121,11 +121,9 @@ class ML_solver:
                 #print("scoring internal branch:", node.label)
                 s = self.score_internal_branch(node, strategy)
                 branches.append((node, s))
-                #print("internal branch:", node.label, s)
 
                 # if is leaf
-                # consider moving it up the tree
-                #print("scoring terminal branch:", node.label)
+                # TODO: consider moving it in an SPR Move
                 #s = self.score_terminal_branch(node, strategy)
                 #print("terminal branch:", node.label, s)
 
@@ -152,8 +150,8 @@ class ML_solver:
 
         w = v_edges[0] 
         pre_llh = self.score_tree()
-        if verbose:
-            print("pre_llh", pre_llh)
+        #if verbose:
+        #    print("pre_llh", pre_llh)
             #print("pre_llh", self.params.tree.newick(), pre_llh)
 
         # explore in order of importance
@@ -175,22 +173,22 @@ class ML_solver:
             u.add_child(w)
             
             new_llh = self.score_tree()
-            if verbose:
-                print("new_llh", new_llh)
+            #if verbose:
+            #    print("new_llh", new_llh)
                 #print("new_llh", self.params.tree.newick(), new_llh)
 
             if new_llh > pre_llh:
                 # log likelihood improved
                 return True
             elif new_llh == pre_llh:
-                if verbose:
-                    print("same log likelihood", new_llh)
+                #if verbose:
+                #    print("same log likelihood", new_llh)
                     #print("same log likelihood", self.params.tree.newick(), new_llh)
                 return True
             else:
                 # REVERSE IF LIKELIHOOD IS NOT BETTER
-                if verbose:
-                    print("reversing...")
+                #if verbose:
+                #    print("reversing...")
                 u_child.set_parent(u)
                 v.remove_child(u_child)
                 u.add_child(u_child)
@@ -200,16 +198,16 @@ class ML_solver:
                 v.add_child(w)
                 
                 new_llh = self.score_tree()
-                if verbose:
-                    print("new_llh", new_llh)
+                #if verbose:
+                #    print("new_llh", new_llh)
                     #print("new_llh", self.params.tree.newick(), new_llh)
-        if verbose:
-            print(new_llh)
+        #if verbose:
+        #    print(new_llh)
             #print(new_llh, self.params.tree.newick())
         return False
 
-    def single_nni(self, verbose, trynextbranch=True):
-        branches = self.score_branches()
+    def single_nni(self, verbose, trynextbranch=True, strategy="vanilla"):
+        branches = self.score_branches(strategy)
         took = False
         bidx = 0
         while not took:
@@ -223,6 +221,8 @@ class ML_solver:
             bidx += 1
             if not trynextbranch:
                 took = True 
+        if verbose:
+            print(bidx, " branch attempts.")
         llh = self.score_tree()
         return llh
 
@@ -230,7 +230,7 @@ class ML_solver:
         tree = self.params.tree
         return tree.extract_subtree(tree.root)
 
-    def topology_search(self, maxiter=100, verbose=False, output="results_nni"):
+    def topology_search(self, maxiter=100, verbose=False, output="results_nni", trynextbranch=False, strategy="vanilla"):
         nni_iter = 0
         same = 0
         topo_dict = {}
@@ -239,9 +239,9 @@ class ML_solver:
         pre_llh = self.score_tree()
         
         while 1:
-            if verbose:
-                print("NNI Iter:", nni_iter)
-            opt_score = self.single_nni(verbose)
+            #if verbose:
+            print("NNI Iter:", nni_iter)
+            opt_score = self.single_nni(verbose, trynextbranch=trynextbranch, strategy=strategy)
             
             tstr = self.params.tree.newick()
             topo_dict[nni_iter] = (tstr, opt_score)
