@@ -11,7 +11,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-t","--topology",required=True,help="Binary input tree topology in newick format. Branch lengths will be ignored. If any branches are not provided, the default is to set these to 0.5.")
+parser.add_argument("-t","--topology",required=True,help="Binary input tree topology in newick format. Branch lengths will be ignored.") 
 parser.add_argument("-c","--characters",required=True,help="The input character matrix. Must have header.")
 parser.add_argument("-r","--rep",required=False,help="The rep index of the input character matrix.") 
 parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.")
@@ -114,10 +114,12 @@ else:
 with open(args["output"],'w') as fout:
     mySolver = selected_solver(msa,Q,treeStr) #,beta_prior=beta_prior)
 # print(mySolver.params.tree.newick())
+    optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
     if args["topology_search"]:
-        mySolver.topology_search(maxiter=1000, verbose=True)
+        mySolver.topology_search(maxiter=1000, verbose=True, prefix='.'.join(args["output"].split('.')[:-1]))
         fout.write("Optimal topology: " + mySolver.params.tree.newick() + "\n")
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+
     fout.write("Optimal tree: " +  mySolver.params.tree.newick() + "\n")
     fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
     fout.write("Optimal dropout rate: " + str(mySolver.params.phi) + "\n")
