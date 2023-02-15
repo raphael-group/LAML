@@ -31,6 +31,7 @@ args = vars(parser.parse_args())
 delim_map = {'tab':'\t','comma':',','whitespace':' '}
 delimiter = delim_map[args["delimiter"]]
 msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["maskedchar"])
+
 if args["rep"]:
     print("Using rep:", args["rep"])
     msa = msa[int(args["rep"])]
@@ -108,7 +109,7 @@ if em_selected:
 else:    
     print("Optimization by Generic solver")        
    
-mySolver = selected_solver(msa,Q,treeStr,beta_prior=beta_prior)
+mySolver = selected_solver(msa,Q,treeStr)
 optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
 with open(args["output"],'w') as fout:
     fout.write("Optimal tree: " +  mySolver.params.tree.newick() + "\n")
