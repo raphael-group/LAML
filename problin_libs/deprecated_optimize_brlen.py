@@ -19,6 +19,7 @@ parser.add_argument("--noDropout",action='store_true',help="Assume there is no s
 parser.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
 parser.add_argument("--delimiter",required=False,default="tab",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.")
 parser.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
+parser.add_argument("--topology_search",type=boolean,required=False,default=False,help="Whether to search over topology space. Default: False")
 parser.add_argument("-o","--output",required=True,help="The output file.")
 
 args = vars(parser.parse_args())
@@ -78,6 +79,9 @@ else:
 
 mySolver = ML_solver(msa,Q,treeStr)
 optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu)
+if args["topology_search"]:
+    mySolver.topology_search(max_iter=100, verbose=True)
+
 with open(args["output"],'w') as fout:
     fout.write("Optimal tree: " +  mySolver.params.tree.newick() + "\n")
     fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
