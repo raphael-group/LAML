@@ -230,7 +230,7 @@ class ML_solver:
         tree = self.params.tree
         return tree.extract_subtree(tree.root)
 
-    def topology_search(self, maxiter=100, verbose=False):
+    def topology_search(self, maxiter=100, verbose=False, output="results_nni"):
         nni_iter = 0
         same = 0
         topo_dict = {}
@@ -261,15 +261,12 @@ class ML_solver:
             nni_iter += 1
         
         if verbose:
-            with open("results_nni_topo_search.txt", "w+") as w:
+            with open(output + "_topo_search.txt", "w+") as w:
                 for nni_iter in topo_dict:
                     w.write(str(nni_iter) + "\t" + str(topo_dict[nni_iter][1]) + "\n")
-            with open("results_tree_progress.nwk", "w+") as w:
+            with open(output + "_progress.nwk", "w+") as w:
                 for nni_iter in topo_dict:
                     w.write(topo_dict[nni_iter][0] + "\n") 
-            with open("results_final_tree.nwk", "w+") as w:
-                w.write(self.params.tree.newick() + "\n")
-
 
     def az_partition(self,params):
     # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
