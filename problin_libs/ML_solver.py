@@ -130,13 +130,14 @@ class ML_solver:
                 #print("terminal branch:", node.label, s)
 
             # print([(x[0].label, x[1]) for x in branches])
-        return max(branches, key=lambda item:item[1])[0]
+        return branches 
+        #return max(branches, key=lambda item:item[1])[0]
 
     def score_tree(self):
         self.az_partition(self.params)
         return self.lineage_llh(self.params)
 
-    def apply_nni(self, u):
+    def apply_nni(self, u, verbose):
         # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
         v = u.get_parent()
         u_edges = [w for w in u.child_nodes()]
@@ -151,7 +152,9 @@ class ML_solver:
 
         w = v_edges[0] 
         pre_llh = self.score_tree()
-        #print("pre_llh", self.params.tree.newick(), pre_llh)
+        if verbose:
+            print("pre_llh", pre_llh)
+            #print("pre_llh", self.params.tree.newick(), pre_llh)
 
         # explore in order of importance
         if d_bc > d_ac:
@@ -172,17 +175,22 @@ class ML_solver:
             u.add_child(w)
             
             new_llh = self.score_tree()
-            #print("new_llh", self.params.tree.newick(), new_llh)
+            if verbose:
+                print("new_llh", new_llh)
+                #print("new_llh", self.params.tree.newick(), new_llh)
 
             if new_llh > pre_llh:
                 # log likelihood improved
-                return
+                return True
             elif new_llh == pre_llh:
-                #print("same log likelihood", self.params.tree.newick(), new_llh)
-                return
+                if verbose:
+                    print("same log likelihood", new_llh)
+                    #print("same log likelihood", self.params.tree.newick(), new_llh)
+                return True
             else:
                 # REVERSE IF LIKELIHOOD IS NOT BETTER
-                #print("reversing...")
+                if verbose:
+                    print("reversing...")
                 u_child.set_parent(u)
                 v.remove_child(u_child)
                 u.add_child(u_child)
@@ -192,12 +200,29 @@ class ML_solver:
                 v.add_child(w)
                 
                 new_llh = self.score_tree()
-                #print("new_llh", self.params.tree.newick(), new_llh)
-        #print(new_llh, self.params.tree.newick())
+                if verbose:
+                    print("new_llh", new_llh)
+                    #print("new_llh", self.params.tree.newick(), new_llh)
+        if verbose:
+            print(new_llh)
+            #print(new_llh, self.params.tree.newick())
+        return False
 
-    def single_nni(self):
-        u = self.score_branches()
-        self.apply_nni(u)
+    def single_nni(self, verbose, trynextbranch=True):
+        branches = self.score_branches()
+        took = False
+        bidx = 0
+        while not took:
+            print("Branch Attempt:", bidx)
+            # get the index of the max
+            m = max(branches, key=lambda item:item[1])
+            u, u_score = m
+            midx = branches.index(m)
+            branches.pop(midx)
+            took = self.apply_nni(u, verbose)
+            bidx += 1
+            if not trynextbranch:
+                took = True 
         llh = self.score_tree()
         return llh
 
@@ -216,7 +241,7 @@ class ML_solver:
         while 1:
             if verbose:
                 print("NNI Iter:", nni_iter)
-            opt_score = self.single_nni()
+            opt_score = self.single_nni(verbose)
             
             tstr = self.params.tree.newick()
             topo_dict[nni_iter] = (tstr, opt_score)
@@ -236,8 +261,14 @@ class ML_solver:
             nni_iter += 1
         
         if verbose:
-            for nni_iter in topo_dict:
-                print(nni_iter, topo_dict[nni_iter])
+            with open("results_nni_topo_search.txt", "w+") as w:
+                for nni_iter in topo_dict:
+                    w.write(str(nni_iter) + "\t" + str(topo_dict[nni_iter][1]) + "\n")
+            with open("results_tree_progress.nwk", "w+") as w:
+                for nni_iter in topo_dict:
+                    w.write(topo_dict[nni_iter][0] + "\n") 
+            with open("results_final_tree.nwk", "w+") as w:
+                w.write(self.params.tree.newick() + "\n")
 
 
     def az_partition(self,params):
