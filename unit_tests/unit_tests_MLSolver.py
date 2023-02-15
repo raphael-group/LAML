@@ -229,10 +229,11 @@ class MLTest(unittest.TestCase):
         correct_branches = set(['b', 'e'])
         
         mySolver = ML_solver(msa,Q,T)
-        branch = mySolver.score_branches().label
+        branches = mySolver.score_branches()
+        branch = max(branches, key=lambda item:item[1])[0].label
+
         self.assertIn(branch, correct_branches, msg="MLTest: test_21 failed.")
 
-        
     def test_22(self):
         T = "((a:0.5,b:1)e:2,(c:1,d:0.5)f:1)g:1;"
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
@@ -240,7 +241,7 @@ class MLTest(unittest.TestCase):
         correct_topology = "(((a:0.5,d:0.5)f:1,c:1)e:2,b:1)g:1;"
         
         mySolver = ML_solver(msa,Q,T)
-        mySolver.topology_search(maxiter=10)
+        mySolver.topology_search(maxiter=10, verbose=False, strategy="vanilla", trynextbranch=False)
         opt_topo = mySolver.params.tree.newick()
         self.assertEqual(opt_topo, correct_topology, msg="MLTest: test_22 failed.")
 
