@@ -24,7 +24,7 @@ parser.add_argument("--nInitials",type=int,required=False,default=20,help="The n
 parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
 parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked character. Default: if not specified, assumes '-'.")
 parser.add_argument("-o","--output",required=True,help="The output file.")
-parser.add_argument("-v","--verbose",required=False,help="Print EM updates.",default=False)
+parser.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
 
 args = vars(parser.parse_args())
 
@@ -99,9 +99,6 @@ else:
 selected_solver = ML_solver
 em_selected = False
 if args["solver"].lower() == "em": 
-    #if not args["noSilence"]:
-    #    print("WARNING: EM algorithm has not been implemented for data with gene silencing. Program automatically switches to generic solver")
-    #else:
     selected_solver = EM_solver   
     em_selected = True
 if em_selected:

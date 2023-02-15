@@ -241,7 +241,7 @@ class EM_solver(ML_solver):
             em_iter += 1
         return -curr_llh    
 
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100):
+    '''def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100):
         if fixed_nu is not None and fixed_nu <= eps:
             if fixed_phi is not None:
                 phi_star = fixed_phi
@@ -260,7 +260,8 @@ class EM_solver(ML_solver):
                 if verbose:
                     print("Running EM with initial point " + str(rep+1))
                 x0 = self.ini_all(fixed_phi=phi_star,fixed_nu=fixed_nu)
-                self.x2params(x0,fixed_phi=phi_star,fixed_nu=fixed_nu)
+                self.x2params(x0,fixed_phi=phi_star,fixed_nu=fixed_nu)'''
+
     def Mstep(self,params,optimize_phi=True,optimize_nu=True,verbose=True,eps_nu=1e-5,eps_s=1e-6):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
@@ -384,61 +385,18 @@ class EM_solver(ML_solver):
                 break
             pre_llh = curr_llh
             em_iter += 1
-        return -curr_llh    
-    
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,random_seeds=None):
-    # override the same function of the base class
-    # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
-        results = []
-        all_failed = True
-        all_trials = 0
-        if random_seeds is None:
-            rseeds = [int(random()*10000) for i in range(initials)]
-        elif type(random_seeds) == int:
-            print("Global random seed: " + str(random_seeds))
-            seed(a=random_seeds)
-            rseeds = [int(random()*10000) for i in range(initials)]
-        elif type(random_seeds) == list:
-            if len(random_seeds) < initials:
-                print("Fatal: the number of random seeds is smaller than the number of initials!")
-                return None
-            elif len(random_seeds) > initials:
-                print("Warning: the number of random seeds is larger than the number of initials. Ignoring the last " + str(len(random_seeds)-initials) + " seeds")
-            rseeds = random_seeds[:initials]    
-        else:
-            print("Fatal: incorrect random_seeds type provided")        
-            return None
-        while all_failed and all_trials < max_trials:
-            if verbose:
-                print("Starting with initials: ", initials)
-            for rep in range(initials):
-                randseed = rseeds[rep]
-                print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
-                seed(a=randseed)
-                print("Running EM with initial point " + str(rep+1))
-                x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
-                self.x2params(x0,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
-                params = self.params
-                self.az_partition(params)
-                nllh = self.EM_optimization(params,verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None))
-                if nllh is not None:
-                    all_failed = False
-                    print("Optimal point found for initial point " + str(rep+1))
-                    print("Optimal phi: " + str(params.phi))
-                    print("Optimal nu: " + str(params.nu))
-                    print("Optimal tree: " + params.tree.newick())
-                    print("Optimal nllh: " + str(nllh))
-                    results.append((nllh,params))
-                else:
-                    print("Fatal: failed to optimize using initial point " + str(rep+1))    
-
-                if verbose:
-                    print("Rep: ", rep)
-            all_trials += initials    
-        results.sort()
-        best_nllh,best_params = results[0]
-        self.params = best_params
-        return results[0][0]
+        return -curr_llh, em_iter    
+   
+    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True):
+        # optimize using a specific initial point identified by the input randseed
+        seed(a=randseed)
+        x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
+        self.x2params(x0,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
+        params = self.params
+        self.az_partition(params)
+        nllh, em_iter = self.EM_optimization(params,verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None))
+        print("EM finished after " + str(em_iter) + " iterations.")
+        return nllh,params 
 
 def main(): 
     from sequence_lib import read_sequences

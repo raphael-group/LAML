@@ -171,8 +171,73 @@ class ML_solver:
         print("nu: " + str(self.params.nu))
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
+    
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,random_seeds=None):
+    # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
+        results = []
+        all_failed = True
+        all_trials = 0
+        if random_seeds is None:
+            rseeds = [int(random()*10000) for i in range(initials)]
+        elif type(random_seeds) == int:
+            print("Global random seed: " + str(random_seeds))
+            seed(a=random_seeds)
+            rseeds = [int(random()*10000) for i in range(initials)]
+        elif type(random_seeds) == list:
+            if len(random_seeds) < initials:
+                print("Fatal: the number of random seeds is smaller than the number of initials!")
+                return None
+            elif len(random_seeds) > initials:
+                print("Warning: the number of random seeds is larger than the number of initials. Ignoring the last " + str(len(random_seeds)-initials) + " seeds")
+            rseeds = random_seeds[:initials]    
+        else:
+            print("Fatal: incorrect random_seeds type provided")        
+            return None
+        while all_failed and all_trials < max_trials:
+            if verbose:
+                print("Starting with initials: ", initials)
+            for rep in range(initials):
+                randseed = rseeds[rep]
+                print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
+                print("Running EM with initial point " + str(rep+1))
+                nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose)
+                if nllh is not None:
+                    all_failed = False
+                    print("Optimal point found for initial point " + str(rep+1))
+                    print("Optimal phi: " + str(params.phi))
+                    print("Optimal nu: " + str(params.nu))
+                    print("Optimal tree: " + params.tree.newick())
+                    print("Optimal nllh: " + str(nllh))
+                    results.append((nllh,params))
+                else:
+                    print("Fatal: failed to optimize using initial point " + str(rep+1))    
+            all_trials += initials    
+        results.sort()
+        best_nllh,best_params = results[0]
+        self.params = best_params
+        return results[0][0]
 
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,alpha=1,beta=1):
+    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True):
+        # optimize using a specific initial point identified by the input randseed
+        warnings.filterwarnings("ignore")
+        def nllh(x): 
+            self.x2params(x,fixed_nu=fixed_nu,fixed_phi=fixed_phi)            
+            return -self.__llh__()
+        
+        seed(a=randseed)
+        x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
+        self.az_partition(self.params)
+        bounds = self.get_bound(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
+        out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':verbose,'iprint':3,'maxiter':1000}, bounds=bounds)
+        if out.success:
+            self.x2params(out.x,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
+            params = self.params
+            f = out.fun
+        else:
+            f,params = None,None
+        return f,params
+
+    def optimize_old(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,alpha=1,beta=1):
     # optimize tree branch lengths and nu and phi 
         self.az_partition(self.params)
         warnings.filterwarnings("ignore")
@@ -195,7 +260,9 @@ class ML_solver:
                 seed(a=randseed)
                 x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
                 out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':verbose,'iprint':3,'maxiter':1000}, bounds=bounds)
+                #nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose)
                 if out.success:
+                #if type(nllh) == int:
                     all_failed = False
                     print("Optimal point found for initial " + str(i+1))
                     self.x2params(out.x,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
