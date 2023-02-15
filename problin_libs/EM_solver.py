@@ -17,6 +17,7 @@ class EM_solver(ML_solver):
         phi = params.phi
         nu = params.nu
         for node in params.tree.traverse_postorder():
+            # print(node.label, node.edge_length)
             p = exp(-node.edge_length)
             node.L0 = [0]*self.numsites # L0 and L1 are stored in log-scale
             node.L1 = [0]*self.numsites
