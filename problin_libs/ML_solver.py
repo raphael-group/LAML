@@ -23,15 +23,15 @@ class ML_solver:
     def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps):
     #def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps,beta_prior=(1,1)):
         self.charMtrx = charMtrx
-        self.Q = Q
+        # normalize Q
+        self.Q = []
+        for Q_i in Q:
+            s = sum([Q_i[x] for x in Q_i])
+            Q_i_norm = {x:Q_i[x]/s for x in Q_i}
+            self.Q.append(Q_i_norm)
         self.params = Params(nwkTree,nu=nu,phi=phi)
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.params.tree.traverse_postorder()))
-        '''
-        if beta_prior == 'auto':
-            self.compute_beta_prior()
-        else:
-            self.alpha,self.beta = beta_prior'''
     
     def compute_beta_prior(self):
         msa = self.charMtrx
