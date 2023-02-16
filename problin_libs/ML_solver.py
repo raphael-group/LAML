@@ -230,7 +230,7 @@ class ML_solver:
         tree = self.params.tree
         return tree.extract_subtree(tree.root)
 
-    def topology_search(self, maxiter=100, verbose=False, output="results_nni", trynextbranch=False, strategy="vanilla"):
+    def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla"):
         nni_iter = 0
         same = 0
         topo_dict = {}
@@ -261,10 +261,10 @@ class ML_solver:
             nni_iter += 1
         
         if verbose:
-            with open(output + "_topo_search.txt", "w+") as w:
+            with open(prefix + "_topo_search.txt", "w+") as w:
                 for nni_iter in topo_dict:
                     w.write(str(nni_iter) + "\t" + str(topo_dict[nni_iter][1]) + "\n")
-            with open(output + "_progress.nwk", "w+") as w:
+            with open(prefix + "_progress.nwk", "w+") as w:
                 for nni_iter in topo_dict:
                     w.write(topo_dict[nni_iter][0] + "\n") 
 
