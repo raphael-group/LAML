@@ -26,6 +26,7 @@ parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked 
 parser.add_argument("-o","--output",required=True,help="The output file.")
 parser.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
 parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations.")
+parser.add_argument("--strategy", required=False, help="Strategy for NNI topology search.")
 
 args = vars(parser.parse_args())
 
@@ -116,9 +117,9 @@ with open(args["output"],'w') as fout:
 # print(mySolver.params.tree.newick())
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
     if args["topology_search"]:
-        mySolver.topology_search(maxiter=1000, verbose=True, prefix='.'.join(args["output"].split('.')[:-1]), strategy="vanilla", trynextbranch=True)
+        mySolver.topology_search(maxiter=1000, verbose=True, prefix='.'.join(args["output"].split('.')[:-1]), trynextbranch=True, strategy=args["strategy"])
         fout.write("Optimal topology: " + mySolver.params.tree.newick() + "\n")
-    optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+        optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
 
     fout.write("Optimal tree: " +  mySolver.params.tree.newick() + "\n")
     fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")

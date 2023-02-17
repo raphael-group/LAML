@@ -296,6 +296,9 @@ class EM_solver(ML_solver):
                 S0[i],S1[i],S2[i],S3[i],S4[i] = s
             def __optimize_brlen__(nu): # nu is a single number
                 dmax = -log(1/self.numsites)*2
+                #dmax = 2.3
+                # print("Dmax:", dmax)
+                #print(self.numsites)
                 dmin = -log(1-1/self.numsites)/2
                 D = np.zeros(N)
                 if nu <= eps_nu:

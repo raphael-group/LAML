@@ -1,6 +1,6 @@
 from treeswift import *
 from math import log,exp,sqrt
-from random import random, seed
+from random import random, seed, choice
 from scipy import optimize
 import warnings
 import numpy as np
@@ -119,8 +119,11 @@ class ML_solver:
             if not node.is_leaf():
                 # consider moving it inside the tree
                 #print("scoring internal branch:", node.label)
-                s = self.score_internal_branch(node, strategy)
-                branches.append((node, s))
+                if strategy == "random":
+                    branches.append(node)
+                else:
+                    s = self.score_internal_branch(node, strategy)
+                    branches.append((node, s))
 
                 # if is leaf
                 # TODO: consider moving it in an SPR Move
@@ -211,18 +214,23 @@ class ML_solver:
         took = False
         bidx = 0
         while not took:
-            print("Branch Attempt:", bidx)
+            if verbose:
+                print("Branch Attempt:", bidx)
             # get the index of the max
-            m = max(branches, key=lambda item:item[1])
-            u, u_score = m
+            if strategy == "random":
+                m = choice(branches)
+                u = m
+            else:
+                m = max(branches, key=lambda item:item[1])
+                u, u_score = m
             midx = branches.index(m)
             branches.pop(midx)
             took = self.apply_nni(u, verbose)
             bidx += 1
             if not trynextbranch:
                 took = True 
-        if verbose:
-            print(bidx, " branch attempts.")
+        #if verbose:
+        print(bidx, " branch attempts.")
         llh = self.score_tree()
         return llh
 
@@ -263,7 +271,7 @@ class ML_solver:
         if verbose:
             with open(prefix + "_topo_search.txt", "w+") as w:
                 for nni_iter in topo_dict:
-                    w.write(str(nni_iter) + "\t" + str(topo_dict[nni_iter][1]) + "\n")
+                    w.write(str(nni_iter) + "\t" + str(-topo_dict[nni_iter][1]) + "\n")
             with open(prefix + "_progress.nwk", "w+") as w:
                 for nni_iter in topo_dict:
                     w.write(topo_dict[nni_iter][0] + "\n") 
