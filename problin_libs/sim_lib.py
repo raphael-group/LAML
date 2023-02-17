@@ -83,6 +83,7 @@ def sim_Q(k, m, prior_outfile=""):
                     fout.write(str(i) + " " + str(x) + " " + str(Q[i][x]) + "\n")
     return Q
 
+
 if __name__=="__main__":
     treeStr = get_balanced_tree(2,1.0)
     tree = read_tree_newick(treeStr)
