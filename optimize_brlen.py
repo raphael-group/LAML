@@ -24,15 +24,19 @@ parser.add_argument("--nInitials",type=int,required=False,default=20,help="The n
 parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
 parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked character. Default: if not specified, assumes '-'.")
 parser.add_argument("-o","--output",required=True,help="The output file.")
+parser.add_argument("-od","--outputdir",required=False,help="The output directory.")
 parser.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
 parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations.")
 parser.add_argument("--strategy", required=False, help="Strategy for NNI topology search.")
+parser.add_argument("--randomreps", required=False, default=5, type=int, help="Number of replicates to run for the random strategy of topology search.")
+parser.add_argument("--conv", "--convergence", required=False, default=0.2, type=float, help="The threshold parameter to define whether the nni search has converged. Translates to percentage of branches we assume are bad. Default is 0.9.")
 
 args = vars(parser.parse_args())
 
 delim_map = {'tab':'\t','comma':',','whitespace':' '}
 delimiter = delim_map[args["delimiter"]]
 msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["maskedchar"])
+prefix = '.'.join(args["output"].split('.')[:-1])
 
 if args["rep"]:
     print("Using rep:", args["rep"])
@@ -43,9 +47,38 @@ with open(args["topology"],'r') as f:
     if len(tree.root.child_nodes()) != 2:
         print("Provided topology's root does not have two nodes, resetting root.")
         treeStr = tree.newick()[1:-2] + ";"
-    for node in tree.traverse_inorder(tree):
-        if node.edge_length is None:
-            node.edge_length = 0.5 #0.001
+
+    #for node in tree.traverse_inorder(tree):
+    #    if node.edge_length is None:
+    #        node.edge_length = 0.5 #0.001
+    #treeStr = tree.newick()
+    
+    tree = read_tree_newick(treeStr)
+    keybranches = []
+    containsPolytomies = False
+    # if there are polytomies, randomly resolve them
+    i = 0
+    nlabel = "nlabel_"
+    for node in tree.traverse_levelorder():
+        if not node.is_leaf():
+            #print(node.label)
+            if node.label == None:
+                node.label = nlabel + str(i)
+                i += 1
+                #print(None, "reset to", node.label)
+            if len(node.child_nodes()) != 2:
+                containsPolytomies = True
+                node.resolve_polytomies()
+                for x in node.child_nodes():
+                    if not x.is_leaf():
+                        if x.label == None:
+                            x.label = nlabel + str(i)
+                            i += 1
+                        keybranches.append(x.label)
+    if containsPolytomies:
+        print("Detected polytomies in the provided topology. Randomly resolving these polytomies and prioritizing these branches for topology search if enabled.")
+        outfile = args["outputdir"] + prefix +  ".resolvedtree"
+        tree.write_tree_newick(outfile)
     treeStr = tree.newick()
 
 
@@ -112,12 +145,16 @@ if em_selected:
 else:    
     print("Optimization by Generic solver")        
    
-with open(args["output"],'w') as fout:
+with open(args["outputdir"] + "/" + args["output"],'w') as fout:
     mySolver = selected_solver(msa,Q,treeStr) #,beta_prior=beta_prior)
 # print(mySolver.params.tree.newick())
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
     if args["topology_search"]:
-        mySolver.topology_search(maxiter=1000, verbose=True, prefix='.'.join(args["output"].split('.')[:-1]), trynextbranch=True, strategy=args["strategy"])
+        mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
+        if containsPolytomies: # topology_search(maxiter, verbose, prefix, trynextbranch, strategy, [], nreps, outdir, conv)
+            mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=[], nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
+
+
         fout.write("Optimal topology: " + mySolver.params.tree.newick() + "\n")
         optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
 
