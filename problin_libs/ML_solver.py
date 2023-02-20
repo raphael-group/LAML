@@ -209,20 +209,24 @@ class ML_solver:
             #print(new_llh, self.params.tree.newick())
         return False
 
-    def single_nni(self, verbose, trynextbranch=True, strategy="vanilla"):
+    def single_nni(self, verbose, trynextbranch=True, strategy="vanilla", keybranches=[]):
         branches = self.score_branches(strategy)
         took = False
         bidx = 0
         while not took:
             if verbose:
                 print("Branch Attempt:", bidx)
+            if keybranches != []:
+                m = keybranches.pop()
+                u = m
             # get the index of the max
-            if strategy == "random":
+            elif strategy == "random":
                 m = choice(branches)
                 u = m
             else:
                 m = max(branches, key=lambda item:item[1])
                 u, u_score = m
+            
             midx = branches.index(m)
             branches.pop(midx)
             took = self.apply_nni(u, verbose)
@@ -238,7 +242,7 @@ class ML_solver:
         tree = self.params.tree
         return tree.extract_subtree(tree.root)
 
-    def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla"):
+    def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla", keybranches=[]):
         nni_iter = 0
         same = 0
         topo_dict = {}
@@ -249,7 +253,7 @@ class ML_solver:
         while 1:
             #if verbose:
             print("NNI Iter:", nni_iter)
-            opt_score = self.single_nni(verbose, trynextbranch=trynextbranch, strategy=strategy)
+            opt_score = self.single_nni(verbose, trynextbranch=trynextbranch, strategy=strategy, keybranches=keybranches)
             
             tstr = self.params.tree.newick()
             topo_dict[nni_iter] = (tstr, opt_score)

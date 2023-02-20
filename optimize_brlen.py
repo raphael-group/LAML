@@ -43,9 +43,23 @@ with open(args["topology"],'r') as f:
     if len(tree.root.child_nodes()) != 2:
         print("Provided topology's root does not have two nodes, resetting root.")
         treeStr = tree.newick()[1:-2] + ";"
-    for node in tree.traverse_inorder(tree):
-        if node.edge_length is None:
-            node.edge_length = 0.5 #0.001
+
+    #for node in tree.traverse_inorder(tree):
+    #    if node.edge_length is None:
+    #        node.edge_length = 0.5 #0.001
+    #treeStr = tree.newick()
+
+    keybranches = []
+    containsPolytomies = False
+    # if there are polytomies, randomly resolve them
+    for node in tree.traverse_levelorder():
+        if not node.is_leaf():
+            if len(node.child_nodes()) != 2:
+                containsPolytomies = True
+                node.resolve_polytomies()
+                keybranches.extend(node.child_nodes())
+    if containsPolytomies:
+        print("Detected polytomies in the provided topology. Randomly resolving these polytomies and prioritizing these branches for topology search if enabled.")
     treeStr = tree.newick()
 
 
@@ -117,7 +131,7 @@ with open(args["output"],'w') as fout:
 # print(mySolver.params.tree.newick())
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
     if args["topology_search"]:
-        mySolver.topology_search(maxiter=1000, verbose=True, prefix='.'.join(args["output"].split('.')[:-1]), trynextbranch=True, strategy=args["strategy"])
+        mySolver.topology_search(maxiter=1000, verbose=True, prefix='.'.join(args["output"].split('.')[:-1]), trynextbranch=True, strategy=args["strategy"], keybranches=keybranches)
         fout.write("Optimal topology: " + mySolver.params.tree.newick() + "\n")
         optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
 
