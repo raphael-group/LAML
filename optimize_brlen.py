@@ -48,9 +48,38 @@ with open(args["topology"],'r') as f:
     if len(tree.root.child_nodes()) != 2:
         print("Provided topology's root does not have two nodes, resetting root.")
         treeStr = tree.newick()[1:-2] + ";"
-    for node in tree.traverse_inorder(tree):
-        if node.edge_length is None:
-            node.edge_length = 0.5 #0.001
+
+    #for node in tree.traverse_inorder(tree):
+    #    if node.edge_length is None:
+    #        node.edge_length = 0.5 #0.001
+    #treeStr = tree.newick()
+    
+    tree = read_tree_newick(treeStr)
+    keybranches = []
+    containsPolytomies = False
+    # if there are polytomies, randomly resolve them
+    i = 0
+    nlabel = "nlabel_"
+    for node in tree.traverse_levelorder():
+        if not node.is_leaf():
+            #print(node.label)
+            if node.label == None:
+                node.label = nlabel + str(i)
+                i += 1
+                #print(None, "reset to", node.label)
+            if len(node.child_nodes()) != 2:
+                containsPolytomies = True
+                node.resolve_polytomies()
+                for x in node.child_nodes():
+                    if not x.is_leaf():
+                        if x.label == None:
+                            x.label = nlabel + str(i)
+                            i += 1
+                        keybranches.append(x.label)
+    if containsPolytomies:
+        print("Detected polytomies in the provided topology. Randomly resolving these polytomies and prioritizing these branches for topology search if enabled.")
+        outfile = args["outputdir"] + prefix +  ".resolvedtree"
+        tree.write_tree_newick(outfile)
     treeStr = tree.newick()
 
     #for node in tree.traverse_inorder(tree):

@@ -231,8 +231,7 @@ class ML_solver:
 
             if len(branches) == 0:
                 break
-            # get the index of the max
-            if strategy == "random":
+            elif strategy == "random":
                 m = choice(branches)
                 u, u_score = m
             else:
@@ -246,8 +245,8 @@ class ML_solver:
             bidx += 1
             if not trynextbranch:
                 took = True 
-        #if verbose:
-        print(bidx, " branch attempts.")
+        if verbose:
+            print(bidx, " branch attempts.")
         llh = self.score_tree()
         return llh
 
@@ -268,6 +267,10 @@ class ML_solver:
         k = -int(log(conv)/log(t) * nib)
         if verbose:
             print("Running topology search for", k, "iterations.")
+<<<<<<< HEAD
+=======
+
+>>>>>>> fceae3f (Fixed the unit tests, deleted scripts from problin_libs.)
         resolve_polytomies = False
         if verbose:
             print("Starting topology search.")
