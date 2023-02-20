@@ -298,10 +298,14 @@ class EM_solver(ML_solver):
                 S0[i],S1[i],S2[i],S3[i],S4[i] = s
     
             def __optimize_brlen__(nu): # nu is a single number
-                dmax = -log(1/self.numsites)*2
-                #dmax = 2.3
-                # print("Dmax:", dmax)
-                #print(self.numsites)
+                #print("[__optimize_brlen__]")
+                zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx]) 
+                totalcount = self.numsites * len(self.charMtrx)
+                zeroprop = zerocount/totalcount
+                #print("zerocount", zerocount, "totalcount", totalcount, "zeroprop", zeroprop)
+                #dmax = -log(1/self.numsites)*2
+                dmax = -log(zeroprop)
+                #print("dmax:", dmax)
                 dmin = -log(1-1/self.numsites)/2
                 D = np.zeros(N)
                 if nu <= eps_nu:

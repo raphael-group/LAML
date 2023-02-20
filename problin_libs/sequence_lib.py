@@ -18,10 +18,11 @@ def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
             fout.write("\n")
 
 
-def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol=None):
+def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol=None, suppress_warnings=False):
     with open(inFile,'r') as fin:
         if filetype == "fasta":
-            print("Warning: Reading " + str(inFile) + " as fasta file. Processing missing data in these files is not yet implemented.")
+            if not suppress_warnings: 
+                print("Warning: Reading " + str(inFile) + " as fasta file. Processing missing data in these files is not yet implemented.")
             return read_fasta(fin)
         elif filetype == "charMtrx":
 

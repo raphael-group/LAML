@@ -1,3 +1,4 @@
+import json
 import pickle
 from problin_libs.sequence_lib import read_sequences, write_sequences
 import sys
@@ -16,17 +17,18 @@ def load_pickle(f):
         for x in q.keys():
             # print(q[x], x, q[x] < 1.0 and q[x] >= 0.0)
             assert q[x] < 1.0 and q[x] >= 0.0
-        # q[0] = 0.0
+        q[0] = 0.0
         
         Q[i] = q
     return Q
 
-def make_unique(fname, outfile, delimiter='\t', missing_char="?"):
+def make_unique(fname, outfile, eqfile, delimiter='\t', missing_char="?", droplenti=False):
 
     msa, site_names = read_sequences(fname, filetype="charMtrx", delimiter=delimiter)
     
     final_msa = dict()
-    seen = set()
+    seen = dict()
+    mappings = dict()
 
     for cellBC in msa:
         s = [str(x) for x in msa[cellBC]]
@@ -35,9 +37,37 @@ def make_unique(fname, outfile, delimiter='\t', missing_char="?"):
         if s not in seen:
             # final_msa[cellBC] = msa[cellBC]
             final_msa[cellBC] = [x if x != missing_char else -1 for x in msa[cellBC] ]
-            seen.add(s)
+            seen[s] = cellBC
+            mappings[cellBC] = []
+        else:
+            seed_cellBC = seen[s]
+            mappings[seed_cellBC].append(cellBC)
+
+    if droplenti:
+        for cellname in final_msa:
+            final_msa[cellname] = final_msa[cellname][1:]
+        site_names = site_names[1:]
+        k -= 1
     
     write_sequences(final_msa, k, outfile, delimiter=',')
+    
+    with open(f"{eqfile}", "w") as f:
+        json.dump(mappings, f)
 
+    return mappings
+
+def add_identical(tree, eqfile):
+    # Destructive: Modifies tree, adding polytomies!
+
+    l2n = tree.label_to_node(selection="all")
+    with open(eqfile, "r") as f:
+        mappings = json.load(f)
+
+    for seed_label in mappings:
+        # get corresponding node
+        seed_node =l2n[seed_label]
+        for same_label in mappings[seed_label]:
+            child = Node(label=same_label)
+            seed_node.add_child(child)
 
 

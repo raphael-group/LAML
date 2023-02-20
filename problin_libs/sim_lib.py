@@ -1,3 +1,5 @@
+from problin_libs.preprocess import load_pickle
+import os
 from treeswift import *
 from math import *
 import random
@@ -96,6 +98,27 @@ def sim_Q(k, m, prior_outfile=""):
                     fout.write(str(i) + " " + str(x) + " " + str(Q[i][x]) + "\n")
     return Q
 
+def concat_Q(d):
+    all_priors = []
+    for f in os.listdir(d):
+        p = load_pickle(f)
+        for k in p:
+            all_priors.append(p[k])
+    return all_priors
+
+def sample_Q(k, all_priors, prior_outfile="", s=None):
+    if s is not None:
+        random.seed(s)
+    newQ = dict()
+    for i in range(k):
+        p = random.choice(all_priors)
+        newQ[i] = p
+    if prior_outfile != "":
+        with open(prior_outfile, "w") as fout:
+            for i in range(k):
+                for x in Q[i]:
+                    fout.write(str(i) + " " + str(x) + " " + str(Q[i][x]) + "\n")
+    return newQ
 
 if __name__=="__main__":
     treeStr = get_balanced_tree(2,1.0)

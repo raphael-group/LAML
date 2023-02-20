@@ -32,6 +32,9 @@ class ML_solver:
         self.params = Params(nwkTree,nu=nu,phi=phi)
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.params.tree.traverse_postorder()))
+        # TODO put in dmax and dmin here, remove everywhere else!!
+        #self.dmin
+        #self.dmax
     
     def compute_beta_prior(self):
         msa = self.charMtrx
@@ -104,7 +107,19 @@ class ML_solver:
         cladeC = [w for w in v.child_nodes() if w is not u][0]
         return self.similarity_score(cladeC, cladeB, cladeA, strat)
 
-    def score_branches(self, strategy="vanilla"):
+    def resolve_keybranches(self, keybranches):
+        num_internal = 0
+        kb = []
+        l2n = self.params.tree.label_to_node(selection="all")
+        for nlabel in keybranches:
+            node = l2n[nlabel]
+            if not node.is_leaf():
+                num_internal += 1
+                kb.append(node)
+        return num_internal, kb
+
+
+    def score_branches(self, strategy="vanilla", keybranches=[]):
         if self.params.tree.num_nodes(internal=True, leaves=False) <= 2:
             print("Provided tree does not have enough internal branches to perform a nearest neighbor interchange operation.")
             return None
@@ -112,27 +127,24 @@ class ML_solver:
         # Purpose: Score all branches before returning one to consider nnis around
         self.az_partition(self.params)
         branches = []
-        for node in self.params.tree.traverse_postorder():
-            if node.is_root():
-                continue
-            # print("considering node:", node.label, node.alpha)
-            if not node.is_leaf():
-                # consider moving it inside the tree
-                #print("scoring internal branch:", node.label)
-                if strategy == "random":
-                    branches.append(node)
-                else:
-                    s = self.score_internal_branch(node, strategy)
-                    branches.append((node, s))
 
-                # if is leaf
-                # TODO: consider moving it in an SPR Move
-                #s = self.score_terminal_branch(node, strategy)
-                #print("terminal branch:", node.label, s)
+        if keybranches != []:
+            for node in keybranches:
+                s = self.score_internal_branch(node, strategy)
+                branches.append((node, s))
+        else:
+            for node in self.params.tree.traverse_postorder():
+                if node.is_root():
+                    continue
+                if not node.is_leaf():
+                    # consider moving it inside the tree
+                    if strategy == "random":
+                        branches.append((node, 1))
+                    else:
+                        s = self.score_internal_branch(node, strategy)
+                        branches.append((node, s))
 
-            # print([(x[0].label, x[1]) for x in branches])
         return branches 
-        #return max(branches, key=lambda item:item[1])[0]
 
     def score_tree(self):
         self.az_partition(self.params)
@@ -209,21 +221,26 @@ class ML_solver:
             #print(new_llh, self.params.tree.newick())
         return False
 
-    def single_nni(self, verbose, trynextbranch=True, strategy="vanilla"):
-        branches = self.score_branches(strategy)
+    def single_nni(self, verbose, trynextbranch=True, strategy="vanilla", keybranches=[]):
+        branches = self.score_branches(strategy, keybranches)
         took = False
         bidx = 0
         while not took:
             if verbose:
                 print("Branch Attempt:", bidx)
+
+            if len(branches) == 0:
+                break
             # get the index of the max
             if strategy == "random":
                 m = choice(branches)
-                u = m
+                u, u_score = m
             else:
                 m = max(branches, key=lambda item:item[1])
                 u, u_score = m
+            
             midx = branches.index(m)
+
             branches.pop(midx)
             took = self.apply_nni(u, verbose)
             bidx += 1
@@ -238,43 +255,92 @@ class ML_solver:
         tree = self.params.tree
         return tree.extract_subtree(tree.root)
 
-    def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla"):
-        nni_iter = 0
-        same = 0
-        topo_dict = {}
-        seen = set()
-       
-        pre_llh = self.score_tree()
-        
-        while 1:
-            #if verbose:
-            print("NNI Iter:", nni_iter)
-            opt_score = self.single_nni(verbose, trynextbranch=trynextbranch, strategy=strategy)
-            
-            tstr = self.params.tree.newick()
-            topo_dict[nni_iter] = (tstr, opt_score)
-            
-            seen.add(tstr)
-            new_llh = self.score_tree()
-
-            if new_llh == pre_llh:
-                same += 1
-            else:
-                same = 0
-            
-            if (new_llh - pre_llh < nni_conv_eps and tstr in seen and same > 2) or nni_iter > maxiter:
-                break
-
-            pre_llh = new_llh
-            nni_iter += 1
-        
+    def num_internal_branches(self):
+        nib = 0
+        tree = self.params.tree
+        for node in self.params.tree.traverse_postorder():
+            if not node.is_leaf():
+                nib += 1
+        return float(nib) 
+    def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla", keybranches=[], nreps=1, outdir="", conv=0.2):
+        nib = self.num_internal_branches()
+        t = round(0.2 * nib) + 1
+        k = -int(log(conv)/log(t) * nib)
         if verbose:
-            with open(prefix + "_topo_search.txt", "w+") as w:
+            print("Running topology search for", k, "iterations.")
+        resolve_polytomies = False
+        if verbose:
+            print("Starting topology search.")
+        if keybranches != []:
+            resolve_polytomies = True
+            if verbose:
+                print("Doing topology search on polytomies.")
+            nib, keybranches = self.resolve_keybranches(keybranches)
+        elif verbose:
+            print("Doing topology search on polytomy-resolved tree.")
+
+        nni_replicates = dict()
+        starting_tree = self.tree_copy()
+        for i in range(nreps):
+
+            topo_dict = {}
+            seen = set()
+            self.params.tree = starting_tree
+            nni_iter = 0
+            same = 0
+            pre_llh = self.score_tree()
+            
+            while 1:
+                if verbose:
+                    print("NNI Iter:", nni_iter)
+                opt_score = self.single_nni(verbose, trynextbranch=trynextbranch, strategy=strategy, keybranches=keybranches)
+                
+                tstr = self.params.tree.newick()
+                topo_dict[nni_iter] = (tstr, opt_score)
+                
+                seen.add(tstr)
+                new_llh = self.score_tree()
+
+                if new_llh == pre_llh:
+                    same += 1
+                else:
+                    same = 0
+                
+                if (new_llh - pre_llh < nni_conv_eps and tstr in seen and same > k) or nni_iter > maxiter:
+                    break
+                #if (nni_iter / nib) > conv:
+                #    break
+                pre_llh = new_llh
+                nni_iter += 1
+
+            nni_replicates[i] = (new_llh, topo_dict)
+       
+        #m = max(nni_replicates, key=lambda item:nni_replicates[item][0])
+        #llh, topo_dict = nni_replicates[m]
+        
+        #if verbose:
+        #    print("Recording the best result by ending llh.")
+        if resolve_polytomies:
+            out1 = outdir + "/" + prefix + "_topo_llh_resolvingpolytomies.txt"
+            out2 = outdir + "/" + prefix + "_topo_progress_resolvingpolytomies.nwk"
+        else:
+            out1 = outdir + "/" + prefix + "_topo_llh.txt"
+            out2 = outdir + "/" + prefix + "_topo_progress.nwk"
+
+        with open(out1, "w+") as w:
+            w.write("RandomRep\tnniIter\tNLLH\n")
+            for rep in nni_replicates:
+                llh, topo_dict = nni_replicates[rep]
                 for nni_iter in topo_dict:
-                    w.write(str(nni_iter) + "\t" + str(-topo_dict[nni_iter][1]) + "\n")
-            with open(prefix + "_progress.nwk", "w+") as w:
+                    w.write(str(rep) + "\t" + str(nni_iter) + "\t" + str(-topo_dict[int(nni_iter)][1]) + "\n")
+        with open(out2, "w+") as w:
+            w.write("RandomRep\tnniIter\tTopology\n")
+            for rep in nni_replicates:
+                llh, topo_dict = nni_replicates[rep]
                 for nni_iter in topo_dict:
-                    w.write(topo_dict[nni_iter][0] + "\n") 
+                    w.write(str(rep) + "\t" + str(nni_iter) + "\t" + topo_dict[int(nni_iter)][0] + "\n") 
+        #if resolve_polytomies:
+        #    self.topology_search(maxiter, verbose, prefix, trynextbranch, strategy, [], nreps, outdir, conv)
     def az_partition(self,params):
     # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
     # Note: there is a different partition for each target-site
