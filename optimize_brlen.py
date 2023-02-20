@@ -48,7 +48,8 @@ with open(args["topology"],'r') as f:
     #    if node.edge_length is None:
     #        node.edge_length = 0.5 #0.001
     #treeStr = tree.newick()
-
+    
+    tree = read_tree_newick(treeStr)
     keybranches = []
     containsPolytomies = False
     # if there are polytomies, randomly resolve them
@@ -60,6 +61,8 @@ with open(args["topology"],'r') as f:
                 keybranches.extend(node.child_nodes())
     if containsPolytomies:
         print("Detected polytomies in the provided topology. Randomly resolving these polytomies and prioritizing these branches for topology search if enabled.")
+        outfile = args["output"] + ".resolvedtree"
+        tree.write_tree_newick(outfile)
     treeStr = tree.newick()
 
 
