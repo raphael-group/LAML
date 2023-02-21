@@ -217,8 +217,11 @@ class ML_solver:
             if verbose:
                 print("Branch Attempt:", bidx)
             if keybranches != []:
-                m = keybranches.pop()
-                u = m
+                #print("keybranches", keybranches)
+                l2n = self.params.tree.label_to_node(set(keybranches))
+                u = l2n[keybranches.pop(0)] 
+                #print("keybranch node", u, type(u))
+                m = u #(u, self.score_internal_branch(u, strategy))
             # get the index of the max
             elif strategy == "random":
                 m = choice(branches)
@@ -228,6 +231,7 @@ class ML_solver:
                 u, u_score = m
             
             midx = branches.index(m)
+
             branches.pop(midx)
             took = self.apply_nni(u, verbose)
             bidx += 1
@@ -242,43 +246,57 @@ class ML_solver:
         tree = self.params.tree
         return tree.extract_subtree(tree.root)
 
-    def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla", keybranches=[]):
-        nni_iter = 0
-        same = 0
-        topo_dict = {}
-        seen = set()
+    def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla", keybranches=[], nreps=1):
+
+        nni_replicates = dict()
+        for i in range(nreps):
+
+            starting_tree = self.tree_copy()
+            topo_dict = {}
+            seen = set()
+            self.params.tree = starting_tree
+            
+            nni_iter = 0
+            same = 0
+            pre_llh = self.score_tree()
+            
+            while 1:
+                #if verbose:
+                print("NNI Iter:", nni_iter)
+                opt_score = self.single_nni(verbose, trynextbranch=trynextbranch, strategy=strategy, keybranches=keybranches)
+                
+                tstr = self.params.tree.newick()
+                topo_dict[nni_iter] = (tstr, opt_score)
+                
+                seen.add(tstr)
+                new_llh = self.score_tree()
+
+                if new_llh == pre_llh:
+                    same += 1
+                else:
+                    same = 0
+                
+                if (new_llh - pre_llh < nni_conv_eps and tstr in seen and same > 2) or nni_iter > maxiter:
+                    break
+
+                pre_llh = new_llh
+                nni_iter += 1
+
+            nni_replicates[i] = (new_llh, topo_dict)
        
-        pre_llh = self.score_tree()
-        
-        while 1:
-            #if verbose:
-            print("NNI Iter:", nni_iter)
-            opt_score = self.single_nni(verbose, trynextbranch=trynextbranch, strategy=strategy, keybranches=keybranches)
-            
-            tstr = self.params.tree.newick()
-            topo_dict[nni_iter] = (tstr, opt_score)
-            
-            seen.add(tstr)
-            new_llh = self.score_tree()
-
-            if new_llh == pre_llh:
-                same += 1
-            else:
-                same = 0
-            
-            if (new_llh - pre_llh < nni_conv_eps and tstr in seen and same > 2) or nni_iter > maxiter:
-                break
-
-            pre_llh = new_llh
-            nni_iter += 1
+       # TODO: Consider recording all the different replicates in a single file.
+        m = max(nni_replicates, key=lambda item:nni_replicates[item][0])
+        llh, topo_dict = nni_replicates[m]
         
         if verbose:
-            with open(prefix + "_topo_search.txt", "w+") as w:
-                for nni_iter in topo_dict:
-                    w.write(str(nni_iter) + "\t" + str(-topo_dict[nni_iter][1]) + "\n")
-            with open(prefix + "_progress.nwk", "w+") as w:
-                for nni_iter in topo_dict:
-                    w.write(topo_dict[nni_iter][0] + "\n") 
+            print("Recording the best result by ending llh.")
+
+        with open(prefix + "_topo_search.txt", "w+") as w:
+            for nni_iter in topo_dict:
+                w.write(str(nni_iter) + "\t" + str(-topo_dict[nni_iter][1]) + "\n")
+        with open(prefix + "_progress.nwk", "w+") as w:
+            for nni_iter in topo_dict:
+                w.write(topo_dict[nni_iter][0] + "\n") 
 
     def az_partition(self,params):
     # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
