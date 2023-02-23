@@ -20,11 +20,12 @@ class EM_solver(ML_solver):
             p = exp(-node.edge_length)
             node.L0 = [0]*self.numsites # L0 and L1 are stored in log-scale
             node.L1 = [0]*self.numsites
-            for site in range(self.numsites):    
+            for site in range(self.numsites):   
                 q = self.Q[site][node.alpha[site]] if node.alpha[site] not in ['?','z'] else 1.0
                 if node.is_leaf():
                     if node.alpha[site] == "?":         
-                        masked_llh = log(1-(1-phi)*p**nu)
+                        #masked_llh = log(1-(1-phi)*p**nu)
+                        masked_llh = log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else log(1-p**nu)
                         node.L0[site] = node.L1[site] = masked_llh
                     elif node.alpha[site] == 'z':
                         node.L0[site] = (nu+1)*(-node.edge_length) + log(1-phi)
@@ -38,18 +39,17 @@ class EM_solver(ML_solver):
                     for c in C:
                         l0 += c.L0[site]
                         l1 += c.L1[site]
+                    # note: l0_z, l0_alpha, and l0_masked are lists    
                     l0_z = [l0 + (nu+1)*(-node.edge_length)]
                     l0_alpha = [l1 + log(1-p)+log(q) + nu*(-node.edge_length)] if node.alpha[site] != 'z' else []
                     l0_masked = [log(1-p**nu)] if (node.alpha[site] == '?' and nu > 0) else []
                     node.L0[site] = log_sum_exp(l0_z + l0_alpha + l0_masked)
-                    #node.L1[site] = min_llh if node.alpha[site] == 'z' else log(exp(l1+nu*(-node.edge_length)) + (1-p**nu)*int(node.alpha[site]=="?"))
                     if node.alpha[site] == 'z':
                         node.L1[site] = min_llh
                     elif node.alpha[site] != '?' or nu == 0:
                         node.L1[site] = l1 + nu*(-node.edge_length) 
                     else:
                         node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length), log(1-p**nu)])
-                       #node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length)]+[log(1-p**nu)] if nu==0 else [])
 
     def lineage_llh(self,params):
         # override the function of the base class
@@ -100,7 +100,7 @@ class EM_solver(ML_solver):
                         v.X[site] = log_sum_exp([v.X[site],u.X[site]+w.L1[site]-params.nu*v.edge_length])
                         p = 1-exp(-v.edge_length*params.nu) # if nu=0 then p=0
                         pl = log(p) if p > 0 else min_llh
-                        v.out1[site] = log_sum_exp([pl+v.A[site],pl+u.X[site]+w.L1[site],u.out1[site]])
+                        v.out1[site] = u.out1[site] if params.nu == 0 else log_sum_exp([pl+v.A[site],pl+u.X[site]+w.L1[site],u.out1[site]])
                     else:
                         alpha0 = w.alpha[site] 
                         if alpha0 not in u.out_alpha[site]:
@@ -173,7 +173,7 @@ class EM_solver(ML_solver):
                     v1,v2 = v.children
                     v_in0 = v1.L0[site] + v2.L0[site]                 
                 # compute posterior
-                v.post0[site] = v_in0 + v.out0[site] - full_llh[site]
+                v.post0[site] = v_in0 + v.out0[site] - full_llh[site] if v_in0 is not None else min_llh
                 v.post1[site] = v_in1 + v.out1[site] - full_llh[site] if v_in1 is not None else min_llh               
                 # compute S (note that all S values are NOT in log-scale)
                 if v.alpha[site] == 'z': # z-branch
@@ -291,8 +291,11 @@ class EM_solver(ML_solver):
             S4 = np.zeros(N)
             for i,v in enumerate(params.tree.traverse_preorder()):
                 s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
-                s = [x if abs(x) > eps_s else 0 for x in s]
+                #s = [x if abs(x) > eps_s else eps_s for x in s]
+                s = [max(eps_s,x) for x in s]
+                s = [x/sum(s)*self.numsites for x in s]
                 S0[i],S1[i],S2[i],S3[i],S4[i] = s
+    
             def __optimize_brlen__(nu): # nu is a single number
                 dmax = -log(1/self.numsites)*2
                 dmin = -log(1-1/self.numsites)/2
@@ -309,18 +312,19 @@ class EM_solver(ML_solver):
                         D[i] = d     
                     return D    
                 else:
-                    var_d = cp.Variable(N) # the branch length variables
+                    var_d = cp.Variable(N,nonneg=True) # the branch length variables
                     C0 = -(nu+1)*S0.T @ var_d
                     C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d))
-                    C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) 
+                    C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 else 0 
                     C3 = -nu*S3.T @ var_d
-                    C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d))
+                    C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 else 0
 
                     objective = cp.Maximize(C0+C1+C2+C3+C4)
                     constraints = [np.zeros(N)+dmin <= var_d, var_d <= np.zeros(N)+dmax]
                     prob = cp.Problem(objective,constraints)
-                    prob.solve(verbose=False)
+                    prob.solve(verbose=False,solver=cp.MOSEK)
                     return var_d.value
+            
             def __optimize_nu__(d): # d is a vector of all branch lengths
                 var_nu = cp.Variable(1,nonneg=True) # the nu variable
                 C0 = -(var_nu+1)*S0.T @ d
@@ -328,26 +332,25 @@ class EM_solver(ML_solver):
                 C2 = S2.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S2) > 0 else 0
                 C3 = -var_nu*S3.T @ d
                 C4 = S4.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S4) > 0 else 0
-
                 objective = cp.Maximize(C0+C1+C2+C3+C4)
-                #constraints = [var_nu >= 1e-7]
-                #prob = cp.Problem(objective,constraints)
                 prob = cp.Problem(objective)
-                prob.solve(verbose=False)
+                prob.solve(verbose=False,solver=cp.MOSEK)
                 return var_nu.value[0]
 
-            initial_nu = params.nu
-            if verbose:
-                print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(initial_nu))
-            d_star = __optimize_brlen__(initial_nu)
-            if not optimize_nu:
+            nIters = 1
+            nu_star = params.nu
+            for r in range(nIters):
                 if verbose:
-                    print("Fixing nu to " + str(params.nu))
-                nu_star = params.nu
-            else:    
-                if verbose:
-                    print("Optimizing nu")
-                nu_star = __optimize_nu__(d_star) 
+                    print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
+                d_star = __optimize_brlen__(nu_star)
+                if not optimize_nu:
+                    if verbose:
+                        print("Fixing nu to " + str(params.nu))
+                    nu_star = params.nu
+                else:    
+                    if verbose:
+                        print("Optimizing nu")
+                    nu_star = __optimize_nu__(d_star) 
             # place the optimal value back to params
             params.phi = phi_star
             params.nu = nu_star
@@ -380,8 +383,6 @@ class EM_solver(ML_solver):
             if verbose:
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
             if abs((curr_llh - pre_llh)/pre_llh) < conv_eps:
-            #print(curr_llh-pre_llh,conv_eps)
-            #if (curr_llh - pre_llh) < conv_eps:
                 break
             pre_llh = curr_llh
             em_iter += 1
@@ -410,8 +411,8 @@ def main():
         q[0] = 0
         Q.append(q)
     #T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0001;"
-    #T = "((a:1,b:1)e:1,(c:1,d:1)f:1)r:1;"
-    T = "(f:1,(a:1,b:1)e:1)r:1;"
+    T = "((a:1,b:1)e:1,(c:1,d:1)f:1)r:1;"
+    #T = "(f:1,(a:1,b:1)e:1)r:1;"
     
     #S = read_sequences("../tests/seqs_m10_k" + str(k) + ".txt",filetype="fasta")
     #msa = S[6]

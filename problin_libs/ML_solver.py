@@ -60,13 +60,21 @@ class ML_solver:
         # alpha where alpha is the alpha-tree it belongs to
         for node in params.tree.traverse_postorder():
             if node.is_leaf():
-                node.alpha = [self.charMtrx[node.label][site] if self.charMtrx[node.label][site] != 0 else 'z' for site in range(self.numsites)]
+                node.alpha = [None]*self.numsites
+                for site in range(self.numsites):
+                    if self.charMtrx[node.label][site] == 0:
+                        node.alpha[site] = 'z'
+                    elif self.charMtrx[node.label][site] == -1:   
+                        node.alpha[site] = '?' 
+                    else:
+                        node.alpha[site] = self.charMtrx[node.label][site]
+                #node.alpha = [self.charMtrx[node.label][site] if self.charMtrx[node.label][site] != 0 else 'z' for site in range(self.numsites)]
             else:
                 C = node.children
                 node.alpha = [None]*self.numsites
                 for site in range(self.numsites):
                     S = set(c.alpha[site] for c in C)
-                    R = S-set(['z','?'])
+                    R = S-set(['z','?',-1])
                     if 'z' in S or len(R)>1:
                         node.alpha[site] = 'z'
                     elif len(R) == 1:
@@ -199,7 +207,7 @@ class ML_solver:
             for rep in range(initials):
                 randseed = rseeds[rep]
                 print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
-                print("Running EM with initial point " + str(rep+1))
+                #print("Running EM with initial point " + str(rep+1))
                 nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose)
                 if nllh is not None:
                     all_failed = False
