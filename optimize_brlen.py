@@ -24,6 +24,7 @@ parser.add_argument("--nInitials",type=int,required=False,default=20,help="The n
 parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
 parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked character. Default: if not specified, assumes '-'.")
 parser.add_argument("-o","--output",required=True,help="The output file.")
+parser.add_argument("-od","--outputdir",required=False,help="The output directory.")
 parser.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
 parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations.")
 parser.add_argument("--strategy", required=False, help="Strategy for NNI topology search.")
@@ -34,6 +35,7 @@ args = vars(parser.parse_args())
 delim_map = {'tab':'\t','comma':',','whitespace':' '}
 delimiter = delim_map[args["delimiter"]]
 msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["maskedchar"])
+prefix = '.'.join(args["output"].split('.')[:-1])
 
 if args["rep"]:
     print("Using rep:", args["rep"])
@@ -74,7 +76,7 @@ with open(args["topology"],'r') as f:
                         keybranches.append(x.label)
     if containsPolytomies:
         print("Detected polytomies in the provided topology. Randomly resolving these polytomies and prioritizing these branches for topology search if enabled.")
-        outfile = args["output"] + ".resolvedtree"
+        outfile = args["outputdir"] + prefix +  ".resolvedtree"
         tree.write_tree_newick(outfile)
     treeStr = tree.newick()
 
@@ -142,12 +144,12 @@ if em_selected:
 else:    
     print("Optimization by Generic solver")        
    
-with open(args["output"],'w') as fout:
+with open(args["outputdir"] + "/" + args["output"],'w') as fout:
     mySolver = selected_solver(msa,Q,treeStr) #,beta_prior=beta_prior)
 # print(mySolver.params.tree.newick())
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
     if args["topology_search"]:
-        mySolver.topology_search(maxiter=1000, verbose=True, prefix='.'.join(args["output"].split('.')[:-1]), trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'])
+        mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'])
         fout.write("Optimal topology: " + mySolver.params.tree.newick() + "\n")
         optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
 

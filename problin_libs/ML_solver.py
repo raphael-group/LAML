@@ -246,7 +246,7 @@ class ML_solver:
         tree = self.params.tree
         return tree.extract_subtree(tree.root)
 
-    def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla", keybranches=[], nreps=1):
+    def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla", keybranches=[], nreps=1, outdir=""):
 
         nni_replicates = dict()
         for i in range(nreps):
@@ -291,10 +291,10 @@ class ML_solver:
         if verbose:
             print("Recording the best result by ending llh.")
 
-        with open(prefix + "_topo_search.txt", "w+") as w:
+        with open(outdir + "/" + prefix + "_topo_llh.txt", "w+") as w:
             for nni_iter in topo_dict:
                 w.write(str(nni_iter) + "\t" + str(-topo_dict[nni_iter][1]) + "\n")
-        with open(prefix + "_progress.nwk", "w+") as w:
+        with open(outdir + "/" + prefix + "_topo_progress.nwk", "w+") as w:
             for nni_iter in topo_dict:
                 w.write(topo_dict[nni_iter][0] + "\n") 
 
