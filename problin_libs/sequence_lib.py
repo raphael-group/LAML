@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 from statistics import mean
-import pandas as pd
 
 recognized_missing = set(['-', '?', '-1'])
 
