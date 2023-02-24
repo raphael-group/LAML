@@ -111,7 +111,14 @@ def extract_brlens(tfile, ofile):
                 w.write(s)
 
 def alphabet_size(mtx):
-    df = pd.DataFrame.from_dict(mtx, orient='index')
-    unique_series = df.nunique()
-    return max(unique_series), min(unique_series), mean(unique_series)
+    alphabet_sizes = []
+    for char_idx in mtx:
+        keys = mtx[char_idx]
+        num_unique_keys = len(set(keys))
+        alphabet_sizes.append(num_unique_keys)
+    return max(alphabet_sizes), min(alphabet_sizes), mean(alphabet_sizes)
+
+    #df = pd.DataFrame.from_dict(mtx, orient='index')
+    #unique_series = df.nunique()
+    #return max(unique_series), min(unique_series), mean(unique_series)
 
