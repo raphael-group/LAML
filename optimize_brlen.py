@@ -29,6 +29,7 @@ parser.add_argument("-v","--verbose",required=False,action='store_true',help="Sh
 parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations.")
 parser.add_argument("--strategy", required=False, help="Strategy for NNI topology search.")
 parser.add_argument("--randomreps", required=False, default=5, type=int, help="Number of replicates to run for the random strategy of topology search.")
+parser.add_argument("--conv", "--convergence", required=False, default=0.2, type=float, help="The threshold parameter to define whether the nni search has converged. Translates to percentage of branches we assume are bad. Default is 0.9.")
 
 args = vars(parser.parse_args())
 
@@ -149,7 +150,11 @@ with open(args["outputdir"] + "/" + args["output"],'w') as fout:
 # print(mySolver.params.tree.newick())
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
     if args["topology_search"]:
-        mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'])
+        mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
+        if containsPolytomies: # topology_search(maxiter, verbose, prefix, trynextbranch, strategy, [], nreps, outdir, conv)
+            mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=[], nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
+
+
         fout.write("Optimal topology: " + mySolver.params.tree.newick() + "\n")
         optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
 
