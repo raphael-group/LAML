@@ -17,7 +17,7 @@ def load_pickle(f):
         for x in q.keys():
             # print(q[x], x, q[x] < 1.0 and q[x] >= 0.0)
             assert q[x] < 1.0 and q[x] >= 0.0
-        # q[0] = 0.0
+        q[0] = 0.0
         
         Q[i] = q
     return Q

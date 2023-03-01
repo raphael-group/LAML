@@ -3,6 +3,7 @@ import pickle
 from problin_libs.sequence_lib import read_sequences
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
+from problin_libs.compute_pars_score import pars_score
 from treeswift import *
 import random
 import argparse
@@ -111,20 +112,33 @@ else:
         priors = pickle.load(infile)
         infile.close()
         Q = []
+        priorkeys = sorted(priors.keys())
+        if priorkeys != sorted([int(x[1:]) for x in site_names]):
+            print("Prior keys mismatch with site names.")
+            print("Prior keys:", priorkeys)
+            print("Site names:", site_names)
+
         for i in sorted(priors.keys()):
             q = {int(x):priors[i][x] for x in priors[i]}
             q[0] = 0
             Q.append(q)
     elif file_extension == "csv":
         Q = [{0:0} for i in range(k)]
+        seen_sites = set()
         with open(args["priors"],'r') as fin:
             lines = fin.readlines()
             for line in lines[1:]:
                 site_idx,char_state,prob = line.strip().split(',')
                 site_idx = int(site_idx[1:])
+                if site_idx not in seen_sites:
+                    seen_sites.add(site_idx)
                 char_state = int(char_state)
                 prob = float(prob)
-                Q[site_idx][char_state] = prob
+                #if site_idx not in Q:
+                #    Q[site_idx] = dict()
+                #    Q[site_idx][0] = 0.0
+                Q[len(seen_sites) - 1][char_state] = prob
+        
     else:
         Q = [{0:0} for i in range(k)]
         with open(args["priors"],'r') as fin:
@@ -144,21 +158,37 @@ if em_selected:
     print("Optimization by EM algorithm") 
 else:    
     print("Optimization by Generic solver")        
-   
+  
+
+def record_statistics(params, fout, optimal_llh):
+    fout.write("Optimal topology: " + params.tree.newick() + "\n")
+    fout.write("Optimal tree: " +  params.tree.newick() + "\n")
+    fout.write("Parsimony Score: " + str(pars_score(params.tree, args["characters"], args["maskedchar"], False, "")) + "\n")
+    fout.write("Normalized Parsimony Score: " + str(pars_score(params.tree, args["characters"], args["maskedchar"], True, "")) + "\n")
+    #fout.write("Weighted Parsimony Score: " + str(pars_score(params.tree, args["characters"], args["maskedchar"], False, args["priors"])) + "\n")
+    fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
+    fout.write("Optimal dropout rate: " + str(mySolver.params.phi) + "\n")
+    fout.write("Optimal silencing rate: " + str(mySolver.params.nu) + "\n")
+
 with open(args["outputdir"] + "/" + args["output"],'w') as fout:
     mySolver = selected_solver(msa,Q,treeStr) #,beta_prior=beta_prior)
 # print(mySolver.params.tree.newick())
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
     if args["topology_search"]:
-        mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
-        if containsPolytomies: # topology_search(maxiter, verbose, prefix, trynextbranch, strategy, [], nreps, outdir, conv)
+        if containsPolytomies:
+            # resolve that tree first
+            mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
+            optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+            # record the starting tree statistics
+            record_statistics(mySolver.params, fout, optimal_llh)
+            # rerun topology search
+            mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=[], nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
+        else:
+            # record the starting tree statistics
+            record_statistics(mySolver.params, fout, optimal_llh)
+            # run topology search
             mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=[], nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
 
-
-        fout.write("Optimal topology: " + mySolver.params.tree.newick() + "\n")
         optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+        record_statistics(mySolver.params, fout, optimal_llh)
 
-    fout.write("Optimal tree: " +  mySolver.params.tree.newick() + "\n")
-    fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
-    fout.write("Optimal dropout rate: " + str(mySolver.params.phi) + "\n")
-    fout.write("Optimal silencing rate: " + str(mySolver.params.nu) + "\n")

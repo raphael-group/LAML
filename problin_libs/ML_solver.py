@@ -32,6 +32,9 @@ class ML_solver:
         self.params = Params(nwkTree,nu=nu,phi=phi)
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.params.tree.traverse_postorder()))
+        # TODO put in dmax and dmin here, remove everywhere else!!
+        #self.dmin
+        #self.dmax
     
     def compute_beta_prior(self):
         msa = self.charMtrx
@@ -113,6 +116,7 @@ class ML_solver:
             if not node.is_leaf():
                 num_internal += 1
                 kb.append(node)
+        return num_internal, kb
 
 
     def score_branches(self, strategy="vanilla", keybranches=[]):
@@ -125,7 +129,7 @@ class ML_solver:
         branches = []
 
         if keybranches != []:
-            for node in kb:
+            for node in keybranches:
                 s = self.score_internal_branch(node, strategy)
                 branches.append((node, s))
         else:
@@ -135,7 +139,7 @@ class ML_solver:
                 if not node.is_leaf():
                     # consider moving it inside the tree
                     if strategy == "random":
-                        branches.append(node)
+                        branches.append((node, 1))
                     else:
                         s = self.score_internal_branch(node, strategy)
                         branches.append((node, s))
@@ -224,10 +228,13 @@ class ML_solver:
         while not took:
             if verbose:
                 print("Branch Attempt:", bidx)
+
+            if len(branches) == 0:
+                break
             # get the index of the max
             if strategy == "random":
                 m = choice(branches)
-                u = m
+                u, u_score = m
             else:
                 m = max(branches, key=lambda item:item[1])
                 u, u_score = m
@@ -260,17 +267,22 @@ class ML_solver:
 
         nib = self.num_internal_branches()
         t = int(0.2 * nib)
-        k = log(conv)/log(t) 
+        k = -int(log(conv)/log(t) * nib)
+        print("Running topology search for", k, "iterations.")
 
         resolve_polytomies = False
+        print("Starting topology search.")
         if keybranches != []:
             resolve_polytomies = True
+            print("Doing topology search on polytomies.")
             nib, keybranches = self.resolve_keybranches(keybranches)
+        else:
+            print("Doing topology search on polytomy-resolved tree.")
 
         nni_replicates = dict()
+        starting_tree = self.tree_copy()
         for i in range(nreps):
 
-            starting_tree = self.tree_copy()
             topo_dict = {}
             seen = set()
             self.params.tree = starting_tree
@@ -319,13 +331,15 @@ class ML_solver:
             out2 = outdir + "/" + prefix + "_topo_progress.nwk"
 
         with open(out1, "w+") as w:
+            w.write("RandomRep\tnniIter\tNLLH\n")
             for rep in nni_replicates:
-                topo_dict = nni_replicates[rep]
+                llh, topo_dict = nni_replicates[rep]
                 for nni_iter in topo_dict:
                     w.write(str(rep) + "\t" + str(nni_iter) + "\t" + str(-topo_dict[int(nni_iter)][1]) + "\n")
         with open(out2, "w+") as w:
+            w.write("RandomRep\tnniIter\tTopology\n")
             for rep in nni_replicates:
-                topo_dict = nni_replicates[rep]
+                llh, topo_dict = nni_replicates[rep]
                 for nni_iter in topo_dict:
                     w.write(str(rep) + "\t" + str(nni_iter) + "\t" + topo_dict[int(nni_iter)][0] + "\n") 
         #if resolve_polytomies:
