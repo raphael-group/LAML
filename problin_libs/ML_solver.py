@@ -349,27 +349,3 @@ class SpaLin_solver(ML_solver):
         sigma_lower,sigma_upper = self.bound_sigma()
         bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower]+spa_lower+[sigma_lower],br_upper+[nu_upper,phi_upper]+spa_upper+[sigma_upper],keep_feasible=keep_feasible)
         return bounds
-
-def main(): 
-    from sequence_lib import read_sequences
-    from ml_log import wrapper_felsenstein as wf_log
-    
-    k = 50
-    m = 10
-    Q = []
-    for i in range(k):
-        q = {j+1:1/m for j in range(m)}
-        q[0] = 0
-        Q.append(q)
-    T = "((a:0.0360971597765934,b:3.339535381892265)e:0.0360971597765934,(c:0.0360971597765934,d:3.339535381892265)f:0.0360971597765934)r:0.0;"
-    S = read_sequences("../tests/seqs_m10_k" + str(k) + ".txt",filetype="fasta")
-    msa = S[6]
-    msa['c'][0] = '?'
-
-    mySolver = ML_solver(msa,Q,T)
-    print(mySolver.optimize(initials=1,verbose=True,fixed_nu=None,fixed_phi=None))
-    #print("phi", mySolver.params.phi,"nu", mySolver.params.nu)
-    #print(mySolver.params.tree.newick()) 
-
-if __name__ == "__main__":
-    main()        

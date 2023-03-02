@@ -154,23 +154,3 @@ def greedy_triplet(sequences,Q):
         v = __add_one_seq__(c,sc,tree.root,Dr)
         __add_node__(c,tree,v)
     return tree.newick()
-
-'''
-k= 5000
-m = 10
-Q = []
-for i in range(k):
-    Q.append({j+1:1/m for j in range(m)})
-S = read_sequences("../MP_inconsistent/seqs_m10_k" + str(k) + ".txt")
-T = []
-for D in S[:100]:
-    t = ML_pairwise_estimate(D['a'],D['b'],Q,initials=1)[0][2]
-    T.append(t)
-print(sum(T)/len(T))    
-
-k = 30
-m = 25
-Q = read_Q("n50_m30_d0.15_s12_p0.1_mutation_prior.csv")
-D = read_sequences("n50_m30_d0.15_s12_p0.1_character_matrix.csv","charMtrx")
-print(greedy_triplet(D,Q))
-'''
