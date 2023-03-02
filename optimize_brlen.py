@@ -124,14 +124,21 @@ else:
             Q.append(q)
     elif file_extension == "csv":
         Q = [{0:0} for i in range(k)]
+        seen_sites = set()
         with open(args["priors"],'r') as fin:
             lines = fin.readlines()
             for line in lines[1:]:
                 site_idx,char_state,prob = line.strip().split(',')
                 site_idx = int(site_idx[1:])
+                if site_idx not in seen_sites:
+                    seen_sites.add(site_idx)
                 char_state = int(char_state)
                 prob = float(prob)
-                Q[site_idx][char_state] = prob
+                #if site_idx not in Q:
+                #    Q[site_idx] = dict()
+                #    Q[site_idx][0] = 0.0
+                Q[len(seen_sites) - 1][char_state] = prob
+        
     else:
         Q = [{0:0} for i in range(k)]
         with open(args["priors"],'r') as fin:

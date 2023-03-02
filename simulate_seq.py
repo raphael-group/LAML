@@ -22,6 +22,7 @@ parser.add_argument("--alphabetsize", default=10, type=int, required=False, help
 
 parser.add_argument("-t","--topology",required=False,help="Binary input tree topology in newick format. Required if balanced tree flag is not set.")
 parser.add_argument("--priors",required=False,help="Prior mutation probabilities file.")
+parser.add_argument("--priordir",required=False,help="Directory containing only prior pickle files. Will randomly sample k from the concatenation of these alphabets.") 
 parser.add_argument("-r","--reps",type=int, required=False,help="The number of replicates to create.")
 parser.add_argument("--mu", type=float, required=False, default=0.1,  help="Mutation rate. Defaults to 0.1.")
 
@@ -49,6 +50,11 @@ else:
 if args["priors"]:
     Q = read_Q(args["priors"])
     pass
+elif args["priordir"]:
+    # concatenate the prior files in this directory and randomly sample a Q
+    all_priors = concat_Q(args["priordir"])
+    prior_outfile = args["prefix"] + "_priors.csv"
+    Q = sample_Q(args["k"], all_priors, prior_outfile) # TODO: add in random seed if provided as an argument
 else:
     prior_outfile = args["prefix"] + "_priors.csv"
     Q = sim_Q(args["seqlen"], args["alphabetsize"], prior_outfile=prior_outfile)

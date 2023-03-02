@@ -32,6 +32,9 @@ class ML_solver:
         self.params = Params(nwkTree,nu=nu,phi=phi)
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.params.tree.traverse_postorder()))
+        # TODO put in dmax and dmin here, remove everywhere else!!
+        #self.dmin
+        #self.dmax
     
     def compute_beta_prior(self):
         msa = self.charMtrx
@@ -277,9 +280,9 @@ class ML_solver:
             print("Doing topology search on polytomy-resolved tree.")
 
         nni_replicates = dict()
+        starting_tree = self.tree_copy()
         for i in range(nreps):
 
-            starting_tree = self.tree_copy()
             topo_dict = {}
             seen = set()
             self.params.tree = starting_tree
