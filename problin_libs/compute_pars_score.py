@@ -7,6 +7,7 @@ from math import log
 def pars_score_startle():
     pass
 
+
 def pars_score(T, msa, mchar, norm, priorfile):
     def get_seq(n, nodedict):
         #print(n.label)
@@ -14,10 +15,19 @@ def pars_score(T, msa, mchar, norm, priorfile):
             return msa[n.label]
         else:
             return nodedict[n]
-    
+
+    def score_fn(c, cidx, use_weighted, q):
+        if use_weighted:
+            if q[cidx][c] > 0:
+                return -log(q[cidx][c])
+        else:
+            return 1
+
     m, site_names = read_sequences(msa,delimiter=",",masked_symbol=mchar, suppress_warnings=True)
     msa = m
     site_names = sorted([int(x[1:]) for x in site_names])
+    #print("MSA:", msa)
+    q = []
     
     use_weighted = False
     if priorfile != "":
@@ -33,18 +43,21 @@ def pars_score(T, msa, mchar, norm, priorfile):
             print("Prior names:", prior_names)
             print("Site names:", site_names)
 
+
     nodedict = dict()
     score = 0
     num_internal = 0
     for n in T.traverse_postorder():
         if n.is_leaf():
             nodedict[n] = get_seq(n, nodedict)
-
+            #print(n.label, nodedict[n])
         else:
             num_internal += 1
             a, b = n.child_nodes()
+            # print(n.label, "num children", len(n.child_nodes()))
             s1 = get_seq(a, nodedict)
             s2 = get_seq(b, nodedict)
+            # print(s1, s2)
 
             s = []
             # handle missing data
@@ -53,51 +66,45 @@ def pars_score(T, msa, mchar, norm, priorfile):
                 x, y = xy
                 if use_weighted:
                     cidx = prior_names[cidx]
-
-                if n.is_root():
-                    # root state has to be 0
-                    if x != '0' and y != '0' and x != '?' and y != '?':
-                        if use_weighted:
-                            if q[cidx][x] > 0:
-                                score += -log(q[cidx][x])
-                            if q[cidx][y] > 0:
-                                score += -log(q[cidx][y])
-                        else:
-                            score += 2
-                else:
-                    if x == y: 
+                if x == y: 
+                    s.append(x)
+                elif x == "?" or y == "?":
+                    if x == "?":
+                        s.append(y) # the one that's not mchar
+                    else:
                         s.append(x)
-                    elif x == mchar or y == mchar or x == "?" or y == "?":
-                        if x == mchar:
-                            s.append(y) # the one that's not mchar
-                        else:
-                            s.append(x)
-                    else: # x != y
-                        # check if one is 0 and alpha
-                        if x == '0' or y == '0':
-                            if use_weighted:
-                                if x == '0' and q[cidx][x] > 0: 
-                                    score += -log(q[cidx][x])
-                                elif y == '0' and q[cidx][y] > 0:
-                                    score += -log(q[cidx][y])
-                            else:
-                                score += 1
-                        else:
-                            if use_weighted:
-                                if q[cidx][x] > 0:
-                                    score += -log(q[cidx][x])
-                                if q[cidx][y] > 0:
-                                    score += -log(q[cidx][y])
-                            else:
-                                score += 2
-
-                        s.append(0)
-
+                else: # x != y
+                    # check if one is 0 and alpha
+                    if x == 0 or y == 0: #'0' or y == '0':
+                        if x == 0:
+                            score += score_fn(x, cidx, use_weighted, q)
+                        elif y == 0: 
+                            score += score_fn(y, cidx, use_weighted, q)
+                    else:
+                        score += score_fn(x, cidx, use_weighted, q)
+                        score += score_fn(y, cidx, use_weighted, q)
+                    s.append(0)
             nodedict[n] = s
+            # print(n.label, s)
+
+    # ensure the root is 0
+    for cidx, c in enumerate(s):
+        if c != 0 and c != '?':
+            # print("root")
+            score += score_fn(c, cidx, use_weighted, q)
+
+    print("nodedict")
+    for n in nodedict:
+        print(n.label, nodedict[n])
+    #for n in T.traverse_leaves():
+    #    if n.label == "TTACCGCAGCAAATCA-1": #AACCATGGTAATGCGG-1":
+    #        print("Parent of TTACCGCAGCAAATCA-1:", nodedict[n.get_parent()])
     if norm:
         return score / num_internal
     else:
         return score
+
+
 
 def main(args):
     tree = read_tree_newick(args.tree1)
