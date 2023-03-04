@@ -1,11 +1,26 @@
 from problin_libs.sequence_lib import read_sequences, read_Q
 from problin_libs.preprocess import load_pickle
+import startle
 import argparse
 from treeswift import *
 from math import log
+import pandas as pd
 
-def pars_score_startle():
-    pass
+def pars_score_startle(args):
+    seed_tree = startle.from_newick_get_nx_tree(args.tree)
+    character_matrix = pd.read_csv(args.msa, index_col=[0], sep=args.delimiter, dtype=str)
+    character_matrix = character_matrix.replace('-', '-1')
+    if args.prior != '':
+        mutation_prior_dict = load_pickle(args.prior)
+        weighted_seed_parsimony, _, _ = startle.small_parsimony(mutation_prior_dict, seed_tree, character_matrix, weighted=True)
+    else:
+        mutation_prior_dict = []
+
+    seed_parsimony, _, _ = startle.small_parsimony(mutation_prior_dict, seed_tree, character_matrix, weighted=False)
+
+    #print("Weighted Parsimony:", weighted_seed_parsimony)
+    print("Startle Parsimony:", seed_parsimony)
+
 
 
 def pars_score(T, msa, mchar, norm, priorfile):
@@ -17,9 +32,15 @@ def pars_score(T, msa, mchar, norm, priorfile):
             return nodedict[n]
 
     def score_fn(c, cidx, use_weighted, q):
+        #print("score_fn")
         if use_weighted:
+            #print("prior keys", q.keys())
+            #print("cidx", cidx, "c", c)
+            #print("q[cidx][c]", q[cidx][c])
             if q[cidx][c] > 0:
                 return -log(q[cidx][c])
+            else:
+                return 0
         else:
             return 1
 
@@ -93,9 +114,9 @@ def pars_score(T, msa, mchar, norm, priorfile):
             # print("root")
             score += score_fn(c, cidx, use_weighted, q)
 
-    print("nodedict")
-    for n in nodedict:
-        print(n.label, nodedict[n])
+    #print("nodedict")
+    #for n in nodedict:
+    #    print(n.label, nodedict[n])
     #for n in T.traverse_leaves():
     #    if n.label == "TTACCGCAGCAAATCA-1": #AACCATGGTAATGCGG-1":
     #        print("Parent of TTACCGCAGCAAATCA-1:", nodedict[n.get_parent()])
@@ -107,11 +128,13 @@ def pars_score(T, msa, mchar, norm, priorfile):
 
 
 def main(args):
-    tree = read_tree_newick(args.tree1)
+    tree = read_tree_newick(args.tree)
 
     #print(m)
-    
-    print(pars_score(tree, args.msa, args.mchar, args.norm, args.prior))
+    if args.startle:
+        pars_score_startle(args)
+    else:
+        print(pars_score(tree, args.msa, args.mchar, args.norm, args.prior))
 
 
 
@@ -122,7 +145,7 @@ if __name__ == "__main__":
                         help="Input character matrix delimiter.",
                         default="\t",
                         required=True)
-    parser.add_argument("-t1", "--tree1", type=str,
+    parser.add_argument("-t1", "--tree", type=str,
                         help="Input file containing tree.",
                         required=True)
     parser.add_argument("-msa", type=str,
@@ -133,6 +156,8 @@ if __name__ == "__main__":
                         required=True)
     parser.add_argument("--norm", action="store_true",
                         help="Whether to compute the normalized parsimony score.")
+    parser.add_argument("--startle", action="store_true",
+                        help="Whether to compute the parsimony score using startle methods.")
     parser.add_argument("--prior", type=str,
                         required=False,
                         default="",

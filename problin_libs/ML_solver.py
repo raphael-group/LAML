@@ -246,8 +246,8 @@ class ML_solver:
             bidx += 1
             if not trynextbranch:
                 took = True 
-        #if verbose:
-        print(bidx, " branch attempts.")
+        if verbose:
+            print(bidx, " branch attempts.")
         llh = self.score_tree()
         return llh
 
@@ -266,17 +266,20 @@ class ML_solver:
     def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla", keybranches=[], nreps=1, outdir="", conv=0.2):
 
         nib = self.num_internal_branches()
-        t = int(0.2 * nib)
+        t = round(0.2 * nib) + 1
         k = -int(log(conv)/log(t) * nib)
-        print("Running topology search for", k, "iterations.")
+        if verbose:
+            print("Running topology search for", k, "iterations.")
 
         resolve_polytomies = False
-        print("Starting topology search.")
+        if verbose:
+            print("Starting topology search.")
         if keybranches != []:
             resolve_polytomies = True
-            print("Doing topology search on polytomies.")
+            if verbose:
+                print("Doing topology search on polytomies.")
             nib, keybranches = self.resolve_keybranches(keybranches)
-        else:
+        elif verbose:
             print("Doing topology search on polytomy-resolved tree.")
 
         nni_replicates = dict()
@@ -292,8 +295,8 @@ class ML_solver:
             pre_llh = self.score_tree()
             
             while 1:
-                #if verbose:
-                print("NNI Iter:", nni_iter)
+                if verbose:
+                    print("NNI Iter:", nni_iter)
                 opt_score = self.single_nni(verbose, trynextbranch=trynextbranch, strategy=strategy, keybranches=keybranches)
                 
                 tstr = self.params.tree.newick()

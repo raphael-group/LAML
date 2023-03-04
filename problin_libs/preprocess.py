@@ -22,7 +22,7 @@ def load_pickle(f):
         Q[i] = q
     return Q
 
-def make_unique(fname, outfile, eqfile, delimiter='\t', missing_char="?"):
+def make_unique(fname, outfile, eqfile, delimiter='\t', missing_char="?", droplenti=False):
 
     msa, site_names = read_sequences(fname, filetype="charMtrx", delimiter=delimiter)
     
@@ -42,6 +42,12 @@ def make_unique(fname, outfile, eqfile, delimiter='\t', missing_char="?"):
         else:
             seed_cellBC = seen[s]
             mappings[seed_cellBC].append(cellBC)
+
+    if droplenti:
+        for cellname in final_msa:
+            final_msa[cellname] = final_msa[cellname][1:]
+        site_names = site_names[1:]
+        k -= 1
     
     write_sequences(final_msa, k, outfile, delimiter=',')
     
