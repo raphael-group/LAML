@@ -267,10 +267,6 @@ class ML_solver:
         k = -int(log(conv)/log(t) * nib)
         if verbose:
             print("Running topology search for", k, "iterations.")
-<<<<<<< HEAD
-=======
-
->>>>>>> fceae3f (Fixed the unit tests, deleted scripts from problin_libs.)
         resolve_polytomies = False
         if verbose:
             print("Starting topology search.")
