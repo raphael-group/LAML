@@ -1,11 +1,14 @@
+import os
 from treeswift import *
 from math import *
 import random
+from problin_libs.sequence_lib import load_pickle
 
-def get_balanced_tree(tree_height,branch_length):
+def get_balanced_tree(tree_height,branch_length,num_nodes=None):
 # create a fully balanced tree with height = `tree_height`
 # each branch length = `branch_length`
     root = Node("n0",branch_length)
+    #root = Node("n0",branch_length)
     root.h = 0
     node_list = [root] # serve as a stack
     idx = 1
@@ -13,15 +16,27 @@ def get_balanced_tree(tree_height,branch_length):
         pnode = node_list.pop()
         h = pnode.h
         if h < tree_height:
+            #cnode1 = Node(str(idx),branch_length)
             cnode1 = Node("n"+str(idx),branch_length)
             cnode1.h = h+1
-            cnode2 = Node("n"+str(idx+1),branch_length)
-            cnode2.h = h+1
-            pnode.add_child(cnode1)
-            pnode.add_child(cnode2)
             node_list.append(cnode1)
+            pnode.add_child(cnode1)
+            if num_nodes:
+                if num_nodes < idx:
+                    break
+            idx += 1
+            
+            cnode2 = Node("n"+str(idx),branch_length)
+            #cnode2 = Node(str(idx),branch_length)
+            cnode2.h = h+1
+
             node_list.append(cnode2)
-            idx += 2
+            pnode.add_child(cnode2)
+            if num_nodes:
+                if num_nodes < idx:
+                    break
+            
+            idx += 1
     tree = Tree()
     tree.root = root
     return tree.newick() 
@@ -83,6 +98,27 @@ def sim_Q(k, m, prior_outfile=""):
                     fout.write(str(i) + " " + str(x) + " " + str(Q[i][x]) + "\n")
     return Q
 
+def concat_Q(d):
+    all_priors = []
+    for f in os.listdir(d):
+        p = load_pickle(f)
+        for k in p:
+            all_priors.append(p[k])
+    return all_priors
+
+def sample_Q(k, all_priors, prior_outfile="", s=None):
+    if s is not None:
+        random.seed(s)
+    newQ = dict()
+    for i in range(k):
+        p = random.choice(all_priors)
+        newQ[i] = p
+    if prior_outfile != "":
+        with open(prior_outfile, "w") as fout:
+            for i in range(k):
+                for x in Q[i]:
+                    fout.write(str(i) + " " + str(x) + " " + str(Q[i][x]) + "\n")
+    return newQ
 
 if __name__=="__main__":
     treeStr = get_balanced_tree(2,1.0)
