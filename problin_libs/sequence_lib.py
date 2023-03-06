@@ -122,3 +122,21 @@ def alphabet_size(mtx):
     #unique_series = df.nunique()
     #return max(unique_series), min(unique_series), mean(unique_series)
 
+# adapted from /n/fs/ragr-research/projects/problin_experiments/Real_biodata/test_kptracer/proc_scripts
+def load_pickle(f):
+# returns dictionary for use with Cassiopeia
+    infile = open(f, "rb")
+    priors = pickle.load(infile)
+    infile.close()
+    Q = dict()
+    for i in sorted(priors.keys()):
+        # scale to sum to 1
+        q = {int(x): float(priors[i][x])/sum([float(c) for c in priors[i]]) for x in priors[i]}
+        #q = {int(x):float(priors[i][x])/sum([float(c) for c in priors[i]]) for x in priors[i]}
+        for x in q.keys():
+            # print(q[x], x, q[x] < 1.0 and q[x] >= 0.0)
+            assert q[x] < 1.0 and q[x] >= 0.0
+            q[0] = 0.0
+
+            Q[i] = q
+            return Q

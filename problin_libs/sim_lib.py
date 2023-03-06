@@ -1,8 +1,8 @@
-from problin_libs.preprocess import load_pickle
 import os
 from treeswift import *
 from math import *
 import random
+from problin_libs.sequence_lib import load_pickle
 
 def get_balanced_tree(tree_height,branch_length,num_nodes=None):
 # create a fully balanced tree with height = `tree_height`
