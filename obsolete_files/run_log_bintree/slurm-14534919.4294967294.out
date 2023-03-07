@@ -1,3 +1,0 @@
-python run_test_fels.py 50 10 30
-/n/fs/ragr-research/users/gchu/miniconda3/envs/py3k/lib/python3.9/site-packages/scipy/optimize/optimize.py:282: RuntimeWarning: Values in x were outside bounds during a minimize step, clipping to bounds
-  warnings.warn("Values in x were outside bounds during a "

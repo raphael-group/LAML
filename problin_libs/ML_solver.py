@@ -1,5 +1,5 @@
 from treeswift import *
-from math import log,exp,sqrt
+from math import log,exp,sqrt, isclose
 from random import random, seed, choice
 from scipy import optimize
 import warnings
@@ -147,6 +147,7 @@ class ML_solver:
         return branches 
 
     def score_tree(self):
+        # TODO: Recompute the likelihood and reestimate branch lengths
         self.az_partition(self.params)
         return self.lineage_llh(self.params)
 
@@ -165,10 +166,6 @@ class ML_solver:
 
         w = v_edges[0] 
         pre_llh = self.score_tree()
-        #if verbose:
-        #    print("pre_llh", pre_llh)
-            #print("pre_llh", self.params.tree.newick(), pre_llh)
-
         # explore in order of importance
         if d_bc > d_ac:
             # move a out
@@ -188,22 +185,14 @@ class ML_solver:
             u.add_child(w)
             
             new_llh = self.score_tree()
-            #if verbose:
-            #    print("new_llh", new_llh)
-                #print("new_llh", self.params.tree.newick(), new_llh)
 
             if new_llh > pre_llh:
                 # log likelihood improved
                 return True
             elif new_llh == pre_llh:
-                #if verbose:
-                #    print("same log likelihood", new_llh)
-                    #print("same log likelihood", self.params.tree.newick(), new_llh)
                 return True
             else:
                 # REVERSE IF LIKELIHOOD IS NOT BETTER
-                #if verbose:
-                #    print("reversing...")
                 u_child.set_parent(u)
                 v.remove_child(u_child)
                 u.add_child(u_child)
@@ -213,12 +202,6 @@ class ML_solver:
                 v.add_child(w)
                 
                 new_llh = self.score_tree()
-                #if verbose:
-                #    print("new_llh", new_llh)
-                    #print("new_llh", self.params.tree.newick(), new_llh)
-        #if verbose:
-        #    print(new_llh)
-            #print(new_llh, self.params.tree.newick())
         return False
 
     def single_nni(self, verbose, trynextbranch=True, strategy="vanilla", keybranches=[]):
@@ -226,9 +209,6 @@ class ML_solver:
         took = False
         bidx = 0
         while not took:
-            if verbose:
-                print("Branch Attempt:", bidx)
-
             if len(branches) == 0:
                 break
             elif strategy == "random":
@@ -265,17 +245,14 @@ class ML_solver:
         nib = self.num_internal_branches()
         t = round(0.2 * nib) + 1
         k = -int(log(conv)/log(t) * nib)
-        if verbose:
-            print("Running topology search for", k, "iterations.")
+        print("Running topology search for", k, "iterations.")
         resolve_polytomies = False
-        if verbose:
-            print("Starting topology search.")
+        print("Starting topology search.")
         if keybranches != []:
             resolve_polytomies = True
-            if verbose:
-                print("Doing topology search on polytomies.")
+            print("Doing topology search on polytomies.")
             nib, keybranches = self.resolve_keybranches(keybranches)
-        elif verbose:
+        else:
             print("Doing topology search on polytomy-resolved tree.")
 
         nni_replicates = dict()
@@ -300,25 +277,19 @@ class ML_solver:
                 seen.add(tstr)
                 new_llh = self.score_tree()
 
-                if new_llh == pre_llh:
+                if isclose(new_llh, pre_llh, rel_tol=1e-9, abs_tol=0.0):
                     same += 1
                 else:
                     same = 0
                 
                 if (new_llh - pre_llh < nni_conv_eps and tstr in seen and same > k) or nni_iter > maxiter:
                     break
-                #if (nni_iter / nib) > conv:
-                #    break
                 pre_llh = new_llh
                 nni_iter += 1
 
             nni_replicates[i] = (new_llh, topo_dict)
        
-        #m = max(nni_replicates, key=lambda item:nni_replicates[item][0])
-        #llh, topo_dict = nni_replicates[m]
         
-        #if verbose:
-        #    print("Recording the best result by ending llh.")
         if resolve_polytomies:
             out1 = outdir + "/" + prefix + "_topo_llh_resolvingpolytomies.txt"
             out2 = outdir + "/" + prefix + "_topo_progress_resolvingpolytomies.nwk"
@@ -338,8 +309,7 @@ class ML_solver:
                 llh, topo_dict = nni_replicates[rep]
                 for nni_iter in topo_dict:
                     w.write(str(rep) + "\t" + str(nni_iter) + "\t" + topo_dict[int(nni_iter)][0] + "\n") 
-        #if resolve_polytomies:
-        #    self.topology_search(maxiter, verbose, prefix, trynextbranch, strategy, [], nreps, outdir, conv)
+    
     def az_partition(self,params):
     # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
     # Note: there is a different partition for each target-site
