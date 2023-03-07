@@ -192,8 +192,7 @@ def main():
         fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
         fout.write("Optimal dropout rate: " + str(mySolver.params.phi) + "\n")
         fout.write("Optimal silencing rate: " + str(mySolver.params.nu) + "\n")
-
-    #with open(args["outputdir"] + "/" + args["output"],'w') as fout:
+        
     mySolver = selected_solver(msa,Q,treeStr)
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
     outfile = args["outputdir"] + "/" + args["output"]
