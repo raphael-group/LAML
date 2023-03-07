@@ -238,19 +238,20 @@ class ML_solver:
             if not node.is_leaf():
                 nib += 1
         return float(nib) 
+    
     def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla", keybranches=[], nreps=1, outdir="", conv=0.2):
         nib = self.num_internal_branches()
         t = round(0.2 * nib) + 1
         k = -int(log(conv)/log(t) * nib)
-        print("Running topology search for", k, "iterations.")
+        #print("Running topology search for", k, "iterations.")
         resolve_polytomies = False
-        print("Starting topology search.")
+        #print("Starting topology search.")
         if keybranches != []:
             resolve_polytomies = True
-            print("Doing topology search on polytomies.")
+            #print("Doing topology search on polytomies.")
             nib, keybranches = self.resolve_keybranches(keybranches)
-        else:
-            print("Doing topology search on polytomy-resolved tree.")
+        #else:
+        #    print("Doing topology search on polytomy-resolved tree.")
 
         nni_replicates = dict()
         starting_tree = self.tree_copy()
@@ -285,7 +286,6 @@ class ML_solver:
                 nni_iter += 1
 
             nni_replicates[i] = (new_llh, topo_dict)
-       
         
         if resolve_polytomies:
             out1 = outdir + "/" + prefix + "_topo_llh_resolvingpolytomies.txt"
@@ -463,7 +463,6 @@ class ML_solver:
             for rep in range(initials):
                 randseed = rseeds[rep]
                 print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
-                #print("Running EM with initial point " + str(rep+1))
                 nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose)
                 if nllh is not None:
                     all_failed = False
