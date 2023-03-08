@@ -18,10 +18,7 @@ class Params:
 class ML_solver:
     # at this stage, the tree topology must be given. Only branch lengths
     # and other parameters can be optimized
-    # beta_prior is a tuple (alpha,beta) that are the parameters of the beta prior of phi
-    # if beta_prior is set to 'auto', run self.compute_beta_prior to estimate alpha and beta
     def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps):
-    #def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps,beta_prior=(1,1)):
         self.charMtrx = charMtrx
         # normalize Q
         self.Q = []
@@ -241,19 +238,20 @@ class ML_solver:
             if not node.is_leaf():
                 nib += 1
         return float(nib) 
+    
     def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla", keybranches=[], nreps=1, outdir="", conv=0.2):
         nib = self.num_internal_branches()
         t = round(0.2 * nib) + 1
         k = -int(log(conv)/log(t) * nib)
-        print("Running topology search for", k, "iterations.")
+        #print("Running topology search for", k, "iterations.")
         resolve_polytomies = False
-        print("Starting topology search.")
+        #print("Starting topology search.")
         if keybranches != []:
             resolve_polytomies = True
-            print("Doing topology search on polytomies.")
+            #print("Doing topology search on polytomies.")
             nib, keybranches = self.resolve_keybranches(keybranches)
-        else:
-            print("Doing topology search on polytomy-resolved tree.")
+        #else:
+        #    print("Doing topology search on polytomy-resolved tree.")
 
         nni_replicates = dict()
         starting_tree = self.tree_copy()
@@ -288,7 +286,6 @@ class ML_solver:
                 nni_iter += 1
 
             nni_replicates[i] = (new_llh, topo_dict)
-       
         
         if resolve_polytomies:
             out1 = outdir + "/" + prefix + "_topo_llh_resolvingpolytomies.txt"
@@ -426,7 +423,7 @@ class ML_solver:
         self.x2phi(x,fixed_phi=fixed_phi)
 
     def __llh__(self):
-        return self.lineage_llh(self.params) #+ (self.alpha-1)*log(self.params.phi) + (self.beta-1)*log(1-self.params.phi)
+        return self.lineage_llh(self.params)
 
 
     def negative_llh(self):
@@ -466,7 +463,6 @@ class ML_solver:
             for rep in range(initials):
                 randseed = rseeds[rep]
                 print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
-                #print("Running EM with initial point " + str(rep+1))
                 nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose)
                 if nllh is not None:
                     all_failed = False
@@ -503,48 +499,6 @@ class ML_solver:
         else:
             f,params = None,None
         return f,params
-
-    def optimize_old(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,alpha=1,beta=1):
-    # optimize tree branch lengths and nu and phi 
-        self.az_partition(self.params)
-        warnings.filterwarnings("ignore")
-        def nllh(x): 
-            self.x2params(x,fixed_nu=fixed_nu,fixed_phi=fixed_phi)            
-            return -self.__llh__()
-
-        bounds = self.get_bound(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
-        
-        x_star = None
-        f_star = float("inf")
-
-        x0 = []
-        all_failed = True
-        all_trials = 0
-        while all_failed and all_trials < max_trials:
-            for i in range(initials):
-                randseed = int(random()*10000)
-                print("Initial point " + str(i+1) + ". Random seed: " + str(randseed))
-                seed(a=randseed)
-                x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
-                out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':verbose,'iprint':3,'maxiter':1000}, bounds=bounds)
-                #nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose)
-                if out.success:
-                #if type(nllh) == int:
-                    all_failed = False
-                    print("Optimal point found for initial " + str(i+1))
-                    self.x2params(out.x,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
-                    self.show_params()
-                    if out.fun < f_star:
-                        x_star = out.x
-                        f_star = out.fun
-                else:
-                    print("Failed to optimize using initial point " + str(i+1)) 
-            all_trials += initials
-        
-        # store the optimal values in x_star to self.params
-        self.x2params(x_star,fixed_phi=fixed_phi,fixed_nu=fixed_nu)    
-        
-        return self.negative_llh()     
 
 class SpaLin_solver(ML_solver):
     # at this stage, the tree topology and sig,a must be given. Only branch lengths

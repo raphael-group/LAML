@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 import pickle
+import problin_libs as problin
 from problin_libs.sequence_lib import read_sequences
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
 from scripts.compute_pars_score import pars_score
 from treeswift import *
+from sys import argv
 import random
 import argparse
 from sys import argv,exit,stdout
@@ -21,7 +23,6 @@ def main():
     parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.")
     parser.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
     parser.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
-    parser.add_argument("-b","--betaPrior",required=False, default=(1,1), help="The beta prior of the dropout rate phi. Default: (1,1) --> uniform prior. Use 'auto' to let the solver automatically estimate the beta prior.")
     parser.add_argument("--solver",required=False,default="Generic",help="Specify a solver. Options are 'Generic' or 'EM'. Caution: at current stage, EM only works with flag --noSilence. Default: 'Generic'")
     parser.add_argument("--delimiter",required=False,default="tab",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.")
     parser.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
@@ -67,11 +68,9 @@ def main():
         nlabel = "nlabel_"
         for node in tree.traverse_levelorder():
             if not node.is_leaf():
-                #print(node.label)
                 if node.label == None:
                     node.label = nlabel + str(i)
                     i += 1
-                    #print(None, "reset to", node.label)
                 if len(node.child_nodes()) != 2:
                     containsPolytomies = True
                     node.resolve_polytomies()
@@ -118,7 +117,6 @@ def main():
     k = len(msa[next(iter(msa.keys()))])
     fixed_phi = 0 if args["noDropout"] else None
     fixed_nu = 0 if args["noSilence"] else None
-    beta_prior = args["betaPrior"] 
 
     if args["randseeds"] is None:
         random_seeds = None
@@ -166,9 +164,6 @@ def main():
                         seen_sites.add(site_idx)
                     char_state = int(char_state)
                     prob = float(prob)
-                    #if site_idx not in Q:
-                    #    Q[site_idx] = dict()
-                    #    Q[site_idx][0] = 0.0
                     Q[len(seen_sites) - 1][char_state] = prob
             
         else:
@@ -191,41 +186,38 @@ def main():
     else:    
         print("Optimization by Generic solver")        
       
-
     def record_statistics(params, fout, optimal_llh):
-        fout.write("Optimal topology: " + params.tree.newick() + "\n")
-        fout.write("Optimal tree: " +  params.tree.newick() + "\n")
+        #fout.write("Optimal topology: " + params.tree.newick() + "\n")
+        fout.write("Newick tree: " +  params.tree.newick() + "\n")
         fout.write("Parsimony Score: " + str(pars_score(params.tree, args["characters"], args["maskedchar"], False, "")) + "\n")
         fout.write("Normalized Parsimony Score: " + str(pars_score(params.tree, args["characters"], args["maskedchar"], True, "")) + "\n")
         #fout.write("Weighted Parsimony Score: " + str(pars_score(params.tree, args["characters"], args["maskedchar"], False, args["priors"])) + "\n")
         fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
         fout.write("Optimal dropout rate: " + str(mySolver.params.phi) + "\n")
         fout.write("Optimal silencing rate: " + str(mySolver.params.nu) + "\n")
-
-    with open(args["outputdir"] + "/" + args["output"],'w') as fout:
-        mySolver = selected_solver(msa,Q,treeStr) #,beta_prior=beta_prior)
-# print(mySolver.params.tree.newick())
-        optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
-        if args["topology_search"]:
-            if containsPolytomies:
-                # resolve that tree first
-                mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
-                optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
-                print("Finished resolving polytomy tree.")
-                if args["verbose"]:
-                    print("Polytomy-resolved tree: ", params.tree.newick() + "\n")
-                # record the starting tree statistics
-                record_statistics(mySolver.params, fout, optimal_llh)
-                # rerun topology search
-                mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=[], nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
-            else:
-                # record the starting tree statistics
-                record_statistics(mySolver.params, fout, optimal_llh)
-                # run topology search
-                mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=[], nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
-
+        
+    mySolver = selected_solver(msa,Q,treeStr)
+    optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+    outfile = args["outputdir"] + "/" + args["output"]
+    if args["topology_search"]:
+        if containsPolytomies:
+            # resolve that tree first
+            mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
             optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
-            record_statistics(mySolver.params, fout, optimal_llh)
+            print("Finished resolving polytomy tree.")
+            if args["verbose"]:
+                print("Polytomy-resolved tree: ", params.tree.newick() + "\n")
+            # record the starting tree statistics
+            with open(outfile,'w') as fout:
+                fout.write("Optimal polytomy-resolved tree:\n")
+                record_statistics(mySolver.params, fout, optimal_llh)
+        # run topology search
+        mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=[], nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
+        optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+    
+    with open(outfile,'a') as fout:
+        fout.write("Final optimal tree:\n")
+        record_statistics(mySolver.params, fout, optimal_llh)
 
 if __name__ == "__main__":
     main()
