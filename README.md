@@ -7,3 +7,6 @@ Notebooks can be found in `notebooks/`. Script development (files containing `ma
 
 TODOs:
 [] Change all the print statements to logging statements?
+[] Take startle import out 
+[] Take parsimony computation out of the `run_problin.py` script.
+[] Move necessary functions into library out of scripts, and make all scripts stand-alone with main() functions.
