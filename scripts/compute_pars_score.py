@@ -10,19 +10,16 @@ def pars_score_startle(args):
     seed_tree = startle.from_newick_get_nx_tree(args.tree)
     character_matrix = pd.read_csv(args.msa, index_col=[0], sep=args.delimiter, dtype=str)
     character_matrix = character_matrix.replace('-', '-1')
+    #print(character_matrix)
     if args.prior != '':
         mutation_prior_dict = load_pickle(args.prior)
+        #mutation_prior_dict = read_Q(args.prior)
         weighted_seed_parsimony, _, _ = startle.small_parsimony(mutation_prior_dict, seed_tree, character_matrix, weighted=True)
+        return weighted_seed_parsimony
     else:
         mutation_prior_dict = []
-
-    seed_parsimony, _, _ = startle.small_parsimony(mutation_prior_dict, seed_tree, character_matrix, weighted=False)
-    weighted_seed_parsimony, _, _ = startle.small_parsimony(mutation_prior_dict, seed_tree, character_matrix, weighted=True)
-
-    #print("Weighted Parsimony:", weighted_seed_parsimony)
-    print("Startle Parsimony:", seed_parsimony)
-
-
+        seed_parsimony, _, _ = startle.small_parsimony(mutation_prior_dict, seed_tree, character_matrix, weighted=False)
+        return seed_parsimony
 
 def pars_score(T, msa, mchar, norm, priorfile):
     def get_seq(n, nodedict):
@@ -38,8 +35,9 @@ def pars_score(T, msa, mchar, norm, priorfile):
             #print("prior keys", q.keys())
             #print("cidx", cidx, "c", c)
             #print("q[cidx][c]", q[cidx][c])
-            if q[cidx][c] > 0:
-                return -log(q[cidx][c])
+            if c in q[cidx]:
+                if q[cidx][c] > 0:
+                    return -log(q[cidx][c])
             else:
                 return 0
         else:
@@ -60,10 +58,10 @@ def pars_score(T, msa, mchar, norm, priorfile):
         # check that site_names == q.keys()
 
         prior_names = sorted([x for x in q.keys()])
-        if prior_names != site_names: 
-            print("Provided prior names do not match the character site names.")
-            print("Prior names:", prior_names)
-            print("Site names:", site_names)
+        #if prior_names != site_names: 
+        #    print("Provided prior names do not match the character site names.")
+        #    print("Prior names:", prior_names)
+        #    print("Site names:", site_names)
 
 
     nodedict = dict()
@@ -133,7 +131,7 @@ def main(args):
 
     #print(m)
     if args.startle:
-        pars_score_startle(args)
+        print(pars_score_startle(args))
     else:
         print(pars_score(tree, args.msa, args.mchar, args.norm, args.prior))
 

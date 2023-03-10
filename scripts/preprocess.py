@@ -17,7 +17,7 @@ def load_pickle(f):
         for x in q.keys():
             # print(q[x], x, q[x] < 1.0 and q[x] >= 0.0)
             assert q[x] < 1.0 and q[x] >= 0.0
-        q[0] = 0.0
+        #q[0] = 0.0
         
         Q[i] = q
     return Q
@@ -70,4 +70,26 @@ def add_identical(tree, eqfile):
             child = Node(label=same_label)
             seed_node.add_child(child)
 
+
+def norm_Q(p, outfile, cmtx):
+    p = load_pickle(p)
+    cmtxfile, site_names = read_sequences(cmtx, filetype="charMtrx", delimiter=",")
+    Q = dict()
+    for col_i, site_name in zip(p, site_names):
+        Q_i = p[col_i]
+        keys = list(Q_i.keys()).copy()
+        for x in keys:
+            if Q_i[x] <= 0 or Q_i[x] >= 1:
+                Q_i.pop(x)
+        s = sum([Q_i[x] for x in Q_i])
+        Q_i_norm = {}
+        for x in Q_i:
+            if Q_i[x] > 0 and Q_i[x] < 1:
+                Q_i_norm[x] = Q_i[x]/s
+        Q[int(site_name[1:])] = Q_i_norm
+    pickle.dump(Q, open(outfile, "wb"))
+
+def write_pickle(p, poutfile):
+    with open(poutfile, "wb") as fout:
+        pickle.dump(p, fout)
 

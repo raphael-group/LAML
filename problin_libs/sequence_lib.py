@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 from statistics import mean
+import pickle
 
 recognized_missing = set(['-', '?', '-1'])
 
@@ -85,16 +86,18 @@ def read_charMtrx(fin,delimiter=",",masked_symbol=None):
     return D, site_names    
 
 def read_Q(inFile):
+    Q = {}
     with open(inFile,'r') as fin:
         fin.readline() # skip the header
-        Q = {}
         for line in fin:
             char,state,prob = line.strip().split(',')
-            if not char in Q:
-                Q[char] = {int(state):float(prob)}
-            else:
-                Q[char][int(state)] = float(prob)
-    return [Q[q] for q in sorted(Q)]
+            if not int(char[1:]) in Q:
+                Q[int(char[1:])] = {} #{int(state):float(prob)}
+                #Q[char] = {int(state):float(prob)}
+            Q[int(char[1:])][int(state)] = float(prob)
+                #Q[char][int(state)] = float(prob)
+    #return [Q[q] for q in sorted(Q)]
+    return Q
 
 #from treeswift import *
 
