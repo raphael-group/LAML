@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import os
 import pickle
 import problin_libs as problin
 from problin_libs.sequence_lib import read_sequences
@@ -29,7 +30,7 @@ def main():
     parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
     parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked character. Default: if not specified, assumes '-'.")
     parser.add_argument("-o","--output",required=True,help="The output file.")
-    parser.add_argument("-od","--outputdir",required=False,help="The output directory.")
+    parser.add_argument("-od","--outputdir",required=False,default="./", help="The output directory.")
     parser.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
     parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations.")
     parser.add_argument("--strategy", required=False, help="Strategy for NNI topology search.")
@@ -44,6 +45,12 @@ def main():
     print(problin.PROGRAM_NAME + " was called as follow: " + " ".join(argv))
     
     args = vars(parser.parse_args())
+
+    try:
+        if args['outputdir'] != '.' and not os.path.isdir(args['outputdir']):
+            os.mkdir(args['outputdir'])
+    except:
+        print("Could not create specified output directory.")
 
     delim_map = {'tab':'\t','comma':',','whitespace':' '}
     delimiter = delim_map[args["delimiter"]]
@@ -126,6 +133,7 @@ def main():
             random_seeds = random_seeds[0]
 
     if args["priors"] == "uniform":
+        print("No prior file detected, using uniform prior probabilities for each alphabet on each site.")
         # use the uniform Q matrix
         Q = []
         for i in range(k):
