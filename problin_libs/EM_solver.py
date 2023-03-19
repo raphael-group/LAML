@@ -336,11 +336,11 @@ class EM_solver(ML_solver):
         return True    
     
     def EM_optimization(self,params,verbose=True,optimize_phi=True,optimize_nu=True,ultra_constr=False):
-    # assume that az_partition has been performed
-    # optimize all parameters: branch lengths, phi, and nu
-    # if optimize_phi is False, it is fixed to the original value in params.phi
-    # the same for optimize_nu
-    # caution: this function will modify params in place!
+        # assume that az_partition has been performed
+        # optimize all parameters: branch lengths, phi, and nu
+        # if optimize_phi is False, it is fixed to the original value in params.phi
+        # the same for optimize_nu
+        # caution: this function will modify params in place!
         pre_llh = self.lineage_llh(params)
         print("Initial phi: " + str(params.phi) + ". Initial nu: " + str(params.nu) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
@@ -362,7 +362,12 @@ class EM_solver(ML_solver):
             pre_llh = curr_llh
             em_iter += 1
         return -curr_llh, em_iter    
-   
+  
+    def posterior_silence(self,params):
+        self.Estep(params)
+        for leaf in params.tree.traverse_leaves():
+            print(leaf.label,[round(exp(x),2) for x in leaf.post1])
+
     def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True,ultra_constr=False):
         # optimize using a specific initial point identified by the input randseed
         seed(a=randseed)

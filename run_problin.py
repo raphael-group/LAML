@@ -200,7 +200,7 @@ def main():
         if containsPolytomies:
             # resolve that tree first
             mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'], conv=conv_threshold)
-            optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+            optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
             print("Finished resolving polytomy tree.")
             if args["verbose"]:
                 print("Polytomy-resolved tree: ", params.tree.newick() + "\n")
@@ -210,8 +210,9 @@ def main():
                 record_statistics(mySolver.params, fout, optimal_llh)
         # run topology search
         mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=[], nreps=args['randomreps'], outdir=args['outputdir'], conv=conv_threshold)
-        optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+        optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
     
+    mySolver.posterior_silence(mySolver.params)
     with open(outfile,'a') as fout:
         fout.write("Final optimal tree:\n")
         record_statistics(mySolver.params, fout, optimal_llh)
