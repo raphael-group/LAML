@@ -87,6 +87,8 @@ def norm_Q(p, outfile, cmtx):
             if Q_i[x] > 0 and Q_i[x] < 1:
                 Q_i_norm[x] = Q_i[x]/s
         Q[int(site_name[1:])] = Q_i_norm
+        Q[site_name[1:]] = Q_i_norm
+    Q[0] = 0.0 # adding for cassiopeia
     pickle.dump(Q, open(outfile, "wb"))
 
 def write_pickle(p, poutfile):

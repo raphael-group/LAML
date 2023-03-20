@@ -7,4 +7,5 @@ problin_libs/__pycache__/*
 unit_tests/__pycache__/*
 unit_tests/results_*
 scripts/__pycache__/*
-
+**/*.pyc
+**/__pycache__/*
