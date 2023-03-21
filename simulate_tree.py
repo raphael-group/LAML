@@ -42,7 +42,7 @@ def main():
     for i in range(nreps):
         nwk_str = simTree_lnorm(nleaves,1,0.1)
         scaled_tree = scale_tree(nwk_str,depth=args["depth"])
-        outfile = args["outprefix"] + "_r" + str(i+1) + ".nwk"
+        outfile = args["outprefix"] + "_r" + str(i+1).rjust(len(str(nreps)),'0') + ".nwk"
         with open(outfile,'w') as fout:
             fout.write(scaled_tree)
 

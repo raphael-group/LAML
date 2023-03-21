@@ -26,6 +26,13 @@ parser.add_argument("--maskedchar",required=False,default="?",help="Masked chara
 
 args = vars(parser.parse_args())
 tree = read_tree_newick(args["inputTree"])
+
+i = 0
+for node in tree.traverse_preorder():
+    if not node.is_leaf():
+        node.label = "I" + str(i)
+        i += 1
+
 k = args["seqlen"]
 
 if args["priors"]:
@@ -53,7 +60,12 @@ s = args["silencing"]
 if args["randseed"] is not None:
     random.seed(args["randseed"])
 
-for i in range(args["reps"]):
-    char_mtrx,_ = simulate_seqs(tree, Q, mu, with_heritable=sim_silencing, silencing_rate=s, dropout_rate=d)
-    outfile = args["prefix"] + "_r" + str(i+1) + "_character_matrix.csv"
-    write_sequences(char_mtrx, k, outfile)
+nreps = args["reps"]
+for i in range(nreps):
+    leaf_char_mtrx,all_char_mtrx = simulate_seqs(tree, Q, mu, with_heritable=sim_silencing, silencing_rate=s, dropout_rate=d)
+    out_seqs = args["prefix"] + "_r" + str(i+1).rjust(len(str(nreps)),'0') + "_character_matrix.csv"
+    out_history = args["prefix"] + "_r" + str(i+1).rjust(len(str(nreps)),'0') + "_all_sequences.csv"
+    write_sequences(leaf_char_mtrx, k, out_seqs)
+    write_sequences(all_char_mtrx, k, out_history)
+    with open(out_history,'a') as fout:
+        fout.write("Evolve tree: " + tree.newick())
