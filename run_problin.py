@@ -165,15 +165,16 @@ def main():
             seen_sites = set()
             with open(args["priors"],'r') as fin:
                 lines = fin.readlines()
-                for line in lines[1:]:
+                #for line in lines[1:]:
+                for line in lines:
                     site_idx,char_state,prob = line.strip().split(',')
-                    site_idx = int(site_idx[1:])
+                    #site_idx = int(site_idx[1:])
+                    site_idx = int(site_idx)
                     if site_idx not in seen_sites:
                         seen_sites.add(site_idx)
                     char_state = int(char_state)
                     prob = float(prob)
                     Q[len(seen_sites) - 1][char_state] = prob
-            
         else:
             Q = [{0:0} for i in range(k)]
             with open(args["priors"],'r') as fin:

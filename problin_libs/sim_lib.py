@@ -3,6 +3,25 @@ from treeswift import *
 from math import *
 import random
 from problin_libs.sequence_lib import load_pickle
+from random import lognormvariate, randint
+import networkx as nx
+import cassiopeia as cass
+
+def simTree_lnorm(nLeaves,scale,std,randseed=None):
+    # simulate tree using Cassiopeia where branch lengths
+    # follow a lognormal distribution
+    if randseed is None:
+        randseed = randint(0,1024)        
+    log_sd = sqrt(log((1+sqrt(1+4*(std*std)))/2))
+    bd_sim = cass.sim.BirthDeathFitnessSimulator(
+        birth_waiting_distribution = lambda scale:lognormvariate(log(scale),log_sd),
+        initial_birth_scale = scale,
+        num_extant = nLeaves,
+        random_seed = randseed
+    )
+    ground_truth_tree = bd_sim.simulate_tree()
+    nwstr = ground_truth_tree.get_newick(record_branch_lengths=True)
+    return nwstr
 
 def get_balanced_tree(tree_height,branch_length,num_nodes=None):
 # create a fully balanced tree with height = `tree_height`
@@ -41,48 +60,58 @@ def get_balanced_tree(tree_height,branch_length,num_nodes=None):
     tree.root = root
     return tree.newick() 
 
-def simulate_seqs(tree,Q, mu=1.0, with_heritable=False, silencing_rate=1e-4, s=None ):
+def simulate_seqs(tree,Q, mu=1.0, with_heritable=False, silencing_rate=0, dropout_rate=0, s=None ):
     if s is not None:
        random.seed(s)
     k = len(Q)
     z_seq = [0]*k
     for node in tree.traverse_preorder():
         d = node.edge_length * mu if node.edge_length is not None else 0
-        p = 1-exp(-d) # prob of nonzero mutation
+        #p = 1-exp(-d) # prob of nonzero mutation
+        p = exp(-d) 
         p_seq = node.parent.seq if not node.is_root() else z_seq
         seq = []
+        # simulate the child sequence
         for i, c in enumerate(p_seq):
-            r = random.random()
-            nc = [c]
-            # print("random", r, "mutation thresh", p)
-            if r < p: # then mutate
-                r2 = random.random()
-                if r2 < silencing_rate and with_heritable and c != '?':
-                    # apply silencing
-                    nc = ['?']
-                else:
-                    # no silencing
-                    nc = random.choices(list(Q[i].keys()), weights=list(Q[i].values()), k=1)
-            seq += nc
+            alphabet = list(Q[i].keys())
+            m = len(alphabet)
+            w = [0]*(m+2)
+            nu = silencing_rate
+            w[-1] = 1-p**nu if c != -1 else 1
+            if c == 0:
+                w[0] = p**(nu+1)
+                for j,alpha in enumerate(alphabet):
+                    w[j+1] = Q[i][alpha]*p**nu*(1-p)
+            elif c != -1:
+                j = alphabet.index(c)
+                w[j+1] = p**nu
+            nc = random.choices([0]+alphabet+[-1],weights=w)
+            seq += nc 
+        # set the sequence
         node.seq = seq
+    # full (internal included) character matrix    
+    char_full = {}
+    for node in tree.traverse_preorder():
+        char_full[node.label] = node.seq
+    # leaf (observed) character matrix    
     char_mtrx = {}
     for node in tree.traverse_leaves():
         char_mtrx[node.label] = node.seq
-    return char_mtrx          
+    # add dropout
+    d_char_mtrx = simulate_dropout(char_mtrx,dropout_rate)
+    return d_char_mtrx,char_full         
 
-def simulate_dropout(C, d, s=None):
-    if s is not None:
-        random.seed(s)
+def simulate_dropout(C, d):
     n_cmtx = dict()
     for nlabel in C:
         seq = C[nlabel]
-        ns = [] 
-        for c in seq:
-            r = random.random()
-            if r < d:
-                ns += ['?']
-            else:
-                ns += [c]
+        ns = [0]*len(seq) 
+        for i,c in enumerate(seq):
+            if c == -1:
+                ns[i] = '?'
+            else:    
+                r = random.random()
+                ns[i] = '?' if r<d else c
         n_cmtx[nlabel] = ns
     return n_cmtx
 
@@ -91,11 +120,6 @@ def sim_Q(k, m, prior_outfile=""):
     for i in range(k):
         q = {j+1:1/m for j in range(m)}
         Q.append(q)
-    if prior_outfile != "":
-        with open(prior_outfile, "w") as fout:
-            for i in range(k):
-                for x in Q[i]:
-                    fout.write(str(i) + " " + str(x) + " " + str(Q[i][x]) + "\n")
     return Q
 
 def concat_Q(d):
