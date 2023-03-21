@@ -91,12 +91,9 @@ def read_Q(inFile):
         fin.readline() # skip the header
         for line in fin:
             char,state,prob = line.strip().split(',')
-            if not int(char[1:]) in Q:
-                Q[int(char[1:])] = {} #{int(state):float(prob)}
-                #Q[char] = {int(state):float(prob)}
-            Q[int(char[1:])][int(state)] = float(prob)
-                #Q[char][int(state)] = float(prob)
-    #return [Q[q] for q in sorted(Q)]
+            if not int(char) in Q:
+                Q[int(char)] = {} #{int(state):float(prob)}
+            Q[int(char)][int(state)] = float(prob)
     return Q
 
 #from treeswift import *

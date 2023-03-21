@@ -20,7 +20,7 @@ def scale_tree(nwk_str,depth=1.0):
         if not node.is_root():
             node.edge_length *= mu
             node.depth = node.parent.depth + node.edge_length
-    return tree.newick()           
+    return tree.newick(),mu           
 
 def main():
     parser = argparse.ArgumentParser()
@@ -41,10 +41,15 @@ def main():
 
     for i in range(nreps):
         nwk_str = simTree_lnorm(nleaves,1,0.1)
-        scaled_tree = scale_tree(nwk_str,depth=args["depth"])
-        outfile = args["outprefix"] + "_r" + str(i+1).rjust(len(str(nreps)),'0') + ".nwk"
+        scaled_tree,mu = scale_tree(nwk_str,depth=args["depth"])
+        outfile = args["outprefix"]
+        if nreps > 1:
+            outfile +=  "_r" + str(i+1).rjust(len(str(nreps)),'0')
+        outfile += ".txt"    
         with open(outfile,'w') as fout:
-            fout.write(scaled_tree)
+            fout.write("Scaled tree: " + scaled_tree + "\n")
+            fout.write("Time tree: " + nwk_str + "\n")
+            fout.write("Mutation rate: " + str(mu))
 
 if __name__ == "__main__":
     main()            
