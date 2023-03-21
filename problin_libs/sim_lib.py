@@ -6,6 +6,7 @@ from problin_libs.sequence_lib import load_pickle
 from random import lognormvariate, randint
 import networkx as nx
 import cassiopeia as cass
+import pickle
 
 def simTree_lnorm(nLeaves,scale,std,randseed=None):
     # simulate tree using Cassiopeia where branch lengths
@@ -125,23 +126,29 @@ def sim_Q(k, m, prior_outfile=""):
 def concat_Q(d):
     all_priors = []
     for f in os.listdir(d):
-        p = load_pickle(f)
+        #p = load_pickle(d+"/"+f)
+        fstream = open(d+"/"+f,'rb')
+        p = pickle.load(fstream)
+        fstream.close()
         for k in p:
+            Sum = sum(p[k].values())
+            p[k] = {x:p[k][x]/Sum for x in p[k]}
             all_priors.append(p[k])
     return all_priors
 
-def sample_Q(k, all_priors, prior_outfile="", s=None):
+def sample_Q(k, all_priors,s=None):
     if s is not None:
         random.seed(s)
     newQ = dict()
     for i in range(k):
         p = random.choice(all_priors)
         newQ[i] = p
+    '''    
     if prior_outfile != "":
         with open(prior_outfile, "w") as fout:
             for i in range(k):
                 for x in Q[i]:
-                    fout.write(str(i) + " " + str(x) + " " + str(Q[i][x]) + "\n")
+                    fout.write(str(i) + " " + str(x) + " " + str(Q[i][x]) + "\n") '''
     return newQ
 
 if __name__=="__main__":
