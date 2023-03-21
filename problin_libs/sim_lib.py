@@ -82,13 +82,17 @@ def simulate_seqs(tree,Q, mu=1.0, with_heritable=False, silencing_rate=0, dropou
                 w[0] = p**(nu+1)
                 for j,alpha in enumerate(alphabet):
                     w[j+1] = Q[i][alpha]*p**nu*(1-p)
-            elif c != -1:
+            elif c != 's':
                 j = alphabet.index(c)
                 w[j+1] = p**nu
-            nc = random.choices([0]+alphabet+[-1],weights=w)
+            nc = random.choices([0]+alphabet+['s'],weights=w)
+            # simulate dropout
+            if node.is_leaf() and nc[0] != 's' and random.random() < dropout_rate:
+                nc = ['d']
             seq += nc 
         # set the sequence
-        node.seq = seq
+        node.seq = seq    
+
     # full (internal included) character matrix    
     char_full = {}
     for node in tree.traverse_preorder():
@@ -96,10 +100,8 @@ def simulate_seqs(tree,Q, mu=1.0, with_heritable=False, silencing_rate=0, dropou
     # leaf (observed) character matrix    
     char_mtrx = {}
     for node in tree.traverse_leaves():
-        char_mtrx[node.label] = node.seq
-    # add dropout
-    d_char_mtrx = simulate_dropout(char_mtrx,dropout_rate)
-    return d_char_mtrx,char_full         
+        char_mtrx[node.label] = [c if c not in ['s','d'] else '?' for c in node.seq]
+    return char_mtrx,char_full         
 
 def simulate_dropout(C, d):
     n_cmtx = dict()
