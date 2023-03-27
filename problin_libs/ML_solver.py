@@ -5,6 +5,7 @@ from scipy import optimize
 import warnings
 import numpy as np
 from problin_libs import min_llh, eps, nni_conv_eps
+from scipy.sparse import csr_matrix
 
 class Params:
     def __init__(self,nwkTree,nu=eps,phi=eps,sigma=None):
@@ -29,9 +30,24 @@ class ML_solver:
         self.params = Params(nwkTree,nu=nu,phi=phi)
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.params.tree.traverse_postorder()))
-        # TODO put in dmax and dmin here, remove everywhere else!!
-        #self.dmin
-        #self.dmax
+        self.dmax = -log(1/self.numsites)*2
+        self.dmin = -log(1-1/self.numsites)/2 if self.numsites > 1 else None
+    
+    def ultrametric_constr(self):
+        N = self.num_edges + 2 # add 2: phi and nu
+        M = []
+        idx = 0 
+        for node in self.params.tree.traverse_postorder():
+            if node.is_leaf():
+                node.constraint = [0.]*N
+            else:
+                c1,c2 = node.children
+                m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]
+                M.append(m)
+                node.constraint = c1.constraint
+            node.constraint[idx] = 1
+            idx += 1        
+        return M
     
     def compute_beta_prior(self):
         msa = self.charMtrx
@@ -376,9 +392,7 @@ class ML_solver:
         return sum(llh)         
 
     def ini_brlens(self):
-        dmax = -log(1/self.numsites)*2
-        dmin = -log(1-1/self.numsites)/2
-        return [random() * (dmax/2 - 2*dmin) + 2*dmin for i in range(self.num_edges)]        
+        return [random() * (self.dmax/2 - 2*self.dmin) + 2*self.dmin for i in range(self.num_edges)]        
 
     def ini_nu(self,fixed_nu=None):
         return random()*0.99 if fixed_nu is None else fixed_nu
@@ -396,9 +410,7 @@ class ML_solver:
         return (eps,0.99) if fixed_phi is None else (fixed_phi-eps,fixed_phi+eps)
 
     def bound_brlen(self):        
-        dmax = -log(1/self.numsites)*2
-        dmin = -log(1-1/self.numsites)/2
-        return [dmin]*self.num_edges,[dmax]*self.num_edges
+        return [self.dmin]*self.num_edges,[self.dmax]*self.num_edges
         
     def get_bound(self,keep_feasible=False,fixed_phi=None,fixed_nu=None):
         br_lower,br_upper = self.bound_brlen()  
@@ -425,7 +437,6 @@ class ML_solver:
     def __llh__(self):
         return self.lineage_llh(self.params)
 
-
     def negative_llh(self):
         self.az_partition(self.params)
         return -self.__llh__()
@@ -436,7 +447,7 @@ class ML_solver:
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
     
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,random_seeds=None):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,random_seeds=None,ultra_constr=True):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
         results = []
         all_failed = True
@@ -463,7 +474,12 @@ class ML_solver:
             for rep in range(initials):
                 randseed = rseeds[rep]
                 print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
-                nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose)
+                if ultra_constr:
+                    print("Solving ML with ultrametric constraint")
+                else:      
+                    print("Solving ML without ultrametric constraint")
+                nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
+                
                 if nllh is not None:
                     all_failed = False
                     print("Optimal point found for initial point " + str(rep+1))
@@ -480,7 +496,7 @@ class ML_solver:
         self.params = best_params
         return results[0][0]
 
-    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True):
+    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True,ultra_constr=False):
         # optimize using a specific initial point identified by the input randseed
         warnings.filterwarnings("ignore")
         def nllh(x): 
@@ -491,7 +507,12 @@ class ML_solver:
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.az_partition(self.params)
         bounds = self.get_bound(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
-        out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':verbose,'iprint':3,'maxiter':1000}, bounds=bounds)
+        if ultra_constr:
+            M = self.ultrametric_constr()
+            constraints = [optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False)]
+        else:
+            constraints = []    
+        out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':verbose,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
         if out.success:
             self.x2params(out.x,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
             params = self.params
