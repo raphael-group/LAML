@@ -6,14 +6,17 @@ from problin_libs.sequence_lib import read_sequences
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
 from treeswift import *
-from sys import argv
 import random
 import argparse
 from sys import argv,exit,stdout
 import problin_libs as problin
-
-
-
+    
+def record_statistics(params, fout, optimal_llh):
+    fout.write("Newick tree: " +  params.tree.newick() + "\n")
+    fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
+    fout.write("Optimal dropout rate: " + str(params.phi) + "\n")
+    fout.write("Optimal silencing rate: " + str(params.nu) + "\n")
+    
 def main():
     parser = argparse.ArgumentParser()
 
@@ -22,8 +25,9 @@ def main():
     parser.add_argument("-r","--rep",required=False,help="The rep index of the input character matrix.") 
     parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.")
     parser.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
+    parser.add_argument("--ultrametric",action='store_true',help="Enforce ultrametricity to the output tree.")
     parser.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
-    parser.add_argument("--solver",required=False,default="Generic",help="Specify a solver. Options are 'Generic' or 'EM'. Caution: at current stage, EM only works with flag --noSilence. Default: 'Generic'")
+    parser.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
     parser.add_argument("--delimiter",required=False,default="tab",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.")
     parser.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
     parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
@@ -34,7 +38,6 @@ def main():
     parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations.")
     parser.add_argument("--strategy", required=False, help="Strategy for NNI topology search.")
     parser.add_argument("--randomreps", required=False, default=5, type=int, help="Number of replicates to run for the random strategy of topology search.")
-    parser.add_argument("--conv", "--convergence", required=False, default=0.2, type=float, help="The threshold parameter to define whether the nni search has converged. Translates to percentage of branches we assume are bad. Default is 0.2.")
 
     if len(argv) == 1:
         parser.print_help()
@@ -62,8 +65,7 @@ def main():
     with open(args["topology"],'r') as f:
         treeStr = f.read().strip()
         tree = read_tree_newick(treeStr)
-        if len(tree.root.child_nodes()) != 2:
-            print("Provided topology's root does not have two nodes, resetting root.")
+        if len(tree.root.child_nodes()) != 2: # Provided topology's root does not have two nodes --> reset root
             treeStr = tree.newick()[1:-2] + ";"
 
         tree = read_tree_newick(treeStr)
@@ -100,11 +102,9 @@ def main():
         nlabel = "nlabel_"
         for node in tree.traverse_levelorder():
             if not node.is_leaf():
-                #print(node.label)
                 if node.label == None:
                     node.label = nlabel + str(i)
                     i += 1
-                    #print(None, "reset to", node.label)
                 if len(node.child_nodes()) != 2:
                     containsPolytomies = True
                     node.resolve_polytomies()
@@ -164,10 +164,8 @@ def main():
             seen_sites = set()
             with open(args["priors"],'r') as fin:
                 lines = fin.readlines()
-                #for line in lines[1:]:
                 for line in lines:
                     site_idx,char_state,prob = line.strip().split(',')
-                    #site_idx = int(site_idx[1:])
                     site_idx = int(site_idx)
                     if site_idx not in seen_sites:
                         seen_sites.add(site_idx)
@@ -184,30 +182,25 @@ def main():
                     prob = float(prob)
                     Q[site_idx][char_state] = prob
 
-    selected_solver = ML_solver
-    em_selected = False
-    if args["solver"].lower() == "em": 
-        selected_solver = EM_solver   
-        em_selected = True
+    selected_solver = EM_solver
+    em_selected = True
+    if args["solver"].lower() != "em": 
+        selected_solver = ML_solver   
+        em_selected = False
     if em_selected:
         print("Optimization by EM algorithm") 
     else:    
-        print("Optimization by Generic solver")        
-      
-    def record_statistics(params, fout, optimal_llh):
-        fout.write("Newick tree: " +  params.tree.newick() + "\n")
-        fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
-        fout.write("Optimal dropout rate: " + str(mySolver.params.phi) + "\n")
-        fout.write("Optimal silencing rate: " + str(mySolver.params.nu) + "\n")
+        print("Optimization by generic solver (Scipy-SLSQP)")        
         
     mySolver = selected_solver(msa,Q,treeStr)
-    optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+    optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
     outfile = args["outputdir"] + "/" + args["output"]
+    conv_threshold = 0.2
     if args["topology_search"]:
         if containsPolytomies:
             # resolve that tree first
-            mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
-            optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
+            mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=keybranches, nreps=args['randomreps'], outdir=args['outputdir'], conv=conv_threshold)
+            optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
             print("Finished resolving polytomy tree.")
             if args["verbose"]:
                 print("Polytomy-resolved tree: ", params.tree.newick() + "\n")
@@ -216,9 +209,8 @@ def main():
                 fout.write("Optimal polytomy-resolved tree:\n")
                 record_statistics(mySolver.params, fout, optimal_llh)
         # run topology search
-        mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=[], nreps=args['randomreps'], outdir=args['outputdir'], conv=args['conv'])
-        optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds)
-    
+        mySolver.topology_search(maxiter=1000, verbose=True, prefix=prefix, trynextbranch=True, strategy=args["strategy"], keybranches=[], nreps=args['randomreps'], outdir=args['outputdir'], conv=conv_threshold)
+        optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
     with open(outfile,'a') as fout:
         fout.write("Final optimal tree:\n")
         record_statistics(mySolver.params, fout, optimal_llh)
