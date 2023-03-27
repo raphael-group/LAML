@@ -5,7 +5,6 @@ import problin_libs as problin
 from problin_libs.sequence_lib import read_sequences
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
-from scripts.compute_pars_score import pars_score
 from treeswift import *
 from sys import argv
 import random
@@ -196,11 +195,7 @@ def main():
         print("Optimization by Generic solver")        
       
     def record_statistics(params, fout, optimal_llh):
-        #fout.write("Optimal topology: " + params.tree.newick() + "\n")
         fout.write("Newick tree: " +  params.tree.newick() + "\n")
-        fout.write("Parsimony Score: " + str(pars_score(params.tree, args["characters"], args["maskedchar"], False, "")) + "\n")
-        fout.write("Normalized Parsimony Score: " + str(pars_score(params.tree, args["characters"], args["maskedchar"], True, "")) + "\n")
-        #fout.write("Weighted Parsimony Score: " + str(pars_score(params.tree, args["characters"], args["maskedchar"], False, args["priors"])) + "\n")
         fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
         fout.write("Optimal dropout rate: " + str(mySolver.params.phi) + "\n")
         fout.write("Optimal silencing rate: " + str(mySolver.params.nu) + "\n")
