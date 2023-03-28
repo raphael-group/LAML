@@ -85,10 +85,10 @@ def read_charMtrx(fin,delimiter=",",masked_symbol=None):
         print("Warning: Reading sequences, detected " + str(seen_missing) + " as the missing character(s). We recommend explicitly providing the missing character.")
     return D, site_names    
 
-def read_Q(inFile):
+def read_Q(inFile,has_head=True):
     Q = {}
     with open(inFile,'r') as fin:
-        fin.readline() # skip the header
+        #fin.readline() # skip the header
         for line in fin:
             char,state,prob = line.strip().split(',')
             if not int(char) in Q:

@@ -63,8 +63,13 @@ if args["randseed"] is not None:
 nreps = args["reps"]
 for i in range(nreps):
     leaf_char_mtrx,all_char_mtrx = simulate_seqs(tree, Q, mu, with_heritable=sim_silencing, silencing_rate=s, dropout_rate=d)
-    out_seqs = args["prefix"] + "_r" + str(i+1).rjust(len(str(nreps)),'0') + "_character_matrix.csv"
-    out_history = args["prefix"] + "_r" + str(i+1).rjust(len(str(nreps)),'0') + "_all_sequences.csv"
+    out_seqs = args["prefix"]
+    out_history = args["prefix"]
+    if nreps > 1:
+        out_seqs += "_r" + str(i+1).rjust(len(str(nreps)),'0')
+        out_history += "_r" + str(i+1).rjust(len(str(nreps)),'0')
+    out_seqs += "_character_matrix.csv" 
+    out_history += "_all_sequences.txt"
     write_sequences(leaf_char_mtrx, k, out_seqs)
     write_sequences(all_char_mtrx, k, out_history)
     with open(out_history,'a') as fout:
