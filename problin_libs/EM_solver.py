@@ -11,6 +11,21 @@ def log_sum_exp(numlist):
     return result
 
 class EM_solver(ML_solver):
+    def ultrametric_constr(self):
+        N = self.num_edges
+        M = []
+        idx = 0 
+        for node in self.params.tree.traverse_postorder():
+            if node.is_leaf():
+                node.constraint = [0.]*N
+            else:
+                c1,c2 = node.children
+                m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]
+                M.append(m)
+                node.constraint = c1.constraint
+            node.constraint[idx] = 1
+            idx += 1        
+        return M
     def Estep_in_llh(self,params):
         # assume az_partition has been performed so each node has the attribute node.alpha
         # compute the inside llh, store in L0 and L1 of each node
@@ -195,7 +210,7 @@ class EM_solver(ML_solver):
                         v.S2[site] = exp(u.post0[site]-v.L0[site])*(1.0-exp(-params.nu*v.edge_length))
                         v.S4[site] = (1.0-exp(u.post0[site])-exp(u.post1[site]))*(1.0-exp(-params.nu*v.edge_length))/exp(v.L1[site])
                     v.S1[site] = exp(u.post0[site]) - v.S0[site] - v.S2[site] 
-                    v.S3[site] = 1.0-v.S0[site]-v.S1[site]-v.S2[site]-v.S4[site]
+                    v.S3[site] = 1.0-v.S0[site]-v.S1[site]-exp(v.post1[site])
 
     def Estep(self,params):
         self.Estep_in_llh(params)
@@ -211,12 +226,10 @@ class EM_solver(ML_solver):
             S0 = sum(v.S0)
             S1 = sum(v.S1)
             p = S0/(S0+S1)
-            dmax = -log(1/self.numsites)*2
-            dmin = -log(1-1/self.numsites)/2
-            if p <= exp(-dmax):
-                d = dmax
-            elif p >= exp(-dmin):
-                d = dmin
+            if p <= exp(-self.dmax):
+                d = self.dmax
+            elif p >= exp(-self.dmin):
+                d = self.dmin
             else:
                 d = -log(p)         
             v.edge_length = d
@@ -242,138 +255,92 @@ class EM_solver(ML_solver):
             em_iter += 1
         return -curr_llh    
 
-    '''def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100):
-        if fixed_nu is not None and fixed_nu <= eps:
-            if fixed_phi is not None:
-                phi_star = fixed_phi
-            else:
-                total = 0
-                missing = 0
-                for node in self.params.tree.traverse_leaves():
-                    x = node.label
-                    total += len(self.charMtrx[x])
-                    missing += sum([y=='?' for y in self.charMtrx[x]])
-                phi_star = missing/total    
-            if verbose:
-                print("Optimal phi: " + str(phi_star))
-            results = []
-            for rep in range(initials):
-                if verbose:
-                    print("Running EM with initial point " + str(rep+1))
-                x0 = self.ini_all(fixed_phi=phi_star,fixed_nu=fixed_nu)
-                self.x2params(x0,fixed_phi=phi_star,fixed_nu=fixed_nu)'''
-
-    def Mstep(self,params,optimize_phi=True,optimize_nu=True,verbose=True,eps_nu=1e-5,eps_s=1e-6):
+    def Mstep(self,params,optimize_phi=True,optimize_nu=True,verbose=True,eps_nu=1e-5,eps_s=1e-6,ultra_constr=False):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
-        try:
-            # optimize phi
-            if not optimize_phi:
-                if verbose:
-                    print("Fixing phi to " + str(params.phi))    
-                phi_star = params.phi
-            else:       
-                if verbose:
-                    print("Optimizing phi")
-                R = []
-                R_tilde = []
-                for i,v in enumerate(params.tree.traverse_leaves()):
-                    R.append(sum([x != '?' for x in self.charMtrx[v.label]]))
-                    R_tilde.append(sum([1-exp(p) for (j,p) in enumerate(v.post1) if self.charMtrx[v.label][j] == '?'])) 
-                phi_star = sum(R_tilde)/(sum(R)+sum(R_tilde))
-                if abs(phi_star) < 1/(self.numsites*len(self.charMtrx)):
-                    phi_star = 0
-            # optimize nu and all branch lengths
-            N = len(list(params.tree.traverse_preorder())) # the number of branches
-            S0 = np.zeros(N)
-            S1 = np.zeros(N)
-            S2 = np.zeros(N)
-            S3 = np.zeros(N)
-            S4 = np.zeros(N)
-            for i,v in enumerate(params.tree.traverse_preorder()):
-                s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
-                #s = [x if abs(x) > eps_s else eps_s for x in s]
-                s = [max(eps_s,x) for x in s]
-                s = [x/sum(s)*self.numsites for x in s]
-                S0[i],S1[i],S2[i],S3[i],S4[i] = s
-    
-            def __optimize_brlen__(nu): # nu is a single number
-                #print("[__optimize_brlen__]")
-                zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx]) 
-                totalcount = self.numsites * len(self.charMtrx)
-                zeroprop = zerocount/totalcount
-                #print("zerocount", zerocount, "totalcount", totalcount, "zeroprop", zeroprop)
-                #dmax = -log(1/self.numsites)*2
-                dmax = -log(zeroprop)
-                #print("dmax:", dmax)
-                dmin = -log(1-1/self.numsites)/2
-                D = np.zeros(N)
-                if nu <= eps_nu:
-                    for i in range(N):
-                        p = S0[i]/(S0[i]+S1[i])
-                        if p <= exp(-dmax):
-                            d = dmax
-                        elif p >= exp(-dmin):
-                            d = dmin
-                        else:
-                            d = -log(p)        
-                        D[i] = d     
-                    return D    
-                else:
-                    var_d = cp.Variable(N,nonneg=True) # the branch length variables
-                    C0 = -(nu+1)*S0.T @ var_d
-                    C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d))
-                    C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 else 0 
-                    C3 = -nu*S3.T @ var_d
-                    C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 else 0
+        if not optimize_phi:
+            if verbose:
+                print("Fixing phi to " + str(params.phi))    
+            phi_star = params.phi
+        else:       
+            if verbose:
+                print("Optimizing phi")
+            R = []
+            R_tilde = []
+            for i,v in enumerate(params.tree.traverse_leaves()):
+                R.append(sum([x != '?' for x in self.charMtrx[v.label]]))
+                R_tilde.append(sum([1-exp(p) for (j,p) in enumerate(v.post1) if self.charMtrx[v.label][j] == '?'])) 
+            phi_star = sum(R_tilde)/(sum(R)+sum(R_tilde))
+            if abs(phi_star) < 1/(self.numsites*len(self.charMtrx)):
+                phi_star = 0
+        # optimize nu and all branch lengths
+        S0 = np.zeros(self.num_edges)
+        S1 = np.zeros(self.num_edges)
+        S2 = np.zeros(self.num_edges)
+        S3 = np.zeros(self.num_edges)
+        S4 = np.zeros(self.num_edges)
+        for i,v in enumerate(params.tree.traverse_postorder()):
+            s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
+            s = [max(eps_s,x) for x in s]
+            s = [x/sum(s)*self.numsites for x in s]
+            S0[i],S1[i],S2[i],S3[i],S4[i] = s
 
-                    objective = cp.Maximize(C0+C1+C2+C3+C4)
-                    constraints = [np.zeros(N)+dmin <= var_d, var_d <= np.zeros(N)+dmax]
-                    prob = cp.Problem(objective,constraints)
-                    prob.solve(verbose=False,solver=cp.MOSEK)
-                    return var_d.value
-            
-            def __optimize_nu__(d): # d is a vector of all branch lengths
-                var_nu = cp.Variable(1,nonneg=True) # the nu variable
-                C0 = -(var_nu+1)*S0.T @ d
-                C1 = -var_nu*S1.T @ d + S1.T @ cp.log(1-cp.exp(-d))
-                C2 = S2.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S2) > 0 else 0
-                C3 = -var_nu*S3.T @ d
-                C4 = S4.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S4) > 0 else 0
-                objective = cp.Maximize(C0+C1+C2+C3+C4)
-                prob = cp.Problem(objective)
-                prob.solve(verbose=False,solver=cp.MOSEK)
-                return var_nu.value[0]
+        def __optimize_brlen__(nu): # nu is a single number
+            var_d = cp.Variable(self.num_edges,nonneg=True) # the branch length variables
+            C0 = -(nu+1)*S0.T @ var_d
+            C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d))
+            C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > 0 else 0 
+            C3 = -nu*S3.T @ var_d
+            C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu >0 else 0
 
-            nIters = 1
-            nu_star = params.nu
-            for r in range(nIters):
+            objective = cp.Maximize(C0+C1+C2+C3+C4)
+            constraints = [np.zeros(self.num_edges)+self.dmin <= var_d, var_d <= np.zeros(self.num_edges)+self.dmax]
+            if ultra_constr:
+                M = np.array(self.ultrametric_constr())
+                constraints += [M @ var_d == 0]
+            prob = cp.Problem(objective,constraints)
+            prob.solve(verbose=False,solver=cp.MOSEK)
+            return var_d.value
+        
+        def __optimize_nu__(d): # d is a vector of all branch lengths
+            var_nu = cp.Variable(1,nonneg=True) # the nu variable
+            C0 = -(var_nu+1)*S0.T @ d
+            C1 = -var_nu*S1.T @ d + S1.T @ cp.log(1-cp.exp(-d))
+            C2 = S2.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S2) > 0 else 0
+            C3 = -var_nu*S3.T @ d
+            C4 = S4.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S4) > 0 else 0
+            objective = cp.Maximize(C0+C1+C2+C3+C4)
+            prob = cp.Problem(objective)
+            prob.solve(verbose=False,solver=cp.MOSEK)
+            return var_nu.value[0]
+
+        nIters = 1
+        nu_star = params.nu
+        for r in range(nIters):
+            if verbose:
+                print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
+            d_star = __optimize_brlen__(nu_star)
+            if not optimize_nu:
                 if verbose:
-                    print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
-                d_star = __optimize_brlen__(nu_star)
-                if not optimize_nu:
-                    if verbose:
-                        print("Fixing nu to " + str(params.nu))
-                    nu_star = params.nu
-                else:    
-                    if verbose:
-                        print("Optimizing nu")
-                    nu_star = __optimize_nu__(d_star) 
-            # place the optimal value back to params
-            params.phi = phi_star
-            params.nu = nu_star
-            for i,node in enumerate(params.tree.traverse_preorder()):
-                node.edge_length = d_star[i]
-            return True    
-        except:
-            return False        
+                    print("Fixing nu to " + str(params.nu))
+                nu_star = params.nu
+            else:    
+                if verbose:
+                    print("Optimizing nu")
+                nu_star = __optimize_nu__(d_star) 
+        # place the optimal value back to params
+        params.phi = phi_star
+        params.nu = nu_star
+        for i,node in enumerate(params.tree.traverse_postorder()):
+            node.edge_length = d_star[i]
+        return True    
     
-    def EM_optimization(self,params,verbose=True,optimize_phi=True,optimize_nu=True):
-    # assume that az_partition has been performed
-    # optimize all parameters: branch lengths, phi, and nu
-    # if optimize_phi is False, it is fixed to the original value in params.phi
-    # the same for optimize_nu
-    # caution: this function will modify params in place!
+    def EM_optimization(self,params,verbose=True,optimize_phi=True,optimize_nu=True,ultra_constr=False):
+        # assume that az_partition has been performed
+        # optimize all parameters: branch lengths, phi, and nu
+        # if optimize_phi is False, it is fixed to the original value in params.phi
+        # the same for optimize_nu
+        # caution: this function will modify params in place!
         pre_llh = self.lineage_llh(params)
         print("Initial phi: " + str(params.phi) + ". Initial nu: " + str(params.nu) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
@@ -384,7 +351,7 @@ class EM_solver(ML_solver):
             self.Estep(params)
             if verbose:
                 print("Mstep")
-            if not self.Mstep(params,optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose):
+            if not self.Mstep(params,optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr):
                 print("Fatal error: failed to optimize parameters in Mstep!")
                 return None
             curr_llh = self.lineage_llh(params)
@@ -395,14 +362,19 @@ class EM_solver(ML_solver):
             pre_llh = curr_llh
             em_iter += 1
         return -curr_llh, em_iter    
-   
-    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True):
+  
+    def posterior_silence(self,params):
+        self.Estep(params)
+        for leaf in params.tree.traverse_leaves():
+            print(leaf.label,[round(exp(x),2) for x in leaf.post1])
+
+    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True,ultra_constr=False):
         # optimize using a specific initial point identified by the input randseed
         seed(a=randseed)
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.x2params(x0,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         params = self.params
         self.az_partition(params)
-        nllh, em_iter = self.EM_optimization(params,verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None))
+        nllh, em_iter = self.EM_optimization(params,verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None),ultra_constr=ultra_constr)
         print("EM finished after " + str(em_iter) + " iterations.")
         return nllh,params 

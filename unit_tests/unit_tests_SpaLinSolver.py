@@ -1,5 +1,5 @@
 import unittest
-from problin_libs.ML_solver import SpaLin_solver
+from problin_libs.SpaLin_solver import SpaLin_solver
 
 class SpaLinTest(unittest.TestCase):
     def test_1(self): 

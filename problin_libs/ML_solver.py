@@ -5,6 +5,7 @@ from scipy import optimize
 import warnings
 import numpy as np
 from problin_libs import min_llh, eps, nni_conv_eps
+from scipy.sparse import csr_matrix
 
 class Params:
     def __init__(self,nwkTree,nu=eps,phi=eps,sigma=None):
@@ -29,9 +30,24 @@ class ML_solver:
         self.params = Params(nwkTree,nu=nu,phi=phi)
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.params.tree.traverse_postorder()))
-        # TODO put in dmax and dmin here, remove everywhere else!!
-        #self.dmin
-        #self.dmax
+        self.dmax = -log(1/self.numsites)*2
+        self.dmin = -log(1-1/self.numsites)/2 if self.numsites > 1 else None
+    
+    def ultrametric_constr(self):
+        N = self.num_edges + 2 # add 2: phi and nu
+        M = []
+        idx = 0 
+        for node in self.params.tree.traverse_postorder():
+            if node.is_leaf():
+                node.constraint = [0.]*N
+            else:
+                c1,c2 = node.children
+                m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]
+                M.append(m)
+                node.constraint = c1.constraint
+            node.constraint[idx] = 1
+            idx += 1        
+        return M
     
     def compute_beta_prior(self):
         msa = self.charMtrx
@@ -376,9 +392,7 @@ class ML_solver:
         return sum(llh)         
 
     def ini_brlens(self):
-        dmax = -log(1/self.numsites)*2
-        dmin = -log(1-1/self.numsites)/2
-        return [random() * (dmax/2 - 2*dmin) + 2*dmin for i in range(self.num_edges)]        
+        return [random() * (self.dmax/2 - 2*self.dmin) + 2*self.dmin for i in range(self.num_edges)]        
 
     def ini_nu(self,fixed_nu=None):
         return random()*0.99 if fixed_nu is None else fixed_nu
@@ -396,9 +410,7 @@ class ML_solver:
         return (eps,0.99) if fixed_phi is None else (fixed_phi-eps,fixed_phi+eps)
 
     def bound_brlen(self):        
-        dmax = -log(1/self.numsites)*2
-        dmin = -log(1-1/self.numsites)/2
-        return [dmin]*self.num_edges,[dmax]*self.num_edges
+        return [self.dmin]*self.num_edges,[self.dmax]*self.num_edges
         
     def get_bound(self,keep_feasible=False,fixed_phi=None,fixed_nu=None):
         br_lower,br_upper = self.bound_brlen()  
@@ -425,7 +437,6 @@ class ML_solver:
     def __llh__(self):
         return self.lineage_llh(self.params)
 
-
     def negative_llh(self):
         self.az_partition(self.params)
         return -self.__llh__()
@@ -436,7 +447,7 @@ class ML_solver:
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
     
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,random_seeds=None):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,random_seeds=None,ultra_constr=True):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
         results = []
         all_failed = True
@@ -463,7 +474,12 @@ class ML_solver:
             for rep in range(initials):
                 randseed = rseeds[rep]
                 print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
-                nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose)
+                if ultra_constr:
+                    print("Solving ML with ultrametric constraint")
+                else:      
+                    print("Solving ML without ultrametric constraint")
+                nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
+                
                 if nllh is not None:
                     all_failed = False
                     print("Optimal point found for initial point " + str(rep+1))
@@ -480,7 +496,7 @@ class ML_solver:
         self.params = best_params
         return results[0][0]
 
-    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True):
+    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True,ultra_constr=False):
         # optimize using a specific initial point identified by the input randseed
         warnings.filterwarnings("ignore")
         def nllh(x): 
@@ -491,7 +507,12 @@ class ML_solver:
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.az_partition(self.params)
         bounds = self.get_bound(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
-        out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':verbose,'iprint':3,'maxiter':1000}, bounds=bounds)
+        if ultra_constr:
+            M = self.ultrametric_constr()
+            constraints = [optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False)]
+        else:
+            constraints = []    
+        out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':verbose,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
         if out.success:
             self.x2params(out.x,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
             params = self.params
@@ -500,65 +521,3 @@ class ML_solver:
             f,params = None,None
         return f,params
 
-class SpaLin_solver(ML_solver):
-    # at this stage, the tree topology and sig,a must be given. Only branch lengths
-    # and other parameters can be optimized
-    def __init__(self,charMtrx,Q,nwkTree,locations,sigma,nu=eps,phi=eps):
-        super(SpaLin_solver,self).__init__(charMtrx,Q,nwkTree,nu=nu,phi=phi)
-        self.given_locations = locations
-        self.params.sigma = sigma
-        self.inferred_locations = {}
-        for x in self.given_locations:
-            self.inferred_locations[x] = self.given_locations[x]
-  
-    def spatial_llh(self,locations):
-        llh = 0
-        for node in self.params.tree.traverse_preorder():
-            if node.is_root() or not node.label in locations or not node.parent.label in locations:
-                continue
-            d = node.edge_length
-            curr_sigma = self.params.sigma*sqrt(d)
-            x,y = locations[node.label]
-            x_par,y_par = locations[node.parent.label]
-            llh -= (0.5*((x-x_par)/curr_sigma)**2 + log(curr_sigma))
-            llh -= (0.5*((y-y_par)/curr_sigma)**2 + log(curr_sigma))
-        return llh 
-
-    def __llh__(self):
-        return self.lineage_llh(self.params) + self.spatial_llh(self.inferred_locations)
-    
-    def ini_all(self,fixed_phi=None,fixed_nu=None):
-        x_lin = self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
-        x_spa = []
-        for node in self.params.tree.traverse_postorder():
-            if not node.label in self.given_locations:
-                x_spa += [random(),random()]
-        x_sigma = 22 # hard code for now        
-        return x_lin + x_spa + [x_sigma]
-    
-    def x2params(self,x,fixed_nu=None,fixed_phi=None):
-        self.x2brlen(x)
-        self.x2nu(x,fixed_nu=fixed_nu)
-        self.x2phi(x,fixed_phi=fixed_phi)
-        i = self.num_edges + 2
-        for node in self.params.tree.traverse_postorder():
-            if not node.label in self.given_locations:
-                self.inferred_locations[node.label] = (x[i],x[i+1])
-                i += 2
-        self.params.sigma = x[-1]        
-               
-    def bound_locations(self,lower=-np.inf,upper=np.inf):
-        N = 2*len([node for node in self.params.tree.traverse_postorder() if not node.label in self.given_locations])    
-        return [lower]*N,[upper]*N
-
-    def bound_sigma(self):
-        return (eps,np.inf)    
-
-    def get_bound(self,keep_feasible=False,fixed_phi=None,fixed_nu=None):
-        br_lower,br_upper = self.bound_brlen()  
-        phi_lower,phi_upper = self.bound_phi(fixed_phi=fixed_phi)
-        nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
-        spa_lower,spa_upper = self.bound_locations()
-        sigma_lower,sigma_upper = self.bound_sigma()
-        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower]+spa_lower+[sigma_lower],br_upper+[nu_upper,phi_upper]+spa_upper+[sigma_upper],keep_feasible=keep_feasible)
-        return bounds
