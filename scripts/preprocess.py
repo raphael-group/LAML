@@ -10,7 +10,11 @@ def load_pickle(f):
     priors = pickle.load(infile)
     infile.close()
     Q = dict() 
-    for i in sorted(priors.keys()):
+    try:
+        t = sorted(priors.keys())
+    except TypeError:
+        print("TypeError: Check keys of the prior pickle provided.")
+    for i in t:
         # scale to sum to 1
         q = {int(x): float(priors[i][x])/sum([float(c) for c in priors[i]]) for x in priors[i]}
         #q = {int(x):float(priors[i][x])/sum([float(c) for c in priors[i]]) for x in priors[i]}
@@ -86,9 +90,9 @@ def norm_Q(p, outfile, cmtx):
         for x in Q_i:
             if Q_i[x] > 0 and Q_i[x] < 1:
                 Q_i_norm[x] = Q_i[x]/s
-        Q[int(site_name[1:])] = Q_i_norm
-        Q[site_name[1:]] = Q_i_norm
-    Q[0] = 0.0 # adding for cassiopeia
+        #Q_i_norm[0] = 0.0
+        #Q[int(site_name[1:])] = Q_i_norm
+        Q[int(site_name[1:]) - 1] = Q_i_norm # adding for cassiopeia
     pickle.dump(Q, open(outfile, "wb"))
 
 def write_pickle(p, poutfile):
