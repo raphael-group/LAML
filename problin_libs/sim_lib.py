@@ -78,7 +78,7 @@ def simulate_seqs(tree,Q, mu=1.0, with_heritable=False, silencing_rate=0, dropou
             m = len(alphabet)
             w = [0]*(m+2)
             nu = silencing_rate
-            w[-1] = 1-p**nu if c != -1 else 1
+            w[-1] = 1-p**nu if c != 's' else 1
             if c == 0:
                 w[0] = p**(nu+1)
                 for j,alpha in enumerate(alphabet):

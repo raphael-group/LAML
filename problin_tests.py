@@ -5,7 +5,6 @@ from unit_tests.unit_tests_EMSolver import *
 from unit_tests.utils import *
 import sys
 import os
-from unit_tests.unit_tests_EMSolver import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'helpers'))
 if __name__ == '__main__':
