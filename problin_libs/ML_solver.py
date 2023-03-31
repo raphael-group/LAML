@@ -29,9 +29,11 @@ class ML_solver:
         self.params = Params(nwkTree,nu=nu,phi=phi)
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.params.tree.traverse_postorder()))
-        # TODO put in dmax and dmin here, remove everywhere else!!
-        #self.dmin
-        #self.dmax
+        zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx]) 
+        totalcount = self.numsites * len(self.charMtrx)
+        zeroprop = zerocount/totalcount
+        self.dmax = -log(zeroprop) if zeroprop != 0 else float("inf")
+        self.dmin = -log(1-1/self.numsites)/2 if self.numsites > 1 else eps
     
     def compute_beta_prior(self):
         msa = self.charMtrx
@@ -376,9 +378,7 @@ class ML_solver:
         return sum(llh)         
 
     def ini_brlens(self):
-        dmax = -log(1/self.numsites)*2
-        dmin = -log(1-1/self.numsites)/2
-        return [random() * (dmax/2 - 2*dmin) + 2*dmin for i in range(self.num_edges)]        
+        return [random() * (self.dmax/2 - 2*self.dmin) + 2*self.dmin for i in range(self.num_edges)]        
 
     def ini_nu(self,fixed_nu=None):
         return random()*0.99 if fixed_nu is None else fixed_nu
@@ -396,9 +396,7 @@ class ML_solver:
         return (eps,0.99) if fixed_phi is None else (fixed_phi-eps,fixed_phi+eps)
 
     def bound_brlen(self):        
-        dmax = -log(1/self.numsites)*2
-        dmin = -log(1-1/self.numsites)/2
-        return [dmin]*self.num_edges,[dmax]*self.num_edges
+        return [self.dmin]*self.num_edges,[self.dmax]*self.num_edges
         
     def get_bound(self,keep_feasible=False,fixed_phi=None,fixed_nu=None):
         br_lower,br_upper = self.bound_brlen()  

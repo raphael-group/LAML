@@ -211,12 +211,10 @@ class EM_solver(ML_solver):
             S0 = sum(v.S0)
             S1 = sum(v.S1)
             p = S0/(S0+S1)
-            dmax = -log(1/self.numsites)*2
-            dmin = -log(1-1/self.numsites)/2
-            if p <= exp(-dmax):
-                d = dmax
-            elif p >= exp(-dmin):
-                d = dmin
+            if p <= exp(-self.dmax):
+                d = self.dmax
+            elif p >= exp(-self.dmin):
+                d = self.dmin
             else:
                 d = -log(p)         
             v.edge_length = d
@@ -298,23 +296,14 @@ class EM_solver(ML_solver):
                 S0[i],S1[i],S2[i],S3[i],S4[i] = s
     
             def __optimize_brlen__(nu): # nu is a single number
-                #print("[__optimize_brlen__]")
-                zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx]) 
-                totalcount = self.numsites * len(self.charMtrx)
-                zeroprop = zerocount/totalcount
-                #print("zerocount", zerocount, "totalcount", totalcount, "zeroprop", zeroprop)
-                #dmax = -log(1/self.numsites)*2
-                dmax = -log(zeroprop)
-                #print("dmax:", dmax)
-                dmin = -log(1-1/self.numsites)/2
                 D = np.zeros(N)
                 if nu <= eps_nu:
                     for i in range(N):
                         p = S0[i]/(S0[i]+S1[i])
-                        if p <= exp(-dmax):
-                            d = dmax
-                        elif p >= exp(-dmin):
-                            d = dmin
+                        if p <= exp(-self.dmax):
+                            d = self.dmax
+                        elif p >= exp(-self.dmin):
+                            d = self.dmin
                         else:
                             d = -log(p)        
                         D[i] = d     
@@ -328,7 +317,7 @@ class EM_solver(ML_solver):
                     C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 else 0
 
                     objective = cp.Maximize(C0+C1+C2+C3+C4)
-                    constraints = [np.zeros(N)+dmin <= var_d, var_d <= np.zeros(N)+dmax]
+                    constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax]
                     prob = cp.Problem(objective,constraints)
                     prob.solve(verbose=False,solver=cp.MOSEK)
                     return var_d.value
