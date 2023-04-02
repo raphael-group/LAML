@@ -8,29 +8,26 @@ from problin_libs import min_llh, eps, nni_conv_eps
 from scipy.sparse import csr_matrix
 
 class Params:
-    def __init__(self,nwkTree,nu=eps,phi=eps,sigma=None):
-    # nwkTree: a newick tree (i.e. a string) with branch lengths
-    # nu, phi: positive float numbers
-        self.tree = read_tree_newick(nwkTree) # store a treewfit object in self.tree
+    def __init__(self,nu,phi):
         self.nu = nu
         self.phi = phi
-        self.sigma = sigma
 
 class ML_solver:
-    # at this stage, the tree topology must be given. Only branch lengths
-    # and other parameters can be optimized
     def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps):
         self.charMtrx = charMtrx
+        self.tree = read_tree_newick(nwkTree)
         # normalize Q
         self.Q = []
         for Q_i in Q:
             s = sum([Q_i[x] for x in Q_i])
             Q_i_norm = {x:Q_i[x]/s for x in Q_i}
             self.Q.append(Q_i_norm)
-        self.params = Params(nwkTree,nu=nu,phi=phi)
+        # setup params
+        self.params = Params(nu,phi)        
+       
+        # compute numsites, num_edges, dmin, and dmax 
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
-        self.num_edges = len(list(self.params.tree.traverse_postorder()))
-        
+        self.num_edges = len(list(self.tree.traverse_postorder()))
         zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx]) 
         totalcount = self.numsites * len(self.charMtrx)
         zeroprop = zerocount/totalcount
@@ -41,7 +38,7 @@ class ML_solver:
         N = self.num_edges + 2 # add 2: phi and nu
         M = []
         idx = 0 
-        for node in self.params.tree.traverse_postorder():
+        for node in self.tree.traverse_postorder():
             if node.is_leaf():
                 node.constraint = [0.]*N
             else:
@@ -53,24 +50,6 @@ class ML_solver:
             idx += 1        
         return M
     
-    def compute_beta_prior(self):
-        msa = self.charMtrx
-        D = []
-        alphabet = list(msa.keys())
-        for i,x in enumerate(alphabet):
-            for y in alphabet[i+1:]:
-                A = 0
-                B = 0
-                for (a,b) in zip(msa[x],msa[y]):
-                    A += (a != '?' and b != '?')
-                    B += (a != '?' or b != '?')   
-                D.append((B-A)/2/B)
-        N = len(D)
-        mu = sum(D)/N
-        var = sum([(x-mu)**2 for x in D])/N
-        self.alpha = (mu*(1-mu)/var-1)*mu
-        self.beta = self.alpha*(1-mu)/mu
-
     def compare_tags(self, tags1, tags2):
         # Purpose: compute similarity score from az-partition tags
         total, same = 0.0, 0.0
@@ -93,13 +72,12 @@ class ML_solver:
         d_ac = self.compare_tags(a.alpha, c.alpha)
         d_bc = self.compare_tags(b.alpha, c.alpha)
 
-        #print("a.alpha:", a.alpha)
-        #print("b.alpha:", b.alpha)
-        #print("c.alpha:", c.alpha)
         if strat == "vanilla":
             return max(d_ab, d_ac)
         elif strat == "shouldchange":
             return max(d_ab - d_bc, d_ac - d_bc)
+        else:
+            return 1    
 
     def score_terminal_branch(self, u, strat):
         v = u.get_parent()
@@ -109,9 +87,6 @@ class ML_solver:
         
         d_cu = self.compare_tags(uncle.alpha, u.alpha)
         d_su = self.compare_tags(sister.alpha, u.alpha)
-        #print("uncle.alpha:", uncle.alpha)
-        #print("u.alpha:", u.alpha)
-        #print("sister.alpha", sister.alpha)
         
         if strat == "vanilla":
             return d_cu
@@ -127,7 +102,7 @@ class ML_solver:
     def resolve_keybranches(self, keybranches):
         num_internal = 0
         kb = []
-        l2n = self.params.tree.label_to_node(selection="all")
+        l2n = self.tree.label_to_node(selection="all")
         for nlabel in keybranches:
             node = l2n[nlabel]
             if not node.is_leaf():
@@ -135,14 +110,14 @@ class ML_solver:
                 kb.append(node)
         return num_internal, kb
 
-
     def score_branches(self, strategy="vanilla", keybranches=[]):
-        if self.params.tree.num_nodes(internal=True, leaves=False) <= 2:
+        #if self.params.tree.num_nodes(internal=True, leaves=False) <= 2:
+        if self.tree.num_nodes(internal=True, leaves=False) <= 2:
             print("Provided tree does not have enough internal branches to perform a nearest neighbor interchange operation.")
             return None
 
         # Purpose: Score all branches before returning one to consider nnis around
-        self.az_partition(self.params)
+        self.az_partition()
         branches = []
 
         if keybranches != []:
@@ -150,7 +125,8 @@ class ML_solver:
                 s = self.score_internal_branch(node, strategy)
                 branches.append((node, s))
         else:
-            for node in self.params.tree.traverse_postorder():
+            #for node in self.params.tree.traverse_postorder():
+            for node in self.tree.traverse_postorder():
                 if node.is_root():
                     continue
                 if not node.is_leaf():
@@ -160,13 +136,13 @@ class ML_solver:
                     else:
                         s = self.score_internal_branch(node, strategy)
                         branches.append((node, s))
-
         return branches 
 
     def score_tree(self):
         # TODO: Recompute the likelihood and reestimate branch lengths
-        self.az_partition(self.params)
-        return self.lineage_llh(self.params)
+        #self.az_partition(self.params)
+        self.az_partition()
+        return self.lineage_llh()
 
     def apply_nni(self, u, verbose):
         # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
@@ -190,9 +166,8 @@ class ML_solver:
         else:
             # move b out
             u_children = [b, a] 
-        
-        for u_child in u_children:
 
+        for u_child in u_children:
             u_child.set_parent(v)
             u.remove_child(u_child)
             v.add_child(u_child)
@@ -248,13 +223,14 @@ class ML_solver:
         return llh
 
     def tree_copy(self):
-        tree = self.params.tree
+        tree = self.tree
         return tree.extract_subtree(tree.root)
 
     def num_internal_branches(self):
         nib = 0
-        tree = self.params.tree
-        for node in self.params.tree.traverse_postorder():
+        #tree = self.params.tree
+        #for node in self.params.tree.traverse_postorder():
+        for node in self.tree.traverse_postorder():
             if not node.is_leaf():
                 nib += 1
         return float(nib) 
@@ -263,15 +239,10 @@ class ML_solver:
         nib = self.num_internal_branches()
         t = round(0.2 * nib) + 1
         k = -int(log(conv)/log(t) * nib)
-        #print("Running topology search for", k, "iterations.")
         resolve_polytomies = False
-        #print("Starting topology search.")
         if keybranches != []:
             resolve_polytomies = True
-            #print("Doing topology search on polytomies.")
             nib, keybranches = self.resolve_keybranches(keybranches)
-        #else:
-        #    print("Doing topology search on polytomy-resolved tree.")
 
         nni_replicates = dict()
         starting_tree = self.tree_copy()
@@ -327,14 +298,14 @@ class ML_solver:
                 for nni_iter in topo_dict:
                     w.write(str(rep) + "\t" + str(nni_iter) + "\t" + topo_dict[int(nni_iter)][0] + "\n") 
     
-    def az_partition(self,params):
+    def az_partition(self):
     # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
     # Note: there is a different partition for each target-site
     # Output: annotate each node of the tree by node.alpha
         # z-branches are given tag 'z'
         # each of other branches is given a tag 
         # alpha where alpha is the alpha-tree it belongs to
-        for node in params.tree.traverse_postorder():
+        for node in self.tree.traverse_postorder():
             if node.is_leaf():
                 node.alpha = [None]*self.numsites
                 for site in range(self.numsites):
@@ -344,7 +315,6 @@ class ML_solver:
                         node.alpha[site] = '?' 
                     else:
                         node.alpha[site] = self.charMtrx[node.label][site]
-                #node.alpha = [self.charMtrx[node.label][site] if self.charMtrx[node.label][site] != 0 else 'z' for site in range(self.numsites)]
             else:
                 C = node.children
                 node.alpha = [None]*self.numsites
@@ -358,13 +328,14 @@ class ML_solver:
                     else:
                         node.alpha[site] = "?"
     
-    def lineage_llh(self,params):
+    def lineage_llh(self):
         # assume az_partition has been performed so
         # each node has the attribute node.alpha
-        phi = params.phi
-        nu = params.nu
+        phi = self.params.phi
+        nu = self.params.nu
         llh = [0]*self.numsites
-        for node in params.tree.traverse_postorder():
+        #for node in params.tree.traverse_postorder():
+        for node in self.tree.traverse_postorder():
             p = exp(-node.edge_length)
             node.L0 = [0]*self.numsites # L0 and L1 are stored in log-scale
             node.L1 = [0]*self.numsites
@@ -392,7 +363,8 @@ class ML_solver:
                     if node.is_root() or node.parent.alpha[site] == 'z':
                         llh[site] += node.L0[site]
                 else:
-                    llh[site] += (-node.edge_length*(1+params.nu) + int(node.is_leaf())*log(1-phi))
+                    #llh[site] += (-node.edge_length*(1+params.nu) + int(node.is_leaf())*log(1-phi))
+                    llh[site] += (-node.edge_length*(1+nu) + int(node.is_leaf())*log(1-phi))
         return sum(llh)         
 
     def ini_brlens(self):
@@ -424,7 +396,8 @@ class ML_solver:
         return bounds
 
     def x2brlen(self,x):
-        for i, node in enumerate(self.params.tree.traverse_postorder()):
+        #for i, node in enumerate(self.params.tree.traverse_postorder()):
+        for i, node in enumerate(self.tree.traverse_postorder()):
             node.edge_length = x[i]
 
     def x2nu(self,x,fixed_nu=None):
@@ -439,14 +412,14 @@ class ML_solver:
         self.x2phi(x,fixed_phi=fixed_phi)
 
     def __llh__(self):
-        return self.lineage_llh(self.params)
+        return self.lineage_llh()
 
     def negative_llh(self):
-        self.az_partition(self.params)
+        self.az_partition()
         return -self.__llh__()
 
     def show_params(self):
-        print("tree: " + self.params.tree.newick())
+        print("tree: " + self.tree.newick())
         print("nu: " + str(self.params.nu))
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
@@ -482,21 +455,22 @@ class ML_solver:
                     print("Solving ML with ultrametric constraint")
                 else:      
                     print("Solving ML without ultrametric constraint")
-                nllh,params = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
+                nllh = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
                 
                 if nllh is not None:
                     all_failed = False
                     print("Optimal point found for initial point " + str(rep+1))
-                    print("Optimal phi: " + str(params.phi))
-                    print("Optimal nu: " + str(params.nu))
-                    print("Optimal tree: " + params.tree.newick())
+                    print("Optimal phi: " + str(self.params.phi))
+                    print("Optimal nu: " + str(self.params.nu))
+                    print("Optimal tree: " + self.tree.newick())
                     print("Optimal nllh: " + str(nllh))
-                    results.append((nllh,params))
+                    results.append((nllh,Params(self.params.nu,self.params.phi),self.tree.newick()))
                 else:
                     print("Fatal: failed to optimize using initial point " + str(rep+1))    
             all_trials += initials    
         results.sort()
-        best_nllh,best_params = results[0]
+        best_nllh,best_params,best_tree = results[0]
+        self.tree = read_tree_newick(best_tree)
         self.params = best_params
         return results[0][0]
 
@@ -509,7 +483,7 @@ class ML_solver:
         
         seed(a=randseed)
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
-        self.az_partition(self.params)
+        self.az_partition()
         bounds = self.get_bound(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         if ultra_constr:
             M = self.ultrametric_constr()
@@ -523,5 +497,4 @@ class ML_solver:
             f = out.fun
         else:
             f,params = None,None
-        return f,params
-
+        return f

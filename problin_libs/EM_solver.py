@@ -15,7 +15,7 @@ class EM_solver(ML_solver):
         N = self.num_edges
         M = []
         idx = 0 
-        for node in self.params.tree.traverse_postorder():
+        for node in self.tree.traverse_postorder():
             if node.is_leaf():
                 node.constraint = [0.]*N
             else:
@@ -26,13 +26,13 @@ class EM_solver(ML_solver):
             node.constraint[idx] = 1
             idx += 1        
         return M
-    def Estep_in_llh(self,params):
+
+    def Estep_in_llh(self):
         # assume az_partition has been performed so each node has the attribute node.alpha
         # compute the inside llh, store in L0 and L1 of each node
-        phi = params.phi
-        nu = params.nu
-        for node in params.tree.traverse_postorder():
-            # print(node.label, node.edge_length)
+        phi = self.params.phi
+        nu = self.params.nu
+        for node in self.tree.traverse_postorder():
             p = exp(-node.edge_length)
             node.L0 = [0]*self.numsites # L0 and L1 are stored in log-scale
             node.L1 = [0]*self.numsites
@@ -40,7 +40,6 @@ class EM_solver(ML_solver):
                 q = self.Q[site][node.alpha[site]] if node.alpha[site] not in ['?','z'] else 1.0
                 if node.is_leaf():
                     if node.alpha[site] == "?":         
-                        #masked_llh = log(1-(1-phi)*p**nu)
                         masked_llh = log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else log(1-p**nu)
                         node.L0[site] = node.L1[site] = masked_llh
                     elif node.alpha[site] == 'z':
@@ -67,26 +66,26 @@ class EM_solver(ML_solver):
                     else:
                         node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length), log(1-p**nu)])
 
-    def lineage_llh(self,params):
+    def lineage_llh(self):
         # override the function of the base class
-        self.Estep_in_llh(params)
-        return sum(params.tree.root.L0)
+        self.Estep_in_llh()
+        return sum(self.tree.root.L0)
     
-    def Estep_out_llh(self,params):
+    def Estep_out_llh(self):
         # assume binary tree
         # assume az_parition and Estep_in_llh have been performed 
         # so that all nodes have `alpha`, `L0` and `L1` attribues
         # output: add the attributes `out0` and `out1` to each node
         # where v.out0 = P(~D_v,v=0) and v.out1 = P(~D_v,v=-1) 
-        for v in params.tree.traverse_preorder():
+        for v in self.tree.traverse_preorder():
             if v.is_root(): # base case
                 # Auxiliary components
                 v.A = [0]*self.numsites
-                v.X = [-params.nu*v.edge_length + log(1-exp(-v.edge_length))]*self.numsites
+                v.X = [-self.params.nu*v.edge_length + log(1-exp(-v.edge_length))]*self.numsites
                 v.out_alpha = [{} for i in range(self.numsites)]
                 # Main components    
-                v.out0 = [-(1+params.nu)*v.edge_length]*self.numsites
-                v.out1 = [log(1-exp(-v.edge_length*params.nu))]*self.numsites if params.nu>0 else [min_llh]*self.numsites
+                v.out0 = [-(1+self.params.nu)*v.edge_length]*self.numsites
+                v.out1 = [log(1-exp(-v.edge_length*self.params.nu))]*self.numsites if self.params.nu>0 else [min_llh]*self.numsites
             else:
                 u = v.parent
                 w = None 
@@ -106,31 +105,31 @@ class EM_solver(ML_solver):
                 v.out1 = [None]*self.numsites
                 for site in range(self.numsites): 
                     # compute out0: P(~D_v,v=0)
-                    v.out0[site] = u.out0[site] + w.L0[site] - (1+params.nu)*v.edge_length
+                    v.out0[site] = u.out0[site] + w.L0[site] - (1+self.params.nu)*v.edge_length
                     v.A[site] = u.out0[site] + w.L0[site] 
-                    v.X[site] = -params.nu*v.edge_length + log(1-exp(-v.edge_length)) + v.A[site]
+                    v.X[site] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + v.A[site]
                     # compute out1: P(~D_v,v=-1)
                     if w.alpha[site] == 'z': # z-branch
-                        v.out1[site] = log(1-exp(-v.edge_length*params.nu)) + v.A[site] if params.nu > 0 else min_llh
+                        v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + v.A[site] if self.params.nu > 0 else min_llh
                     elif w.alpha[site] == '?': # masked branch
-                        v.X[site] = log_sum_exp([v.X[site],u.X[site]+w.L1[site]-params.nu*v.edge_length])
-                        p = 1-exp(-v.edge_length*params.nu) # if nu=0 then p=0
+                        v.X[site] = log_sum_exp([v.X[site],u.X[site]+w.L1[site]-self.params.nu*v.edge_length])
+                        p = 1-exp(-v.edge_length*self.params.nu) # if nu=0 then p=0
                         pl = log(p) if p > 0 else min_llh
-                        v.out1[site] = u.out1[site] if params.nu == 0 else log_sum_exp([pl+v.A[site],pl+u.X[site]+w.L1[site],u.out1[site]])
+                        v.out1[site] = u.out1[site] if self.params.nu == 0 else log_sum_exp([pl+v.A[site],pl+u.X[site]+w.L1[site],u.out1[site]])
                     else:
                         alpha0 = w.alpha[site] 
                         if alpha0 not in u.out_alpha[site]:
-                            self.__out_alpha_up__(u,site,alpha0,params)
-                        B = u.out_alpha[site][alpha0] + params.nu*(-v.edge_length) + w.L1[site]  
-                        C = v.A[site] - params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+                            self.__out_alpha_up__(u,site,alpha0)
+                        B = u.out_alpha[site][alpha0] + self.params.nu*(-v.edge_length) + w.L1[site]  
+                        C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
                         v.out_alpha[site][alpha0] = log_sum_exp([B,C])
                         v.X[site] = log_sum_exp([v.X[site],B])
-                        if params.nu > 0:
-                            v.out1[site] = log(1-exp(-v.edge_length*params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
+                        if self.params.nu > 0:
+                            v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
                         else:
                             v.out1[site] = min_llh    
 
-    def __out_alpha_up__(self,node,site,alpha0,params):
+    def __out_alpha_up__(self,node,site,alpha0):
         # auxiliary function, shoudn't be called outside
         v = node
         path = []   
@@ -142,12 +141,12 @@ class EM_solver(ML_solver):
                     w = x
                     break
             if w.alpha[site] != '?' and w.alpha[site] != alpha0: # the branch above u is a z-branch
-                v.out_alpha[site][alpha0] = v.A[site] - params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+                v.out_alpha[site][alpha0] = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
                 break
             path.append(v)
             v = u
         if v.is_root(): # no z-branch found along the way
-            v.out_alpha[site][alpha0] = -params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])             
+            v.out_alpha[site][alpha0] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])             
         # going down to compute all the out_alpha along the path
         while path:
             v = path.pop()
@@ -155,20 +154,20 @@ class EM_solver(ML_solver):
             for x in u.children:
                 if x is not v:
                     w = x
-            #B = u.out_alpha[site][alpha0] + params.nu*(-u.edge_length) + w.L1[site]  
-            B = u.out_alpha[site][alpha0] + params.nu*(-v.edge_length) + w.L1[site]  
-            C = v.A[site] - params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+            B = u.out_alpha[site][alpha0] + self.params.nu*(-v.edge_length) + w.L1[site]  
+            C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
             v.out_alpha[site][alpha0] = log_sum_exp([B,C])
-            #v.out_alpha[site][alpha0] = log(exp(C) + exp(B))
 
-    def Estep_posterior(self,params):
+    def Estep_posterior(self):
         # assume binary tree
         # assume az_parition, Estep_in_llh, and Estep_out_llh have been performed 
         # so that all nodes have `alpha`, `L0`, `L1`, `out0`, and `out1` attribues
         # output: add the attributes `S0-4` (refer to the paper for definitions; all S are NOT stored in log-scale)
         # and `post0` and `post1` to each node where v.post0 = log P(v=0|D) and v.post1 = log P(v=-1|D) 
-        full_llh = params.tree.root.L0
-        for v in params.tree.traverse_preorder():
+        #full_llh = params.tree.root.L0
+        full_llh = self.tree.root.L0
+        #for v in params.tree.traverse_preorder():
+        for v in self.tree.traverse_preorder():
             v.post0 = [None]*self.numsites
             v.post1 = [None]*self.numsites
             v.S0 = [None]*self.numsites
@@ -182,9 +181,9 @@ class EM_solver(ML_solver):
                 if v.is_leaf():
                         c = self.charMtrx[v.label][site]
                         if c == 0:
-                            v_in0 = log(1-params.phi)
+                            v_in0 = log(1-self.params.phi)
                         else:
-                            v_in0 = log(params.phi) if (c == '?' and params.phi > 0) else min_llh 
+                            v_in0 = log(self.params.phi) if (c == '?' and self.params.phi > 0) else min_llh 
                 else:    
                     v1,v2 = v.children
                     v_in0 = v1.L0[site] + v2.L0[site]                 
@@ -196,78 +195,40 @@ class EM_solver(ML_solver):
                     v.S0[site] = 1.0
                     v.S1[site] = v.S2[site] = v.S3[site] = v.S4[site] = 0.0
                 elif v.is_root():
-                    v.S0[site] = exp(v_in0 + (1.0+params.nu)*(-v.edge_length) - v.L0[site])
-                    v.S2[site] = 0.0 if v.alpha[site] != '?' else (1.0-exp(-params.nu*v.edge_length))/exp(v.L0[site])
+                    v.S0[site] = exp(v_in0 + (1.0+self.params.nu)*(-v.edge_length) - v.L0[site])
+                    v.S2[site] = 0.0 if v.alpha[site] != '?' else (1.0-exp(-self.params.nu*v.edge_length))/exp(v.L0[site])
                     v.S1[site] = 1.0-v.S0[site]-v.S2[site]
                     v.S3[site] = v.S4[site] = 0.0
                 else:
                     u = v.parent
-                    v.S0[site] = exp(u.post0[site] + v_in0 + (1.0+params.nu)*(-v.edge_length) - v.L0[site])
+                    v.S0[site] = exp(u.post0[site] + v_in0 + (1.0+self.params.nu)*(-v.edge_length) - v.L0[site])
                     if v.alpha[site] != '?':
                         v.S2[site] = 0.0
                         v.S4[site] = 0.0
                     else: # masked branch
-                        v.S2[site] = exp(u.post0[site]-v.L0[site])*(1.0-exp(-params.nu*v.edge_length))
-                        v.S4[site] = (1.0-exp(u.post0[site])-exp(u.post1[site]))*(1.0-exp(-params.nu*v.edge_length))/exp(v.L1[site])
+                        v.S2[site] = exp(u.post0[site]-v.L0[site])*(1.0-exp(-self.params.nu*v.edge_length))
+                        v.S4[site] = (1.0-exp(u.post0[site])-exp(u.post1[site]))*(1.0-exp(-self.params.nu*v.edge_length))/exp(v.L1[site])
                     v.S1[site] = exp(u.post0[site]) - v.S0[site] - v.S2[site] 
                     v.S3[site] = 1.0-v.S0[site]-v.S1[site]-exp(v.post1[site])
 
-    def Estep(self,params):
-        self.Estep_in_llh(params)
-        self.Estep_out_llh(params)
-        self.Estep_posterior(params)
+    def Estep(self):
+        self.Estep_in_llh()
+        self.Estep_out_llh()
+        self.Estep_posterior()
 
-    def __Mstep_nu0__(self,params):
-    # assume without checking that params.nu is 0
-    # should only be called by a function with this same assumption
-    # assume that Estep have been performed so that all nodes have S0-S4 attributes
-    # output: optimize branch lengths
-        for v in params.tree.traverse_preorder():
-            S0 = sum(v.S0)
-            S1 = sum(v.S1)
-            p = S0/(S0+S1)
-            if p <= exp(-self.dmax):
-                d = self.dmax
-            elif p >= exp(-self.dmin):
-                d = self.dmin
-            else:
-                d = -log(p)         
-            v.edge_length = d
-
-    def __EM_nu0__(self,params,verbose=True):
-    # assume without checking that params.nu is eps and params.phi is optimal
-    # assume that az_partition has been performed
-    # optimize other params while fixing nu to eps
-    # caution: this function will modify params in place!
-        pre_llh = self.lineage_llh(params)
-        if verbose:
-            print("Initial nllh: " + str(-pre_llh))
-        em_iter = 1
-        while 1:
-            self.Estep(params)
-            self.__Mstep_nu0__(params)
-            curr_llh = self.lineage_llh(params)
-            if verbose:
-                print("EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
-            if curr_llh - pre_llh < conv_eps:
-                break
-            pre_llh = curr_llh
-            em_iter += 1
-        return -curr_llh    
-
-    def Mstep(self,params,optimize_phi=True,optimize_nu=True,verbose=True,eps_nu=1e-5,eps_s=1e-6,ultra_constr=False):
+    def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=True,eps_nu=1e-5,eps_s=1e-6,ultra_constr=False):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
         if not optimize_phi:
             if verbose:
-                print("Fixing phi to " + str(params.phi))    
-            phi_star = params.phi
+                print("Fixing phi to " + str(self.params.phi))    
+            phi_star = self.params.phi
         else:       
             if verbose:
                 print("Optimizing phi")
             R = []
             R_tilde = []
-            for i,v in enumerate(params.tree.traverse_leaves()):
+            for i,v in enumerate(self.tree.traverse_leaves()):
                 R.append(sum([x != '?' for x in self.charMtrx[v.label]]))
                 R_tilde.append(sum([1-exp(p) for (j,p) in enumerate(v.post1) if self.charMtrx[v.label][j] == '?'])) 
             phi_star = sum(R_tilde)/(sum(R)+sum(R_tilde))
@@ -279,7 +240,7 @@ class EM_solver(ML_solver):
         S2 = np.zeros(self.num_edges)
         S3 = np.zeros(self.num_edges)
         S4 = np.zeros(self.num_edges)
-        for i,v in enumerate(params.tree.traverse_postorder()):
+        for i,v in enumerate(self.tree.traverse_postorder()):
             s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
             s = [max(eps_s,x) for x in s]
             s = [x/sum(s)*self.numsites for x in s]
@@ -315,46 +276,47 @@ class EM_solver(ML_solver):
             return var_nu.value[0]
 
         nIters = 1
-        nu_star = params.nu
+        nu_star = self.params.nu
         for r in range(nIters):
             if verbose:
                 print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
             d_star = __optimize_brlen__(nu_star)
             if not optimize_nu:
                 if verbose:
-                    print("Fixing nu to " + str(params.nu))
-                nu_star = params.nu
+                    print("Fixing nu to " + str(self.params.nu))
+                nu_star = self.params.nu
             else:    
                 if verbose:
                     print("Optimizing nu")
                 nu_star = __optimize_nu__(d_star) 
         # place the optimal value back to params
-        params.phi = phi_star
-        params.nu = nu_star
-        for i,node in enumerate(params.tree.traverse_postorder()):
+        self.params.phi = phi_star
+        self.params.nu = nu_star
+        for i,node in enumerate(self.tree.traverse_postorder()):
             node.edge_length = d_star[i]
         return True    
     
-    def EM_optimization(self,params,verbose=True,optimize_phi=True,optimize_nu=True,ultra_constr=False):
+    def EM_optimization(self,verbose=True,optimize_phi=True,optimize_nu=True,ultra_constr=False):
         # assume that az_partition has been performed
         # optimize all parameters: branch lengths, phi, and nu
         # if optimize_phi is False, it is fixed to the original value in params.phi
         # the same for optimize_nu
         # caution: this function will modify params in place!
-        pre_llh = self.lineage_llh(params)
-        print("Initial phi: " + str(params.phi) + ". Initial nu: " + str(params.nu) + ". Initial nllh: " + str(-pre_llh))
+        #pre_llh = self.lineage_llh(params)
+        pre_llh = self.lineage_llh()
+        print("Initial phi: " + str(self.params.phi) + ". Initial nu: " + str(self.params.nu) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
         while 1:
             if verbose:
                 print("Starting EM iter: " + str(em_iter))
                 print("Estep")
-            self.Estep(params)
+            self.Estep()
             if verbose:
                 print("Mstep")
-            if not self.Mstep(params,optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr):
+            if not self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr):
                 print("Fatal error: failed to optimize parameters in Mstep!")
                 return None
-            curr_llh = self.lineage_llh(params)
+            curr_llh = self.lineage_llh()
             if verbose:
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
             if abs((curr_llh - pre_llh)/pre_llh) < conv_eps:
@@ -363,9 +325,9 @@ class EM_solver(ML_solver):
             em_iter += 1
         return -curr_llh, em_iter    
   
-    def posterior_silence(self,params):
-        self.Estep(params)
-        for leaf in params.tree.traverse_leaves():
+    def posterior_silence(self):
+        self.Estep()
+        for leaf in self.tree.traverse_leaves():
             print(leaf.label,[round(exp(x),2) for x in leaf.post1])
 
     def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True,ultra_constr=False):
@@ -373,8 +335,7 @@ class EM_solver(ML_solver):
         seed(a=randseed)
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.x2params(x0,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
-        params = self.params
-        self.az_partition(params)
-        nllh, em_iter = self.EM_optimization(params,verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None),ultra_constr=ultra_constr)
+        self.az_partition()
+        nllh, em_iter = self.EM_optimization(verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None),ultra_constr=ultra_constr)
         print("EM finished after " + str(em_iter) + " iterations.")
-        return nllh,params 
+        return nllh

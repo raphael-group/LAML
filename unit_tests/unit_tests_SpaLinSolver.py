@@ -9,6 +9,6 @@ class SpaLinTest(unittest.TestCase):
         true_llh = -0.20665578828621584
 
         mySolver = SpaLin_solver(msa,Q,T,{'a':(0,0),'b':(0,0),'c':(0,0),'d':(0,0)},0)
-        mySolver.az_partition(mySolver.params)
+        mySolver.az_partition()
         my_llh = -mySolver.negative_llh()
         self.assertAlmostEqual(true_llh,my_llh,places=5,msg="SpaLinTest: test_1 failed.")
