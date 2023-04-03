@@ -5,6 +5,7 @@ from scipy import optimize
 import warnings
 import numpy as np
 from problin_libs import min_llh, eps, nni_conv_eps
+from problin_libs.Virtual_solver import Virtual_solver
 from scipy.sparse import csr_matrix
 
 class Params:
@@ -12,19 +13,23 @@ class Params:
         self.nu = nu
         self.phi = phi
 
-class ML_solver:
-    def __init__(self,charMtrx,Q,nwkTree,nu=eps,phi=eps):
+class ML_solver(Virtual_solver):
+    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0}):
+    #def __init__(self,charMtrx,Q,nwkTree,nu=0,phi=0):
+        charMtrx = data['charMtrx']
+        Q = prior['Q']
+        nu = params['nu']
+        phi = params['phi']
         self.charMtrx = charMtrx
-        self.tree = read_tree_newick(nwkTree)
+        self.tree = read_tree_newick(treeTopo)        
         # normalize Q
         self.Q = []
         for Q_i in Q:
             s = sum([Q_i[x] for x in Q_i])
             Q_i_norm = {x:Q_i[x]/s for x in Q_i}
-            self.Q.append(Q_i_norm)
+            self.Q.append(Q_i_norm)        
         # setup params
         self.params = Params(nu,phi)        
-       
         # compute numsites, num_edges, dmin, and dmax 
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.tree.traverse_postorder()))
@@ -33,7 +38,13 @@ class ML_solver:
         zeroprop = zerocount/totalcount
         self.dmax = -log(zeroprop) if zeroprop != 0 else float("inf")
         self.dmin = -log(1-1/self.numsites)/2 if self.numsites > 1 else eps
-    
+
+    def get_tree_newick(self):
+        return self.tree.newick()
+
+    def get_params(self):
+        return {'phi':self.params.phi,'nu':self.params.nu}
+
     def ultrametric_constr(self):
         N = self.num_edges + 2 # add 2: phi and nu
         M = []
@@ -424,48 +435,56 @@ class ML_solver:
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
     
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=True,max_trials=100,random_seeds=None,ultra_constr=True):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=1,max_trials=100,random_seeds=None,ultra_constr=True):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
+    # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         results = []
         all_failed = True
         all_trials = 0
         if random_seeds is None:
             rseeds = [int(random()*10000) for i in range(initials)]
         elif type(random_seeds) == int:
-            print("Global random seed: " + str(random_seeds))
+            if verbose >= 0:
+                print("Global random seed: " + str(random_seeds))
             seed(a=random_seeds)
             rseeds = [int(random()*10000) for i in range(initials)]
         elif type(random_seeds) == list:
             if len(random_seeds) < initials:
-                print("Fatal: the number of random seeds is smaller than the number of initials!")
+                if verbose >= 0:
+                    print("Fatal: the number of random seeds is smaller than the number of initials!")
                 return None
             elif len(random_seeds) > initials:
-                print("Warning: the number of random seeds is larger than the number of initials. Ignoring the last " + str(len(random_seeds)-initials) + " seeds")
+                if verbose >= 0:
+                    print("Warning: the number of random seeds is larger than the number of initials. Ignoring the last " + str(len(random_seeds)-initials) + " seeds")
             rseeds = random_seeds[:initials]    
         else:
-            print("Fatal: incorrect random_seeds type provided")        
+            if verbose >= 0:
+                print("Fatal: incorrect random_seeds type provided")        
             return None
         while all_failed and all_trials < max_trials:
-            if verbose:
-                print("Starting with initials: ", initials)
+            if verbose > 0:
+                print("Optimization start with " + str(initials) + " initials")
             for rep in range(initials):
                 randseed = rseeds[rep]
-                print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
-                if ultra_constr:
-                    print("Solving ML with ultrametric constraint")
-                else:      
-                    print("Solving ML without ultrametric constraint")
+                if verbose >= 0:
+                    print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
+                if verbose >= 0:
+                    if ultra_constr:
+                        print("Solving ML with ultrametric constraint")
+                    else:      
+                        print("Solving ML without ultrametric constraint")
                 nllh = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
                 
                 if nllh is not None:
                     all_failed = False
-                    print("Optimal point found for initial point " + str(rep+1))
-                    print("Optimal phi: " + str(self.params.phi))
-                    print("Optimal nu: " + str(self.params.nu))
-                    print("Optimal tree: " + self.tree.newick())
-                    print("Optimal nllh: " + str(nllh))
+                    if verbose >= 0:
+                        print("Optimal point found for initial point " + str(rep+1))
+                        print("Optimal phi: " + str(self.params.phi))
+                        print("Optimal nu: " + str(self.params.nu))
+                        print("Optimal tree: " + self.tree.newick())
+                        print("Optimal nllh: " + str(nllh))
                     results.append((nllh,Params(self.params.nu,self.params.phi),self.tree.newick()))
-                else:
+                elif verbose >= 0:
                     print("Fatal: failed to optimize using initial point " + str(rep+1))    
             all_trials += initials    
         results.sort()
@@ -474,8 +493,9 @@ class ML_solver:
         self.params = best_params
         return results[0][0]
 
-    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True,ultra_constr=False):
+    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False):
         # optimize using a specific initial point identified by the input randseed
+        # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         warnings.filterwarnings("ignore")
         def nllh(x): 
             self.x2params(x,fixed_nu=fixed_nu,fixed_phi=fixed_phi)            
@@ -490,6 +510,7 @@ class ML_solver:
             constraints = [optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False)]
         else:
             constraints = []    
+        disp = (verbose > 0)
         out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':verbose,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
         if out.success:
             self.x2params(out.x,fixed_phi=fixed_phi,fixed_nu=fixed_nu)

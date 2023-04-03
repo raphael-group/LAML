@@ -216,15 +216,16 @@ class EM_solver(ML_solver):
         self.Estep_out_llh()
         self.Estep_posterior()
 
-    def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=True,eps_nu=1e-5,eps_s=1e-6,ultra_constr=False):
+    def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=1,eps_nu=1e-5,eps_s=1e-6,ultra_constr=False):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
+    # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         if not optimize_phi:
-            if verbose:
+            if verbose >= 0:
                 print("Fixing phi to " + str(self.params.phi))    
             phi_star = self.params.phi
         else:       
-            if verbose:
+            if verbose >= 0:
                 print("Optimizing phi")
             R = []
             R_tilde = []
@@ -278,15 +279,15 @@ class EM_solver(ML_solver):
         nIters = 1
         nu_star = self.params.nu
         for r in range(nIters):
-            if verbose:
+            if verbose >= 0:
                 print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
             d_star = __optimize_brlen__(nu_star)
             if not optimize_nu:
-                if verbose:
+                if verbose >= 0:
                     print("Fixing nu to " + str(self.params.nu))
                 nu_star = self.params.nu
             else:    
-                if verbose:
+                if verbose >= 0:
                     print("Optimizing nu")
                 nu_star = __optimize_nu__(d_star) 
         # place the optimal value back to params
@@ -296,28 +297,30 @@ class EM_solver(ML_solver):
             node.edge_length = d_star[i]
         return True    
     
-    def EM_optimization(self,verbose=True,optimize_phi=True,optimize_nu=True,ultra_constr=False):
+    def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False):
         # assume that az_partition has been performed
         # optimize all parameters: branch lengths, phi, and nu
         # if optimize_phi is False, it is fixed to the original value in params.phi
         # the same for optimize_nu
         # caution: this function will modify params in place!
-        #pre_llh = self.lineage_llh(params)
+        # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         pre_llh = self.lineage_llh()
-        print("Initial phi: " + str(self.params.phi) + ". Initial nu: " + str(self.params.nu) + ". Initial nllh: " + str(-pre_llh))
+        if verbose >= 0:
+            print("Initial phi: " + str(self.params.phi) + ". Initial nu: " + str(self.params.nu) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
         while 1:
-            if verbose:
+            if verbose > 0:
                 print("Starting EM iter: " + str(em_iter))
                 print("Estep")
             self.Estep()
-            if verbose:
+            if verbose > 0:
                 print("Mstep")
             if not self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr):
-                print("Fatal error: failed to optimize parameters in Mstep!")
+                if verbose >= 0:
+                    print("Fatal error: failed to optimize parameters in Mstep!")
                 return None
             curr_llh = self.lineage_llh()
-            if verbose:
+            if verbose > 0:
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
             if abs((curr_llh - pre_llh)/pre_llh) < conv_eps:
                 break
@@ -330,12 +333,14 @@ class EM_solver(ML_solver):
         for leaf in self.tree.traverse_leaves():
             print(leaf.label,[round(exp(x),2) for x in leaf.post1])
 
-    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=True,ultra_constr=False):
+    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False):
         # optimize using a specific initial point identified by the input randseed
+        # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         seed(a=randseed)
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.x2params(x0,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.az_partition()
         nllh, em_iter = self.EM_optimization(verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None),ultra_constr=ultra_constr)
-        print("EM finished after " + str(em_iter) + " iterations.")
+        if verbose >= 0:
+            print("EM finished after " + str(em_iter) + " iterations.")
         return nllh

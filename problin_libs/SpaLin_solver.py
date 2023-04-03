@@ -8,12 +8,10 @@ from problin_libs import min_llh, eps
 from problin_libs.ML_solver import ML_solver
 
 class SpaLin_solver(ML_solver):
-    # at this stage, the tree topology and sig,a must be given. Only branch lengths
-    # and other parameters can be optimized
-    def __init__(self,charMtrx,Q,nwkTree,locations,sigma,nu=eps,phi=eps):
-        super(SpaLin_solver,self).__init__(charMtrx,Q,nwkTree,nu=nu,phi=phi)
-        self.given_locations = locations
-        self.params.sigma = sigma
+    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0}):
+        super(SpaLin_solver,self).__init__(treeTopo,data,prior,params)
+        self.given_locations = data['locations']
+        self.params.sigma = params['sigma']
         self.inferred_locations = {}
         for x in self.given_locations:
             self.inferred_locations[x] = self.given_locations[x]

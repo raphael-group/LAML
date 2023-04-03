@@ -9,7 +9,7 @@ class MLTest(unittest.TestCase):
         msa = {'a':[1],'b':[1],'c':[1]}
         true_nllh = 0.20665578828621584
 
-        mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -21,7 +21,7 @@ class MLTest(unittest.TestCase):
         msa = {'a':[1],'b':[1],'c':[0]}
         true_nllh = 2.2495946917551692 
 
-        mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -33,7 +33,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[1],'b':[0],'c':[1]}
         true_nllh = 3.917350291274164 
 
-        mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -45,7 +46,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[0],'b':[1],'c':[1]}
         true_nllh = 3.917350291274164 
 
-        mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -57,7 +59,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[1],'b':[0],'c':[0]}
         true_nllh = 4.4586751457870815
 
-        mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -69,7 +72,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[0],'b':[1],'c':[0]}
         true_nllh = 4.4586751457870815
 
-        mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -81,7 +85,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[0],'b':[0],'c':[1]}
         true_nllh = 4.4586751457870815
 
-        mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -93,7 +98,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[0],'b':[0],'c':[0]}
         true_nllh = 5.0
 
-        mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -105,7 +111,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[0],'b':[0],'c':['?']}
         true_nllh = 6.513306124309698
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -117,7 +124,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[0],'b':['?'],'c':[0]}
         true_nllh = 6.513306124309698
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -129,7 +137,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':['?'],'b':[0],'c':[0]}
         true_nllh = 6.513306124309698
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -141,7 +150,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[0],'b':[1],'c':['?']}
         true_nllh = 5.97198126969678
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -153,7 +163,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[0],'b':['?'],'c':[1]}
         true_nllh = 5.97198126969678
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -165,7 +176,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':['?'],'b':[0],'c':[1]}
         true_nllh = 5.97198126969678
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -177,7 +189,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[1],'b':['?'],'c':[0]}
         true_nllh = 4.658719582178557
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -189,7 +202,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':['?'],'b':[1],'c':[0]}
         true_nllh = 4.658719582178557
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -201,7 +215,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[1],'b':[1],'c':['?']}
         true_nllh = 2.5980566021648364
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -213,7 +228,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[1],'b':['?'],'c':[1]}
         true_nllh = 2.695795750497349
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -225,7 +241,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':['?'],'b':[1],'c':[1]}
         true_nllh = 2.695795750497349
 
-        mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -237,7 +254,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[1],'b':[1],'c':[1]}
         true_nllh = 1.0297894223949402
 
-        mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        #mySolver = ML_solver(msa,Q,T,phi=1e-10,nu=1e-10)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -249,7 +267,8 @@ class MLTest(unittest.TestCase):
         msa = {'a':[0, 0], 'b':[1, 1], 'c':[1, 2], 'd':[1, 2]}
         correct_branches = set(['b', 'e'])
         
-        mySolver = ML_solver(msa,Q,T)
+        #mySolver = ML_solver(msa,Q,T)
+        mySolver = ML_solver(T,{'charMtrx':msa},{'Q':Q})#,{'phi':1e-10,'nu':1e-10})
         branches = mySolver.score_branches()
         branch = max(branches, key=lambda item:item[1])[0].label
 

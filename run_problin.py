@@ -193,7 +193,10 @@ def main():
     else:    
         print("Optimization by generic solver (Scipy-SLSQP)")        
         
-    mySolver = selected_solver(msa,Q,treeStr)
+    data = {'charMtrx':msa} 
+    prior = {'Q':Q} 
+    params = {'nu':fixed_nu if fixed_nu is not None else 0,'phi':fixed_phi if fixed_phi is not None else 0}  
+    mySolver = selected_solver(treeStr,data,prior,params)
     optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
     outfile = args["outputdir"] + "/" + args["output"]
     
