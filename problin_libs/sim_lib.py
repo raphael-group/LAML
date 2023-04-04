@@ -61,7 +61,7 @@ def get_balanced_tree(tree_height,branch_length,num_nodes=None):
     tree.root = root
     return tree.newick() 
 
-def simulate_seqs(tree,Q, mu=1.0, with_heritable=False, silencing_rate=0, dropout_rate=0, s=None ):
+def simulate_seqs(tree,Q, mu=1.0, silencing_rate=0, dropout_rate=0, s=None ):
     if s is not None:
        random.seed(s)
     k = len(Q)
