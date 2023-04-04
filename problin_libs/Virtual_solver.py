@@ -12,6 +12,6 @@ class Virtual_solver:
     def get_params(self):
     # virtual method, should be overried in most cases
         return dict()   
-    def score_tree(self):     
+    def score_tree(self,strategy={}):     
     # virtual method. Should never be called!
-        pass
+        pass    

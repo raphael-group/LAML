@@ -15,7 +15,6 @@ class Params:
 
 class ML_solver(Virtual_solver):
     def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0}):
-    #def __init__(self,charMtrx,Q,nwkTree,nu=0,phi=0):
         charMtrx = data['charMtrx']
         Q = prior['Q']
         nu = params['nu']
@@ -149,11 +148,13 @@ class ML_solver(Virtual_solver):
                         branches.append((node, s))
         return branches 
 
-    def score_tree(self):
-        # TODO: Recompute the likelihood and reestimate branch lengths
-        #self.az_partition(self.params)
-        self.az_partition()
-        return self.lineage_llh()
+    def score_tree(self,strategy={'optimize':False,'ultra_constr':False}):
+        if strategy['optimize']:
+            score = -self.optimize(initials=1,verbose=-1,ultra_constr=strategy['ultra_constr'])
+        else:    
+            self.az_partition()
+            score = self.__llh__()
+        return score
 
     def apply_nni(self, u, verbose):
         # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
