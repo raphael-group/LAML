@@ -11,11 +11,13 @@ class Topology_search:
         self.params = params   
         self.data = data
         self.prior = prior        
-        self.tree_obj = read_tree_newick(self.treeTopo)
-        self.tree_obj.suppress_unifurcations()
-    
+        self.__renew_tree_obj__()
+        self.treeTopo = self.tree_obj.newick()
+
     def __renew_tree_obj__(self):
         self.tree_obj = read_tree_newick(self.treeTopo)
+        self.tree_obj.suppress_unifurcations()
+        self.has_polytomies = self.__mark_polytomies__()
     
     def get_solver(self):
         return self.solver(self.treeTopo,self.data,self.prior,self.params)
@@ -26,16 +28,19 @@ class Topology_search:
 
     def __mark_polytomies__(self,eps_len=1e-3):
         # mark and resolve all polytomies in self.tree_obj
+        self.has_polytomy = False
         for node in self.tree_obj.traverse_preorder():
             node.mark = False
             if len(node.children) > 2:
                 for c in node.children:
                     c.mark = True
+                    self.has_polytomy = True
         self.tree_obj.resolve_polytomies()
         for node in self.tree_obj.traverse_preorder():
             if not hasattr(node,'mark'):
                 node.mark = True
-                node.edge_length = eps_len                
+                node.edge_length = eps_len  
+                self.has_polytomy = True              
         self.treeTopo = self.tree_obj.newick()        
 
     def search(self,maxiter=100,verbose=False,nreps=1,strategy={'resolve_polytomies':True,'only_marked':False,'optimize':False,'ultra_constr':False}):
@@ -47,14 +52,22 @@ class Topology_search:
             self.treeTopo = original_topo
             self.params = original_params
             self.__renew_tree_obj__()
-            topo_list = []
+            topo_list1 = []
+            topo_list2 = []
             if strategy['resolve_polytomies']:
-                self.__mark_polytomies__() 
-                topo_list1,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True)
-                topo_list += topo_list1
+                #has_polytomy = self.__mark_polytomies__() 
+                if self.has_polytomy:
+                    topo_list1,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True)
+                else:
+                    mySolver = self.get_solver()
+                    strategy_copy = {x:strategy[x] for x in strategy}
+                    strategy_copy['only_marked'] = True
+                    best_score = mySolver.score_tree(strategy=strategy_copy)
+                    self.update_from_solver(mySolver)
+                    topo_list1 = [(self.treeTopo,best_score)]            
             if not strategy['only_marked']:    
                 topo_list2,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False)
-                topo_list += topo_list2
+            topo_list = [(x,y,'resolve_polytomies') for x,y in topo_list1] + [(x,y,'full_search') for x,y in topo_list2]
             nni_replicates[i] = (best_score,topo_list)
         return nni_replicates
     
@@ -72,7 +85,17 @@ class Topology_search:
                 break
             curr_score = new_score
             topo_list.append((self.treeTopo,curr_score))
-        return topo_list,curr_score 
+        # optimize parameters for the best topology
+        if not strategy['optimize']:
+            strategy_copy = {x:strategy[x] for x in strategy}
+            strategy_copy['optimize'] = True
+            mySolver = self.get_solver()
+            final_score = mySolver.score_tree(strategy=strategy_copy)
+            self.update_from_solver(mySolver)
+            topo_list.append((self.treeTopo,final_score))
+        else:    
+            final_score = curr_score
+        return topo_list,final_score 
     
     def single_nni(self,strategy,only_marked=False):
         branches = []

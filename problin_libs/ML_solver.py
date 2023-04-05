@@ -14,7 +14,7 @@ class Params:
         self.phi = phi
 
 class ML_solver(Virtual_solver):
-    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0}):
+    def __init__(self,treeTopo,data,prior,params={'nu':eps,'phi':eps}):
         charMtrx = data['charMtrx']
         Q = prior['Q']
         nu = params['nu']
@@ -512,7 +512,7 @@ class ML_solver(Virtual_solver):
         else:
             constraints = []    
         disp = (verbose > 0)
-        out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':verbose,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
+        out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
         if out.success:
             self.x2params(out.x,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
             params = self.params

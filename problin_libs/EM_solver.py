@@ -94,8 +94,9 @@ class EM_solver(ML_solver):
                     if x is not v:
                         w = x
                         break
-                if w is None:
-                    print("w is none", [x.label for x in u.traverse_leaves()])
+                #if w is None:
+                    #print("w is none", [x.label for x in u.traverse_leaves()])
+                    #print("w is none", len(u.children),u.is_root())
                 # Auxiliary components
                 v.A = [None]*self.numsites
                 v.X = [None]*self.numsites
@@ -221,11 +222,11 @@ class EM_solver(ML_solver):
     # output: optimize all parameters: branch lengths, phi, and nu
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         if not optimize_phi:
-            if verbose >= 0:
+            if verbose > 0:
                 print("Fixing phi to " + str(self.params.phi))    
             phi_star = self.params.phi
         else:       
-            if verbose >= 0:
+            if verbose > 0:
                 print("Optimizing phi")
             R = []
             R_tilde = []
@@ -279,15 +280,15 @@ class EM_solver(ML_solver):
         nIters = 1
         nu_star = self.params.nu
         for r in range(nIters):
-            if verbose >= 0:
+            if verbose > 0:
                 print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
             d_star = __optimize_brlen__(nu_star)
             if not optimize_nu:
-                if verbose >= 0:
+                if verbose > 0:
                     print("Fixing nu to " + str(self.params.nu))
                 nu_star = self.params.nu
             else:    
-                if verbose >= 0:
+                if verbose > 0:
                     print("Optimizing nu")
                 nu_star = __optimize_nu__(d_star) 
         # place the optimal value back to params

@@ -10,7 +10,6 @@ from treeswift import *
 import random
 import argparse
 from sys import argv,exit,stdout
-import problin_libs as problin
 
 def best_tree(nni_replicates):
     max_score = -float("inf")
@@ -32,7 +31,6 @@ def main():
 
     parser.add_argument("-t","--topology",required=True,help="Binary input tree topology in newick format. Branch lengths will be ignored.") 
     parser.add_argument("-c","--characters",required=True,help="The input character matrix. Must have header.")
-    parser.add_argument("-r","--rep",required=False,help="The rep index of the input character matrix.") 
     parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.")
     parser.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
     parser.add_argument("--ultrametric",action='store_true',help="Enforce ultrametricity to the output tree.")
@@ -43,10 +41,8 @@ def main():
     parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
     parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked character. Default: if not specified, assumes '-'.")
     parser.add_argument("-o","--output",required=True,help="The output file.")
-    parser.add_argument("-od","--outputdir",required=False,default="./", help="The output directory.")
     parser.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
     parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations.")
-    parser.add_argument("--strategy", required=False, help="Strategy for NNI topology search.")
     parser.add_argument("--randomreps", required=False, default=5, type=int, help="Number of replicates to run for the random strategy of topology search.")
 
     if len(argv) == 1:
@@ -57,47 +53,15 @@ def main():
     print(problin.PROGRAM_NAME + " was called as follow: " + " ".join(argv))
     
     args = vars(parser.parse_args())
-
-    try:
-        if args['outputdir'] != '.' and not os.path.isdir(args['outputdir']):
-            os.mkdir(args['outputdir'])
-    except:
-        print("Could not create specified output directory.")
-
+    
+    # preprocessing: read and analyze input
     delim_map = {'tab':'\t','comma':',','whitespace':' '}
     delimiter = delim_map[args["delimiter"]]
     msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["maskedchar"])
     prefix = '.'.join(args["output"].split('.')[:-1])
 
-    if args["rep"]:
-        print("Using rep:", args["rep"])
-        msa = msa[int(args["rep"])]
-    
     with open(args["topology"],'r') as f:
-        treeStr = f.read().strip()
-        tree = read_tree_newick(treeStr)
-        if len(tree.root.child_nodes()) == 1: # Provided topology's root does not have two nodes --> reset root
-            print("Resetting topology's root so that it has two child nodes.")
-            treeStr = tree.newick()[1:-2] + ";"
-        
-        # check for polytomies
-        tree = read_tree_newick(treeStr)
-        containsPolytomies = False
-        i = 0
-        nlabel = "nlabel_"
-        for node in tree.traverse_levelorder():
-            if not node.is_leaf():
-                if node.label == None:
-                    node.label = nlabel + str(i)
-                    i += 1
-                if len(node.child_nodes()) > 2:
-                    containsPolytomies = True
-                    for x in node.child_nodes():
-                        if not x.is_leaf():
-                            if x.label == None:
-                                x.label = nlabel + str(i)
-                                i += 1
-        treeStr = tree.newick()
+        input_tree = f.read().strip()
 
     k = len(msa[next(iter(msa.keys()))])
     fixed_phi = 0 if args["noDropout"] else None
@@ -170,52 +134,35 @@ def main():
         print("Optimization by EM algorithm") 
     else:    
         print("Optimization by generic solver (Scipy-SLSQP)")        
-        
+
+    # main tasks        
     data = {'charMtrx':msa} 
     prior = {'Q':Q} 
-    params = {'nu':fixed_nu if fixed_nu is not None else 0,'phi':fixed_phi if fixed_phi is not None else 0}  
+    params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps}  
+    myTopoSearch = Topology_search(input_tree, selected_solver, data=data, prior=prior, params=params)
 
-    # __init__ inherited from Virtual_solver in ML_solver
-    mySolver = selected_solver(treeStr,data,prior,params)
-   
-    # resolve polytomies first
-    if containsPolytomies: 
-        print("Detected polytomies in the provided topology. Performing topology search to resolve polytomies first...")
-        myTopoSearch = Topology_search(treeStr, selected_solver, data=data, prior=prior, params=params)
-        nni_replicates = myTopoSearch.search(maxiter=200, verbose=False, strategy={"resolve_polytomies": True, "only_marked": True, "optimize": False, "ultra_constr": False}, nreps=5) 
-        #nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": True, "optimize": False, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps'])
-        treeStr, max_score = best_tree(nni_replicates) # outputs a string
-        if args["verbose"]:
-            print("Polytomy-resolved tree: ", treeStr + "\n")
-        outfile = args["outputdir"] + prefix +  ".resolvedtree"
-        with open(outfile, "w+") as w:
-            w.write(treeStr)
-        mySolver = selected_solver(treeStr, data, prior, params)
-        print("Polytomies resolved.")
-
-    # record fully resolved tree's starting likelihood
-    starting_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
-    outfile = args["outputdir"] + "/" + args["output"]
-    # record the starting tree statistics
-    with open(outfile,'a') as fout:
-        if containsPolytomies:
-            fout.write("Optimal polytomy-resolved tree:\n")
-        else:
-            fout.write("Starting tree statistics:\n")
-        record_statistics(mySolver, fout, starting_llh)
-
-    # run topology search in earnest
     if args["topology_search"]:
-        myTopoSearch = Topology_search(treeStr, selected_solver, data=data, prior=prior, params=params)
-        nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={'resolve_polytomies': False, 'only_marked': False, 'optimize': True, 'ultra_constr': args["ultrameric"]}, nreps=args['randomreps'])
-        treeStr = best_tree(nni_replicates)
-        
-        mySolver = selected_solver(treeStr, data, prior, params)
-        nllh_nni = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
-            
-        with open(outfile,'a') as fout:
-            fout.write("Final optimal tree:\n")
-            record_statistics(mySolver, fout, nllh_nni)
+        print("Starting topology search")
+        nni_replicates = myTopoSearch.search(maxiter=200, verbose=False, strategy={"resolve_polytomies": True, "only_marked": False, "optimize": False, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
+        opt_tree, max_score = best_tree(nni_replicates) # outputs a string
+        nllh_nni = -max_score
+    elif myTopoSearch.has_polytomies:
+        print("The input tree contains polytomies. The solver will first perform local topology search to resolve polytomies")
+        nni_replicates = myTopoSearch.search(maxiter=200, verbose=False, strategy={"resolve_polytomies": True, "only_marked": True, "optimize": False, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
+        opt_tree, max_score = best_tree(nni_replicates) # outputs a string
+        nllh_nni = -max_score        
+    else: 
+        print("Optimizing branch lengths, phi, and nu without topology search")
+        mySolver = myTopoSearch.get_solver()
+        nllh_nni = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])        
+        myTopoSearch.update_from_solver(mySolver)
+   
+    # post-processing: analyze results and output 
+    outfile = args["output"]        
+    mySolver = myTopoSearch.get_solver()
+    with open(outfile,'w') as fout:
+        fout.write("Final optimal tree:\n")
+        record_statistics(mySolver, fout, nllh_nni)
 
 if __name__ == "__main__":
     main()
