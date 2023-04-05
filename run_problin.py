@@ -12,6 +12,15 @@ import argparse
 from sys import argv,exit,stdout
 import problin_libs as problin
 
+def best_tree(nni_replicates):
+    max_score = -float("inf")
+    T1 = ""
+    for score, tree_topos in nni_replicates:
+        if score > max_score:
+            max_score = score
+            T1, _ = tree_topos[-1]
+    return T1, max_score
+
 def record_statistics(mySolver, fout, optimal_llh):
     fout.write("Newick tree: " +  mySolver.tree.newick() + "\n")
     fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
@@ -63,42 +72,17 @@ def main():
     if args["rep"]:
         print("Using rep:", args["rep"])
         msa = msa[int(args["rep"])]
+    
     with open(args["topology"],'r') as f:
         treeStr = f.read().strip()
         tree = read_tree_newick(treeStr)
-        if len(tree.root.child_nodes()) != 2: # Provided topology's root does not have two nodes --> reset root
+        if len(tree.root.child_nodes()) == 1: # Provided topology's root does not have two nodes --> reset root
+            print("Resetting topology's root so that it has two child nodes.")
             treeStr = tree.newick()[1:-2] + ";"
-
-        tree = read_tree_newick(treeStr)
-        keybranches = []
-        containsPolytomies = False
         
-        i = 0
-        nlabel = "nlabel_"
-        for node in tree.traverse_levelorder():
-            if not node.is_leaf():
-                if node.label == None:
-                    node.label = nlabel + str(i)
-                    i += 1
-                if len(node.child_nodes()) != 2:
-                    containsPolytomies = True
-                    node.resolve_polytomies()
-                    for x in node.child_nodes():
-                        if not x.is_leaf():
-                            if x.label == None:
-                                x.label = nlabel + str(i)
-                                i += 1
-                            keybranches.append(x.label)
-        if containsPolytomies:
-            print("Detected polytomies in the provided topology. Randomly resolving these polytomies and prioritizing these branches for topology search if enabled.")
-            outfile = args["outputdir"] + prefix +  ".resolvedtree"
-            tree.write_tree_newick(outfile)
-        treeStr = tree.newick()
-
+        # check for polytomies
         tree = read_tree_newick(treeStr)
-        keybranches = []
         containsPolytomies = False
-        # if there are polytomies, randomly resolve them
         i = 0
         nlabel = "nlabel_"
         for node in tree.traverse_levelorder():
@@ -106,19 +90,13 @@ def main():
                 if node.label == None:
                     node.label = nlabel + str(i)
                     i += 1
-                if len(node.child_nodes()) != 2:
+                if len(node.child_nodes()) > 2:
                     containsPolytomies = True
-                    node.resolve_polytomies()
                     for x in node.child_nodes():
                         if not x.is_leaf():
                             if x.label == None:
                                 x.label = nlabel + str(i)
                                 i += 1
-                            keybranches.append(x.label)
-        if containsPolytomies:
-            print("Detected polytomies in the provided topology. Randomly resolving these polytomies and prioritizing these branches for topology search if enabled.")
-            outfile = args["outputdir"] + prefix +  ".resolvedtree"
-            tree.write_tree_newick(outfile)
         treeStr = tree.newick()
 
     k = len(msa[next(iter(msa.keys()))])
@@ -196,32 +174,48 @@ def main():
     data = {'charMtrx':msa} 
     prior = {'Q':Q} 
     params = {'nu':fixed_nu if fixed_nu is not None else 0,'phi':fixed_phi if fixed_phi is not None else 0}  
+
+    # __init__ inherited from Virtual_solver in ML_solver
     mySolver = selected_solver(treeStr,data,prior,params)
-    optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
+   
+    # resolve polytomies first
+    if containsPolytomies: 
+        print("Detected polytomies in the provided topology. Performing topology search to resolve polytomies first...")
+        myTopoSearch = Topology_search(treeStr, selected_solver, data=data, prior=prior, params=params)
+        nni_replicates = myTopoSearch.search(maxiter=200, verbose=False, strategy={"resolve_polytomies": True, "only_marked": True, "optimize": False, "ultra_constr": False}, nreps=5) 
+        #nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": True, "optimize": False, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps'])
+        treeStr, max_score = best_tree(nni_replicates) # outputs a string
+        if args["verbose"]:
+            print("Polytomy-resolved tree: ", treeStr + "\n")
+        outfile = args["outputdir"] + prefix +  ".resolvedtree"
+        with open(outfile, "w+") as w:
+            w.write(treeStr)
+        mySolver = selected_solver(treeStr, data, prior, params)
+        print("Polytomies resolved.")
+
+    # record fully resolved tree's starting likelihood
+    starting_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
     outfile = args["outputdir"] + "/" + args["output"]
-    
-    if args["topology_search"]:
-        conv_threshold = 0.2
-        if containsPolytomies:
-            # resolve that tree first
-            myTopoSearch = Topology_search(mySolver)
-            myTopoSearch.search(maxiter=1000, verbose=True, trynextbranch=True, strategy=args["strategy"], branch_list=keybranches, nreps=args['randomreps'],conv=conv_threshold)
-            optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
-            print("Finished resolving polytomy tree.")
-            if args["verbose"]:
-                print("Polytomy-resolved tree: ", params.tree.newick() + "\n")
-            # record the starting tree statistics
-            with open(outfile,'w') as fout:
-                fout.write("Optimal polytomy-resolved tree:\n")
-                record_statistics(mySolver, fout, optimal_llh)
-        # run topology search
-        myTopoSearch = Topology_search(mySolver)
-        myTopoSearch.search(maxiter=1000, verbose=True, trynextbranch=True, strategy=args["strategy"], branch_list='all', nreps=args['randomreps'],conv=conv_threshold)        
-        # optimize branch length
-        optimal_llh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
+    # record the starting tree statistics
     with open(outfile,'a') as fout:
-        fout.write("Final optimal tree:\n")
-        record_statistics(mySolver, fout, optimal_llh)
+        if containsPolytomies:
+            fout.write("Optimal polytomy-resolved tree:\n")
+        else:
+            fout.write("Starting tree statistics:\n")
+        record_statistics(mySolver, fout, starting_llh)
+
+    # run topology search in earnest
+    if args["topology_search"]:
+        myTopoSearch = Topology_search(treeStr, selected_solver, data=data, prior=prior, params=params)
+        nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={'resolve_polytomies': False, 'only_marked': False, 'optimize': True, 'ultra_constr': args["ultrameric"]}, nreps=args['randomreps'])
+        treeStr = best_tree(nni_replicates)
+        
+        mySolver = selected_solver(treeStr, data, prior, params)
+        nllh_nni = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])
+            
+        with open(outfile,'a') as fout:
+            fout.write("Final optimal tree:\n")
+            record_statistics(mySolver, fout, nllh_nni)
 
 if __name__ == "__main__":
     main()
