@@ -55,6 +55,8 @@ class Topology_search:
         nni_replicates = [(None,None)]*nreps
         for i in range(nreps):
             # resolve polytomies
+            if verbose:
+                print("Performing nni-search " + str(i+1))
             self.treeTopo = original_topo
             self.params = original_params
             self.__renew_tree_obj__()
@@ -63,6 +65,8 @@ class Topology_search:
             topo_list2 = []
             if strategy['resolve_polytomies']:
                 if self.has_polytomy:
+                    if verbose:
+                        print("resolving polytomies")
                     topo_list1,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True)
                 else:
                     mySolver = self.get_solver()
@@ -72,17 +76,22 @@ class Topology_search:
                     self.update_from_solver(mySolver)
                     topo_list1 = [(self.treeTopo,best_score)]            
             if not strategy['only_marked']:    
+                if verbose:
+                    print("performing full search")
                 topo_list2,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False)
             topo_list = [(x,y,'resolve_polytomies') for x,y in topo_list1] + [(x,y,'full_search') for x,y in topo_list2]
             nni_replicates[i] = (best_score,topo_list)
         return nni_replicates
     
     def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False):
-        # perform nni search
+        # optimize branch lengths and other parameters for the starting tree
         mySolver = self.get_solver()
-        curr_score = mySolver.score_tree(strategy=strategy)
+        strategy_copy = {x:strategy[x] for x in strategy}
+        strategy_copy['optimize'] = True
+        curr_score = mySolver.score_tree(strategy=strategy_copy)        
         self.update_from_solver(mySolver)
         topo_list = [(self.treeTopo,curr_score)]            
+        # perform nni search
         for nni_iter in range(maxiter):
             if verbose:
                 print("NNI Iter:", nni_iter)
@@ -132,6 +141,8 @@ class Topology_search:
         mySolver = self.get_solver()        
         curr_score = mySolver.score_tree(strategy=strategy)
         u_children = u.child_nodes()
+        # shuffle the order of the nni moves
+        shuffle(u_children)
         nni_moves = []
 
         for u_child in u_children:

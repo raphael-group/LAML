@@ -143,12 +143,12 @@ def main():
 
     if args["topology_search"]:
         print("Starting topology search")
-        nni_replicates = myTopoSearch.search(maxiter=200, verbose=False, strategy={"resolve_polytomies": True, "only_marked": False, "optimize": False, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
+        nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": False, "optimize": True, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
         opt_tree, max_score = best_tree(nni_replicates) # outputs a string
         nllh_nni = -max_score
     elif myTopoSearch.has_polytomy:
         print("The input tree contains polytomies. The solver will first perform local topology search to resolve polytomies")
-        nni_replicates = myTopoSearch.search(maxiter=200, verbose=False, strategy={"resolve_polytomies": True, "only_marked": True, "optimize": False, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
+        nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": True, "optimize": True, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
         opt_tree, max_score = best_tree(nni_replicates) # outputs a string
         nllh_nni = -max_score        
     else: 
