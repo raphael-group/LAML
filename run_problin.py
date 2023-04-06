@@ -17,7 +17,7 @@ def best_tree(nni_replicates):
     for score, tree_topos in nni_replicates:
         if score > max_score:
             max_score = score
-            T1, _ = tree_topos[-1]
+            T1,_,_ = tree_topos[-1]
     return T1, max_score
 
 def record_statistics(mySolver, fout, optimal_llh):
@@ -146,7 +146,7 @@ def main():
         nni_replicates = myTopoSearch.search(maxiter=200, verbose=False, strategy={"resolve_polytomies": True, "only_marked": False, "optimize": False, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
         opt_tree, max_score = best_tree(nni_replicates) # outputs a string
         nllh_nni = -max_score
-    elif myTopoSearch.has_polytomies:
+    elif myTopoSearch.has_polytomy:
         print("The input tree contains polytomies. The solver will first perform local topology search to resolve polytomies")
         nni_replicates = myTopoSearch.search(maxiter=200, verbose=False, strategy={"resolve_polytomies": True, "only_marked": True, "optimize": False, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
         opt_tree, max_score = best_tree(nni_replicates) # outputs a string

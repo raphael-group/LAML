@@ -484,12 +484,12 @@ class ML_solver(Virtual_solver):
                         print("Optimal nu: " + str(self.params.nu))
                         print("Optimal tree: " + self.tree.newick())
                         print("Optimal nllh: " + str(nllh))
-                    results.append((nllh,Params(self.params.nu,self.params.phi),self.tree.newick()))
+                    results.append((nllh,rep,Params(self.params.nu,self.params.phi),self.tree.newick()))
                 elif verbose >= 0:
                     print("Fatal: failed to optimize using initial point " + str(rep+1))    
             all_trials += initials    
         results.sort()
-        best_nllh,best_params,best_tree = results[0]
+        best_nllh,_,best_params,best_tree = results[0]
         self.tree = read_tree_newick(best_tree)
         self.params = best_params
         return results[0][0]

@@ -12,12 +12,18 @@ class Topology_search:
         self.data = data
         self.prior = prior        
         self.__renew_tree_obj__()
+        # identify polytomies
+        self.has_polytomy = False
+        for node in self.tree_obj.traverse_preorder():
+            if len(node.children) > 2:
+                self.has_polytomy = True
+                break        
         self.treeTopo = self.tree_obj.newick()
 
     def __renew_tree_obj__(self):
         self.tree_obj = read_tree_newick(self.treeTopo)
         self.tree_obj.suppress_unifurcations()
-        self.has_polytomies = self.__mark_polytomies__()
+        #self.__mark_polytomies__()
     
     def get_solver(self):
         return self.solver(self.treeTopo,self.data,self.prior,self.params)
@@ -32,15 +38,15 @@ class Topology_search:
         for node in self.tree_obj.traverse_preorder():
             node.mark = False
             if len(node.children) > 2:
-                for c in node.children:
-                    c.mark = True
-                    self.has_polytomy = True
+                #for c in node.children:
+                #    c.mark = True
+                self.has_polytomy = True
         self.tree_obj.resolve_polytomies()
         for node in self.tree_obj.traverse_preorder():
             if not hasattr(node,'mark'):
                 node.mark = True
                 node.edge_length = eps_len  
-                self.has_polytomy = True              
+                #self.has_polytomy = True              
         self.treeTopo = self.tree_obj.newick()        
 
     def search(self,maxiter=100,verbose=False,nreps=1,strategy={'resolve_polytomies':True,'only_marked':False,'optimize':False,'ultra_constr':False}):
@@ -52,10 +58,10 @@ class Topology_search:
             self.treeTopo = original_topo
             self.params = original_params
             self.__renew_tree_obj__()
+            self.__mark_polytomies__()
             topo_list1 = []
             topo_list2 = []
             if strategy['resolve_polytomies']:
-                #has_polytomy = self.__mark_polytomies__() 
                 if self.has_polytomy:
                     topo_list1,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True)
                 else:
