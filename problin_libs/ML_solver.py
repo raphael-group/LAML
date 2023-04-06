@@ -154,6 +154,8 @@ class ML_solver(Virtual_solver):
         else:    
             self.az_partition()
             score = self.__llh__()
+        if score is None:
+            print("Fatal: failed to score tree " + self.get_tree_newick())
         return score
 
     def apply_nni(self, u, verbose):
@@ -488,11 +490,16 @@ class ML_solver(Virtual_solver):
                 elif verbose >= 0:
                     print("Fatal: failed to optimize using initial point " + str(rep+1))    
             all_trials += initials    
-        results.sort()
-        best_nllh,_,best_params,best_tree = results[0]
-        self.tree = read_tree_newick(best_tree)
-        self.params = best_params
-        return results[0][0]
+        if all_failed:
+            if verbose >= 0:
+                print("Fatal: Optimization failed on more than 100 retries")
+            return None
+        else:    
+            results.sort()
+            best_nllh,_,best_params,best_tree = results[0]
+            self.tree = read_tree_newick(best_tree)
+            self.params = best_params
+            return results[0][0]
 
     def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False):
         # optimize using a specific initial point identified by the input randseed

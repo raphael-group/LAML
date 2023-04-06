@@ -282,7 +282,10 @@ class EM_solver(ML_solver):
         for r in range(nIters):
             if verbose > 0:
                 print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
-            d_star = __optimize_brlen__(nu_star)
+            try:
+                d_star = __optimize_brlen__(nu_star)
+            except:
+                return False    
             if not optimize_nu:
                 if verbose > 0:
                     print("Fixing nu to " + str(self.params.nu))
@@ -290,7 +293,10 @@ class EM_solver(ML_solver):
             else:    
                 if verbose > 0:
                     print("Optimizing nu")
-                nu_star = __optimize_nu__(d_star) 
+                try:    
+                    nu_star = __optimize_nu__(d_star) 
+                except:
+                    return False    
         # place the optimal value back to params
         self.params.phi = phi_star
         self.params.nu = nu_star
