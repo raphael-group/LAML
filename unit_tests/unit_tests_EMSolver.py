@@ -523,7 +523,7 @@ class EMTest(unittest.TestCase):
         T = read_tree_newick("unit_tests/test_data/test_EM/test1.tre")
         phi = 0.05231954386883335
         nu = 0.15877477685098262
-        msa,_ = read_sequences("unit_tests/test_data/test_EM/test1_charMtrx.txt",filetype="charMtrx",delimiter=",",masked_symbol='-')
+        msa,_ = read_sequences("unit_tests/test_data/test_EM/test1_charMtrx.txt",filetype="charMtrx",delimiter=",",masked_symbol='-',suppress_warnings=True)
         Q = []
         k = 60
         for i in range(k):

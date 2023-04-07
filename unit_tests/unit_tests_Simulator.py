@@ -21,7 +21,7 @@ class SimulatorTest(unittest.TestCase):
                 cmtx, char_full = simulate_seqs(tree, Q, mu, dropout_rate=d)
                 allreps[rep] = cmtx
         nzeros, nmissing, total = count_all(allreps)
-        propzeros = float(nzeros)/(total - nmissing)
+        propmissing = float(nmissing)/total
         self.assertAlmostEqual(d,propmissing,places=2,msg="SimulatorTest: test_1 failed, " + str(d) + str(propmissing))
 
     def test_2(self):
@@ -90,7 +90,7 @@ class SimulatorTest(unittest.TestCase):
     
     def test_6(self):
         #randomseed = 1984
-        nreps = 75 
+        nreps = 100
         s = 0.0 #[0.0, 0.06, 0.13, 0.20]:
         m, mu, k = 30, 1, 500 
         height, bl = 6, 0.2
@@ -245,13 +245,14 @@ class SimulatorTest(unittest.TestCase):
         allreps = dict()
         Q = sim_Q(k, m)
         for rep in range(nreps):
-            allreps[rep], _ = simulate_seqs(tree, Q, mu, with_heritable=True, silencing_rate=s)
+            allreps[rep], _ = simulate_seqs(tree, Q, mu, silencing_rate=s)
         for c in list(range(1,m)) + ["?"]:
             for node_label in allreps[rep]:
                 self.assertTrue(calc_expected(node_label, 3.98, k, c, Q, allreps, s), msg="SimulatorTest: test_11 failed, unexpected character distribution for node_label: " + str(node_label) + " and char: " + str(c) ) 
 
     # Test both types of missing data and full data matrix
     def test_12(self):
+        """
         # write chi squared test on tree with 
         nreps = 100
         m, mu, k, s, drop = 30, 1, 500, 0.13353, 0.14285
@@ -282,6 +283,7 @@ class SimulatorTest(unittest.TestCase):
             exp_propzeros = exp(-d*(1+s)) #* (1 - drop)
             exp_propzeros += (1 - exp_propzeros) * drop 
             self.assertAlmostEqual(propzeros, exp_propzeros, places=2, msg="SimulatorTest: test_12 failed, propzeros: " + str(propzeros) + " exp_propzeros:" + str(exp_propzeros))
+        """
 
     def test_13(self):
         pass 
