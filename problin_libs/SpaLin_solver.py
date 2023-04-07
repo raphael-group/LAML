@@ -8,19 +8,17 @@ from problin_libs import min_llh, eps
 from problin_libs.ML_solver import ML_solver
 
 class SpaLin_solver(ML_solver):
-    # at this stage, the tree topology and sig,a must be given. Only branch lengths
-    # and other parameters can be optimized
-    def __init__(self,charMtrx,Q,nwkTree,locations,sigma,nu=eps,phi=eps):
-        super(SpaLin_solver,self).__init__(charMtrx,Q,nwkTree,nu=nu,phi=phi)
-        self.given_locations = locations
-        self.params.sigma = sigma
+    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0}):
+        super(SpaLin_solver,self).__init__(treeTopo,data,prior,params)
+        self.given_locations = data['locations']
+        self.params.sigma = params['sigma']
         self.inferred_locations = {}
         for x in self.given_locations:
             self.inferred_locations[x] = self.given_locations[x]
   
     def spatial_llh(self,locations):
         llh = 0
-        for node in self.params.tree.traverse_preorder():
+        for node in self.tree.traverse_preorder():
             if node.is_root() or not node.label in locations or not node.parent.label in locations:
                 continue
             d = node.edge_length
@@ -32,12 +30,12 @@ class SpaLin_solver(ML_solver):
         return llh 
 
     def __llh__(self):
-        return self.lineage_llh(self.params) + self.spatial_llh(self.inferred_locations)
+        return self.lineage_llh() + self.spatial_llh(self.inferred_locations)
     
     def ini_all(self,fixed_phi=None,fixed_nu=None):
         x_lin = self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
         x_spa = []
-        for node in self.params.tree.traverse_postorder():
+        for node in self.tree.traverse_postorder():
             if not node.label in self.given_locations:
                 x_spa += [random(),random()]
         x_sigma = 22 # hard code for now        
@@ -48,14 +46,14 @@ class SpaLin_solver(ML_solver):
         self.x2nu(x,fixed_nu=fixed_nu)
         self.x2phi(x,fixed_phi=fixed_phi)
         i = self.num_edges + 2
-        for node in self.params.tree.traverse_postorder():
+        for node in self.tree.traverse_postorder():
             if not node.label in self.given_locations:
                 self.inferred_locations[node.label] = (x[i],x[i+1])
                 i += 2
         self.params.sigma = x[-1]        
                
     def bound_locations(self,lower=-np.inf,upper=np.inf):
-        N = 2*len([node for node in self.params.tree.traverse_postorder() if not node.label in self.given_locations])    
+        N = 2*len([node for node in self.tree.traverse_postorder() if not node.label in self.given_locations])    
         return [lower]*N,[upper]*N
 
     def bound_sigma(self):
