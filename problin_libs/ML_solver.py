@@ -30,8 +30,12 @@ class ML_solver:
         self.params = Params(nwkTree,nu=nu,phi=phi)
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.params.tree.traverse_postorder()))
-        self.dmax = -log(1/self.numsites)*2
-        self.dmin = -log(1-1/self.numsites)/2 if self.numsites > 1 else None
+        
+        zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx]) 
+        totalcount = self.numsites * len(self.charMtrx)
+        zeroprop = zerocount/totalcount
+        self.dmax = -log(zeroprop) if zeroprop != 0 else float("inf")
+        self.dmin = -log(1-1/self.numsites)/2 if self.numsites > 1 else eps
     
     def ultrametric_constr(self):
         N = self.num_edges + 2 # add 2: phi and nu
