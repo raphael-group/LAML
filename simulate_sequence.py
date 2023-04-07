@@ -46,15 +46,15 @@ else:
                 fout.write(str(i) + "," + str(x) + "," + str(Q[i][x]) + "\n")
 
 mu = args["mu"]
-sim_dropout, sim_silencing = False, False
+#sim_dropout, sim_silencing = False, False
 
 if args["dropout"] != 0.0:
-    sim_dropout = True
+    #sim_dropout = True
     d = args["dropout"]
 else:
     d = 0.0
 
-sim_silencing = args["silencing"] != 0    
+#sim_silencing = args["silencing"] != 0    
 s = args["silencing"]
 
 if args["randseed"] is not None:
@@ -62,7 +62,7 @@ if args["randseed"] is not None:
 
 nreps = args["reps"]
 for i in range(nreps):
-    leaf_char_mtrx,all_char_mtrx = simulate_seqs(tree, Q, mu, with_heritable=sim_silencing, silencing_rate=s, dropout_rate=d)
+    leaf_char_mtrx,all_char_mtrx = simulate_seqs(tree, Q, mu, silencing_rate=s, dropout_rate=d)
     out_seqs = args["prefix"]
     out_history = args["prefix"]
     if nreps > 1:

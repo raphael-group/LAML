@@ -27,7 +27,7 @@ def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol=None, 
             return read_fasta(fin)
         elif filetype == "charMtrx":
 
-            return read_charMtrx(fin,delimiter=delimiter,masked_symbol=masked_symbol)
+            return read_charMtrx(fin,delimiter=delimiter,masked_symbol=masked_symbol,suppress_warnings=suppress_warnings)
 
 def read_fasta(fin):    
     S = [] # will be a list of dictionaries
@@ -56,12 +56,11 @@ def check_missing(seen_missing, x):
     else:
         return False
 
-def read_charMtrx(fin,delimiter=",",masked_symbol=None):
+def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False):
     D = {}
     site_names = fin.readline().strip().split(delimiter)[1:]
-    
 
-    if masked_symbol != '-':
+    if masked_symbol != None:
         seen_missing = set([masked_symbol])
     else: 
         seen_missing = set([])
@@ -77,11 +76,10 @@ def read_charMtrx(fin,delimiter=",",masked_symbol=None):
                 seq.append('?')
             else:
                 seq.append(int(x))
-        #seq = [int(x) if x != masked_symbol else "?" for x in line_split[1:]]
         D[name] = seq
-    if len(seen_missing) > 1:
+    if len(seen_missing) > 1 and not suppress_warnings:
         print("Warning: Found " + str(seen_missing) + " characters and treated them as missing.")
-    elif masked_symbol == None:
+    elif masked_symbol == None and len(seen_missing) >= 1 and not suppress_warnings:
         print("Warning: Reading sequences, detected " + str(seen_missing) + " as the missing character(s). We recommend explicitly providing the missing character.")
     return D, site_names    
 

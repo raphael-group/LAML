@@ -13,7 +13,7 @@ def count_missing(mtx):
     nzeros, nmissing, total = 0, 0, 0 
     for c in mtx:
         seq = mtx[c]
-        nzeros += sum([1 if ch == 0 else 0 for ch in seq])
+        nzeros += sum([1 if (ch == 0 or ch == '0') else 0 for ch in seq])
         nmissing += sum([1 if ch == '?' else 0 for ch in seq])
         total += len(seq)
     return nzeros, nmissing, total
@@ -49,12 +49,12 @@ def calc_expected(node_label, d, k, c, Q, allreps, s):
     #print("est_char", est_char)
     if c != 0 and c != '?':
         qc = Q[site_i][c]
-        exp_char = [qc * exp(-d) * (1 - exp(-d))] * len(site_i_seq)
+        exp_char = [qc * exp(-d * s) * (1 - exp(-d))] * len(site_i_seq)
     elif c == 0:
-        # exp_char = [ exp(-d * (1 + s) ) ] * len(site_i_seq)
-        exp_char = [1 - sum([Q[site_i][c] * exp(-d) * 1 - exp(-d)]) for c in Q[site_i].keys() - (1 - exp(-d)) ] * len(site_i_seq)
+        exp_char = [ exp(-d * (1 + s) ) ] * len(site_i_seq)
+        #exp_char = [1 - sum([Q[site_i][c] * exp(-d) * 1 - exp(-d)]) for c in Q[site_i].keys() - (1 - exp(-d)) ] * len(site_i_seq)
     else: # c == '?'
-        exp_char = [1 - exp(-d)] * len(site_i_seq)
+        exp_char = [1 - exp(-d * s)] * len(site_i_seq)
     #print("exp_char", exp_char)
     cst = chi_squared_tests(est_char, exp_char)
     #print('cst', cst)
