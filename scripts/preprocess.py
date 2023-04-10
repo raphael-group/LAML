@@ -95,6 +95,14 @@ def norm_Q(p, outfile, cmtx):
         Q[int(site_name[1:]) - 1] = Q_i_norm # adding for cassiopeia
     pickle.dump(Q, open(outfile, "wb"))
 
+def writeQ2pickle(p, outfile):
+    # zero index for cassiopeia inputs
+    new_p = dict()
+    for i, d in enumerate(p):
+        new_p[i] = d
+    p = new_p
+    write_pickle(p, outfile)
+
 def write_pickle(p, poutfile):
     with open(poutfile, "wb") as fout:
         pickle.dump(p, fout)

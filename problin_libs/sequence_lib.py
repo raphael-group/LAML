@@ -19,7 +19,7 @@ def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
             fout.write("\n")
 
 
-def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol=None, suppress_warnings=False):
+def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol=None, suppress_warnings=False, replace_mchar=False):
     with open(inFile,'r') as fin:
         if filetype == "fasta":
             if not suppress_warnings: 
@@ -27,7 +27,7 @@ def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol=None, 
             return read_fasta(fin)
         elif filetype == "charMtrx":
 
-            return read_charMtrx(fin,delimiter=delimiter,masked_symbol=masked_symbol,suppress_warnings=suppress_warnings)
+            return read_charMtrx(fin,delimiter=delimiter,masked_symbol=masked_symbol,suppress_warnings=suppress_warnings,replace_mchar=replace_mchar)
 
 def read_fasta(fin):    
     S = [] # will be a list of dictionaries
@@ -56,7 +56,7 @@ def check_missing(seen_missing, x):
     else:
         return False
 
-def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False):
+def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False,replace_mchar=False):
     D = {}
     site_names = fin.readline().strip().split(delimiter)[1:]
 
@@ -73,7 +73,10 @@ def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False):
         for x in line_split[1:]:
             if check_missing(seen_missing, x):
                 seen_missing.add(x)
-                seq.append('?')
+                if replace_mchar:
+                    seq.append(-1)
+                else:
+                    seq.append('?')
             else:
                 seq.append(int(x))
         D[name] = seq
@@ -138,3 +141,42 @@ def load_pickle(f):
 
             Q[i] = q
             return Q
+
+def read_priors(pfile, site_names):
+    file_extension = pfile.strip().split(".")[-1]
+    if file_extension == "pkl": #pickled file
+        infile = open(pfile, "rb")
+        priors = pickle.load(infile)
+        infile.close()
+        Q = []
+        priorkeys = sorted(priors.keys())
+        if priorkeys != sorted([int(x[1:]) for x in site_names]):
+            print("Prior keys mismatch with site names.")
+            print("Prior keys:", priorkeys)
+            print("Site names:", site_names)
+        for i in sorted(priors.keys()):
+            q = {int(x):priors[i][x] for x in priors[i]}
+            q[0] = 0
+            Q.append(q)
+    elif file_extension == "csv":
+        k = len(site_names)
+        Q = [{0:0} for i in range(k)]
+        seen_sites = set()
+        with open(pfile, 'r') as fin:
+            lines = fin.readlines()
+            for line in lines:
+                site_idx, char_state, prob = line.strip().split(',')
+                if site_idx not in seen_sites:
+                    seen_sites.add(site_idx)
+                char_state = int(char_state)
+                prob = float(prob)
+                Q[len(seen_sites) - 1][char_state] = prob
+    else:
+        Q = [{0:0} for i in range(k)]
+        with open(pfile, 'r') as fin:
+            for line in fin:
+                site_idx, char_state, prob = line.strip().split()
+                site_idx, char_state, prob = int(site_idx), int(char_state), float(prob)
+                Q[site_idx][char_state] = prob
+    return Q
+                
