@@ -7,6 +7,7 @@ import numpy as np
 from problin_libs import min_llh, eps, nni_conv_eps
 from problin_libs.Virtual_solver import Virtual_solver
 from scipy.sparse import csr_matrix
+from copy import deepcopy
 
 class Params:
     def __init__(self,nu,phi):
@@ -35,8 +36,8 @@ class ML_solver(Virtual_solver):
         zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx]) 
         totalcount = self.numsites * len(self.charMtrx)
         zeroprop = zerocount/totalcount
-        self.dmax = -log(zeroprop) if zeroprop != 0 else float("inf")
-        self.dmin = -log(1-1/self.numsites)/2 if self.numsites > 1 else eps
+        self.dmin = 1e-6
+        self.dmax = 10
 
     def get_tree_newick(self):
         return self.tree.newick()
@@ -45,7 +46,8 @@ class ML_solver(Virtual_solver):
         return {'phi':self.params.phi,'nu':self.params.nu}
 
     def ultrametric_constr(self):
-        N = self.num_edges + 2 # add 2: phi and nu
+        #N = self.num_edges + 2 # add 2: phi and nu
+        N = len(self.ini_all())
         M = []
         idx = 0 
         for node in self.tree.traverse_postorder():
@@ -150,12 +152,13 @@ class ML_solver(Virtual_solver):
 
     def score_tree(self,strategy={'optimize':False,'ultra_constr':False}):
         if strategy['optimize']:
-            score = -self.optimize(initials=1,verbose=-1,ultra_constr=strategy['ultra_constr'])
+            nllh = self.optimize(initials=1,verbose=-1,ultra_constr=strategy['ultra_constr'])
+            score = None if nllh is None else -nllh
         else:    
             self.az_partition()
             score = self.__llh__()
         if score is None:
-            print("Fatal: failed to score tree " + self.get_tree_newick())
+            print("Fatal error: failed to score tree " + self.get_tree_newick())
         return score
 
     def apply_nni(self, u, verbose):
@@ -362,6 +365,10 @@ class ML_solver(Virtual_solver):
                             node.L0[site] = node.L1[site] = masked_llh
                         else:    
                             node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi)
+                            #if p == 1:
+                            #    node.L0[site] = -float("inf")
+                            #else:    
+                            #    node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi)
                             node.L1[site] = nu*(-node.edge_length) + log(1-phi)
                     else:
                         C = node.children
@@ -369,7 +376,8 @@ class ML_solver(Virtual_solver):
                         for c in C:
                             l0 += c.L0[site]
                             l1 += c.L1[site]
-                        L0 = exp(l0+(nu+1)*(-node.edge_length)) + exp(l1 + log(1-p)+log(q) + nu*(-node.edge_length)) + (1-p**nu)*int(node.alpha[site]=="?")   
+                        #L0 = exp(l0+(nu+1)*(-node.edge_length)) + exp(l1 + log(1-p)+log(q) + nu*(-node.edge_length)) + (1-p**nu)*int(node.alpha[site]=="?")   
+                        L0 = exp(l0+(nu+1)*(-node.edge_length)) + q*(1-p)*exp(l1 + nu*(-node.edge_length)) + (1-p**nu)*int(node.alpha[site]=="?")   
                         L1 = exp(l1+nu*(-node.edge_length)) + (1-p**nu)*int(node.alpha[site]=="?")
                         node.L0[site] = min_llh if L0==0 else log(L0)
                         node.L1[site] = min_llh if L1==0 else log(L1)
@@ -438,7 +446,7 @@ class ML_solver(Virtual_solver):
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
     
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=1,max_trials=100,random_seeds=None,ultra_constr=True):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=1,max_trials=100,random_seeds=None,ultra_constr=False):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         results = []
@@ -482,11 +490,13 @@ class ML_solver(Virtual_solver):
                     all_failed = False
                     if verbose >= 0:
                         print("Optimal point found for initial point " + str(rep+1))
-                        print("Optimal phi: " + str(self.params.phi))
-                        print("Optimal nu: " + str(self.params.nu))
-                        print("Optimal tree: " + self.tree.newick())
-                        print("Optimal nllh: " + str(nllh))
-                    results.append((nllh,rep,Params(self.params.nu,self.params.phi),self.tree.newick()))
+                        self.show_params()
+                        #print("Optimal phi: " + str(self.params.phi))
+                        #print("Optimal nu: " + str(self.params.nu))
+                        #print("Optimal tree: " + self.tree.newick())
+                        #print("Optimal nllh: " + str(nllh))
+                    #results.append((nllh,rep,Params(self.params.nu,self.params.phi),self.tree.newick()))
+                    results.append((nllh,rep,deepcopy(self.params),self.tree.newick()))
                 elif verbose >= 0:
                     print("Fatal: failed to optimize using initial point " + str(rep+1))    
             all_trials += initials    

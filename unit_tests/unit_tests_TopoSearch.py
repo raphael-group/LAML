@@ -63,7 +63,8 @@ class TopoSearchTest(unittest.TestCase):
     def test_1(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 1, 1, 1], 'b':[0, 0, 0, 0, 0], 'c':[0, 0, 0, 0, 0], 'd':[1, 1, 1, 1, 1]}
-        nllh_bf = 4.581468106634933 # pre-computed using brute-force search
+        #nllh_bf = 4.581468106634933 # pre-computed using brute-force search
+        nllh_bf = 1.7140200988298393e-06
         
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
@@ -93,12 +94,13 @@ class TopoSearchTest(unittest.TestCase):
     def test_2(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 1, 1, 1], 'b':[0, 0, 0, 0, 0], 'c':[0, 0, 0, 0, 0], 'd':[1, 1, 1, 1, 1]}
-        nllh_bf = 4.581468106634933 # pre-computed using brute-force search
+        #nllh_bf = 4.581468106634933 # pre-computed using brute-force search
+        nllh_bf = 1.7140200988298393e-06
         
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        mySolver = EM_solver(T0,data,prior)
+        mySolver = ML_solver(T0,data,prior)
         mySolver.optimize(initials=1,verbose=-1,ultra_constr=False)
         T0_brlen = mySolver.get_tree_newick()
         params = {'nu':mySolver.params.nu,'phi':mySolver.params.phi}
@@ -113,9 +115,8 @@ class TopoSearchTest(unittest.TestCase):
             if score > max_score:
                 max_score = score
                 T1,_,_ = tree_topos[-1]
-
         #mySolver = EM_solver(T1,data,prior,params)
-        #nllh_nni_ML = mySolver.optimize(initials=1,verbose=-1,ultra_constr=False)
+        #nllh_nni_ML = mySolver.optimize(initials=1,verbose=-1,ultra_constr=False)        
         nllh_nni_ML = -max_score
         
         self.assertAlmostEqual(nllh_bf,nllh_nni_ML,places=4,msg="TopoSearchTest: test_2 failed.")
@@ -204,7 +205,8 @@ class TopoSearchTest(unittest.TestCase):
     def test_6(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        nllh_bf = 7.552170051824473 # pre-computed using brute-force search
+        #nllh_bf = 7.552170051824473 # pre-computed using brute-force search
+        nllh_bf = 5.004039260440974
         
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}

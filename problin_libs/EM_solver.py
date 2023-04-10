@@ -56,8 +56,8 @@ class EM_solver(ML_solver):
                         l1 += c.L1[site]
                     # note: l0_z, l0_alpha, and l0_masked are lists    
                     l0_z = [l0 + (nu+1)*(-node.edge_length)]
-                    l0_alpha = [l1 + log(1-p)+log(q) + nu*(-node.edge_length)] if node.alpha[site] != 'z' else []
-                    l0_masked = [log(1-p**nu)] if (node.alpha[site] == '?' and nu > 0) else []
+                    l0_alpha = [l1 + log(1-p)+log(q) + nu*(-node.edge_length)] if (node.alpha[site] != 'z' and q*(1-p)>0) else []
+                    l0_masked = [log(1-p**nu)] if (node.alpha[site] == '?' and (1-p**nu) > 0) else []
                     node.L0[site] = log_sum_exp(l0_z + l0_alpha + l0_masked)
                     if node.alpha[site] == 'z':
                         node.L1[site] = min_llh
@@ -81,11 +81,11 @@ class EM_solver(ML_solver):
             if v.is_root(): # base case
                 # Auxiliary components
                 v.A = [0]*self.numsites
-                v.X = [-self.params.nu*v.edge_length + log(1-exp(-v.edge_length))]*self.numsites
+                v.X = [-self.params.nu*v.edge_length + log(1-exp(-v.edge_length))]*self.numsites if self.params.nu*v.edge_length > 0 else [min_llh]*self.numsites
                 v.out_alpha = [{} for i in range(self.numsites)]
                 # Main components    
                 v.out0 = [-(1+self.params.nu)*v.edge_length]*self.numsites
-                v.out1 = [log(1-exp(-v.edge_length*self.params.nu))]*self.numsites if self.params.nu>0 else [min_llh]*self.numsites
+                v.out1 = [log(1-exp(-v.edge_length*self.params.nu))]*self.numsites if self.params.nu*v.edge_length > 0 else [min_llh]*self.numsites
             else:
                 u = v.parent
                 w = None 
@@ -108,10 +108,10 @@ class EM_solver(ML_solver):
                     # compute out0: P(~D_v,v=0)
                     v.out0[site] = u.out0[site] + w.L0[site] - (1+self.params.nu)*v.edge_length
                     v.A[site] = u.out0[site] + w.L0[site] 
-                    v.X[site] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + v.A[site]
+                    v.X[site] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + v.A[site] if v.edge_length > 0 else min_llh
                     # compute out1: P(~D_v,v=-1)
                     if w.alpha[site] == 'z': # z-branch
-                        v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + v.A[site] if self.params.nu > 0 else min_llh
+                        v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + v.A[site] if self.params.nu*v.edge_length > 0 else min_llh
                     elif w.alpha[site] == '?': # masked branch
                         v.X[site] = log_sum_exp([v.X[site],u.X[site]+w.L1[site]-self.params.nu*v.edge_length])
                         p = 1-exp(-v.edge_length*self.params.nu) # if nu=0 then p=0
@@ -122,7 +122,10 @@ class EM_solver(ML_solver):
                         if alpha0 not in u.out_alpha[site]:
                             self.__out_alpha_up__(u,site,alpha0)
                         B = u.out_alpha[site][alpha0] + self.params.nu*(-v.edge_length) + w.L1[site]  
-                        C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+                        if v.edge_length > 0 and self.Q[site][alpha0] > 0:
+                            C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+                        else:
+                            C = min_llh    
                         v.out_alpha[site][alpha0] = log_sum_exp([B,C])
                         v.X[site] = log_sum_exp([v.X[site],B])
                         if self.params.nu > 0:
@@ -142,12 +145,18 @@ class EM_solver(ML_solver):
                     w = x
                     break
             if w.alpha[site] != '?' and w.alpha[site] != alpha0: # the branch above u is a z-branch
-                v.out_alpha[site][alpha0] = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+                if v.edge_length > 0 and self.Q[site][alpha0] > 0:
+                    v.out_alpha[site][alpha0] = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+                else:    
+                    v.out_alpha[site][alpha0] = min_llh
                 break
             path.append(v)
             v = u
         if v.is_root(): # no z-branch found along the way
-            v.out_alpha[site][alpha0] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])             
+            if v.edge_length > 0 and self.Q[site][alpha0]:
+                v.out_alpha[site][alpha0] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])             
+            else:
+                v.out_alpha[site][alpha0] = min_llh   
         # going down to compute all the out_alpha along the path
         while path:
             v = path.pop()
@@ -156,7 +165,10 @@ class EM_solver(ML_solver):
                 if x is not v:
                     w = x
             B = u.out_alpha[site][alpha0] + self.params.nu*(-v.edge_length) + w.L1[site]  
-            C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+            if v.edge_length > 0 and self.Q[site][alpha0]:
+                C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+            else:
+                C = min_llh    
             v.out_alpha[site][alpha0] = log_sum_exp([B,C])
 
     def Estep_posterior(self):
@@ -244,14 +256,15 @@ class EM_solver(ML_solver):
         S4 = np.zeros(self.num_edges)
         for i,v in enumerate(self.tree.traverse_postorder()):
             s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
-            s = [max(eps_s,x) for x in s]
+            #s = [max(eps_s,x) for x in s]
+            s = [x if x > eps_s else 0 for x in s]
             s = [x/sum(s)*self.numsites for x in s]
             S0[i],S1[i],S2[i],S3[i],S4[i] = s
 
         def __optimize_brlen__(nu): # nu is a single number
             var_d = cp.Variable(self.num_edges,nonneg=True) # the branch length variables
             C0 = -(nu+1)*S0.T @ var_d
-            C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d))
+            C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d)) 
             C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > 0 else 0 
             C3 = -nu*S3.T @ var_d
             C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu >0 else 0
@@ -304,7 +317,7 @@ class EM_solver(ML_solver):
             node.edge_length = d_star[i]
         return True    
     
-    def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False):
+    def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,maxIter=100):
         # assume that az_partition has been performed
         # optimize all parameters: branch lengths, phi, and nu
         # if optimize_phi is False, it is fixed to the original value in params.phi
@@ -315,7 +328,8 @@ class EM_solver(ML_solver):
         if verbose >= 0:
             print("Initial phi: " + str(self.params.phi) + ". Initial nu: " + str(self.params.nu) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
-        while 1:
+        converged = False
+        while em_iter <= maxIter:
             if verbose > 0:
                 print("Starting EM iter: " + str(em_iter))
                 print("Estep")
@@ -325,14 +339,17 @@ class EM_solver(ML_solver):
             if not self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr):
                 if verbose >= 0:
                     print("Fatal error: failed to optimize parameters in Mstep!")
-                return None
+                return None, em_iter
             curr_llh = self.lineage_llh()
             if verbose > 0:
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
             if abs((curr_llh - pre_llh)/pre_llh) < conv_eps:
+                converged = True
                 break
             pre_llh = curr_llh
             em_iter += 1
+        if not converged and verbose >= 0:
+            print("Warning: exceeded maximum number of EM iterations (" + str(maxIter) + " iters)!")
         return -curr_llh, em_iter    
   
     def posterior_silence(self):

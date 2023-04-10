@@ -13,8 +13,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':[1],'c':[1]}
         true_nllh = 0.20665578828621584
 
-        #mySolver = EM_solver(msa,Q,T,phi=1e-10,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_1 failed.")
@@ -25,8 +25,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':[1],'c':[0]}
         true_nllh = 2.2495946917551692 
 
-        #mySolver = EM_solver(msa,Q,T,phi=1e-10,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_2 failed.")
@@ -37,8 +37,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':[0],'c':[1]}
         true_nllh = 3.917350291274164 
 
-        #mySolver = EM_solver(msa,Q,T,phi=1e-10,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_3 failed.")
@@ -49,8 +49,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':[1],'c':[1]}
         true_nllh = 3.917350291274164 
 
-        #mySolver = EM_solver(msa,Q,T,phi=1e-10,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_4 failed.")
@@ -61,8 +61,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':[0],'c':[0]}
         true_nllh = 4.4586751457870815
 
-        #mySolver = EM_solver(msa,Q,T,phi=1e-10,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_5 failed.")
@@ -73,8 +73,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':[1],'c':[0]}
         true_nllh = 4.4586751457870815
 
-        #mySolver = EM_solver(msa,Q,T,phi=1e-10,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_6 failed.")
@@ -85,8 +85,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':[0],'c':[1]}
         true_nllh = 4.4586751457870815
 
-        #mySolver = EM_solver(msa,Q,T,phi=1e-10,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_7 failed.")
@@ -97,8 +97,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':[0],'c':[0]}
         true_nllh = 5.0
 
-        #mySolver = EM_solver(msa,Q,T,phi=1e-10,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_8 failed.")
@@ -109,8 +109,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':[0],'c':['?']}
         true_nllh = 6.513306124309698
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_9 failed.")
@@ -121,8 +121,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':['?'],'c':[0]}
         true_nllh = 6.513306124309698
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_10 failed.")
@@ -133,8 +133,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':['?'],'b':[0],'c':[0]}
         true_nllh = 6.513306124309698
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_11 failed.")
@@ -145,8 +145,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':[1],'c':['?']}
         true_nllh = 5.97198126969678
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_12 failed.")
@@ -157,8 +157,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':['?'],'c':[1]}
         true_nllh = 5.97198126969678
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_13 failed.")
@@ -169,8 +169,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':['?'],'b':[0],'c':[1]}
         true_nllh = 5.97198126969678
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_14 failed.")
@@ -181,8 +181,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':['?'],'c':[0]}
         true_nllh = 4.658719582178557
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_15 failed.")
@@ -193,8 +193,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':['?'],'b':[1],'c':[0]}
         true_nllh = 4.658719582178557
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_16 failed.")
@@ -205,8 +205,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':[1],'c':['?']}
         true_nllh = 2.5980566021648364
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_17 failed.")
@@ -217,8 +217,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':['?'],'c':[1]}
         true_nllh = 2.695795750497349
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_18 failed.")
@@ -229,8 +229,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':['?'],'b':[1],'c':[1]}
         true_nllh = 2.695795750497349
 
-        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_19 failed.")
@@ -241,8 +241,8 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':[1],'c':[1]}
         true_nllh = 1.0297894223949402
 
-        #mySolver = EM_solver(msa,Q,T,phi=1e-10,nu=1e-10)
-        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':1e-10,'nu':1e-10})
+        #mySolver = EM_solver(msa,Q,T,phi=0,nu=0)
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_20 failed.")
@@ -514,7 +514,6 @@ class EMTest(unittest.TestCase):
         T = "((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,d:1.1)h:0.2,e:0.2)r:0.2;"
         Q = [{1:0.2,2:0.6,3:0.2}]
         msa = {'a':[-1],'b':[0],'c':[2],'d':[-1],'e':[1]}
-        #msa = {'a':['?'],'b':[0],'c':[2],'d':['?'],'e':[1]}
         nu = 0.2
         phi = 0.3
         self.__test_outllh__(T,Q,msa,phi,nu,44)
@@ -534,3 +533,14 @@ class EMTest(unittest.TestCase):
             Q.append(q)
         self.__test_outllh__(T,Q,msa,phi,nu,45,give_label=True)
     
+    def test_46(self): 
+        Q = [{1:1}]
+        T = "((a:1,b:1):0,c:1):1;"
+        msa = {'a':[1],'b':[1],'c':[1]}
+        true_nllh = 0.3215288449416738
+
+        mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
+        #mySolver.az_partition(mySolver.params)
+        mySolver.az_partition()
+        my_nllh = mySolver.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_46 failed.")

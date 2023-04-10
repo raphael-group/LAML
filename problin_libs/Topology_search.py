@@ -49,7 +49,7 @@ class Topology_search:
                 #self.has_polytomy = True              
         self.treeTopo = self.tree_obj.newick()        
 
-    def search(self,maxiter=100,verbose=False,nreps=1,strategy={'resolve_polytomies':True,'only_marked':False,'optimize':False,'ultra_constr':False}):
+    def search(self,maxiter=100,verbose=False,nreps=1,strategy={'resolve_polytomies':True,'only_marked':False,'optimize':True,'ultra_constr':False}):
         original_topo = self.treeTopo
         original_params = self.params
         nni_replicates = [(None,None)]*nreps
@@ -88,7 +88,7 @@ class Topology_search:
         mySolver = self.get_solver()
         strategy_copy = {x:strategy[x] for x in strategy}
         strategy_copy['optimize'] = True
-        curr_score = mySolver.score_tree(strategy=strategy_copy)        
+        curr_score = mySolver.score_tree(strategy=strategy_copy) 
         self.update_from_solver(mySolver)
         topo_list = [(self.treeTopo,curr_score)]            
         # perform nni search
