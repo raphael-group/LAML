@@ -99,6 +99,7 @@ def writeQ2pickle(p, outfile):
     # zero index for cassiopeia inputs
     new_p = dict()
     for i, d in enumerate(p):
+        del d[0]
         new_p[i] = d
     p = new_p
     write_pickle(p, outfile)
