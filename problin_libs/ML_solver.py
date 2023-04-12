@@ -150,13 +150,9 @@ class ML_solver(Virtual_solver):
                         branches.append((node, s))
         return branches 
 
-    def score_tree(self,strategy={'optimize':False,'ultra_constr':False}):
-        if strategy['optimize']:
-            nllh = self.optimize(initials=1,verbose=-1,ultra_constr=strategy['ultra_constr'])
-            score = None if nllh is None else -nllh
-        else:    
-            self.az_partition()
-            score = self.__llh__()
+    def score_tree(self,strategy={'optimize':True,'ultra_constr':False}):
+        nllh = self.optimize(initials=1,verbose=-1,ultra_constr=strategy['ultra_constr'])
+        score = None if nllh is None else -nllh
         if score is None:
             print("Fatal error: failed to score tree " + self.get_tree_newick())
         return score
@@ -364,7 +360,7 @@ class ML_solver(Virtual_solver):
                             masked_llh = log(1-(1-phi)*p**nu)
                             node.L0[site] = node.L1[site] = masked_llh
                         else:    
-                            node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi)
+                            node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi) if (1-p)*q*(1-phi)>0 else min_llh
                             #if p == 1:
                             #    node.L0[site] = -float("inf")
                             #else:    
