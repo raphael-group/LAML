@@ -8,14 +8,14 @@ from problin_libs import min_llh, eps
 from problin_libs.ML_solver import ML_solver
 
 class SpaLin_solver(ML_solver):
-    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0}):
+    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):
         super(SpaLin_solver,self).__init__(treeTopo,data,prior,params)
         self.given_locations = data['locations']
         self.params.sigma = params['sigma']
         self.inferred_locations = {}
         for x in self.given_locations:
             self.inferred_locations[x] = self.given_locations[x]
-  
+    
     def spatial_llh(self,locations):
         llh = 0
         for node in self.tree.traverse_preorder():
@@ -50,7 +50,7 @@ class SpaLin_solver(ML_solver):
             if not node.label in self.given_locations:
                 self.inferred_locations[node.label] = (x[i],x[i+1])
                 i += 2
-        self.params.sigma = x[-1]        
+        #self.params.sigma = x[-1]        
                
     def bound_locations(self,lower=-np.inf,upper=np.inf):
         N = 2*len([node for node in self.tree.traverse_postorder() if not node.label in self.given_locations])    
@@ -67,3 +67,10 @@ class SpaLin_solver(ML_solver):
         sigma_lower,sigma_upper = self.bound_sigma()
         bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower]+spa_lower+[sigma_lower],br_upper+[nu_upper,phi_upper]+spa_upper+[sigma_upper],keep_feasible=keep_feasible)
         return bounds
+    
+    def show_params(self):
+        print("tree: " + self.tree.newick())
+        print("nu: " + str(self.params.nu))
+        print("phi: " + str(self.params.phi))
+        print("sigma: " + str(self.params.sigma))
+        print("negative-llh: " + str(self.negative_llh()))

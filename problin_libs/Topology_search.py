@@ -49,7 +49,7 @@ class Topology_search:
                 #self.has_polytomy = True              
         self.treeTopo = self.tree_obj.newick()        
 
-    def search(self,maxiter=100,verbose=False,nreps=1,strategy={'resolve_polytomies':True,'only_marked':False,'optimize':False,'ultra_constr':False}):
+    def search(self,maxiter=100,verbose=False,nreps=1,strategy={'resolve_polytomies':True,'only_marked':False,'ultra_constr':False}):
         original_topo = self.treeTopo
         original_params = self.params
         nni_replicates = [(None,None)]*nreps
@@ -86,33 +86,33 @@ class Topology_search:
     def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False):
         # optimize branch lengths and other parameters for the starting tree
         mySolver = self.get_solver()
-        strategy_copy = {x:strategy[x] for x in strategy}
-        strategy_copy['optimize'] = True
-        curr_score = mySolver.score_tree(strategy=strategy_copy)        
+        #strategy_copy = {x:strategy[x] for x in strategy}
+        #strategy_copy['optimize'] = True
+        curr_score = mySolver.score_tree(strategy=strategy) 
         self.update_from_solver(mySolver)
         topo_list = [(self.treeTopo,curr_score)]            
         # perform nni search
         for nni_iter in range(maxiter):
             if verbose:
                 print("NNI Iter:", nni_iter)
-            new_score,n_attempts,success = self.single_nni(strategy,only_marked=only_marked)
+            new_score,n_attempts,success = self.single_nni(curr_score,strategy,only_marked=only_marked)
             if not success:
                 break
             curr_score = new_score
             topo_list.append((self.treeTopo,curr_score))
         # optimize parameters for the best topology
-        if not strategy['optimize']:
-            strategy_copy = {x:strategy[x] for x in strategy}
-            strategy_copy['optimize'] = True
-            mySolver = self.get_solver()
-            final_score = mySolver.score_tree(strategy=strategy_copy)
-            self.update_from_solver(mySolver)
-            topo_list.append((self.treeTopo,final_score))
-        else:    
-            final_score = curr_score
+        #if not strategy['optimize']:
+            #strategy_copy = {x:strategy[x] for x in strategy}
+            #strategy_copy['optimize'] = True
+            #mySolver = self.get_solver()
+            #final_score = mySolver.score_tree(strategy=strategy)
+            #self.update_from_solver(mySolver)
+            #topo_list.append((self.treeTopo,final_score))
+        #else:    
+        final_score = curr_score
         return topo_list,final_score 
     
-    def single_nni(self,strategy,only_marked=False):
+    def single_nni(self,curr_score,strategy,only_marked=False):
         branches = []
         for node in self.tree_obj.traverse_preorder():
             if node.is_leaf() or node.is_root():
@@ -127,19 +127,19 @@ class Topology_search:
         n_attempts = 0
         while not took and branches:
             u = branches.pop()
-            took,score = self.apply_nni(u,strategy)
+            took,score = self.apply_nni(u,curr_score,strategy)
             n_attempts += 1
         return score,n_attempts,took
     
-    def apply_nni(self,u,strategy):
+    def apply_nni(self,u,curr_score,strategy):
         # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
         v = u.get_parent()
         for node in v.child_nodes():
             if node != u:
                 w = node
-                break
-        mySolver = self.get_solver()        
-        curr_score = mySolver.score_tree(strategy=strategy)
+                break                
+        #mySolver = self.get_solver()        
+        #curr_score = mySolver.score_tree(strategy=strategy)
         u_children = u.child_nodes()
         # shuffle the order of the nni moves
         shuffle(u_children)
