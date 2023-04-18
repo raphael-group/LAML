@@ -12,6 +12,13 @@ import argparse
 import timeit
 from sys import argv,exit,stdout
 
+def has_zero_branch(inputtree):
+    t = read_tree_newick(inputtree)
+    for b in t.branch_lengths():
+        if b == 0:
+            return True
+    return False
+
 def best_tree(nni_replicates):
     max_score = -float("inf")
     T1 = ""
@@ -129,8 +136,11 @@ def main():
             return
         else:
             mySolver = myTopoSearch.get_solver()
-            # score tree
-            nllh_fin = -mySolver.score_tree(strategy={'optimize':False, 'ultra_constr':False})
+            # check if there are branch lengths
+            if has_zero_branch(input_tree):
+                print("Please provide a full resolved topology with branch lengths to calculate a likelihood, or allow optimization of branch lengths.")
+            # get nllh
+            nllh_fin = mySolver.negative_llh() #score_tree(strategy={'optimize':False, 'ultra_constr':False})
 
     else:
         params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps}  

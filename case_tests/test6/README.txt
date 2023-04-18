@@ -1,1 +1,1 @@
-This test case contains a polytomy in the sample tree, and should refuse to calculate likelihood.
+Test for ability to calculate likelihood on a given tree. Example taken from unit test from EM Solver (EMTest.test_1). Examining whether run_problin.py can work on a provided topology with no branch lengths. Should fail.

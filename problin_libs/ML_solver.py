@@ -472,14 +472,14 @@ class ML_solver(Virtual_solver):
             if verbose > 0:
                 print("Optimization start with " + str(initials) + " initials")
             for rep in range(initials):
-                randseed = rseeds[rep]
+                randseed = rseeds[rep] + all_trials
                 if verbose >= 0:
                     print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
                 if verbose >= 0:
                     if ultra_constr:
-                        print("Solving ML with ultrametric constraint")
+                        print("Solving with ultrametric constraint")
                     else:      
-                        print("Solving ML without ultrametric constraint")
+                        print("Solving without ultrametric constraint")
                 nllh = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
                 
                 if nllh is not None:
