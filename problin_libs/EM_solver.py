@@ -290,8 +290,8 @@ class EM_solver(ML_solver):
         for v in self.tree.traverse_postorder():
             if not v.mark:    
                 s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
-                #s = [max(eps_s,x) for x in s]
-                s = [x if x > eps_s else 0 for x in s]
+                s = [max(eps_s,x) for x in s]
+                #s = [x if x > eps_s else 0 for x in s]
                 s = [x/sum(s)*self.numsites for x in s]
                 S0[i],S1[i],S2[i],S3[i],S4[i] = s
                 i += 1

@@ -34,7 +34,7 @@ class ML_solver(Virtual_solver):
         # compute numsites, num_edges, dmin, and dmax 
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.tree.traverse_postorder()))
-        self.dmin = 0.01
+        self.dmin = 1e-6
         self.dmax = 10
 
     def get_tree_newick(self):
