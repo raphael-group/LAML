@@ -11,6 +11,33 @@ def log_sum_exp(numlist):
     return result
 
 class EM_solver(ML_solver):
+    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):
+        super(EM_solver,self).__init__(treeTopo,data,prior,params)
+        self.has_polytomy = False
+        self.__mark_polytomies__(eps_len=0)
+        self.num_edges = len(list(self.tree.traverse_postorder()))
+    
+    def __mark_polytomies__(self,eps_len=0):
+        # mark and resolve all polytomies in self.tree_obj
+        self.has_polytomy = False
+        self.num_mark = 0
+        for node in self.tree.traverse_preorder():
+            node.mark = False
+            if len(node.children) > 2:
+                self.has_polytomy = True
+        self.tree.resolve_polytomies()
+        for node in self.tree.traverse_preorder():
+            if not hasattr(node,'mark'):
+                node.mark = True
+                self.num_mark += 1
+                node.edge_length = eps_len  
+                self.has_polytomy = True              
+    
+    def x2brlen(self,x):        
+        for i, node in enumerate(self.tree.traverse_postorder()):
+            if not node.mark:
+                node.edge_length = x[i]
+    
     def ultrametric_constr(self):
         N = self.num_edges
         M = []
@@ -39,8 +66,12 @@ class EM_solver(ML_solver):
             for site in range(self.numsites):   
                 q = self.Q[site][node.alpha[site]] if node.alpha[site] not in ['?','z'] else 1.0
                 if node.is_leaf():
-                    if node.alpha[site] == "?":         
-                        masked_llh = log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else log(1-p**nu)
+                    if node.alpha[site] == "?":
+                        if self.charMtrx[node.label][site] == '?':
+                            masked_llh = log(1-(1-phi)*p**nu) if (1-(1-phi)*p**nu)>0 else min_llh
+                        else:
+                            masked_llh = log(1-p**nu) if (1-p**nu)>0 else min_llh           
+                        #masked_llh = log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else log(1-p**nu)
                         node.L0[site] = node.L1[site] = masked_llh
                     elif node.alpha[site] == 'z':
                         node.L0[site] = (nu+1)*(-node.edge_length) + log(1-phi)
@@ -61,7 +92,7 @@ class EM_solver(ML_solver):
                     node.L0[site] = log_sum_exp(l0_z + l0_alpha + l0_masked)
                     if node.alpha[site] == 'z':
                         node.L1[site] = min_llh
-                    elif node.alpha[site] != '?' or nu == 0:
+                    elif node.alpha[site] != '?' or nu == 0 or p==1:
                         node.L1[site] = l1 + nu*(-node.edge_length) 
                     else:
                         node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length), log(1-p**nu)])
@@ -128,7 +159,7 @@ class EM_solver(ML_solver):
                             C = min_llh    
                         v.out_alpha[site][alpha0] = log_sum_exp([B,C])
                         v.X[site] = log_sum_exp([v.X[site],B])
-                        if self.params.nu > 0:
+                        if self.params.nu*v.edge_length > 0:
                             v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
                         else:
                             v.out1[site] = min_llh    
@@ -249,20 +280,24 @@ class EM_solver(ML_solver):
             if abs(phi_star) < 1/(self.numsites*len(self.charMtrx)):
                 phi_star = 0
         # optimize nu and all branch lengths
-        S0 = np.zeros(self.num_edges)
-        S1 = np.zeros(self.num_edges)
-        S2 = np.zeros(self.num_edges)
-        S3 = np.zeros(self.num_edges)
-        S4 = np.zeros(self.num_edges)
-        for i,v in enumerate(self.tree.traverse_postorder()):
-            s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
-            #s = [max(eps_s,x) for x in s]
-            s = [x if x > eps_s else 0 for x in s]
-            s = [x/sum(s)*self.numsites for x in s]
-            S0[i],S1[i],S2[i],S3[i],S4[i] = s
+        N = self.num_edges-self.num_mark
+        S0 = np.zeros(N)
+        S1 = np.zeros(N)
+        S2 = np.zeros(N)
+        S3 = np.zeros(N)
+        S4 = np.zeros(N)
+        i = 0
+        for v in self.tree.traverse_postorder():
+            if not v.mark:    
+                s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
+                #s = [max(eps_s,x) for x in s]
+                s = [x if x > eps_s else 0 for x in s]
+                s = [x/sum(s)*self.numsites for x in s]
+                S0[i],S1[i],S2[i],S3[i],S4[i] = s
+                i += 1
 
         def __optimize_brlen__(nu): # nu is a single number
-            var_d = cp.Variable(self.num_edges,nonneg=True) # the branch length variables
+            var_d = cp.Variable(N,nonneg=True) # the branch length variables
             C0 = -(nu+1)*S0.T @ var_d
             C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d)) 
             C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > 0 else 0 
@@ -270,12 +305,12 @@ class EM_solver(ML_solver):
             C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu >0 else 0
 
             objective = cp.Maximize(C0+C1+C2+C3+C4)
-            constraints = [np.zeros(self.num_edges)+self.dmin <= var_d, var_d <= np.zeros(self.num_edges)+self.dmax]
+            constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax]
             if ultra_constr:
                 M = np.array(self.ultrametric_constr())
                 constraints += [M @ var_d == 0]
             prob = cp.Problem(objective,constraints)
-            prob.solve(verbose=False,solver=cp.MOSEK)
+            prob.solve(verbose=False,solver=cp.ECOS)
             return var_d.value
         
         def __optimize_nu__(d): # d is a vector of all branch lengths
@@ -287,7 +322,7 @@ class EM_solver(ML_solver):
             C4 = S4.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S4) > 0 else 0
             objective = cp.Maximize(C0+C1+C2+C3+C4)
             prob = cp.Problem(objective)
-            prob.solve(verbose=False,solver=cp.MOSEK)
+            prob.solve(verbose=False,solver=cp.ECOS)
             return var_nu.value[0]
 
         nIters = 1
@@ -313,8 +348,11 @@ class EM_solver(ML_solver):
         # place the optimal value back to params
         self.params.phi = phi_star
         self.params.nu = nu_star
-        for i,node in enumerate(self.tree.traverse_postorder()):
-            node.edge_length = d_star[i]
+        i = 0
+        for node in self.tree.traverse_postorder():
+            if not node.mark:
+                node.edge_length = d_star[i]
+                i += 1
         return True    
     
     def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,maxIter=100):

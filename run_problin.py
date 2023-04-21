@@ -20,11 +20,11 @@ def best_tree(nni_replicates):
             T1,_,_ = tree_topos[-1]
     return T1, max_score
 
-def record_statistics(mySolver, fout, optimal_llh):
-    fout.write("Newick tree: " +  mySolver.tree.newick() + "\n")
+def record_statistics(myTopoSearch, fout, optimal_llh):
+    fout.write("Newick tree: " +  myTopoSearch.treeTopo + "\n")
     fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
-    fout.write("Optimal dropout rate: " + str(mySolver.params.phi) + "\n")
-    fout.write("Optimal silencing rate: " + str(mySolver.params.nu) + "\n")
+    fout.write("Optimal dropout rate: " + str(myTopoSearch.params['phi']) + "\n")
+    fout.write("Optimal silencing rate: " + str(myTopoSearch.params['nu']) + "\n")
     
 def main():
     parser = argparse.ArgumentParser()
@@ -42,7 +42,9 @@ def main():
     parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked character. Default: if not specified, assumes '-'.")
     parser.add_argument("-o","--output",required=True,help="The output file.")
     parser.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
-    parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations.")
+    parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.")
+    parser.add_argument("--resolve_search",action='store_true', required=False,help="Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topoloy_search.")
+    parser.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topoloy_search and --resolve_search.")
     parser.add_argument("--randomreps", required=False, default=5, type=int, help="Number of replicates to run for the random strategy of topology search.")
 
     if len(argv) == 1:
@@ -64,8 +66,11 @@ def main():
         input_tree = f.read().strip()
 
     k = len(msa[next(iter(msa.keys()))])
-    fixed_phi = 0 if args["noDropout"] else None
-    fixed_nu = 0 if args["noSilence"] else None
+    if args["compute_llh"]:
+        fixed_phi,fixed_nu = [float(x) for x in args["compute_llh"].strip().split()]
+    else:    
+        fixed_phi = 0 if args["noDropout"] else None
+        fixed_nu = 0 if args["noSilence"] else None
 
     if args["randseeds"] is None:
         random_seeds = None
@@ -141,28 +146,38 @@ def main():
     params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps}  
     myTopoSearch = Topology_search(input_tree, selected_solver, data=data, prior=prior, params=params)
 
-    if args["topology_search"]:
+    if args["compute_llh"]:
+        print("Compute likelihood of the input tree and specified parameters without any optimization")
+        mySolver = myTopoSearch.get_solver()
+        nllh = mySolver.negative_llh()
+        print("Tree neagtive log-likelihood: " + str(nllh))
+        print("Tree log-likelihood: " + str(-nllh))
+    elif args["resolve_search"]:
+        print("Starting local topology search to resolve polytomies")
+        nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": True, "optimize": True, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
+        opt_tree, max_score = best_tree(nni_replicates) # outputs a string
+        nllh = -max_score        
+    elif args["topology_search"]:
         print("Starting topology search")
         nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": False, "optimize": True, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
         opt_tree, max_score = best_tree(nni_replicates) # outputs a string
-        nllh_nni = -max_score
-    elif myTopoSearch.has_polytomy:
-        print("The input tree contains polytomies. The solver will first perform local topology search to resolve polytomies")
-        nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": True, "optimize": True, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
-        opt_tree, max_score = best_tree(nni_replicates) # outputs a string
-        nllh_nni = -max_score        
+        nllh = -max_score    
+    #elif myTopoSearch.has_polytomy:
+    #    print("The input tree contains polytomies. The solver will first perform local topology search to resolve polytomies")
+    #    nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": True, "optimize": True, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
+    #    opt_tree, max_score = best_tree(nni_replicates) # outputs a string
+    #    nllh = -max_score        
     else: 
         print("Optimizing branch lengths, phi, and nu without topology search")
         mySolver = myTopoSearch.get_solver()
-        nllh_nni = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])        
+        nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])      
         myTopoSearch.update_from_solver(mySolver)
    
     # post-processing: analyze results and output 
     outfile = args["output"]        
-    mySolver = myTopoSearch.get_solver()
     with open(outfile,'w') as fout:
         fout.write("Final optimal tree:\n")
-        record_statistics(mySolver, fout, nllh_nni)
+        record_statistics(myTopoSearch, fout, nllh)
 
 if __name__ == "__main__":
     main()

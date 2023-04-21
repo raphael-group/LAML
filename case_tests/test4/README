@@ -1,0 +1,1 @@
+Purpose: test problin on optimizing branch lengths, phi, and nu on a fully resolved tree with --resolve_search flag. Should produce the same output regardless of this flag (i.e. same output as test1)
