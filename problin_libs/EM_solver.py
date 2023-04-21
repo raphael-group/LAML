@@ -310,7 +310,8 @@ class EM_solver(ML_solver):
                 M = np.array(self.ultrametric_constr())
                 constraints += [M @ var_d == 0]
             prob = cp.Problem(objective,constraints)
-            prob.solve(verbose=False,solver=cp.ECOS)
+            #prob.solve(verbose=False,solver=cp.ECOS,max_iters=1000)
+            prob.solve(verbose=False,solver=cp.MOSEK)
             return var_d.value
         
         def __optimize_nu__(d): # d is a vector of all branch lengths
@@ -322,7 +323,8 @@ class EM_solver(ML_solver):
             C4 = S4.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S4) > 0 else 0
             objective = cp.Maximize(C0+C1+C2+C3+C4)
             prob = cp.Problem(objective)
-            prob.solve(verbose=False,solver=cp.ECOS)
+            prob.solve(verbose=False,solver=cp.MOSEK)
+            #prob.solve(verbose=False,solver=cp.ECOS,max_iters=1000)
             return var_nu.value[0]
 
         nIters = 1
@@ -355,7 +357,7 @@ class EM_solver(ML_solver):
                 i += 1
         return True    
     
-    def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,maxIter=100):
+    def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,maxIter=1000):
         # assume that az_partition has been performed
         # optimize all parameters: branch lengths, phi, and nu
         # if optimize_phi is False, it is fixed to the original value in params.phi

@@ -34,7 +34,7 @@ class ML_solver(Virtual_solver):
         # compute numsites, num_edges, dmin, and dmax 
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.tree.traverse_postorder()))
-        self.dmin = 1e-6
+        self.dmin = 0.01
         self.dmax = 10
 
     def get_tree_newick(self):
@@ -440,7 +440,7 @@ class ML_solver(Virtual_solver):
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
     
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=1,max_trials=100,random_seeds=None,ultra_constr=False):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=1,max_trials=1,random_seeds=None,ultra_constr=False):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         results = []
