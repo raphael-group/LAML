@@ -440,7 +440,7 @@ class ML_solver(Virtual_solver):
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
     
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=1,max_trials=1,random_seeds=None,ultra_constr=False):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=1,max_trials=100,random_seeds=None,ultra_constr=False):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         results = []
@@ -494,7 +494,7 @@ class ML_solver(Virtual_solver):
             all_trials += initials    
         if all_failed:
             if verbose >= 0:
-                print("Fatal: Optimization failed on more than 100 retries")
+                print("Fatal: Optimization failed on more than " + str(max_trials) + " retries")
             return None
         else:    
             results.sort()

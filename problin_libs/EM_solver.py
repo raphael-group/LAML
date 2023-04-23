@@ -300,7 +300,8 @@ class EM_solver(ML_solver):
             var_d = cp.Variable(N,nonneg=True) # the branch length variables
             C0 = -(nu+1)*S0.T @ var_d
             C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d)) 
-            C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > 0 else 0 
+            #C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > 0 else 0 
+            C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > eps_nu else 0 
             C3 = -nu*S3.T @ var_d
             C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu >0 else 0
 
