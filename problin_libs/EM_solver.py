@@ -74,11 +74,11 @@ class EM_solver(ML_solver):
                         #masked_llh = log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else log(1-p**nu)
                         node.L0[site] = node.L1[site] = masked_llh
                     elif node.alpha[site] == 'z':
-                        node.L0[site] = (nu+1)*(-node.edge_length) + log(1-phi)
+                        node.L0[site] = (nu+1)*(-node.edge_length) + log(1-phi) if 1-phi>0 else min_llh
                         node.L1[site] = min_llh
                     else:
-                        node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi)
-                        node.L1[site] = nu*(-node.edge_length) + log(1-phi)
+                        node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi) if (1-p)*q*(1-phi)>0 else min_llh
+                        node.L1[site] = nu*(-node.edge_length) + log(1-phi) if (1-phi)>0 else min_llh
                 else:
                     C = node.children
                     l0 = l1 = 0
@@ -303,7 +303,7 @@ class EM_solver(ML_solver):
             #C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > 0 else 0 
             C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > eps_nu else 0 
             C3 = -nu*S3.T @ var_d
-            C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu >0 else 0
+            C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu > eps_nu else 0
 
             objective = cp.Maximize(C0+C1+C2+C3+C4)
             constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax]
