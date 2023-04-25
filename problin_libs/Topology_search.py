@@ -1,5 +1,5 @@
-from math import log,isclose
-from random import choice, shuffle
+from math import log,isclose,exp
+from random import choice, shuffle, random
 from problin_libs import min_llh, eps, nni_conv_eps
 from treeswift import *
 from problin_libs.EM_solver import EM_solver
@@ -7,7 +7,7 @@ from problin_libs.EM_solver import EM_solver
 DEFAULT_STRATEGY={'resolve_polytomies':True,'only_marked':False,'ultra_constr':False}
 
 class Topology_search:
-    def __init__(self,treeTopo,solver,data={},prior={},params={}):
+    def __init__(self,treeTopo,solver,data={},prior={},params={},T_cooldown=100,alpha_cooldown=0.9):
         self.treeTopo = treeTopo # treeTopo is a newick string
         self.solver = solver     # solver is a solver definition
         self.params = params   
@@ -21,6 +21,10 @@ class Topology_search:
                 self.has_polytomy = True
                 break        
         self.treeTopo = self.tree_obj.newick()
+        self.T_cooldown = T_cooldown
+        self.alpha_cooldown = alpha_cooldown
+        self.b = 1/(1-1/self.alpha_cooldown**self.T_cooldown)
+        self.a = -self.b/self.alpha_cooldown**self.T_cooldown
 
     def __renew_tree_obj__(self):
         self.tree_obj = read_tree_newick(self.treeTopo)
@@ -50,6 +54,13 @@ class Topology_search:
                 node.edge_length = eps_len  
                 #self.has_polytomy = True              
         self.treeTopo = self.tree_obj.newick()        
+
+    def __accept_proposal__(self,curr_score,new_score,t):
+        if new_score > curr_score:
+            return True
+        T = max(1e-6,self.a*self.alpha_cooldown**t + self.b)
+        p = min(exp((new_score-curr_score)/T),1)
+        return random() < p
 
     def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY):
         original_topo = self.treeTopo
@@ -97,7 +108,7 @@ class Topology_search:
         for nni_iter in range(maxiter):
             if verbose:
                 print("NNI Iter:", nni_iter)
-            new_score,n_attempts,success = self.single_nni(curr_score,strategy,only_marked=only_marked)
+            new_score,n_attempts,success = self.single_nni(curr_score,nni_iter,strategy,only_marked=only_marked)
             if not success:
                 break
             curr_score = new_score
@@ -105,7 +116,7 @@ class Topology_search:
         final_score = curr_score
         return topo_list,final_score 
     
-    def single_nni(self,curr_score,strategy,only_marked=False):
+    def single_nni(self,curr_score,nni_iter,strategy,only_marked=False):
         branches = []
         for node in self.tree_obj.traverse_preorder():
             if node.is_leaf() or node.is_root():
@@ -120,11 +131,11 @@ class Topology_search:
         n_attempts = 0
         while not took and branches:
             u = branches.pop()
-            took,score = self.apply_nni(u,curr_score,strategy)
+            took,score = self.apply_nni(u,curr_score,nni_iter,strategy)
             n_attempts += 1
         return score,n_attempts,took
     
-    def apply_nni(self,u,curr_score,strategy):
+    def apply_nni(self,u,curr_score,nni_iter,strategy):
         # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
         v = u.get_parent()
         for node in v.child_nodes():
@@ -150,7 +161,8 @@ class Topology_search:
             mySolver = self.solver(self.tree_obj.newick(),self.data,self.prior,self.params)
             new_score = mySolver.score_tree(strategy=strategy)
 
-            if new_score > curr_score or isclose(new_score,curr_score,rel_tol=1e-3): # accept the new tree and params
+            #if new_score > curr_score or isclose(new_score,curr_score,rel_tol=1e-3): # accept the new tree and params
+            if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params
                 self.update_from_solver(mySolver)
                 return True,new_score
             
