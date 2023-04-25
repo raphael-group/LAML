@@ -552,7 +552,7 @@ class EMTest(unittest.TestCase):
         nllh = mySolver.optimize_one(randseed,verbose=-1,ultra_constr=False)
         phi = mySolver.params.phi
         nu = mySolver.params.nu
-        self.assertAlmostEqual(true_nllh,nllh,places=4,msg="EMTest: test_47 failed.")
+        self.assertAlmostEqual(0,abs(true_nllh-nllh)/true_nllh,places=4,msg="EMTest: test_47 failed.")
         self.assertAlmostEqual(true_phi,phi,places=4,msg="EMTest: test_47 failed.")
         self.assertAlmostEqual(true_nu,nu,places=4,msg="EMTest: test_47 failed.")
 
@@ -582,6 +582,6 @@ class EMTest(unittest.TestCase):
         nllh = -mySolver.score_tree(strategy={'ultra_constr':False})
         phi = mySolver.params.phi
         nu = mySolver.params.nu
-        self.assertAlmostEqual(true_nllh,nllh,places=4,msg="EMTest: test_48 failed.")
+        self.assertAlmostEqual(abs(true_nllh-nllh)/true_nllh,0,places=4,msg="EMTest: test_48 failed.")
         self.assertAlmostEqual(true_phi,phi,places=4,msg="EMTest: test_48 failed.")
         self.assertAlmostEqual(true_nu,nu,places=4,msg="EMTest: test_48 failed.")

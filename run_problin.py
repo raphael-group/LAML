@@ -5,7 +5,7 @@ import problin_libs as problin
 from problin_libs.sequence_lib import read_sequences, read_priors
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
-from problin_libs.Topology_search import Topology_search
+from problin_libs.Topology_search import Topology_search, DEFAULT_STRATEGY
 from treeswift import *
 import random
 import argparse
@@ -138,27 +138,29 @@ def main():
         nllh = mySolver.negative_llh()
         print("Tree neagtive log-likelihood: " + str(nllh))
         print("Tree log-likelihood: " + str(-nllh))
-    elif args["resolve_search"]:
-        print("Starting local topology search to resolve polytomies")
-        nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": True, "optimize": True, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
-        opt_tree, max_score = best_tree(nni_replicates) # outputs a string
-        nllh = -max_score        
-    elif args["topology_search"]:
-        print("Starting topology search")
-        nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": False, "optimize": True, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
-        opt_tree, max_score = best_tree(nni_replicates) # outputs a string
-        nllh = -max_score    
-    #elif myTopoSearch.has_polytomy:
-    #    print("The input tree contains polytomies. The solver will first perform local topology search to resolve polytomies")
-    #    nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy={"resolve_polytomies": True, "only_marked": True, "optimize": True, "ultra_constr": args["ultrametric"]}, nreps=args['randomreps']) 
-    #    opt_tree, max_score = best_tree(nni_replicates) # outputs a string
-    #    nllh = -max_score        
-    else: 
-        print("Optimizing branch lengths, phi, and nu without topology search")
-        mySolver = myTopoSearch.get_solver()
-        nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])      
-        myTopoSearch.update_from_solver(mySolver)
-   
+    else:
+        # setup the strategy
+        my_strategy = DEFAULT_STRATEGY
+        # enforce ultrametric or not?
+        my_strategy['ultra_constr'] = args["ultrametric"]
+        # resolve polytomies or not?
+        my_strategy['resolve_polytomies'] = (args["resolve_search"] or args["topology_search"])
+        # full search or local search to only resolve polytomies? 
+        my_strategy['only_marked'] = not args['topology_search']
+        if not args["resolve_search"] and not args["topology_search"]:
+            print("Optimizing branch lengths, phi, and nu without topology search")
+            mySolver = myTopoSearch.get_solver()
+            nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])      
+            myTopoSearch.update_from_solver(mySolver)
+        else:
+            if args["resolve_search"]:
+                print("Starting local topology search to resolve polytomies")
+            else:
+                print("Starting topology search")                 
+            nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
+            opt_tree, max_score = best_tree(nni_replicates) # outputs a string
+            nllh = -max_score        
+    
     # post-processing: analyze results and output 
     outfile = args["output"]        
     with open(outfile,'w') as fout:
