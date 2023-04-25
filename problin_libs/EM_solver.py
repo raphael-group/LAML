@@ -39,7 +39,7 @@ class EM_solver(ML_solver):
                 node.edge_length = x[i]
     
     def ultrametric_constr(self):
-        N = self.num_edges
+        N = self.num_edges-self.num_mark
         M = []
         idx = 0 
         for node in self.tree.traverse_postorder():
