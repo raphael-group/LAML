@@ -50,8 +50,9 @@ class EM_solver(ML_solver):
                 m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]
                 M.append(m)
                 node.constraint = c1.constraint
-            node.constraint[idx] = 1
-            idx += 1        
+            if not node.mark:
+                node.constraint[idx] = 1
+                idx += 1        
         return M
 
     def Estep_in_llh(self):

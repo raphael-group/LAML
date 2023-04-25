@@ -4,6 +4,8 @@ from problin_libs import min_llh, eps, nni_conv_eps
 from treeswift import *
 from problin_libs.EM_solver import EM_solver
 
+DEFAULT_STRATEGY={'resolve_polytomies':True,'only_marked':False,'ultra_constr':False}
+
 class Topology_search:
     def __init__(self,treeTopo,solver,data={},prior={},params={}):
         self.treeTopo = treeTopo # treeTopo is a newick string
@@ -49,7 +51,7 @@ class Topology_search:
                 #self.has_polytomy = True              
         self.treeTopo = self.tree_obj.newick()        
 
-    def search(self,maxiter=100,verbose=False,nreps=1,strategy={'resolve_polytomies':True,'only_marked':False,'ultra_constr':False}):
+    def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY):
         original_topo = self.treeTopo
         original_params = self.params
         nni_replicates = [(None,None)]*nreps
@@ -100,15 +102,6 @@ class Topology_search:
                 break
             curr_score = new_score
             topo_list.append((self.treeTopo,curr_score))
-        # optimize parameters for the best topology
-        #if not strategy['optimize']:
-            #strategy_copy = {x:strategy[x] for x in strategy}
-            #strategy_copy['optimize'] = True
-            #mySolver = self.get_solver()
-            #final_score = mySolver.score_tree(strategy=strategy)
-            #self.update_from_solver(mySolver)
-            #topo_list.append((self.treeTopo,final_score))
-        #else:    
         final_score = curr_score
         return topo_list,final_score 
     
