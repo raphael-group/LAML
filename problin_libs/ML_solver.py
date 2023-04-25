@@ -487,7 +487,7 @@ class ML_solver(Virtual_solver):
                         self.show_params()
                     # remove zero-length branches
                     tree_copy = read_tree_newick(self.tree.newick())
-                    tree_copy.collapse_short_branches(0)
+                    tree_copy.collapse_short_branches(self.dmin*0.01)
                     results.append((nllh,rep,deepcopy(self.params),tree_copy.newick()))
                 elif verbose >= 0:
                     print("Fatal: failed to optimize using initial point " + str(rep+1))    
