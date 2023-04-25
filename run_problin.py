@@ -9,6 +9,7 @@ from problin_libs.Topology_search import Topology_search
 from treeswift import *
 import random
 import argparse
+import timeit
 from sys import argv,exit,stdout
 
 def best_tree(nni_replicates):
@@ -53,6 +54,8 @@ def main():
     
     print("Launching " + problin.PROGRAM_NAME + " version " + problin.PROGRAM_VERSION)
     print(problin.PROGRAM_NAME + " was called as follow: " + " ".join(argv))
+
+    start_time = timeit.default_timer()
     
     args = vars(parser.parse_args())
     
@@ -178,6 +181,9 @@ def main():
     with open(outfile,'w') as fout:
         fout.write("Final optimal tree:\n")
         record_statistics(myTopoSearch, fout, nllh)
+
+    stop_time = timeit.default_timer()
+    print("Runtime (s):", stop_time - start_time)
 
 if __name__ == "__main__":
     main()
