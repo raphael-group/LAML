@@ -5,12 +5,13 @@ import problin_libs as problin
 from problin_libs.sequence_lib import read_sequences
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
-from problin_libs.Topology_search import Topology_search, DEFAULT_STRATEGY
+from problin_libs.Topology_search import Topology_search
 from treeswift import *
 import random
 import argparse
 import timeit
 from sys import argv,exit,stdout
+from copy import deepcopy
 
 def best_tree(nni_replicates):
     max_score = -float("inf")
@@ -18,7 +19,7 @@ def best_tree(nni_replicates):
     for score, tree_topos in nni_replicates:
         if score > max_score:
             max_score = score
-            T1,_,_ = tree_topos[-1]
+            T1,_ = tree_topos[-1]
     return T1, max_score
 
 def record_statistics(myTopoSearch, fout, optimal_llh):
@@ -46,7 +47,7 @@ def main():
     parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.")
     parser.add_argument("--resolve_search",action='store_true', required=False,help="Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topoloy_search.")
     parser.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topoloy_search and --resolve_search.")
-    parser.add_argument("--randomreps", required=False, default=5, type=int, help="Number of replicates to run for the random strategy of topology search.")
+    parser.add_argument("--randomreps", required=False, default=1, type=int, help="Number of replicates to run for the random strategy of topology search.")
 
     if len(argv) == 1:
         parser.print_help()
@@ -157,13 +158,13 @@ def main():
         print("Tree log-likelihood: " + str(-nllh))
     else:
         # setup the strategy
-        my_strategy = DEFAULT_STRATEGY
+        my_strategy = deepcopy(problin.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
         my_strategy['ultra_constr'] = args["ultrametric"]
         # resolve polytomies or not?
-        my_strategy['resolve_polytomies'] = (args["resolve_search"] or args["topology_search"])
+        my_strategy['resolve_search_only'] = args["resolve_search"] #or args["topology_search"])
         # full search or local search to only resolve polytomies? 
-        my_strategy['only_marked'] = not args['topology_search']
+        #my_strategy['only_marked'] = not args['topology_search']
         if not args["resolve_search"] and not args["topology_search"]:
             print("Optimizing branch lengths, phi, and nu without topology search")
             mySolver = myTopoSearch.get_solver()
