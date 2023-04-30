@@ -112,12 +112,15 @@ def main():
                 q[0] = 0
                 Q.append(q)
         elif file_extension == "csv":
+            print(k)
             Q = [{0:0} for i in range(k)]
             seen_sites = set()
             with open(args["priors"],'r') as fin:
                 lines = fin.readlines()
+                #for line in lines[1:]:
                 for line in lines:
                     site_idx,char_state,prob = line.strip().split(',')
+                    #site_idx = int(site_idx[1:])
                     site_idx = int(site_idx)
                     if site_idx not in seen_sites:
                         seen_sites.add(site_idx)
@@ -175,8 +178,8 @@ def main():
                 print("Starting local topology search to resolve polytomies")
             else:
                 print("Starting topology search")                 
-            nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
-            opt_tree, max_score = best_tree(nni_replicates) # outputs a string
+            opt_tree,max_score = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
+            #opt_tree, max_score = best_tree(nni_replicates) # outputs a string
             nllh = -max_score        
     
     # post-processing: analyze results and output 

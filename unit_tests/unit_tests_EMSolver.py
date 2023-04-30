@@ -1,10 +1,12 @@
-unit_tests/unit_tests_EMSolver.pyimport unittest
+import unittest
 from problin_libs.sequence_lib import read_sequences
 from problin_libs.EM_solver import EM_solver
 from problin_libs.ML_solver import ML_solver
 from treeswift import *
 from math import log
 from random import random
+from problin_libs import DEFAULT_STRATEGY
+from copy import deepcopy
 
 class EMTest(unittest.TestCase):
     # test likelihood computation
@@ -549,7 +551,7 @@ class EMTest(unittest.TestCase):
 
         mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         randseed = 1221
-        nllh = mySolver.optimize_one(randseed,verbose=-1,ultra_constr=False)
+        nllh,status = mySolver.optimize(initials=1,random_seeds=randseed,verbose=-1,ultra_constr=False)
         phi = mySolver.params.phi
         nu = mySolver.params.nu
         self.assertAlmostEqual(0,abs(true_nllh-nllh)/true_nllh,places=4,msg="EMTest: test_47 failed.")
@@ -579,7 +581,10 @@ class EMTest(unittest.TestCase):
 
         mySolver = EM_solver(T,{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         randseed = 1221
-        nllh = -mySolver.score_tree(strategy={'ultra_constr':False})
+        my_strategy = deepcopy(DEFAULT_STRATEGY) 
+        my_strategy['fixed_brlen'] = {}
+        score,status = mySolver.score_tree(strategy=my_strategy)
+        nllh = -score
         phi = mySolver.params.phi
         nu = mySolver.params.nu
         self.assertAlmostEqual(abs(true_nllh-nllh)/true_nllh,0,places=4,msg="EMTest: test_48 failed.")
