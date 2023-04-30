@@ -201,7 +201,7 @@ class Topology_search:
             v.remove_child(w)
             u.add_child(w)
 
-            #start_time = timeit.default_timer()
+            start_time = timeit.default_timer()
             mySolver = self.solver(self.tree_obj.newick(),self.data,self.prior,self.params)            
             new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
             if status != "optimal" and strategy['local_brlen_opt']:
@@ -210,7 +210,7 @@ class Topology_search:
                 mySolver = self.solver(self.tree_obj.newick(),self.data,self.prior,self.params)            
                 new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
             stop_time = timeit.default_timer()
-            #print("Time",stop_time-start_time)
+            print("Time",stop_time-start_time)
             #if new_score > curr_score or isclose(new_score,curr_score,rel_tol=1e-3): # accept the new tree and params
             if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params                
                 score_tree_strategy['fixed_brlen'] = {}
@@ -218,11 +218,11 @@ class Topology_search:
                 score_tree_strategy['fixed_nu'] = strategy['fixed_nu']
                 mySolver = self.solver(self.tree_obj.newick(),self.data,self.prior,self.params)
                 new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
-                #print(curr_score,new_score,"accept")
+                print(curr_score,new_score,"accept")
                 self.update_from_solver(mySolver)
                 return True,new_score
             
-            #print(curr_score,new_score,"reject")
+            print(curr_score,new_score,"reject")
             
             # Score doesn't improve --> reverse to the previous state
             u_child.set_parent(u)
