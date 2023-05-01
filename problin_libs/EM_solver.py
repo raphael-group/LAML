@@ -2,6 +2,7 @@ from problin_libs.ML_solver import *
 from math import exp,log
 import cvxpy as cp
 from problin_libs import min_llh, conv_eps, eps
+import time
 
 def log_sum_exp(numlist):
     # using log-trick to compute log(sum(exp(x) for x in numlist))
@@ -366,6 +367,8 @@ class EM_solver(ML_solver):
         # the same for optimize_nu
         # caution: this function will modify params in place!
         # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
+
+
         pre_llh = self.lineage_llh()
         if verbose >= 0:
             print("Initial phi: " + str(self.params.phi) + ". Initial nu: " + str(self.params.nu) + ". Initial nllh: " + str(-pre_llh))
@@ -375,13 +378,21 @@ class EM_solver(ML_solver):
             if verbose > 0:
                 print("Starting EM iter: " + str(em_iter))
                 print("Estep")
+            start_time = time.time()
             self.Estep()
+            end_time = time.time()
+            if verbose > 0:
+                print(f'Estep took {end_time - start_time} seconds')
             if verbose > 0:
                 print("Mstep")
+            start_time = time.time()
             if not self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr):
                 if verbose >= 0:
                     print("Fatal error: failed to optimize parameters in Mstep!")
                 return None, em_iter
+            end_time = time.time()
+            if verbose > 0:
+                print(f'Mstep took {end_time - start_time} seconds')
             curr_llh = self.lineage_llh()
             if verbose > 0:
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))

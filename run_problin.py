@@ -175,7 +175,7 @@ def main():
                 print("Starting local topology search to resolve polytomies")
             else:
                 print("Starting topology search")                 
-            nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
+            nni_replicates = myTopoSearch.search(maxiter=200, maxruntime=3600, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'], brlen_file=args["output"]+"_nni_brlen_diff.txt") 
             opt_tree, max_score = best_tree(nni_replicates) # outputs a string
             nllh = -max_score        
     

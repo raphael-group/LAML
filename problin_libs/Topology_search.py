@@ -1,9 +1,10 @@
-problin_libs/Topology_search.pyfrom math import log,isclose,exp
+from math import log,isclose,exp
 from random import choice, shuffle, random
 from problin_libs import *
 from treeswift import *
 from problin_libs.EM_solver import EM_solver
-
+import time
+import random
 
 class Topology_search:
     def __init__(self,treeTopo,solver,data={},prior={},params={},T_cooldown=20,alpha_cooldown=0.9):
@@ -61,7 +62,7 @@ class Topology_search:
         p = min(exp((new_score-curr_score)/T),1)
         return random() < p
 
-    def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY):
+    def search(self,maxiter=100,maxruntime=10800,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY,checkpoint=False,checkpoint_file_prefix="problin_topo_search",brlen_file="nni_brlen_diff.txt"):
         original_topo = self.treeTopo
         original_params = self.params
         nni_replicates = [(None,None)]*nreps
@@ -89,38 +90,54 @@ class Topology_search:
             else:    
                 if verbose:
                     print("Perform nni moves for full topology search")
-                topo_list,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False)
+                topo_list,best_score = self.__search_one__(strategy,maxiter=maxiter,maxruntime=maxruntime,verbose=verbose,only_marked=False,checkpoint=checkpoint,checkpoint_file_prefix=checkpoint_file_prefix,brlen_file=brlen_file)
             #topo_list = [(x,y,'resolve_polytomies') for x,y in topo_list1] + [(x,y,'full_search') for x,y in topo_list2]
             nni_replicates[i] = (best_score,topo_list)
         return nni_replicates
     
-    def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False):
+    def __search_one__(self,strategy,maxiter=100,maxruntime=10800,verbose=False,only_marked=False,checkpoint=False,checkpoint_file_prefix="problin_topo_search",brlen_file="nni_brlen_diff.txt"):
+        # label all internal nodes 
+        counter = 0
+        for n in self.tree_obj.traverse_preorder():
+            if not n.get_label():
+                n.set_label(f'internal_node_{counter}')
+                counter += 1
+        # 10800 seconds is 3 hours
+        start_time = time.time()
         # optimize branch lengths and other parameters for the starting tree
         mySolver = self.get_solver()
         #strategy_copy = {x:strategy[x] for x in strategy}
         #strategy_copy['optimize'] = True
         curr_score = mySolver.score_tree(strategy=strategy) 
-        if verbose:
-            print("Initial score: " + str(curr_score))
+        #if verbose:
+        #    print("Initial score: " + str(curr_score))
         self.update_from_solver(mySolver)
         topo_list = [(self.treeTopo,curr_score)]            
         # perform nni search
         for nni_iter in range(maxiter):
             if verbose:
                 print("NNI Iter:", nni_iter)
-            new_score,n_attempts,success = self.single_nni(curr_score,nni_iter,strategy,only_marked=only_marked)
-            if not success:
+            new_score,n_attempts,success = self.single_nni(curr_score,nni_iter,strategy,only_marked=only_marked,brlen_file=brlen_file)
+            curr_elapsed_time = time.time() - start_time
+            if not success: 
                 break
             curr_score = new_score
             topo_list.append((self.treeTopo,curr_score))
             if verbose:
                 print("Current score: " + str(curr_score))
+            if curr_elapsed_time > maxruntime:
+                break
+            if checkpoint and nni_iter % 10 == 0:
+                with open(f'{problin_topo_search}_{random.random()}.txt','w') as fout:
+                    fout.write("Current newick tree: " + self.treeTopo + "\n")
+                    fout.write("Current negative-llh: " + curr_score + "\n")
         final_score = curr_score
         if verbose:
             print("Final score: " + str(final_score))
+
         return topo_list,final_score 
     
-    def single_nni(self,curr_score,nni_iter,strategy,only_marked=False):
+    def single_nni(self,curr_score,nni_iter,strategy,only_marked=False,brlen_file="nni_brlen_diff.txt"):
         branches = []
         for node in self.tree_obj.traverse_preorder():
             if node.is_leaf() or node.is_root():
@@ -135,12 +152,14 @@ class Topology_search:
         n_attempts = 0
         while not took and branches:
             u = branches.pop()
-            took,score = self.apply_nni(u,curr_score,nni_iter,strategy)
+            took,score = self.apply_nni(u,curr_score,nni_iter,strategy,brlen_file=brlen_file)
             n_attempts += 1
         return score,n_attempts,took
     
-    def apply_nni(self,u,curr_score,nni_iter,strategy):
+    def apply_nni(self,u,curr_score,nni_iter,strategy, brlen_file="nni_brlen_diff.txt"):
         # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
+
+
         v = u.get_parent()
         for node in v.child_nodes():
             if node != u:
@@ -153,6 +172,11 @@ class Topology_search:
         shuffle(u_children)
         nni_moves = []
 
+        # TODO: label all internal nodes if not loaded
+        #key_branch_labels = [u.get_label(), v.get_label(), w.get_label()]
+        #og_brlens = {x.get_label(): x.get_edge_length() for x in self.tree_obj.traverse_preorder()}
+        #print("og_brlens:", og_brlens)
+
         for u_child in u_children:
             u_child.set_parent(v)
             u.remove_child(u_child)
@@ -164,6 +188,14 @@ class Topology_search:
 
             mySolver = self.solver(self.tree_obj.newick(),self.data,self.prior,self.params)
             new_score = mySolver.score_tree(strategy=strategy)
+            #new_brlens = {x.get_label(): x.get_edge_length() for x in self.tree_obj.traverse_preorder()}
+
+            #key_branch_diffs = []
+            #for key_branch in key_branch_labels:
+            #    d = og_brlens[key_branch] - new_brlens[key_branch]
+            #    key_branch_diffs.append(d)
+
+            #print("key_branch_labels", key_branch_labels, "key_branch_diffs", key_branch_diffs, "new_score", new_score)
 
             #if new_score > curr_score or isclose(new_score,curr_score,rel_tol=1e-3): # accept the new tree and params
             if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params
