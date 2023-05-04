@@ -1,4 +1,4 @@
-problin_libs/Topology_search.pyfrom math import log,isclose,exp
+from math import log,isclose,exp
 import timeit
 from random import choice, shuffle, random
 from problin_libs import *
@@ -213,13 +213,11 @@ class Topology_search:
             print("Time",stop_time-start_time)
             #if new_score > curr_score or isclose(new_score,curr_score,rel_tol=1e-3): # accept the new tree and params
             if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params                
-                #new_score0 = new_score
-                #score_tree_strategy['fixed_brlen'] = {}
-                #score_tree_strategy['fixed_phi'] = strategy['fixed_phi']
-                #score_tree_strategy['fixed_nu'] = strategy['fixed_nu']
-                #mySolver = self.solver(self.tree_obj.newick(),self.data,self.prior,self.params)
-                #new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
-                #print(curr_score,new_score0,new_score,"accept")
+                score_tree_strategy['fixed_brlen'] = {}
+                score_tree_strategy['fixed_phi'] = strategy['fixed_phi']
+                score_tree_strategy['fixed_nu'] = strategy['fixed_nu']
+                mySolver = self.solver(self.tree_obj.newick(),self.data,self.prior,self.params)
+                new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
                 print(curr_score,new_score,"accept")
                 self.update_from_solver(mySolver)
                 return True,new_score
