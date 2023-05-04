@@ -54,7 +54,7 @@ class TopoSearchTest(unittest.TestCase):
         best_tree = ""
         for T in topos:
             mySolver = solver(T,{'charMtrx':msa},{'Q':Q})
-            nllh = mySolver.optimize(initials=initials,verbose=-1,ultra_constr=ultra_constr)
+            nllh,_ = mySolver.optimize(initials=initials,verbose=-1,ultra_constr=ultra_constr)
             print(T,nllh)
             if nllh < best_nllh:
                 best_nllh = nllh
@@ -66,9 +66,8 @@ class TopoSearchTest(unittest.TestCase):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
         #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
-        
-        nllh_bf = 7.851527097573287 # precomputed from brute-force
-        
+        nllh_bf = 7.877269958604131 # precomputed from brute-force
+         
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
@@ -78,13 +77,6 @@ class TopoSearchTest(unittest.TestCase):
         myTopoSearch_EM = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
         best_tree,max_score = myTopoSearch_EM.search(maxiter=200,nreps=1,verbose=False)
 
-        '''
-        max_score = -float("inf")
-        T1 = ""
-        for score,tree_topos in nni_replicates:
-            if score > max_score:
-                max_score = score
-                T1,_ = tree_topos[-1] '''
         nllh_nni_EM = -max_score
         
         self.assertAlmostEqual(nllh_bf,nllh_nni_EM,places=4,msg="TopoSearchTest: test_1 failed.")
@@ -93,7 +85,7 @@ class TopoSearchTest(unittest.TestCase):
     def test_2(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
-        nllh_bf = 7.851513792908975 # precomputed from brute-force
+        nllh_bf = 7.877269958604131 # precomputed from brute-force
         
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
@@ -103,14 +95,6 @@ class TopoSearchTest(unittest.TestCase):
         # topology search with ML_solver
         myTopoSearch_ML = Topology_search(T0,ML_solver,data=data,prior=prior,params=params)
         best_tree,max_score = myTopoSearch_ML.search(maxiter=200,verbose=False,nreps=1)
-        
-        '''
-        max_score = -float("inf")
-        T1 = ""
-        for score,tree_topos in nni_replicates:
-            if score > max_score:
-                max_score = score
-                T1,_ = tree_topos[-1] '''
         nllh_nni_ML = -max_score
         
         self.assertAlmostEqual(nllh_bf,nllh_nni_ML,places=4,msg="TopoSearchTest: test_2 failed.")
@@ -119,7 +103,7 @@ class TopoSearchTest(unittest.TestCase):
     def test_3(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
-        nllh_bf = 7.851513792908975 # precomputed from brute-force
+        nllh_bf = 7.877269958604131 # precomputed from brute-force
         
         T0 = '(a,b,c,d);'
         data = {'charMtrx':msa}
@@ -128,14 +112,6 @@ class TopoSearchTest(unittest.TestCase):
         
         myTopoSearch = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
         best_tree,max_score = myTopoSearch.search(maxiter=200,verbose=False,nreps=1)
-
-        '''
-        max_score = -float("inf")
-        T1 = ""
-        for score,tree_topos in nni_replicates:
-            if score > max_score:
-                max_score = score
-                T1,_ = tree_topos[-1] '''
         nllh_nni = -max_score
         
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_3 failed.")
@@ -144,7 +120,7 @@ class TopoSearchTest(unittest.TestCase):
     def test_4(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
-        nllh_bf = 7.851527094901787 # precomputed from brute-force
+        nllh_bf = 7.877269958604131 # precomputed from brute-force
         
         T0 = '((a,b),c,d);'
         data = {'charMtrx':msa}
@@ -155,14 +131,6 @@ class TopoSearchTest(unittest.TestCase):
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         my_strategy['resolve_search_only'] = True
         best_tree,max_score = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
-
-        '''
-        max_score = -float("inf")
-        T1 = ""
-        for score,tree_topos in nni_replicates:
-            if score > max_score:
-                max_score = score
-                T1,_ = tree_topos[-1] '''
         nllh_nni = -max_score
         
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_4 failed.")
@@ -171,7 +139,8 @@ class TopoSearchTest(unittest.TestCase):
     def test_5(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
-        nllh_bf = 11.809150247643975 # precomputed from brute-force
+        #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
+        nllh_bf = 12.48204978089449 # precomputed from brute-force
         
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
@@ -183,14 +152,6 @@ class TopoSearchTest(unittest.TestCase):
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         my_strategy['resolve_search_only'] = True
         best_tree,max_score = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
-        
-        '''
-        max_score = -float("inf")
-        T1 = ""
-        for score,tree_topos in nni_replicates:
-            if score > max_score:
-                max_score = score
-                T1,_ = tree_topos[-1] '''
         nllh_nni = -max_score
         
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_5 failed.")
@@ -199,7 +160,9 @@ class TopoSearchTest(unittest.TestCase):
     def test_6(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        nllh_bf = 5.078913623305931
+        #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
+         
+        nllh_bf = 6.042549046654788
         
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
@@ -211,22 +174,16 @@ class TopoSearchTest(unittest.TestCase):
         #my_strategy['resolve_search_only'] = True
         best_tree,max_score = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
 
-        '''
-        max_score = -float("inf")
-        T1 = ""
-        for score,tree_topos in nni_replicates:
-            if score > max_score:
-                max_score = score
-                T1,_ = tree_topos[-1] '''
         nllh_nni = -max_score
 
-        self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_6 failed.")
+        self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_6 failed.") 
         
     # resolve polytomies only
     def test_7(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        nllh_bf = 10.083061443557849
+        #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
+        nllh_bf = 12.010496077449595
         
         T0 = '((a,b),c,d);'
         data = {'charMtrx':msa}
@@ -238,13 +195,6 @@ class TopoSearchTest(unittest.TestCase):
         my_strategy['resolve_search_only'] = True
         best_tree,max_score = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
         
-        '''
-        max_score = -float("inf")
-        T1 = ""
-        for score,tree_topos in nni_replicates:
-            if score > max_score:
-                max_score = score
-                T1,_ = tree_topos[-1] '''
         nllh_nni = -max_score
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_7 failed.")
     
@@ -252,7 +202,7 @@ class TopoSearchTest(unittest.TestCase):
     def test_8(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        nllh_bf = 10.08306143344159
+        nllh_bf = 12.010496077449595
         
         T0 = '((c,d),a,b);'
         data = {'charMtrx':msa}
@@ -263,14 +213,6 @@ class TopoSearchTest(unittest.TestCase):
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         my_strategy['resolve_search_only'] = True
         best_tree,max_score = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
-
-        '''
-        max_score = -float("inf")
-        T1 = ""
-        for score,tree_topos in nni_replicates:
-            if score > max_score:
-                max_score = score
-                T1,_ = tree_topos[-1] '''
         nllh_nni = -max_score
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_8 failed.")
     
@@ -278,7 +220,8 @@ class TopoSearchTest(unittest.TestCase):
     def test_9(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        nllh_bf = 7.006360494340605 # pre-computed using brute-force search
+        #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver,ultra_constr=True)
+        nllh_bf = 7.0063474330891236 # pre-computed using brute-force search
         
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
@@ -289,24 +232,14 @@ class TopoSearchTest(unittest.TestCase):
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         my_strategy['ultra_constr'] = True
         best_tree,max_score = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
-
-        '''
-        max_score = -float("inf")
-        T1 = ""
-        for score,tree_topos in nni_replicates:
-            if score > max_score:
-                max_score = score
-                T1,_ = tree_topos[-1] '''
         nllh_nni = -max_score
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_9 failed.")
     
-    # enforce ultrametric
+    # enforce ultrametric and starting tree is a star-tree
     def test_10(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        nllh_bf = 7.006360494340605 # pre-computed using brute-force search
-        
-    # enforce ultrametric
+        nllh_bf = 7.0063474330891236 # pre-computed using brute-force search
         T0 = '(a,b,c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
@@ -317,12 +250,5 @@ class TopoSearchTest(unittest.TestCase):
         my_strategy['ultra_constr'] = True
         best_tree,max_score = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
 
-        '''
-        max_score = -float("inf")
-        T1 = ""
-        for score,tree_topos in nni_replicates:
-            if score > max_score:
-                max_score = score
-                T1,_ = tree_topos[-1] '''
         nllh_nni = -max_score
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_10 failed.")

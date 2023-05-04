@@ -328,8 +328,8 @@ class EM_solver(ML_solver):
                 M,b = self.ultrametric_constr(local_brlen_opt=local_brlen_opt)
                 constraints += [np.array(M) @ var_d == np.array(b)]
             prob = cp.Problem(objective,constraints)
-            #prob.solve(verbose=False,solver=cp.ECOS,max_iters=1000)
-            prob.solve(verbose=verbose,solver=cp.MOSEK)
+            #prob.solve(verbose=True,solver=cp.ECOS,max_iters=100000)
+            prob.solve(verbose=False,solver=cp.MOSEK)
             return var_d.value,prob.status
         
         def __optimize_nu__(d): # d is a vector of all branch lengths
@@ -342,7 +342,7 @@ class EM_solver(ML_solver):
             objective = cp.Maximize(C0+C1+C2+C3+C4)
             prob = cp.Problem(objective)
             prob.solve(verbose=False,solver=cp.MOSEK)
-            #prob.solve(verbose=False,solver=cp.ECOS,max_iters=1000)
+            #prob.solve(verbose=False,solver=cp.ECOS,max_iters=400)
             return var_nu.value[0],prob.status
 
         nIters = 1
@@ -350,18 +350,13 @@ class EM_solver(ML_solver):
         for r in range(nIters):
             if verbose > 0:
                 print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
-            #try:
-            #start_time = timeit.default_timer()
-            d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
+            try:
+                d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
+            except:
+                status_d = "failure"    
             if status_d != "optimal":
                 return False,status_d
                 
-            #if d_star is None:
-            #    d_star = __optimize_brlen__(nu_star,verbose=True)
-            #stop_time = timeit.default_timer()
-            #print("Time", stop_time-start_time,"brlen")
-            #except:
-            #    return False    
             if not optimize_nu:
                 if verbose > 0:
                     print("Fixing nu to " + str(self.params.nu))
@@ -369,15 +364,12 @@ class EM_solver(ML_solver):
             else:    
                 if verbose > 0:
                     print("Optimizing nu")
-                #try:    
-                #start_time = timeit.default_timer()
-                nu_star,status_nu = __optimize_nu__(d_star) 
+                try:
+                    nu_star,status_nu = __optimize_nu__(d_star) 
+                except:
+                    status_nu = "failure"    
                 if status_nu != "optimal":
                     return False,status_nu
-                #stop_time = timeit.default_timer()
-                #print("Time", stop_time-start_time,"nu")
-                #except:
-                #    return False    
         # place the optimal value back to params
         self.params.phi = phi_star
         self.params.nu = nu_star

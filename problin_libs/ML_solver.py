@@ -36,7 +36,11 @@ class ML_solver(Virtual_solver):
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.tree.traverse_postorder()))
         self.dmin = 0.005
-        self.dmax = 10
+        #self.dmax = 10
+        zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx])
+        totalcount = self.numsites * len(self.charMtrx)
+        zeroprop = zerocount/totalcount
+        self.dmax = -log(zeroprop) if zeroprop != 0 else 10
 
     def get_tree_newick(self):
         return self.tree.newick()
