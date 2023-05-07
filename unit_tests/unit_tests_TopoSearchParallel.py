@@ -3,64 +3,13 @@ import unittest
 from problin_libs import *
 from problin_libs.EM_solver import EM_solver
 from problin_libs.ML_solver import ML_solver
-from problin_libs.Topology_search import Topology_search
+from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
+from unit_tests.unit_tests_TopoSearch import TopoSearchTest
+#from problin_libs.Topology_search import Topology_search
 from treeswift import *
 from copy import deepcopy
 
-class TopoSearchTest(unittest.TestCase):
-    def __list_topologies__(self,leafset):
-        def __triplet__(a,b,c):
-            return "((("+a+","+b+"),"+c+"));"
-        def __add_one__(tree,new_leaf):    
-            new_topos = []
-            nodes = [node for node in tree.traverse_preorder() if not node.is_root()]
-            for node in nodes:
-                # create new topology
-                new_node1 = Node()
-                new_node2 = Node()
-                new_node2.label = new_leaf
-                pnode = node.parent
-                pnode.remove_child(node)
-                pnode.add_child(new_node1)
-                new_node1.add_child(node)
-                new_node1.add_child(new_node2)
-                new_topos.append(tree.newick())
-                # turn back
-                pnode.remove_child(new_node1)
-                pnode.add_child(node)
-            return new_topos            
-
-        # initialization
-        a,b,c = leafset[-3:]
-        T1 = __triplet__(a,b,c)
-        T2 = __triplet__(a,c,b)
-        T3 = __triplet__(b,c,a)
-        topos = [T1,T2,T3]
-        L = leafset[:-3]
-        # elaborate
-        while L:
-            new_leaf = L.pop()
-            new_topos = []
-            for T in topos:
-                tree = read_tree_newick(T)
-                new_topos += __add_one__(tree,new_leaf)
-            topos = new_topos    
-        out_topos = [topo[1:-2]+";" for topo in topos]
-        return out_topos    
-
-    def __brute_force_search__(self,msa,Q,L,solver=EM_solver,ultra_constr=False,initials=1):
-        topos = self.__list_topologies__(L)
-        best_nllh = float("inf")
-        best_tree = ""
-        for T in topos:
-            mySolver = solver(T,{'charMtrx':msa},{'Q':Q})
-            nllh,_ = mySolver.optimize(initials=initials,verbose=-1,ultra_constr=ultra_constr)
-            print(T,nllh)
-            if nllh < best_nllh:
-                best_nllh = nllh
-                best_tree = mySolver.tree.newick()
-        return best_nllh,best_tree 
-    
+class TopoSearchParallelTest(TopoSearchTest):
     # topology search with EM_solver
     def test_1(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]

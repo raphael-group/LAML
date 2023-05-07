@@ -69,6 +69,7 @@ class Topology_search:
         #nni_replicates = [(None,None)]*nreps
         best_tree = None
         best_score = -float("inf")
+        best_params = None
         for i in range(nreps):
             # resolve polytomies
             if verbose:
@@ -77,13 +78,11 @@ class Topology_search:
             self.params = original_params
             self.__renew_tree_obj__()
             self.__mark_polytomies__()
-            #topo_list1 = []
-            #topo_list2 = []
             if strategy['resolve_search_only']:
                 if verbose:
                     print("Only perform local nni moves to resolve polytomies")
                 if self.has_polytomy:
-                    tree,score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True)
+                    tree,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True)
                 else: # score this tree topology (optimize all numerical params)
                     mySolver = self.get_solver()
                     score_tree_strategy = deepcopy(strategy)
@@ -91,23 +90,31 @@ class Topology_search:
                     score,status = mySolver.score_tree(strategy=score_tree_strategy)
                     self.update_from_solver(mySolver)
                     tree = self.treeTopo
-            #if not strategy['only_marked']:    
+                    params = self.params
             else:    
                 if verbose:
                     print("Perform nni moves for full topology search")
-                tree,score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False)
+                tree,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False)
             if score > best_score:
                 best_score = score
                 best_tree = tree    
-            #topo_list = [(x,y,'resolve_polytomies') for x,y in topo_list1] + [(x,y,'full_search') for x,y in topo_list2]
-            #nni_replicates[i] = (best_score,topo_list)
-        return best_tree,best_score
+                best_params = params
+            # The final optimization of parameters
+            self.treeTopo = best_tree
+            self.params = best_params
+            self.__renew_tree_obj__()
+            mySolver = self.get_solver()
+            score_tree_strategy = deepcopy(strategy)
+            score_tree_strategy['fixed_brlen'] = {}
+            best_score,status = mySolver.score_tree(strategy=score_tree_strategy)
+            self.update_from_solver(mySolver)
+            best_tree = self.treeTopo
+            best_params = self.params
+        return best_tree,best_score,best_params
     
     def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False):
         # optimize branch lengths and other parameters for the starting tree
         mySolver = self.get_solver()
-        #strategy_copy = {x:strategy[x] for x in strategy}
-        #strategy_copy['optimize'] = True
         score_tree_strategy = deepcopy(strategy)
         score_tree_strategy['fixed_brlen'] = {}
         curr_score,status = mySolver.score_tree(strategy=score_tree_strategy)
@@ -116,7 +123,8 @@ class Topology_search:
         self.update_from_solver(mySolver)
         #topo_list = [(self.treeTopo,curr_score)]            
         best_score = curr_score
-        best_tree = self.treeTopo 
+        best_tree = self.treeTopo
+        best_params = self.params 
         # perform nni search
         for nni_iter in range(maxiter):
             if verbose:
@@ -129,6 +137,7 @@ class Topology_search:
             if curr_score > best_score:
                 best_score = curr_score
                 best_tree = self.treeTopo
+                best_params = self.params
             #topo_list.append((self.treeTopo,curr_score))
             if verbose:
                 print("Current score: " + str(curr_score))
@@ -136,7 +145,7 @@ class Topology_search:
                 print("Runtime (s):", stop_time - start_time)
         if verbose:
             print("Best score: " + str(best_score))
-        return best_tree,best_score 
+        return best_tree,best_score,best_params 
     
     def single_nni(self,curr_score,nni_iter,strategy,only_marked=False):
         branches = []
