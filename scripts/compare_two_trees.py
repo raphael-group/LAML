@@ -83,7 +83,8 @@ def compare_trees(tr1, tr2):
     i2 = len(tr2.internal_edges(exclude_seed_edge=True))
 
     [fp, fn] = false_positives_and_negatives(tr1, tr2)
-    rf = (fn + fp) / (2.0 * nl - 6.0)
+    #rf = (fn + fp) / (2.0 * nl - 6.0)
+    rf = (fn + fp) / (i1+i2)
 
     return(nl, i1, i2, fn, fp, rf)
 

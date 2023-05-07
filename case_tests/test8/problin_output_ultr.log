@@ -1,0 +1,41 @@
+Launching Problin version 0.2
+Problin was called as follow: ../../run_problin.py -c character_matrix.csv -t tree.nwk -p prior_k30_r01.csv --delimiter comma -o problin_output_ultr.txt --nInitials 1 --randomreps 1 --topology_search -v --ultrametric
+30
+Optimization by EM algorithm
+Starting topology search
+Performing nni-search 1
+Perform nni moves for full topology search
+Traceback (most recent call last):
+  File "/Users/uym2/my_gits/problin/case_tests/test8/../../run_problin.py", line 195, in <module>
+    main()
+  File "/Users/uym2/my_gits/problin/case_tests/test8/../../run_problin.py", line 181, in main
+    nni_replicates = myTopoSearch.search(maxiter=200, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
+  File "/Users/uym2/my_gits/problin/problin_libs/Topology_search.py", line 96, in search
+    topo_list,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False)
+  File "/Users/uym2/my_gits/problin/problin_libs/Topology_search.py", line 108, in __search_one__
+    curr_score,status = mySolver.score_tree(strategy=score_tree_strategy) 
+  File "/Users/uym2/my_gits/problin/problin_libs/ML_solver.py", line 157, in score_tree
+    nllh,status = self.optimize(initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_phi=fixed_phi,fixed_nu=fixed_nu,fixed_brlen=fixed_brlen)
+  File "/Users/uym2/my_gits/problin/problin_libs/ML_solver.py", line 358, in optimize
+    nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
+  File "/Users/uym2/my_gits/problin/problin_libs/EM_solver.py", line 441, in optimize_one
+    nllh,em_iter,status = self.EM_optimization(verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None),ultra_constr=ultra_constr)
+  File "/Users/uym2/my_gits/problin/problin_libs/EM_solver.py", line 410, in EM_optimization
+    m_success,status=self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr,local_brlen_opt=True)
+  File "/Users/uym2/my_gits/problin/problin_libs/EM_solver.py", line 374, in Mstep
+    nu_star,status_nu = __optimize_nu__(d_star) 
+  File "/Users/uym2/my_gits/problin/problin_libs/EM_solver.py", line 344, in __optimize_nu__
+    prob.solve(verbose=False,solver=cp.MOSEK)
+  File "/Users/uym2/opt/anaconda3/lib/python3.9/site-packages/cvxpy/problems/problem.py", line 481, in solve
+    return solve_func(self, *args, **kwargs)
+  File "/Users/uym2/opt/anaconda3/lib/python3.9/site-packages/cvxpy/problems/problem.py", line 1016, in _solve
+    solution = solving_chain.solve_via_data(
+  File "/Users/uym2/opt/anaconda3/lib/python3.9/site-packages/cvxpy/reductions/solvers/solving_chain.py", line 361, in solve_via_data
+    return self.solver.solve_via_data(data, warm_start, verbose,
+  File "/Users/uym2/opt/anaconda3/lib/python3.9/site-packages/cvxpy/reductions/solvers/conic_solvers/mosek_conif.py", line 238, in solve_via_data
+    task.optimize()
+  File "/Users/uym2/opt/anaconda3/lib/python3.9/site-packages/mosek/__init__.py", line 10777, in optimize
+    return self.__optimizetrm__1(*args,**kwds)
+  File "/Users/uym2/opt/anaconda3/lib/python3.9/site-packages/mosek/__init__.py", line 10763, in __optimizetrm__1
+    _res_optimizetrm,_retargs_optimizetrm = self.__obj.optimizetrm__1()
+KeyboardInterrupt

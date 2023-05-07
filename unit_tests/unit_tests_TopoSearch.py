@@ -3,7 +3,8 @@ import unittest
 from problin_libs import *
 from problin_libs.EM_solver import EM_solver
 from problin_libs.ML_solver import ML_solver
-from problin_libs.Topology_search import Topology_search
+from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
+#from problin_libs.Topology_search import Topology_search
 from treeswift import *
 from copy import deepcopy
 
@@ -76,7 +77,7 @@ class TopoSearchTest(unittest.TestCase):
         # topology search with EM_solver
         myTopoSearch_EM = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
         best_tree,max_score = myTopoSearch_EM.search(maxiter=200,nreps=1,verbose=False)
-
+        print("best_tree",best_tree)
         nllh_nni_EM = -max_score
         
         self.assertAlmostEqual(nllh_bf,nllh_nni_EM,places=4,msg="TopoSearchTest: test_1 failed.")

@@ -5,6 +5,7 @@ import problin_libs as problin
 from problin_libs.sequence_lib import read_sequences
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
+#from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
 from problin_libs.Topology_search import Topology_search
 from treeswift import *
 import random
@@ -116,11 +117,11 @@ def main():
             seen_sites = set()
             with open(args["priors"],'r') as fin:
                 lines = fin.readlines()
-                for line in lines[1:]:
-                #for line in lines:
+                #for line in lines[1:]:
+                for line in lines:
                     site_idx,char_state,prob = line.strip().split(',')
-                    site_idx = int(site_idx[1:])
-                    #site_idx = int(site_idx)
+                    #site_idx = int(site_idx[1:])
+                    site_idx = int(site_idx)
                     if site_idx not in seen_sites:
                         seen_sites.add(site_idx)
                     char_state = int(char_state)
