@@ -1,11 +1,11 @@
 from math import log,isclose,exp
-import timeit
 from random import choice, shuffle, random
 from problin_libs import *
 from treeswift import *
 from problin_libs.EM_solver import EM_solver
 from copy import deepcopy
 from problin_libs.lca_lib import find_LCAs
+import timeit
 
 class Topology_search:
     def __init__(self,treeTopo,solver,data={},prior={},params={},T_cooldown=20,alpha_cooldown=0.9):
@@ -63,7 +63,8 @@ class Topology_search:
         p = min(exp((new_score-curr_score)/T),1)
         return random() < p
 
-    def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY):
+    def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY, maxruntime=43200, checkpoint=False, checkpoint_file_prefix="problin_topo_search"):
+        # 43200 seconds is 12 hours
         original_topo = self.treeTopo
         original_params = self.params
         #nni_replicates = [(None,None)]*nreps
@@ -95,7 +96,7 @@ class Topology_search:
             else:    
                 if verbose:
                     print("Perform nni moves for full topology search")
-                tree,score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False)
+                tree,score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False, maxruntime=maxruntime, checkpoint=checkpoint, checkpoint_file_prefix=checkpoint_file_prefix)
             if score > best_score:
                 best_score = score
                 best_tree = tree    
@@ -103,7 +104,8 @@ class Topology_search:
             #nni_replicates[i] = (best_score,topo_list)
         return best_tree,best_score
     
-    def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False):
+    def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False, maxruntime=43200, checkpoint=False, checkpoint_file_prefix="problin_topo_search"):
+        start_time = timeit.default_timer()
         # optimize branch lengths and other parameters for the starting tree
         mySolver = self.get_solver()
         #strategy_copy = {x:strategy[x] for x in strategy}
@@ -122,6 +124,7 @@ class Topology_search:
             if verbose:
                 print("NNI Iter:", nni_iter)
             new_score,n_attempts,success = self.single_nni(curr_score,nni_iter,strategy,only_marked=only_marked)
+            curr_elapsed_time = timeit.default_timer() - start_time
             if not success:
                 break
             curr_score = new_score
@@ -131,6 +134,13 @@ class Topology_search:
             #topo_list.append((self.treeTopo,curr_score))
             if verbose:
                 print("Current score: " + str(curr_score))
+            if curr_elapsed_time > maxruntime:
+                break
+            if checkpoint and nni_iter % 10 == 0:
+                with open(f'{checkpoint_file_prefix}.txt', 'w+') as fout:
+                    fout.write(f"Current newick tree: {self.treeTopo}\n")
+                    fout.write(f"Current negative-llh: {curr_score}\n")
+
         if verbose:
             print("Best score: " + str(best_score))
         return best_tree,best_score 

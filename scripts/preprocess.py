@@ -1,6 +1,7 @@
 import json
 import pickle
 from problin_libs.sequence_lib import read_sequences, write_sequences
+from collections import defaultdict
 import sys
 
 # adapted from /n/fs/ragr-research/projects/problin_experiments/Real_biodata/test_kptracer/proc_scripts
@@ -22,23 +23,35 @@ def load_pickle(f):
         Q[i] = q
     return Q
 
-def make_unique(fname, outfile, eqfile, delimiter='\t', missing_char="?", droplenti=False):
+def make_unique(fname, outfile, eqfile, delimiter='\t', droplenti=False):
+    missing_char="?" #read_sequences casts all missing to this
 
     msa, site_names = read_sequences(fname, filetype="charMtrx", delimiter=delimiter)
     
     final_msa = dict()
     seen = dict()
-    mappings = dict()
+    mappings = defaultdict(list)
 
     for cellBC in msa:
         s = [str(x) for x in msa[cellBC]]
+        # check if all missing_char or all zeros
+        all_missing_zero = False
+        chars = set(s)
+        if missing_char in chars:
+            chars.remove(missing_char)
+        if '0' in chars:
+            chars.remove('0')
+        if len(chars) == 0:
+            all_missing_zero = True
+
         s = ''.join(s)
         k = len(msa[cellBC])
-        if s not in seen:
-            # final_msa[cellBC] = msa[cellBC]
+        
+        if all_missing_zero:
+            mappings[cellBC].append('all_missing_or_zero')
+        elif s not in seen:  
             final_msa[cellBC] = [x if x != missing_char else -1 for x in msa[cellBC] ]
             seen[s] = cellBC
-            mappings[cellBC] = []
         else:
             seed_cellBC = seen[s]
             mappings[seed_cellBC].append(cellBC)

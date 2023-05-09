@@ -12,6 +12,7 @@ import argparse
 import timeit
 from sys import argv,exit,stdout
 from copy import deepcopy
+import pathlib
 
 def best_tree(nni_replicates):
     max_score = -float("inf")
@@ -96,7 +97,7 @@ def main():
     else:
         # read in the Q matrix
         file_extension = args["priors"].strip().split(".")[-1]
-        if file_extension == "pkl": # pickled file
+        if file_extension == "pkl" or file_extension == "pickle":
             infile = open(args["priors"], "rb")
             priors = pickle.load(infile)
             infile.close()
@@ -116,8 +117,8 @@ def main():
             seen_sites = set()
             with open(args["priors"],'r') as fin:
                 lines = fin.readlines()
-                for line in lines[1:]:
-                #for line in lines:
+                #for line in lines[1:]:
+                for line in lines:
                     site_idx,char_state,prob = line.strip().split(',')
                     site_idx = int(site_idx[1:])
                     #site_idx = int(site_idx)
@@ -176,8 +177,9 @@ def main():
             if args["resolve_search"]:
                 print("Starting local topology search to resolve polytomies")
             else:
-                print("Starting topology search")                 
-            opt_tree,max_score = myTopoSearch.search(maxiter=2000, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
+                print("Starting topology search")
+            ckpt_prefix=pathlib.Path(args['output']).with_suffix('')
+            opt_tree,max_score = myTopoSearch.search(maxiter=2000, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'], maxruntime=43200, checkpoint=True, checkpoint_file_prefix=f"{ckpt_prefix}.{problin.PROGRAM_NAME}_{problin.PROGRAM_VERSION}._checkpoint") 
             #opt_tree, max_score = best_tree(nni_replicates) # outputs a string
             nllh = -max_score        
     
