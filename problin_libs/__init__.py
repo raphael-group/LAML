@@ -4,7 +4,7 @@
 PROGRAM_NAME = "Problin"
 PROGRAM_AUTHOR = ["Uyen Mai","Gillian Chu","Ben Raphael"]
 PROGRAM_LICENSE = "GNU General Public License, version 3"
-PROGRAM_VERSION = "0.2"
+PROGRAM_VERSION = "0.3p"
 PROGRAM_YEAR = "2023"
 PROGRAM_INSTITUTE = "Computer Science Department, Princeton University"
 PROGRAM_DESCRIPTION = "Probabilistic Lineage Tracing with Mixed-type Missing Data"
