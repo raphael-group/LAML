@@ -49,6 +49,7 @@ def main():
     parser.add_argument("--resolve_search",action='store_true', required=False,help="Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topoloy_search.")
     parser.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topoloy_search and --resolve_search.")
     parser.add_argument("--randomreps", required=False, default=1, type=int, help="Number of replicates to run for the random strategy of topology search.")
+    parser.add_argument("--maxIters", required=False, default=500, type=int, help="Maximum number of iterations to run topology search.")
 
     if len(argv) == 1:
         parser.print_help()
@@ -117,11 +118,11 @@ def main():
             seen_sites = set()
             with open(args["priors"],'r') as fin:
                 lines = fin.readlines()
-                #for line in lines[1:]:
-                for line in lines:
+                for line in lines[1:]:
+                #for line in lines:
                     site_idx,char_state,prob = line.strip().split(',')
-                    #site_idx = int(site_idx[1:])
-                    site_idx = int(site_idx)
+                    site_idx = int(site_idx[1:])
+                    #site_idx = int(site_idx)
                     if site_idx not in seen_sites:
                         seen_sites.add(site_idx)
                     char_state = int(char_state)
@@ -181,7 +182,7 @@ def main():
                 print("Starting local topology search to resolve polytomies")
             else:
                 print("Starting topology search")                 
-            opt_tree,max_score,opt_params = myTopoSearch.search(maxiter=500, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
+            opt_tree,max_score,opt_params = myTopoSearch.search(maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
             nllh = -max_score        
     
     # post-processing: analyze results and output 

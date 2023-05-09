@@ -60,7 +60,7 @@ class Topology_search:
         if new_score > curr_score:
             return True
         T = max(1e-12,self.a*self.alpha_cooldown**t + self.b)
-        p = min(exp((new_score-curr_score)/T),1)
+        p = min(exp((new_score-curr_score-1e-12)/T),1)
         return random() < p
 
     def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY):
@@ -100,6 +100,8 @@ class Topology_search:
                 best_tree = tree    
                 best_params = params
             # The final optimization of parameters
+            if verbose:
+                print("Optimal topology found. Re-optimizing other parameters ...")
             self.treeTopo = best_tree
             self.params = best_params
             self.__renew_tree_obj__()
@@ -110,6 +112,8 @@ class Topology_search:
             self.update_from_solver(mySolver)
             best_tree = self.treeTopo
             best_params = self.params
+            if verbose:
+                print("Final optimal score: " + str(best_score))
         return best_tree,best_score,best_params
     
     def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False):
@@ -144,7 +148,7 @@ class Topology_search:
                 stop_time = timeit.default_timer()
                 print("Runtime (s):", stop_time - start_time)
         if verbose:
-            print("Best score: " + str(best_score))
+            print("Best score for this search: " + str(best_score))
         return best_tree,best_score,best_params 
     
     def single_nni(self,curr_score,nni_iter,strategy,only_marked=False):
