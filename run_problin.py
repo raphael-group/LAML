@@ -49,6 +49,7 @@ def main():
     parser.add_argument("--resolve_search",action='store_true', required=False,help="Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topoloy_search.")
     parser.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topoloy_search and --resolve_search.")
     parser.add_argument("--randomreps", required=False, default=1, type=int, help="Number of replicates to run for the random strategy of topology search.")
+    parser.add_argument("--maxruntime", required=False, default=43200, type=int, help="Maximum number of seconds (runtime) for topology search NNI step.")
 
     if len(argv) == 1:
         parser.print_help()
@@ -179,7 +180,7 @@ def main():
             else:
                 print("Starting topology search")
             ckpt_prefix=pathlib.Path(args['output']).with_suffix('')
-            opt_tree,max_score = myTopoSearch.search(maxiter=2000, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'], maxruntime=43200, checkpoint=True, checkpoint_file_prefix=f"{ckpt_prefix}.{problin.PROGRAM_NAME}_{problin.PROGRAM_VERSION}._checkpoint") 
+            opt_tree,max_score = myTopoSearch.search(maxiter=2000, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'], maxruntime=args["maxruntime"], checkpoint=True, checkpoint_file_prefix=f"{ckpt_prefix}.{problin.PROGRAM_NAME}_{problin.PROGRAM_VERSION}._checkpoint") 
             #opt_tree, max_score = best_tree(nni_replicates) # outputs a string
             nllh = -max_score        
     
