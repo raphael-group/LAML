@@ -5,7 +5,8 @@ import problin_libs as problin
 from problin_libs.sequence_lib import read_sequences
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
-from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
+from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
+from problin_libs.Topology_search import Topology_search as Topology_search_sequential
 #from problin_libs.Topology_search import Topology_search
 from treeswift import *
 import random
@@ -50,6 +51,7 @@ def main():
     parser.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topoloy_search and --resolve_search.")
     parser.add_argument("--randomreps", required=False, default=1, type=int, help="Number of replicates to run for the random strategy of topology search.")
     parser.add_argument("--maxIters", required=False, default=500, type=int, help="Maximum number of iterations to run topology search.")
+    parser.add_argument("--parallel", required=False, default=True, help="Turn on parallel version of topology search.")
 
     if len(argv) == 1:
         parser.print_help()
@@ -118,11 +120,22 @@ def main():
             seen_sites = set()
             with open(args["priors"],'r') as fin:
                 lines = fin.readlines()
-                for line in lines[1:]:
-                #for line in lines:
+                # check if there is a header 
+                tokens = lines[0].split(',')
+                if not tokens[1].isnumeric() and not tokens[2].isnumeric():
+                    lines = lines[1:]
+
+                # check if the first character of the character name is a string
+                token = lines[0].split(',')[0]
+                charname_is_str = not token.isnumeric() 
+
+                #for line in lines[1:]:
+                for line in lines:
                     site_idx,char_state,prob = line.strip().split(',')
-                    site_idx = int(site_idx[1:])
-                    #site_idx = int(site_idx)
+                    if charname_is_str:
+                        site_idx = int(site_idx[1:])
+                    else:
+                        site_idx = int(site_idx)
                     if site_idx not in seen_sites:
                         seen_sites.add(site_idx)
                     char_state = int(char_state)
@@ -152,6 +165,8 @@ def main():
     data = {'charMtrx':msa} 
     prior = {'Q':Q} 
     params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps}  
+    Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
+
     myTopoSearch = Topology_search(input_tree, selected_solver, data=data, prior=prior, params=params)
 
     if args["compute_llh"]:
@@ -163,6 +178,10 @@ def main():
         print("Tree neagtive log-likelihood: " + str(nllh))
         print("Tree log-likelihood: " + str(-nllh))
     else:
+        if args["parallel"]:
+            print("Running topology search in parallel...")
+        else:
+            print("Running topology search sequentially...")
         # setup the strategy
         my_strategy = deepcopy(problin.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
