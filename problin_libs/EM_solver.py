@@ -350,10 +350,12 @@ class EM_solver(ML_solver):
         for r in range(nIters):
             if verbose > 0:
                 print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
+            #try:
+            #start_time = timeit.default_timer()
             try:
                 d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
             except:
-                status_d = "failure"    
+                status_d = "failure"
             if status_d != "optimal":
                 return False,status_d
                 
@@ -364,10 +366,12 @@ class EM_solver(ML_solver):
             else:    
                 if verbose > 0:
                     print("Optimizing nu")
+                #try:    
+                #start_time = timeit.default_timer()
                 try:
-                    nu_star,status_nu = __optimize_nu__(d_star) 
+                    nu_star,status_nu = __optimize_nu__(d_star)                 
                 except:
-                    status_nu = "failure"    
+                    status_nu = "failure"
                 if status_nu != "optimal":
                     return False,status_nu
         # place the optimal value back to params
