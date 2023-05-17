@@ -5,6 +5,7 @@ import argparse
 from treeswift import *
 from math import log
 import pandas as pd
+import time
 
 def pars_score_startle(args):
     seed_tree = startle.from_newick_get_nx_tree(args.tree)

@@ -5,7 +5,8 @@ import problin_libs as problin
 from problin_libs.sequence_lib import read_sequences, read_priors
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
-from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
+from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
+from problin_libs.Topology_search import Topology_search as Topology_search_sequential
 #from problin_libs.Topology_search import Topology_search
 from treeswift import *
 import random
@@ -69,6 +70,7 @@ def main():
     parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
     parser.add_argument("--randomreps", required=False, default=1, type=int, help="Number of replicates to run for the random strategy of topology search.")
     parser.add_argument("--maxIters", required=False, default=500, type=int, help="Maximum number of iterations to run topology search.")
+    parser.add_argument("--parallel", required=False, default=True, help="Turn on parallel version of topology search.")
 
     if len(argv) == 1:
         parser.print_help()
@@ -114,9 +116,61 @@ def main():
             q[0] = 0
             Q.append(q)
     else:
-        Q = read_priors(args["priors"], site_names)
+        #Q = read_priors(args["priors"], site_names)
 
     # TODO: Normalize Q matrix here instead of inside ML_solver
+        # read in the Q matrix
+        file_extension = args["priors"].strip().split(".")[-1]
+        if file_extension == "pkl": # pickled file
+            infile = open(args["priors"], "rb")
+            priors = pickle.load(infile)
+            infile.close()
+            Q = []
+            priorkeys = sorted(priors.keys())
+            if priorkeys != sorted([int(x[1:]) for x in site_names]):
+                print("Prior keys mismatch with site names.")
+                print("Prior keys:", priorkeys)
+                print("Site names:", site_names)
+
+            for i in sorted(priors.keys()):
+                q = {int(x):priors[i][x] for x in priors[i]}
+                q[0] = 0
+                Q.append(q)
+        elif file_extension == "csv":
+            Q = [{0:0} for i in range(k)]
+            seen_sites = set()
+            with open(args["priors"],'r') as fin:
+                lines = fin.readlines()
+                # check if there is a header 
+                tokens = lines[0].split(',')
+                if not tokens[1].isnumeric() and not tokens[2].isnumeric():
+                    lines = lines[1:]
+
+                # check if the first character of the character name is a string
+                token = lines[0].split(',')[0]
+                charname_is_str = not token.isnumeric() 
+
+                #for line in lines[1:]:
+                for line in lines:
+                    site_idx,char_state,prob = line.strip().split(',')
+                    if charname_is_str:
+                        site_idx = int(site_idx[1:])
+                    else:
+                        site_idx = int(site_idx)
+                    if site_idx not in seen_sites:
+                        seen_sites.add(site_idx)
+                    char_state = int(char_state)
+                    prob = float(prob)
+                    Q[len(seen_sites) - 1][char_state] = prob
+        else:
+            Q = [{0:0} for i in range(k)]
+            with open(args["priors"],'r') as fin:
+                for line in fin:
+                    site_idx,char_state,prob = line.strip().split()
+                    site_idx = int(site_idx)
+                    char_state = int(char_state)
+                    prob = float(prob)
+                    Q[site_idx][char_state] = prob
 
     selected_solver = EM_solver
     em_selected = True
@@ -133,6 +187,8 @@ def main():
     prior = {'Q':Q} 
     
     params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps}  
+    Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
+
     myTopoSearch = Topology_search(input_tree, selected_solver, data=data, prior=prior, params=params)
 
     if args["compute_llh"]:
@@ -144,6 +200,10 @@ def main():
         print("Tree neagtive log-likelihood: " + str(nllh))
         print("Tree log-likelihood: " + str(-nllh))
     else:
+        if args["parallel"]:
+            print("Running topology search in parallel...")
+        else:
+            print("Running topology search sequentially...")
         # setup the strategy
         my_strategy = deepcopy(problin.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
