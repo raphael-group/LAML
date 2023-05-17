@@ -1,5 +1,3 @@
 #! /bin/bash
 
-rm -f problin_out.txt
-python ../../run_problin.py -c cmtx.csv -t test.tre -p priors.csv --delimiter comma -o problin_out.txt --nInitials 1 --randomreps 1 --likelihood 
-#python ../../run_problin.py -c cmtx.csv -t test.tre -p priors.csv --delimiter comma -o problin_out.txt --nInitials 1 --randomreps 1 --likelihood --phi 0.0000000001 --nu 0.0000000001 
+python ../../run_problin.py -c n64_d0s32_r1_character_matrix.csv -t n64.tre -p n64_d0s32_priors.csv --delimiter comma -o n64_problin.txt -L "0 0.32"

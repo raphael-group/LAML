@@ -21,7 +21,8 @@ class ML_solver(Virtual_solver):
         nu = params['nu']
         phi = params['phi']
         self.charMtrx = charMtrx
-        self.tree = read_tree_newick(treeTopo)        
+        self.tree = read_tree_newick(treeTopo)  
+        self.tree.suppress_unifurcations()      
         # normalize Q
         self.Q = []
         for Q_i in Q:
@@ -33,9 +34,6 @@ class ML_solver(Virtual_solver):
         # compute numsites, num_edges, dmin, and dmax 
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.tree.traverse_postorder()))
-        zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx]) 
-        totalcount = self.numsites * len(self.charMtrx)
-        zeroprop = zerocount/totalcount
         self.dmin = 1e-6
         self.dmax = 10
 
@@ -150,7 +148,7 @@ class ML_solver(Virtual_solver):
                         branches.append((node, s))
         return branches 
 
-    def score_tree(self,strategy={'optimize':True,'ultra_constr':False}):
+    def score_tree(self,strategy={'ultra_constr':False}):
         nllh = self.optimize(initials=1,verbose=-1,ultra_constr=strategy['ultra_constr'])
         score = None if nllh is None else -nllh
         if score is None:
@@ -357,7 +355,7 @@ class ML_solver(Virtual_solver):
                     q = self.Q[site][node.alpha[site]] if node.alpha[site] != "?" else 1.0
                     if node.is_leaf():
                         if node.alpha[site] == "?":         
-                            masked_llh = log(1-(1-phi)*p**nu)
+                            masked_llh = log(1-(1-phi)*p**nu) if (1-(1-phi)*p**nu)>0 else min_llh
                             node.L0[site] = node.L1[site] = masked_llh
                         else:    
                             node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi) if (1-p)*q*(1-phi)>0 else min_llh
@@ -487,12 +485,10 @@ class ML_solver(Virtual_solver):
                     if verbose >= 0:
                         print("Optimal point found for initial point " + str(rep+1))
                         self.show_params()
-                        #print("Optimal phi: " + str(self.params.phi))
-                        #print("Optimal nu: " + str(self.params.nu))
-                        #print("Optimal tree: " + self.tree.newick())
-                        #print("Optimal nllh: " + str(nllh))
-                    #results.append((nllh,rep,Params(self.params.nu,self.params.phi),self.tree.newick()))
-                    results.append((nllh,rep,deepcopy(self.params),self.tree.newick()))
+                    # remove zero-length branches
+                    tree_copy = read_tree_newick(self.tree.newick())
+                    tree_copy.collapse_short_branches(0)
+                    results.append((nllh,rep,deepcopy(self.params),tree_copy.newick()))
                 elif verbose >= 0:
                     print("Fatal: failed to optimize using initial point " + str(rep+1))    
             all_trials += initials    

@@ -1,0 +1,1 @@
+Purpose: test problin on resolving polytomies and optimizing branch lengths, phi, and nu using --resolve_search flag.
