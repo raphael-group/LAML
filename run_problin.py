@@ -173,5 +173,8 @@ def main():
     stop_time = timeit.default_timer()
     print("Runtime (s):", stop_time - start_time)
 
+    stop_time = timeit.default_timer()
+    print("Runtime (s):", stop_time - start_time)
+
 if __name__ == "__main__":
     main()
