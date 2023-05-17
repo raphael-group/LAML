@@ -1,4 +1,4 @@
-problin_libs/Topology_search.pyfrom math import log,isclose,exp
+from math import log,isclose,exp
 import timeit
 from random import choice, shuffle, random
 from problin_libs import *
