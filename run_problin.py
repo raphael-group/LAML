@@ -68,6 +68,7 @@ def main():
     parser.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
     parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
     parser.add_argument("--randomreps", required=False, default=1, type=int, help="Number of replicates to run for the random strategy of topology search.")
+    parser.add_argument("--maxIters", required=False, default=500, type=int, help="Maximum number of iterations to run topology search.")
 
     if len(argv) == 1:
         parser.print_help()
@@ -162,7 +163,7 @@ def main():
                 print("Starting local topology search to resolve polytomies")
             else:
                 print("Starting topology search")                 
-            opt_tree,max_score,opt_params = myTopoSearch.search(maxiter=500, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
+            opt_tree,max_score,opt_params = myTopoSearch.search(maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
             nllh = -max_score        
     
     # post-processing: analyze results and output 
