@@ -5,8 +5,8 @@ import problin_libs as problin
 from problin_libs.sequence_lib import read_sequences, read_priors
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
-#from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
-from problin_libs.Topology_search import Topology_search
+from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
+#from problin_libs.Topology_search import Topology_search
 from treeswift import *
 import random
 import argparse
@@ -138,6 +138,8 @@ def main():
         print("Compute likelihood of the input tree and specified parameters without any optimization")
         mySolver = myTopoSearch.get_solver()
         nllh = mySolver.negative_llh()
+        opt_tree = myTopoSearch.treeTopo
+        opt_params = myTopoSearch.params
         print("Tree neagtive log-likelihood: " + str(nllh))
         print("Tree log-likelihood: " + str(-nllh))
     else:
@@ -148,19 +150,19 @@ def main():
         # resolve polytomies or not?
         my_strategy['resolve_search_only'] = args["resolve_search"] #or args["topology_search"])
         # full search or local search to only resolve polytomies? 
-        #my_strategy['only_marked'] = not args['topology_search']
         if not args["resolve_search"] and not args["topology_search"]:
             print("Optimizing branch lengths, phi, and nu without topology search")
             mySolver = myTopoSearch.get_solver()
             nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])      
             myTopoSearch.update_from_solver(mySolver)
+            opt_tree = myTopoSearch.treeTopo
+            opt_params = myTopoSearch.params
         else:
             if args["resolve_search"]:
                 print("Starting local topology search to resolve polytomies")
             else:
                 print("Starting topology search")                 
-            opt_tree,max_score = myTopoSearch.search(maxiter=2000, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
-            #opt_tree, max_score = best_tree(nni_replicates) # outputs a string
+            opt_tree,max_score,opt_params = myTopoSearch.search(maxiter=500, verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
             nllh = -max_score        
     
     # post-processing: analyze results and output 

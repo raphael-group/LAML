@@ -379,7 +379,8 @@ class EM_solver(ML_solver):
         self.params.nu = nu_star
         i = 0
         for node in self.tree.traverse_postorder():
-            if not node.polytomy_mark and not node.mark_fixed:
+            if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+            #if not node.polytomy_mark and not node.mark_fixed:
                 node.edge_length = d_star[i]
                 i += 1
         return True,"optimal"    
@@ -414,7 +415,7 @@ class EM_solver(ML_solver):
             if abs((curr_llh - pre_llh)/pre_llh) < conv_eps:
                 converged = True
                 # perform a final full optimization
-                self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr,local_brlen_opt=False)
+                #self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr,local_brlen_opt=False)
                 break
             pre_llh = curr_llh
             em_iter += 1
