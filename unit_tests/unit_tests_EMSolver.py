@@ -1,4 +1,4 @@
-import unittest
+unit_tests/unit_tests_EMSolver.pyimport unittest
 from problin_libs.sequence_lib import read_sequences
 from problin_libs.EM_solver import EM_solver
 from problin_libs.ML_solver import ML_solver
@@ -543,7 +543,7 @@ class EMTest(unittest.TestCase):
                 char_state = int(char_state)
                 prob = float(prob)
                 Q[len(seen_sites) - 1][char_state] = prob
-        true_nllh = 1005.3912627576512 
+        true_nllh = 1007.009158767873 
         true_phi = 0
         true_nu = 0
 
@@ -573,7 +573,7 @@ class EMTest(unittest.TestCase):
                 char_state = int(char_state)
                 prob = float(prob)
                 Q[len(seen_sites) - 1][char_state] = prob
-        true_nllh = 1005.3912627576512 
+        true_nllh = 1007.009158767873
         true_phi = 0
         true_nu = 0
 

@@ -1,13 +1,12 @@
-from math import log,isclose,exp
+problin_libs/Topology_search.pyfrom math import log,isclose,exp
 from random import choice, shuffle, random
-from problin_libs import min_llh, eps, nni_conv_eps
+from problin_libs import *
 from treeswift import *
 from problin_libs.EM_solver import EM_solver
 
-DEFAULT_STRATEGY={'resolve_polytomies':True,'only_marked':False,'ultra_constr':False}
 
 class Topology_search:
-    def __init__(self,treeTopo,solver,data={},prior={},params={},T_cooldown=100,alpha_cooldown=0.9):
+    def __init__(self,treeTopo,solver,data={},prior={},params={},T_cooldown=20,alpha_cooldown=0.9):
         self.treeTopo = treeTopo # treeTopo is a newick string
         self.solver = solver     # solver is a solver definition
         self.params = params   
@@ -74,25 +73,24 @@ class Topology_search:
             self.params = original_params
             self.__renew_tree_obj__()
             self.__mark_polytomies__()
-            topo_list1 = []
-            topo_list2 = []
-            if strategy['resolve_polytomies']:
-                if self.has_polytomy:
-                    if verbose:
-                        print("resolving polytomies")
-                    topo_list1,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True)
-                else:
-                    mySolver = self.get_solver()
-                    strategy_copy = {x:strategy[x] for x in strategy}
-                    strategy_copy['only_marked'] = True
-                    best_score = mySolver.score_tree(strategy=strategy_copy)
-                    self.update_from_solver(mySolver)
-                    topo_list1 = [(self.treeTopo,best_score)]            
-            if not strategy['only_marked']:    
+            #topo_list1 = []
+            #topo_list2 = []
+            if strategy['resolve_search_only']:
                 if verbose:
-                    print("performing full search")
-                topo_list2,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False)
-            topo_list = [(x,y,'resolve_polytomies') for x,y in topo_list1] + [(x,y,'full_search') for x,y in topo_list2]
+                    print("Only perform local nni moves to resolve polytomies")
+                if self.has_polytomy:
+                    topo_list,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True)
+                else: # score this tree topology (optimize all numerical params)
+                    mySolver = self.get_solver()
+                    best_score = mySolver.score_tree(strategy=strategy)
+                    self.update_from_solver(mySolver)
+                    topo_list = [(self.treeTopo,best_score)]            
+            #if not strategy['only_marked']:    
+            else:    
+                if verbose:
+                    print("Perform nni moves for full topology search")
+                topo_list,best_score = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False)
+            #topo_list = [(x,y,'resolve_polytomies') for x,y in topo_list1] + [(x,y,'full_search') for x,y in topo_list2]
             nni_replicates[i] = (best_score,topo_list)
         return nni_replicates
     
@@ -102,6 +100,8 @@ class Topology_search:
         #strategy_copy = {x:strategy[x] for x in strategy}
         #strategy_copy['optimize'] = True
         curr_score = mySolver.score_tree(strategy=strategy) 
+        if verbose:
+            print("Initial score: " + str(curr_score))
         self.update_from_solver(mySolver)
         topo_list = [(self.treeTopo,curr_score)]            
         # perform nni search
@@ -113,7 +113,11 @@ class Topology_search:
                 break
             curr_score = new_score
             topo_list.append((self.treeTopo,curr_score))
+            if verbose:
+                print("Current score: " + str(curr_score))
         final_score = curr_score
+        if verbose:
+            print("Final score: " + str(final_score))
         return topo_list,final_score 
     
     def single_nni(self,curr_score,nni_iter,strategy,only_marked=False):
@@ -163,8 +167,11 @@ class Topology_search:
 
             #if new_score > curr_score or isclose(new_score,curr_score,rel_tol=1e-3): # accept the new tree and params
             if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params
+                #print(curr_score,new_score,"accept")
                 self.update_from_solver(mySolver)
                 return True,new_score
+            
+            #print(curr_score,new_score,"reject")
             
             # Score doesn't improve --> reverse to the previous state
             u_child.set_parent(u)
