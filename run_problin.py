@@ -5,6 +5,7 @@ import problin_libs as problin
 from problin_libs.sequence_lib import read_sequences, read_priors
 from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
+#from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
 from problin_libs.Topology_search import Topology_search
 from treeswift import *
 import random
