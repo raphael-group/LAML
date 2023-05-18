@@ -4,12 +4,12 @@ from problin_libs import *
 from problin_libs.EM_solver import EM_solver
 from problin_libs.ML_solver import ML_solver
 from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
-from unit_tests.unit_tests_TopoSearch import TopoSearchTest
+#from unit_tests.unit_tests_TopoSearch import TopoSearchTest
 #from problin_libs.Topology_search import Topology_search
 from treeswift import *
 from copy import deepcopy
 
-class TopoSearchParallelTest(TopoSearchTest):
+class TopoSearchParallelTest(unittest.TestCase):
     # topology search with EM_solver
     def test_1(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]

@@ -15,33 +15,6 @@ import timeit
 from sys import argv,exit,stdout
 from copy import deepcopy
 
-def has_zero_branch(inputtree):
-    t = read_tree_newick(inputtree)
-    for b in t.branch_lengths():
-        if b == 0:
-            return True
-    return False
-
-def best_tree(nni_replicates):
-    max_score = -float("inf")
-    T1 = ""
-    for score, tree_topos in nni_replicates:
-        if score > max_score:
-            max_score = score
-            T1,_ = tree_topos[-1]
-    return T1, max_score
-
-def record_statistics(myTopoSearch, fout, optimal_llh, is_opt=True):
-    fout.write("Newick tree: " +  myTopoSearch.treeTopo + "\n")
-    if is_opt:
-        fout.write("Optimal negative-llh: " +  str(optimal_llh) + "\n")
-        fout.write("Optimal dropout rate: " + str(myTopoSearch.params['phi']) + "\n")
-        fout.write("Optimal silencing rate: " + str(myTopoSearch.params['nu']) + "\n")
-    else:
-        fout.write("Calculated negative-llh: " +  str(optimal_llh) + "\n")
-        fout.write("(provided) dropout rate: " + str(myTopoSearch.params.phi) + "\n")
-        fout.write("(provided) silencing rate: " + str(myTopoSearch.params.nu) + "\n")
-    
 def main():
     parser = argparse.ArgumentParser()
 
@@ -70,7 +43,7 @@ def main():
     parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
     parser.add_argument("--randomreps", required=False, default=1, type=int, help="Number of replicates to run for the random strategy of topology search.")
     parser.add_argument("--maxIters", required=False, default=500, type=int, help="Maximum number of iterations to run topology search.")
-    parser.add_argument("--parallel", required=False, default=True, help="Turn on parallel version of topology search.")
+    parser.add_argument("--parallel", required=False,action='store_true', help="Turn on parallel version of topology search.")
 
     if len(argv) == 1:
         parser.print_help()
@@ -229,15 +202,10 @@ def main():
     # post-processing: analyze results and output 
     outfile = args["output"]        
     with open(outfile,'w') as fout:
-        if args["compute_llh"]:
-            fout.write("Provided tree:\n")
-        else:
-            fout.write("Final optimal tree:\n")
-        record_statistics(myTopoSearch, fout, nllh, not args["compute_llh"])
-
-    stop_time = timeit.default_timer()
-    print("Runtime (s):", stop_time - start_time)
-
+        fout.write("Newick tree: " +  opt_tree + "\n")
+        fout.write("Negative-llh: " +  str(nllh) + "\n")
+        fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")
+        fout.write("Silencing rate: " + str(opt_params['nu']) + "\n") 
     stop_time = timeit.default_timer()
     print("Runtime (s):", stop_time - start_time)
 

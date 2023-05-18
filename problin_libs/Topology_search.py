@@ -151,7 +151,7 @@ class Topology_search:
             print("Best score for this search: " + str(best_score))
         return best_tree,best_score,best_params 
     
-    def single_nni(self,curr_score,nni_iter,strategy,only_marked=False):
+    def single_nni(self,curr_score,nni_iter,strategy,only_marked=False,verbose=False):
         branches = []
         for node in self.tree_obj.traverse_preorder():
             if node.is_leaf() or node.is_root():
@@ -164,13 +164,10 @@ class Topology_search:
         took = False
         score = -float("inf")
         n_attempts = 0
-        start_time = timeit.default_timer()
         while not took and branches:
             u = branches.pop()
             took,score = self.apply_nni(u,curr_score,nni_iter,strategy)
             n_attempts += 2
-        stop_time = timeit.default_timer()
-        print("Time",stop_time-start_time,n_attempts)
         return score,n_attempts,took
     
     def apply_nni(self,u,curr_score,nni_iter,strategy):
@@ -180,9 +177,6 @@ class Topology_search:
             if node != u:
                 w = node
                 break                
-        #mySolver = self.get_solver()        
-        #curr_score = mySolver.score_tree(strategy=strategy)
-        
         u_children = u.child_nodes()
         # shuffle the order of the nni moves
         shuffle(u_children)
@@ -220,29 +214,20 @@ class Topology_search:
             v.remove_child(w)
             u.add_child(w)
 
-            start_time = timeit.default_timer()
+            #start_time = timeit.default_timer()
             mySolver = self.solver(self.tree_obj.newick(),self.data,self.prior,self.params)            
             new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
             if status != "optimal" and strategy['local_brlen_opt']:
-                print("Warning: couldn't solve the restricted search to optimal. Retrying with full search")
+                #print("Warning: couldn't solve the restricted search to optimal. Retrying with full search")
                 score_tree_strategy['fixed_brlen'] = {}
                 mySolver = self.solver(self.tree_obj.newick(),self.data,self.prior,self.params)            
                 new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
-            stop_time = timeit.default_timer()
-            print("Time",stop_time-start_time)
+            #stop_time = timeit.default_timer()
+            #print("Time",stop_time-start_time)
             #if new_score > curr_score or isclose(new_score,curr_score,rel_tol=1e-3): # accept the new tree and params
             if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params                
-                #score_tree_strategy['fixed_brlen'] = {}
-                #score_tree_strategy['fixed_phi'] = strategy['fixed_phi']
-                #score_tree_strategy['fixed_nu'] = strategy['fixed_nu']
-                #mySolver = self.solver(self.tree_obj.newick(),self.data,self.prior,self.params)
-                #new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
-                #print(curr_score,new_score,"accept")
                 self.update_from_solver(mySolver)
                 return True,new_score
-            
-            #print(curr_score,new_score,"reject")
-            
             # Score doesn't improve --> reverse to the previous state
             u_child.set_parent(u)
             v.remove_child(u_child)

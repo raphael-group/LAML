@@ -16,31 +16,23 @@ class Topology_search_parallel(Topology_search):
         batch_size = 16
         curr_start_idx = 0
         curr_end_idx = min(batch_size,N)
-        #best_score = curr_score
         retry_nni_moves = []
         checked_all = False
         took = False
+        curr_queue = all_nni_moves
         while True:
-            if checked_all:
-                subset_nni_moves = retry_nni_moves
-            else:
-                subset_nni_moves = all_nni_moves[curr_start_idx:curr_end_idx]
-            #start_time = timeit.default_timer()
+            #if checked_all:
+                #subset_nni_moves = retry_nni_moves
+            #else:
+            #    subset_nni_moves = all_nni_moves[curr_start_idx:curr_end_idx]
+            subset_nni_moves = curr_queue[curr_start_idx:curr_end_idx]
             with Pool() as pool:
                 nni_results = pool.map(self.apply_nni,subset_nni_moves) 
-            #stop_time = timeit.default_timer()
-            #print("Time",stop_time-start_time)
-            #best_batch_score = -float("inf")  
-            #best_batch_result = None  
             for i,nni_result in enumerate(nni_results):
                 if nni_result['status'] == "optimal":
                     new_score = nni_result['score']
-                    '''
-                    if new_score > best_batch_score:
-                        best_batch_score = new_score
-                        best_batch_result = nni_result '''
                     if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params               
-                        print(curr_score,new_score,'accept') 
+                        #print(curr_score,new_score,'accept') 
                         u,v,u_child,w = nni_result['cache']
                         u_child.set_parent(v)
                         u.remove_child(u_child)
@@ -52,7 +44,7 @@ class Topology_search_parallel(Topology_search):
                         self.tree_obj = nni_result['tree_obj']
                         took = True
                         break
-                    print(curr_score,new_score,'reject') 
+                    #print(curr_score,new_score,'reject') 
                 elif not checked_all:
                     nwk_str,score_tree_strategy,(u,v,u_child,w) = subset_nni_moves[i]
                     score_tree_strategy['fixed_brlen'] = {}
@@ -60,10 +52,15 @@ class Topology_search_parallel(Topology_search):
                     retry_nni_moves.append(retry_move)
             if checked_all or took:
                 break    
-            checked_all = (curr_end_idx == N)
-            curr_start_idx += batch_size
-            curr_end_idx = min(curr_start_idx+batch_size,N)
-        print(curr_end_idx,curr_score,new_score,took)   
+            if not checked_all and curr_end_idx == N: # reach the end of the main queue  
+                #checked_all = (curr_end_idx == N)
+                checked_all = True
+                curr_queue = retry_nni_moves # switch queue
+                curr_start_idx = 0 # restart index
+            else:    
+                curr_start_idx += batch_size
+            curr_end_idx = min(curr_start_idx+batch_size,len(curr_queue))
+        #print(curr_end_idx,curr_score,new_score,took)   
         return new_score,curr_end_idx,took    
    
     def apply_nni(self,arguments):
