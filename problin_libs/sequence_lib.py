@@ -164,8 +164,20 @@ def read_priors(pfile, site_names):
         seen_sites = set()
         with open(pfile, 'r') as fin:
             lines = fin.readlines()
+            tokens = lines[0].split(',')
+            if not tokens[1].isnumeric() and not tokens[2].isnumeric():
+                lines = lines[1:]
+
+            # check if the first character of the character name is a string
+            token = lines[0].split(',')[0]
+            charname_is_str = not token.isnumeric()
+
             for line in lines:
                 site_idx, char_state, prob = line.strip().split(',')
+                if charname_is_str:
+                    site_idx = int(site_idx[1:])
+                else:
+                    site_idx = int(site_idx)
                 if site_idx not in seen_sites:
                     seen_sites.add(site_idx)
                 char_state = int(char_state)

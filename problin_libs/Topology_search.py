@@ -63,7 +63,7 @@ class Topology_search:
         p = min(exp((new_score-curr_score-1e-12)/T),1)
         return random() < p
 
-    def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY):
+    def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY,checkpoint_file="problin_topo_search._ckpt.txt"):
         original_topo = self.treeTopo
         original_params = self.params
         #nni_replicates = [(None,None)]*nreps
@@ -82,7 +82,7 @@ class Topology_search:
                 if verbose:
                     print("Only perform local nni moves to resolve polytomies")
                 if self.has_polytomy:
-                    tree,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True)
+                    tree,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True,checkpoint_file=checkpoint_file)
                 else: # score this tree topology (optimize all numerical params)
                     mySolver = self.get_solver()
                     score_tree_strategy = deepcopy(strategy)
@@ -94,7 +94,7 @@ class Topology_search:
             else:    
                 if verbose:
                     print("Perform nni moves for full topology search")
-                tree,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False)
+                tree,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False,checkpoint_file=checkpoint_file)
             if score > best_score:
                 best_score = score
                 best_tree = tree    
@@ -116,7 +116,7 @@ class Topology_search:
                 print("Final optimal score: " + str(best_score))
         return best_tree,best_score,best_params
     
-    def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False):
+    def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False, checkpoint_file="problin_topo_search._ckpt.txt"):
         # optimize branch lengths and other parameters for the starting tree
         mySolver = self.get_solver()
         score_tree_strategy = deepcopy(strategy)
@@ -147,6 +147,12 @@ class Topology_search:
                 print("Current score: " + str(curr_score))
                 stop_time = timeit.default_timer()
                 print("Runtime (s):", stop_time - start_time)
+            if nni_iter % 50 == 0:
+                with open(checkpoint_file, "w") as fout:
+                    fout.write("Current newick tree: {best_tree}\n")
+                    fout.write("Current negative-llh: {best_score}\n")
+                    fout.write("Current dropout rate: {best_params['phi']}\n")
+                    fout.write("Current silencing rate: {best_params['nu']}\n")
         if verbose:
             print("Best score for this search: " + str(best_score))
         return best_tree,best_score,best_params 

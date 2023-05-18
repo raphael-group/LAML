@@ -89,61 +89,8 @@ def main():
             q[0] = 0
             Q.append(q)
     else:
-        #Q = read_priors(args["priors"], site_names)
-
-    # TODO: Normalize Q matrix here instead of inside ML_solver
-        # read in the Q matrix
-        file_extension = args["priors"].strip().split(".")[-1]
-        if file_extension == "pkl": # pickled file
-            infile = open(args["priors"], "rb")
-            priors = pickle.load(infile)
-            infile.close()
-            Q = []
-            priorkeys = sorted(priors.keys())
-            if priorkeys != sorted([int(x[1:]) for x in site_names]):
-                print("Prior keys mismatch with site names.")
-                print("Prior keys:", priorkeys)
-                print("Site names:", site_names)
-
-            for i in sorted(priors.keys()):
-                q = {int(x):priors[i][x] for x in priors[i]}
-                q[0] = 0
-                Q.append(q)
-        elif file_extension == "csv":
-            Q = [{0:0} for i in range(k)]
-            seen_sites = set()
-            with open(args["priors"],'r') as fin:
-                lines = fin.readlines()
-                # check if there is a header 
-                tokens = lines[0].split(',')
-                if not tokens[1].isnumeric() and not tokens[2].isnumeric():
-                    lines = lines[1:]
-
-                # check if the first character of the character name is a string
-                token = lines[0].split(',')[0]
-                charname_is_str = not token.isnumeric() 
-
-                #for line in lines[1:]:
-                for line in lines:
-                    site_idx,char_state,prob = line.strip().split(',')
-                    if charname_is_str:
-                        site_idx = int(site_idx[1:])
-                    else:
-                        site_idx = int(site_idx)
-                    if site_idx not in seen_sites:
-                        seen_sites.add(site_idx)
-                    char_state = int(char_state)
-                    prob = float(prob)
-                    Q[len(seen_sites) - 1][char_state] = prob
-        else:
-            Q = [{0:0} for i in range(k)]
-            with open(args["priors"],'r') as fin:
-                for line in fin:
-                    site_idx,char_state,prob = line.strip().split()
-                    site_idx = int(site_idx)
-                    char_state = int(char_state)
-                    prob = float(prob)
-                    Q[site_idx][char_state] = prob
+        Q = read_priors(args["priors"], site_names)
+        # TODO: Normalize Q matrix here instead of inside ML_solver
 
     selected_solver = EM_solver
     em_selected = True
@@ -162,7 +109,9 @@ def main():
     params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps}  
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
+
     myTopoSearch = Topology_search(input_tree, selected_solver, data=data, prior=prior, params=params)
+
 
     if args["compute_llh"]:
         print("Compute likelihood of the input tree and specified parameters without any optimization")
@@ -196,7 +145,9 @@ def main():
                 print("Starting local topology search to resolve polytomies")
             else:
                 print("Starting topology search")                 
-            opt_tree,max_score,opt_params = myTopoSearch.search(maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps']) 
+            randval = int(random.random() * 1000)
+            checkpoint_file = f"{prefix}._ckpt.{randval}.txt"
+            opt_tree,max_score,opt_params = myTopoSearch.search(maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'], checkpoint_file=checkpoint_file) 
             nllh = -max_score        
     
     # post-processing: analyze results and output 
