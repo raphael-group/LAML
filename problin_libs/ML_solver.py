@@ -8,6 +8,7 @@ from problin_libs import min_llh, eps, nni_conv_eps
 from problin_libs.Virtual_solver import Virtual_solver
 from scipy.sparse import csr_matrix
 from copy import deepcopy
+from problin_libs.lca_lib import find_LCAs
 
 class Params:
     def __init__(self,nu,phi):
@@ -21,7 +22,8 @@ class ML_solver(Virtual_solver):
         nu = params['nu']
         phi = params['phi']
         self.charMtrx = charMtrx
-        self.tree = read_tree_newick(treeTopo)        
+        self.tree = read_tree_newick(treeTopo)  
+        self.tree.suppress_unifurcations()      
         # normalize Q
         self.Q = []
         for Q_i in Q:
@@ -33,11 +35,12 @@ class ML_solver(Virtual_solver):
         # compute numsites, num_edges, dmin, and dmax 
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.num_edges = len(list(self.tree.traverse_postorder()))
-        zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx]) 
+        self.dmin = 0.005
+        self.dmax = 10
+        zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx])
         totalcount = self.numsites * len(self.charMtrx)
         zeroprop = zerocount/totalcount
-        self.dmin = 1e-6
-        self.dmax = 10
+        self.dmax = -log(zeroprop) if zeroprop != 0 else 10
 
     def get_tree_newick(self):
         return self.tree.newick()
@@ -150,90 +153,16 @@ class ML_solver(Virtual_solver):
                         branches.append((node, s))
         return branches 
 
-    def score_tree(self,strategy={'optimize':True,'ultra_constr':False}):
-        nllh = self.optimize(initials=1,verbose=-1,ultra_constr=strategy['ultra_constr'])
+    def score_tree(self,strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':{}}):
+        ultra_constr = strategy['ultra_constr']
+        fixed_phi = strategy['fixed_phi']
+        fixed_nu = strategy['fixed_nu']
+        fixed_brlen = strategy['fixed_brlen']
+        nllh,status = self.optimize(initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_phi=fixed_phi,fixed_nu=fixed_nu,fixed_brlen=fixed_brlen)
         score = None if nllh is None else -nllh
         if score is None:
-            print("Fatal error: failed to score tree " + self.get_tree_newick())
-        return score
-
-    def apply_nni(self, u, verbose):
-        # apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]
-        v = u.get_parent()
-        u_edges = [w for w in u.child_nodes()]
-        v_edges = [w for w in v.child_nodes() if w is not u]
-        nni_moves = []
-
-        a, b = u_edges
-        c = v_edges[0]
-        d_ab = self.compare_tags(a.alpha, b.alpha)
-        d_ac = self.compare_tags(a.alpha, c.alpha)
-        d_bc = self.compare_tags(b.alpha, c.alpha)
-
-        w = v_edges[0] 
-        pre_llh = self.score_tree()
-        # explore in order of importance
-        if d_bc > d_ac:
-            # move a out
-            u_children = [a, b] 
-        else:
-            # move b out
-            u_children = [b, a] 
-
-        for u_child in u_children:
-            u_child.set_parent(v)
-            u.remove_child(u_child)
-            v.add_child(u_child)
-
-            w.set_parent(u)
-            v.remove_child(w)
-            u.add_child(w)
-            
-            new_llh = self.score_tree()
-
-            if new_llh > pre_llh:
-                # log likelihood improved
-                return True
-            elif new_llh == pre_llh:
-                return True
-            else:
-                # REVERSE IF LIKELIHOOD IS NOT BETTER
-                u_child.set_parent(u)
-                v.remove_child(u_child)
-                u.add_child(u_child)
-                
-                w.set_parent(v)
-                u.remove_child(w)
-                v.add_child(w)
-                
-                new_llh = self.score_tree()
-        return False
-
-    def single_nni(self, verbose, trynextbranch=True, strategy="vanilla", keybranches=[]):
-        branches = self.score_branches(strategy, keybranches)
-        took = False
-        bidx = 0
-        while not took:
-            if len(branches) == 0:
-                break
-            elif strategy == "random":
-                m = choice(branches)
-                u, u_score = m
-            else:
-                m = max(branches, key=lambda item:item[1])
-                u, u_score = m
-            
-            midx = branches.index(m)
-
-            branches.pop(midx)
-            took = self.apply_nni(u, verbose)
-            bidx += 1
-            if not trynextbranch:
-                took = True 
-        if verbose:
-            print(bidx, " branch attempts.")
-        llh = self.score_tree()
-        return llh
+            print("Fatal error: failed to score tree " + self.get_tree_newick() + ". Optimization status: " + status)
+        return score,status
 
     def tree_copy(self):
         tree = self.tree
@@ -247,69 +176,6 @@ class ML_solver(Virtual_solver):
             if not node.is_leaf():
                 nib += 1
         return float(nib) 
-    
-    def topology_search(self, maxiter=100, verbose=False, prefix="results_nni", trynextbranch=False, strategy="vanilla", keybranches=[], nreps=1, outdir="", conv=0.2):
-        nib = self.num_internal_branches()
-        t = round(0.2 * nib) + 1
-        k = -int(log(conv)/log(t) * nib)
-        resolve_polytomies = False
-        if keybranches != []:
-            resolve_polytomies = True
-            nib, keybranches = self.resolve_keybranches(keybranches)
-
-        nni_replicates = dict()
-        starting_tree = self.tree_copy()
-        for i in range(nreps):
-
-            topo_dict = {}
-            seen = set()
-            self.params.tree = starting_tree
-            nni_iter = 0
-            same = 0
-            pre_llh = self.score_tree()
-            
-            while 1:
-                if verbose:
-                    print("NNI Iter:", nni_iter)
-                opt_score = self.single_nni(verbose, trynextbranch=trynextbranch, strategy=strategy, keybranches=keybranches)
-                
-                tstr = self.params.tree.newick()
-                topo_dict[nni_iter] = (tstr, opt_score)
-                
-                seen.add(tstr)
-                new_llh = self.score_tree()
-
-                if isclose(new_llh, pre_llh, rel_tol=1e-9, abs_tol=0.0):
-                    same += 1
-                else:
-                    same = 0
-                
-                if (new_llh - pre_llh < nni_conv_eps and tstr in seen and same > k) or nni_iter > maxiter:
-                    break
-                pre_llh = new_llh
-                nni_iter += 1
-
-            nni_replicates[i] = (new_llh, topo_dict)
-        
-        if resolve_polytomies:
-            out1 = outdir + "/" + prefix + "_topo_llh_resolvingpolytomies.txt"
-            out2 = outdir + "/" + prefix + "_topo_progress_resolvingpolytomies.nwk"
-        else:
-            out1 = outdir + "/" + prefix + "_topo_llh.txt"
-            out2 = outdir + "/" + prefix + "_topo_progress.nwk"
-
-        with open(out1, "w+") as w:
-            w.write("RandomRep\tnniIter\tNLLH\n")
-            for rep in nni_replicates:
-                llh, topo_dict = nni_replicates[rep]
-                for nni_iter in topo_dict:
-                    w.write(str(rep) + "\t" + str(nni_iter) + "\t" + str(-topo_dict[int(nni_iter)][1]) + "\n")
-        with open(out2, "w+") as w:
-            w.write("RandomRep\tnniIter\tTopology\n")
-            for rep in nni_replicates:
-                llh, topo_dict = nni_replicates[rep]
-                for nni_iter in topo_dict:
-                    w.write(str(rep) + "\t" + str(nni_iter) + "\t" + topo_dict[int(nni_iter)][0] + "\n") 
     
     def az_partition(self):
     # Purpose: partition the tree into edge-distjoint alpha-clades and z-branches
@@ -357,7 +223,7 @@ class ML_solver(Virtual_solver):
                     q = self.Q[site][node.alpha[site]] if node.alpha[site] != "?" else 1.0
                     if node.is_leaf():
                         if node.alpha[site] == "?":         
-                            masked_llh = log(1-(1-phi)*p**nu)
+                            masked_llh = log(1-(1-phi)*p**nu) if (1-(1-phi)*p**nu)>0 else min_llh
                             node.L0[site] = node.L1[site] = masked_llh
                         else:    
                             node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi) if (1-p)*q*(1-phi)>0 else min_llh
@@ -386,7 +252,12 @@ class ML_solver(Virtual_solver):
         return sum(llh)         
 
     def ini_brlens(self):
-        return [random() * (self.dmax/2 - 2*self.dmin) + 2*self.dmin for i in range(self.num_edges)]        
+        x = [random() * (self.dmax/2 - 2*self.dmin) + 2*self.dmin for i in range(self.num_edges)]        
+        for i,node in enumerate(self.tree.traverse_postorder()):
+            #if node.mark_fixed:
+            if node.edge_length is not None:
+                x[i] = node.edge_length
+        return x    
 
     def ini_nu(self,fixed_nu=None):
         return random()*0.99 if fixed_nu is None else fixed_nu
@@ -442,9 +313,10 @@ class ML_solver(Virtual_solver):
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))
     
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,verbose=1,max_trials=100,random_seeds=None,ultra_constr=False):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,fixed_brlen={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
+    # fixed_brlen is a dictionary that maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed.
         results = []
         all_failed = True
         all_trials = 0
@@ -479,33 +351,38 @@ class ML_solver(Virtual_solver):
                     if ultra_constr:
                         print("Solving with ultrametric constraint")
                     else:      
-                        print("Solving without ultrametric constraint")
-                nllh = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
+                        print("Solving ML without ultrametric constraint")
+                for node in self.tree.traverse_postorder():
+                    node.mark_fixed=False        
+                fixed_nodes = find_LCAs(self.tree,list(fixed_brlen.keys()))        
+                for i,(a,b) in enumerate(fixed_brlen):
+                    u = fixed_nodes[i]
+                    u.edge_length = fixed_brlen[(a,b)]
+                    u.mark_fixed = True
+                nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
                 
                 if nllh is not None:
                     all_failed = False
                     if verbose >= 0:
                         print("Optimal point found for initial point " + str(rep+1))
                         self.show_params()
-                        #print("Optimal phi: " + str(self.params.phi))
-                        #print("Optimal nu: " + str(self.params.nu))
-                        #print("Optimal tree: " + self.tree.newick())
-                        #print("Optimal nllh: " + str(nllh))
-                    #results.append((nllh,rep,Params(self.params.nu,self.params.phi),self.tree.newick()))
-                    results.append((nllh,rep,deepcopy(self.params),self.tree.newick()))
+                    # remove zero-length branches
+                    tree_copy = read_tree_newick(self.tree.newick())
+                    tree_copy.collapse_short_branches(self.dmin*0.01)
+                    results.append((nllh,rep,deepcopy(self.params),tree_copy.newick(),status))
                 elif verbose >= 0:
                     print("Fatal: failed to optimize using initial point " + str(rep+1))    
             all_trials += initials    
         if all_failed:
             if verbose >= 0:
-                print("Fatal: Optimization failed on more than 100 retries")
+                print("Fatal: Optimization failed on more than " + str(max_trials) + " retries")
             return None
         else:    
             results.sort()
-            best_nllh,_,best_params,best_tree = results[0]
+            best_nllh,_,best_params,best_tree,status = results[0]
             self.tree = read_tree_newick(best_tree)
             self.params = best_params
-            return results[0][0]
+            return results[0][0],status
 
     def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False):
         # optimize using a specific initial point identified by the input randseed
@@ -519,11 +396,24 @@ class ML_solver(Virtual_solver):
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.az_partition()
         bounds = self.get_bound(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
+        constraints = []    
+
+        A = []
+        b = []
+        idx = 0
+        for node in self.tree.traverse_postorder():
+            if node.mark_fixed:
+                a = [0]*len(x0)
+                a[idx] = 1
+                A.append(a)
+                b.append(node.edge_length)
+            idx += 1   
+        if len(A) > 0:     
+            constraints.append(optimize.LinearConstraint(csr_matrix(A),b,b,keep_feasible=False))
+
         if ultra_constr:
             M = self.ultrametric_constr()
-            constraints = [optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False)]
-        else:
-            constraints = []    
+            constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
         disp = (verbose > 0)
         out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
         if out.success:
@@ -532,4 +422,5 @@ class ML_solver(Virtual_solver):
             f = out.fun
         else:
             f,params = None,None
-        return f
+        status = "optimal" if out.success else out.message
+        return f,status

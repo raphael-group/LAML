@@ -2,6 +2,7 @@ from problin_libs.ML_solver import *
 from math import exp,log
 import cvxpy as cp
 from problin_libs import min_llh, conv_eps, eps
+import timeit
 
 def log_sum_exp(numlist):
     # using log-trick to compute log(sum(exp(x) for x in numlist))
@@ -11,21 +12,60 @@ def log_sum_exp(numlist):
     return result
 
 class EM_solver(ML_solver):
-    def ultrametric_constr(self):
-        N = self.num_edges
+    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):
+        super(EM_solver,self).__init__(treeTopo,data,prior,params)
+        self.has_polytomy = False
+        self.__mark_polytomies__(eps_len=self.dmin*0.01)
+        self.num_edges = len(list(self.tree.traverse_postorder()))
+    
+    def __mark_polytomies__(self,eps_len=0):
+        # polytomy_mark and resolve all polytomies in self.tree_obj
+        self.has_polytomy = False
+        self.num_polytomy_mark = 0
+        for node in self.tree.traverse_preorder():
+            node.polytomy_mark = False
+            if len(node.children) > 2:
+                self.has_polytomy = True
+        self.tree.resolve_polytomies()
+        for node in self.tree.traverse_preorder():
+            if not hasattr(node,'polytomy_mark'):
+                node.polytomy_mark = True
+                self.num_polytomy_mark += 1
+                node.edge_length = eps_len  
+                self.has_polytomy = True              
+    
+    def x2brlen(self,x):        
+        for i, node in enumerate(self.tree.traverse_postorder()):
+            if not node.polytomy_mark:
+                node.edge_length = x[i]
+    
+    def ultrametric_constr(self,local_brlen_opt=True):
+        N = self.num_edges-self.num_polytomy_mark
+        if local_brlen_opt:
+            N -= len([node for node in self.tree.traverse_postorder() if node.mark_fixed])
         M = []
+        b = []
         idx = 0 
         for node in self.tree.traverse_postorder():
             if node.is_leaf():
                 node.constraint = [0.]*N
+                node.constant = node.edge_length if node.mark_fixed else 0
             else:
                 c1,c2 = node.children
-                m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]
-                M.append(m)
+                m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]                
+                m_compl = [-x for x in m]
+                if sum([x!=0 for x in m]) > 0 and not (m in M or m_compl in M):
+                    M.append(m)
+                    b.append(c2.constant-c1.constant)
                 node.constraint = c1.constraint
-            node.constraint[idx] = 1
-            idx += 1        
-        return M
+                if node.mark_fixed:
+                    node.constant = c1.constant + node.edge_length
+                else:
+                    node.constant = c1.constant
+            if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+                node.constraint[idx] = 1
+                idx += 1        
+        return M,b
 
     def Estep_in_llh(self):
         # assume az_partition has been performed so each node has the attribute node.alpha
@@ -39,15 +79,19 @@ class EM_solver(ML_solver):
             for site in range(self.numsites):   
                 q = self.Q[site][node.alpha[site]] if node.alpha[site] not in ['?','z'] else 1.0
                 if node.is_leaf():
-                    if node.alpha[site] == "?":         
-                        masked_llh = log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else log(1-p**nu)
+                    if node.alpha[site] == "?":
+                        if self.charMtrx[node.label][site] == '?':
+                            masked_llh = log(1-(1-phi)*p**nu) if (1-(1-phi)*p**nu)>0 else min_llh
+                        else:
+                            masked_llh = log(1-p**nu) if (1-p**nu)>0 else min_llh           
+                        #masked_llh = log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else log(1-p**nu)
                         node.L0[site] = node.L1[site] = masked_llh
                     elif node.alpha[site] == 'z':
-                        node.L0[site] = (nu+1)*(-node.edge_length) + log(1-phi)
+                        node.L0[site] = (nu+1)*(-node.edge_length) + log(1-phi) if 1-phi>0 else min_llh
                         node.L1[site] = min_llh
                     else:
-                        node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi)
-                        node.L1[site] = nu*(-node.edge_length) + log(1-phi)
+                        node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi) if (1-p)*q*(1-phi)>0 else min_llh
+                        node.L1[site] = nu*(-node.edge_length) + log(1-phi) if (1-phi)>0 else min_llh
                 else:
                     C = node.children
                     l0 = l1 = 0
@@ -61,7 +105,7 @@ class EM_solver(ML_solver):
                     node.L0[site] = log_sum_exp(l0_z + l0_alpha + l0_masked)
                     if node.alpha[site] == 'z':
                         node.L1[site] = min_llh
-                    elif node.alpha[site] != '?' or nu == 0:
+                    elif node.alpha[site] != '?' or nu == 0 or p==1:
                         node.L1[site] = l1 + nu*(-node.edge_length) 
                     else:
                         node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length), log(1-p**nu)])
@@ -128,7 +172,7 @@ class EM_solver(ML_solver):
                             C = min_llh    
                         v.out_alpha[site][alpha0] = log_sum_exp([B,C])
                         v.X[site] = log_sum_exp([v.X[site],B])
-                        if self.params.nu > 0:
+                        if self.params.nu*v.edge_length > 0:
                             v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
                         else:
                             v.out1[site] = min_llh    
@@ -229,10 +273,11 @@ class EM_solver(ML_solver):
         self.Estep_out_llh()
         self.Estep_posterior()
 
-    def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=1,eps_nu=1e-5,eps_s=1e-6,ultra_constr=False):
+    def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=1,eps_nu=1e-5,eps_s=1e-6,ultra_constr=False,local_brlen_opt=True):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
-    # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
+    # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
+        #start_time = timeit.default_timer()
         if not optimize_phi:
             if verbose > 0:
                 print("Fixing phi to " + str(self.params.phi))    
@@ -249,34 +294,43 @@ class EM_solver(ML_solver):
             if abs(phi_star) < 1/(self.numsites*len(self.charMtrx)):
                 phi_star = 0
         # optimize nu and all branch lengths
-        S0 = np.zeros(self.num_edges)
-        S1 = np.zeros(self.num_edges)
-        S2 = np.zeros(self.num_edges)
-        S3 = np.zeros(self.num_edges)
-        S4 = np.zeros(self.num_edges)
-        for i,v in enumerate(self.tree.traverse_postorder()):
-            s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
-            #s = [max(eps_s,x) for x in s]
-            s = [x if x > eps_s else 0 for x in s]
-            s = [x/sum(s)*self.numsites for x in s]
-            S0[i],S1[i],S2[i],S3[i],S4[i] = s
-
-        def __optimize_brlen__(nu): # nu is a single number
-            var_d = cp.Variable(self.num_edges,nonneg=True) # the branch length variables
+        N = self.num_edges-self.num_polytomy_mark
+        if local_brlen_opt:
+            N -= len([node for node in self.tree.traverse_postorder() if node.mark_fixed])
+        S0 = np.zeros(N)
+        S1 = np.zeros(N)
+        S2 = np.zeros(N)
+        S3 = np.zeros(N)
+        S4 = np.zeros(N)
+        i = 0
+        for v in self.tree.traverse_postorder():
+            if not v.polytomy_mark and not (v.mark_fixed and local_brlen_opt):    
+                s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
+                s = [max(eps_s,x) for x in s]
+                #s = [x if x > eps_s else 0 for x in s]
+                s = [x/sum(s)*self.numsites for x in s]
+                S0[i],S1[i],S2[i],S3[i],S4[i] = s
+                i += 1
+        #stop_time = timeit.default_timer()
+        #print("Time", stop_time-start_time,"preprocess")
+        def __optimize_brlen__(nu,verbose=False): # nu is a single number
+            var_d = cp.Variable(N,nonneg=True) # the branch length variables
             C0 = -(nu+1)*S0.T @ var_d
             C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d)) 
-            C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > 0 else 0 
+            #C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > 0 else 0 
+            C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > eps_nu else 0 
             C3 = -nu*S3.T @ var_d
-            C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu >0 else 0
+            C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu > eps_nu else 0
 
             objective = cp.Maximize(C0+C1+C2+C3+C4)
-            constraints = [np.zeros(self.num_edges)+self.dmin <= var_d, var_d <= np.zeros(self.num_edges)+self.dmax]
+            constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax] 
             if ultra_constr:
-                M = np.array(self.ultrametric_constr())
-                constraints += [M @ var_d == 0]
+                M,b = self.ultrametric_constr(local_brlen_opt=local_brlen_opt)
+                constraints += [np.array(M) @ var_d == np.array(b)]
             prob = cp.Problem(objective,constraints)
-            prob.solve(verbose=False,solver=cp.ECOS)
-            return var_d.value
+            #prob.solve(verbose=True,solver=cp.ECOS,max_iters=100000)
+            prob.solve(verbose=False,solver=cp.MOSEK)
+            return var_d.value,prob.status
         
         def __optimize_nu__(d): # d is a vector of all branch lengths
             var_nu = cp.Variable(1,nonneg=True) # the nu variable
@@ -287,18 +341,24 @@ class EM_solver(ML_solver):
             C4 = S4.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S4) > 0 else 0
             objective = cp.Maximize(C0+C1+C2+C3+C4)
             prob = cp.Problem(objective)
-            prob.solve(verbose=False,solver=cp.ECOS)
-            return var_nu.value[0]
+            prob.solve(verbose=False,solver=cp.MOSEK)
+            #prob.solve(verbose=False,solver=cp.ECOS,max_iters=400)
+            return var_nu.value[0],prob.status
 
         nIters = 1
         nu_star = self.params.nu
         for r in range(nIters):
             if verbose > 0:
                 print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
+            #try:
+            #start_time = timeit.default_timer()
             try:
-                d_star = __optimize_brlen__(nu_star)
+                d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
             except:
-                return False    
+                status_d = "failure"
+            if status_d != "optimal":
+                return False,status_d
+                
             if not optimize_nu:
                 if verbose > 0:
                     print("Fixing nu to " + str(self.params.nu))
@@ -306,18 +366,26 @@ class EM_solver(ML_solver):
             else:    
                 if verbose > 0:
                     print("Optimizing nu")
-                try:    
-                    nu_star = __optimize_nu__(d_star) 
+                #try:    
+                #start_time = timeit.default_timer()
+                try:
+                    nu_star,status_nu = __optimize_nu__(d_star)                 
                 except:
-                    return False    
+                    status_nu = "failure"
+                if status_nu != "optimal":
+                    return False,status_nu
         # place the optimal value back to params
         self.params.phi = phi_star
         self.params.nu = nu_star
-        for i,node in enumerate(self.tree.traverse_postorder()):
-            node.edge_length = d_star[i]
-        return True    
+        i = 0
+        for node in self.tree.traverse_postorder():
+            if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+            #if not node.polytomy_mark and not node.mark_fixed:
+                node.edge_length = d_star[i]
+                i += 1
+        return True,"optimal"    
     
-    def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,maxIter=100):
+    def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,maxIter=1000):
         # assume that az_partition has been performed
         # optimize all parameters: branch lengths, phi, and nu
         # if optimize_phi is False, it is fixed to the original value in params.phi
@@ -336,21 +404,24 @@ class EM_solver(ML_solver):
             self.Estep()
             if verbose > 0:
                 print("Mstep")
-            if not self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr):
+            m_success,status=self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr,local_brlen_opt=True)
+            if not m_success:
                 if verbose >= 0:
-                    print("Fatal error: failed to optimize parameters in Mstep!")
-                return None, em_iter
+                    print("Warning: EM failed to optimize parameters in one Mstep. Returning the best params so far")
+                return -pre_llh, em_iter,status
             curr_llh = self.lineage_llh()
             if verbose > 0:
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
             if abs((curr_llh - pre_llh)/pre_llh) < conv_eps:
                 converged = True
+                # perform a final full optimization
+                #self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr,local_brlen_opt=False)
                 break
             pre_llh = curr_llh
             em_iter += 1
         if not converged and verbose >= 0:
             print("Warning: exceeded maximum number of EM iterations (" + str(maxIter) + " iters)!")
-        return -curr_llh, em_iter    
+        return -curr_llh, em_iter,status    
   
     def posterior_silence(self):
         self.Estep()
@@ -364,7 +435,7 @@ class EM_solver(ML_solver):
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.x2params(x0,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.az_partition()
-        nllh, em_iter = self.EM_optimization(verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None),ultra_constr=ultra_constr)
+        nllh,em_iter,status = self.EM_optimization(verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None),ultra_constr=ultra_constr)
         if verbose >= 0:
             print("EM finished after " + str(em_iter) + " iterations.")
-        return nllh
+        return nllh,status

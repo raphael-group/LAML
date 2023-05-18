@@ -18,9 +18,9 @@ def load_pickle(f):
         # scale to sum to 1
         q = {int(x): float(priors[i][x])/sum([float(c) for c in priors[i]]) for x in priors[i]}
         #q = {int(x):float(priors[i][x])/sum([float(c) for c in priors[i]]) for x in priors[i]}
-        for x in q.keys():
+        #for x in q.keys():
             # print(q[x], x, q[x] < 1.0 and q[x] >= 0.0)
-            assert q[x] < 1.0 and q[x] >= 0.0
+        #    assert q[x] < 1.0 and q[x] >= 0.0
         #q[0] = 0.0
         
         Q[i] = q
