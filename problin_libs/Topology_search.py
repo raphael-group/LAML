@@ -149,10 +149,10 @@ class Topology_search:
                 print("Runtime (s):", stop_time - start_time)
             if nni_iter % 50 == 0:
                 with open(checkpoint_file, "w") as fout:
-                    fout.write("Current newick tree: {best_tree}\n")
-                    fout.write("Current negative-llh: {best_score}\n")
-                    fout.write("Current dropout rate: {best_params['phi']}\n")
-                    fout.write("Current silencing rate: {best_params['nu']}\n")
+                    fout.write(f"Current newick tree: {best_tree}\n")
+                    fout.write(f"Current negative-llh: {best_score}\n")
+                    fout.write(f"Current dropout rate: {best_params['phi']}\n")
+                    fout.write(f"Current silencing rate: {best_params['nu']}\n")
         if verbose:
             print("Best score for this search: " + str(best_score))
         return best_tree,best_score,best_params 
