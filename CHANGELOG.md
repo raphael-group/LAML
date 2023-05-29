@@ -1,3 +1,9 @@
+* Version 0.3:
+    * Stable version of v0.3p
+    * Add checkpoints
+* Version 0.3p (parallelized, unstable):
+    * Topology search with simulated annealing
+    * Paralellize NNI operations
 * Version 0.2:
     * Topology Search version 1: Simple NNI approach.
         - Can take polytomy trees and will restrict topology search to the branches introduced by randomly resolving the polytomies first. v0.2 will note the maximum likelihood resolved tree in this search process, then take this as the start tree and explore topologies on the whole tree.
