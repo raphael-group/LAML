@@ -308,7 +308,7 @@ class ML_solver(Virtual_solver):
         return -self.__llh__()
 
     def show_params(self):
-        print("tree: " + self.tree.newick())
+        #print("tree: " + self.tree.newick())
         print("nu: " + str(self.params.nu))
         print("phi: " + str(self.params.phi))
         print("negative-llh: " + str(self.negative_llh()))

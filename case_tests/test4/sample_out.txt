@@ -1,5 +1,0 @@
-Provided tree:
-Newick tree: ((a:1,b:1):1,c:1):1;
-Calculated negative-llh: 0.206655788286216
-(provided) dropout rate: 1e-10
-(provided) silencing rate: 1e-10

@@ -3,6 +3,7 @@ from math import exp,log
 import cvxpy as cp
 from problin_libs import min_llh, conv_eps, eps
 import timeit
+import numpy as np
 
 def log_sum_exp(numlist):
     # using log-trick to compute log(sum(exp(x) for x in numlist))
@@ -155,7 +156,7 @@ class EM_solver(ML_solver):
                     v.X[site] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + v.A[site] if v.edge_length > 0 else min_llh
                     # compute out1: P(~D_v,v=-1)
                     if w.alpha[site] == 'z': # z-branch
-                        v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + v.A[site] if self.params.nu*v.edge_length > 0 else min_llh
+                        v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + v.A[site] if self.params.nu*v.edge_length > 0 else min_llh + v.A[site]
                     elif w.alpha[site] == '?': # masked branch
                         v.X[site] = log_sum_exp([v.X[site],u.X[site]+w.L1[site]-self.params.nu*v.edge_length])
                         p = 1-exp(-v.edge_length*self.params.nu) # if nu=0 then p=0
@@ -169,13 +170,13 @@ class EM_solver(ML_solver):
                         if v.edge_length > 0 and self.Q[site][alpha0] > 0:
                             C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
                         else:
-                            C = min_llh    
+                            C = v.A[site] - self.params.nu*v.edge_length + min_llh    
                         v.out_alpha[site][alpha0] = log_sum_exp([B,C])
                         v.X[site] = log_sum_exp([v.X[site],B])
                         if self.params.nu*v.edge_length > 0:
                             v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
                         else:
-                            v.out1[site] = min_llh    
+                            v.out1[site] = min_llh + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])   
 
     def __out_alpha_up__(self,node,site,alpha0):
         # auxiliary function, shoudn't be called outside
@@ -302,6 +303,7 @@ class EM_solver(ML_solver):
         S2 = np.zeros(N)
         S3 = np.zeros(N)
         S4 = np.zeros(N)
+        d_ini = np.zeros(N)
         i = 0
         for v in self.tree.traverse_postorder():
             if not v.polytomy_mark and not (v.mark_fixed and local_brlen_opt):    
@@ -310,6 +312,7 @@ class EM_solver(ML_solver):
                 #s = [x if x > eps_s else 0 for x in s]
                 s = [x/sum(s)*self.numsites for x in s]
                 S0[i],S1[i],S2[i],S3[i],S4[i] = s
+                d_ini[i] = v.edge_length
                 i += 1
         #stop_time = timeit.default_timer()
         #print("Time", stop_time-start_time,"preprocess")
@@ -317,7 +320,6 @@ class EM_solver(ML_solver):
             var_d = cp.Variable(N,nonneg=True) # the branch length variables
             C0 = -(nu+1)*S0.T @ var_d
             C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d)) 
-            #C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > 0 else 0 
             C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > eps_nu else 0 
             C3 = -nu*S3.T @ var_d
             C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu > eps_nu else 0
@@ -331,7 +333,25 @@ class EM_solver(ML_solver):
             #prob.solve(verbose=True,solver=cp.ECOS,max_iters=100000)
             prob.solve(verbose=False,solver=cp.MOSEK)
             return var_d.value,prob.status
-        
+       
+        def __optimize_brlen_scipy__(nu):
+            def f(x):
+                C0 = -(nu+1)*np.dot(S0,x)
+                C1 = -nu*np.dot(S1,x) + np.dot(S1,np.log(1-np.exp(-x)))
+                C2 = np.dot(S2,np.log(1-np.exp(-nu*x))) if sum(S2) > 0 and nu > eps_nu else 0
+                C3 = -nu*np.dot(S3,x)
+                C4 = np.dot(S4,np.log(1-np.exp(-nu*x))) if sum(S4) > 0 and nu > eps_nu else 0
+                return -(C0+C1+C2+C3+C4)
+            x0 = d_ini
+            bounds = optimize.Bounds(np.zeros(N)+self.dmin,np.zeros(N)+self.dmax,keep_feasible=True)
+            constraints = []
+            if ultra_constr:
+                M,b = self.ultrametric_constr(local_brlen_opt=local_brlen_opt)
+                constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
+            out = optimize.minimize(f, x0, method="SLSQP", options={'disp':True,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)    
+            status = "optimal" if out.success else out.message
+            return out.x,status
+
         def __optimize_nu__(d): # d is a vector of all branch lengths
             var_nu = cp.Variable(1,nonneg=True) # the nu variable
             C0 = -(var_nu+1)*S0.T @ d
@@ -350,30 +370,27 @@ class EM_solver(ML_solver):
         for r in range(nIters):
             if verbose > 0:
                 print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
-            #try:
-            #start_time = timeit.default_timer()
             try:
                 d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
             except:
+                d_star = d_ini
                 status_d = "failure"
-            if status_d != "optimal":
-                return False,status_d
-                
+            if status_d == "infeasible": # should only happen with local EM 
+                return False,"d_infeasible"
             if not optimize_nu:
                 if verbose > 0:
                     print("Fixing nu to " + str(self.params.nu))
                 nu_star = self.params.nu
+                status_nu = "optimal"    
             else:    
                 if verbose > 0:
                     print("Optimizing nu")
-                #try:    
-                #start_time = timeit.default_timer()
                 try:
                     nu_star,status_nu = __optimize_nu__(d_star)                 
                 except:
                     status_nu = "failure"
-                if status_nu != "optimal":
-                    return False,status_nu
+                #if status_nu != "optimal":
+                #    return False,status_nu
         # place the optimal value back to params
         self.params.phi = phi_star
         self.params.nu = nu_star
@@ -382,8 +399,20 @@ class EM_solver(ML_solver):
             if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
             #if not node.polytomy_mark and not node.mark_fixed:
                 node.edge_length = d_star[i]
+                #if node.edge_length <= 0.0055:
+                #    node.edge_length = 0.005
+                #    node.mark_fixed = True
                 i += 1
-        return True,"optimal"    
+        success = (status_d == "optimal") and (status_nu == "optimal")
+        if success:
+            status = "optimal"
+        else:    
+            status = ""
+            if status_d != "optimal":
+                status += "failed_d"
+            if status_nu != "optimal":
+                status += ",failed_nu"
+        return success,status
     
     def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,maxIter=1000):
         # assume that az_partition has been performed
@@ -406,9 +435,12 @@ class EM_solver(ML_solver):
                 print("Mstep")
             m_success,status=self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr,local_brlen_opt=True)
             if not m_success:
-                if verbose >= 0:
-                    print("Warning: EM failed to optimize parameters in one Mstep. Returning the best params so far")
-                return -pre_llh, em_iter,status
+                if status == "d_infeasible": # should only happen with local EM
+                    if verbose >= 0:
+                        print("Warning: EM failed to optimize parameters in one Mstep due to infeasible constraints") 
+                    return -pre_llh, em_iter,status
+                elif verbose >= 0:    
+                    print("Warning: EM failed to optimize parameters in one Mstep.")                
             curr_llh = self.lineage_llh()
             if verbose > 0:
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
@@ -432,6 +464,8 @@ class EM_solver(ML_solver):
         # optimize using a specific initial point identified by the input randseed
         # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         seed(a=randseed)
+        #fixed_phi = 0.057105034062779836 
+        #fixed_nu = 0.00010767895911871561
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.x2params(x0,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.az_partition()

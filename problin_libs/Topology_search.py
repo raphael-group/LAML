@@ -40,6 +40,7 @@ class Topology_search:
         self.params = mySolver.get_params()
 
     def __mark_polytomies__(self,eps_len=1e-3):
+    #def __mark_polytomies__(self):
         # mark and resolve all polytomies in self.tree_obj
         self.has_polytomy = False
         for node in self.tree_obj.traverse_preorder():
@@ -53,7 +54,7 @@ class Topology_search:
             if not hasattr(node,'mark'):
                 node.mark = True
                 node.edge_length = eps_len  
-                #self.has_polytomy = True              
+                #node.edge_length = None
         self.treeTopo = self.tree_obj.newick()        
 
     def __accept_proposal__(self,curr_score,new_score,t):
