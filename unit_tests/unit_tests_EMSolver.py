@@ -590,3 +590,41 @@ class EMTest(unittest.TestCase):
         self.assertAlmostEqual(abs(true_nllh-nllh)/true_nllh,0,places=4,msg="EMTest: test_48 failed.")
         self.assertAlmostEqual(true_phi,phi,places=4,msg="EMTest: test_48 failed.")
         self.assertAlmostEqual(true_nu,nu,places=4,msg="EMTest: test_48 failed.")
+    
+    def test_22(self): 
+        Q = [{1:1}]
+        T1 = "((a:1,b:1):0,c:1):1;"
+        T2 = "((d:1,e:1):0,f:1):1;"
+        T = "(" + T1[:-1] + "," + T2[:-1] + "):0;"
+        msa = {'a':[1],'b':[1],'c':[1],'d':[1],'e':[1],'f':[1]}
+        true_nllh = 0.3215288449416738 + 0.3215288449416738
+
+        mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
+        mySolver.az_partition()
+        my_nllh = mySolver.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_22 failed.")
+        
+        mySolver = EM_solver([T1,T2],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
+        mySolver.az_partition()
+        my_nllh = mySolver.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_22 failed.")
+    
+    def test_23(self): 
+        Q = [{1:1}]
+        T1 = "((a:1,b:1):1,c:1):1;"
+        T2 = "((d:1,e:1):1,f:1):1;"
+        T = "(" + T1[:-1] + "," + T2[:-1] + "):0;"
+        msa = {'a':[0],'b':[1],'c':['?'],'d':['?'],'e':[0],'f':[0]}
+        true_nllh = 5.97198126969678 + 6.513306124309698
+
+        #mySolver = ML_solver(msa,Q,T,phi=0.1,nu=0)
+        mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
+        #mySolver.az_partition(mySolver.params)
+        mySolver.az_partition()
+        my_nllh = mySolver.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_23 failed.")
+        
+        mySolver = EM_solver([T1,T2],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
+        mySolver.az_partition()
+        my_nllh = mySolver.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_23 failed.")

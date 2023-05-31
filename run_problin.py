@@ -19,7 +19,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     # input arguments
-    parser.add_argument("-t","--topology",required=True,help="Binary input tree topology in newick format. Branch lengths will be ignored.") 
+    parser.add_argument("-t","--topology",required=True,help="Input trees in newick format.") 
     parser.add_argument("-c","--characters",required=True,help="The input character matrix. Must have header.")
     parser.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
     parser.add_argument("--delimiter",required=False,default="tab",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.")

@@ -15,7 +15,8 @@ class EM_solver(ML_solver):
     def __init__(self,treeList,data,prior,params={'nu':0,'phi':0,'sigma':0}):
         super(EM_solver,self).__init__(treeList,data,prior,params)
         self.has_polytomy = False
-        self.__mark_polytomies__(eps_len=self.dmin*0.01)
+        #self.__mark_polytomies__(eps_len=self.dmin*0.01)
+        self.__mark_polytomies__(eps_len=0)
         self.num_edges = sum([len(list(tree.traverse_postorder())) for tree in self.trees])
     
     def __mark_polytomies__(self,eps_len=0):
