@@ -12,11 +12,14 @@ def log_sum_exp(numlist):
     result = maxx + log(sum([exp(x-maxx) for x in numlist]))
     return result
 
+def pseudo_log(x):
+    return log(x) if x>0 else min_llh
+
 class EM_solver(ML_solver):
     def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):
         super(EM_solver,self).__init__(treeTopo,data,prior,params)
         self.has_polytomy = False
-        self.__mark_polytomies__(eps_len=self.dmin*0.01)
+        self.__mark_polytomies__(eps_len=0)
         self.num_edges = len(list(self.tree.traverse_postorder()))
     
     def __mark_polytomies__(self,eps_len=0):
@@ -81,18 +84,18 @@ class EM_solver(ML_solver):
                 q = self.Q[site][node.alpha[site]] if node.alpha[site] not in ['?','z'] else 1.0
                 if node.is_leaf():
                     if node.alpha[site] == "?":
-                        if self.charMtrx[node.label][site] == '?':
-                            masked_llh = log(1-(1-phi)*p**nu) if (1-(1-phi)*p**nu)>0 else min_llh
-                        else:
-                            masked_llh = log(1-p**nu) if (1-p**nu)>0 else min_llh           
-                        #masked_llh = log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else log(1-p**nu)
+                        masked_llh = pseudo_log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else pseudo_log(1-p**nu)
+                        #if self.charMtrx[node.label][site] == '?':
+                        #    masked_llh = log(1-(1-phi)*p**nu) if (1-(1-phi)*p**nu)>0 else min_llh
+                        #else:
+                        #    masked_llh = log(1-p**nu) if (1-p**nu)>0 else min_llh           
                         node.L0[site] = node.L1[site] = masked_llh
                     elif node.alpha[site] == 'z':
-                        node.L0[site] = (nu+1)*(-node.edge_length) + log(1-phi) if 1-phi>0 else min_llh
+                        node.L0[site] = (nu+1)*(-node.edge_length) + pseudo_log(1-phi) #if 1-phi>0 else min_llh
                         node.L1[site] = min_llh
                     else:
-                        node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi) if (1-p)*q*(1-phi)>0 else min_llh
-                        node.L1[site] = nu*(-node.edge_length) + log(1-phi) if (1-phi)>0 else min_llh
+                        node.L0[site] = nu*(-node.edge_length) + pseudo_log(1-p) + pseudo_log(q) + pseudo_log(1-phi) #if (1-p)*q*(1-phi)>0 else min_llh
+                        node.L1[site] = nu*(-node.edge_length) + pseudo_log(1-phi) #if (1-phi)>0 else min_llh
                 else:
                     C = node.children
                     l0 = l1 = 0
@@ -101,15 +104,15 @@ class EM_solver(ML_solver):
                         l1 += c.L1[site]
                     # note: l0_z, l0_alpha, and l0_masked are lists    
                     l0_z = [l0 + (nu+1)*(-node.edge_length)]
-                    l0_alpha = [l1 + log(1-p)+log(q) + nu*(-node.edge_length)] if (node.alpha[site] != 'z' and q*(1-p)>0) else []
-                    l0_masked = [log(1-p**nu)] if (node.alpha[site] == '?' and (1-p**nu) > 0) else []
+                    l0_alpha = [l1 + pseudo_log(1-p) + pseudo_log(q) + nu*(-node.edge_length)] if (node.alpha[site] != 'z') else []
+                    l0_masked = [pseudo_log(1-p**nu)] if (node.alpha[site] == '?') else []
                     node.L0[site] = log_sum_exp(l0_z + l0_alpha + l0_masked)
                     if node.alpha[site] == 'z':
                         node.L1[site] = min_llh
                     elif node.alpha[site] != '?' or nu == 0 or p==1:
                         node.L1[site] = l1 + nu*(-node.edge_length) 
                     else:
-                        node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length), log(1-p**nu)])
+                        node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length), pseudo_log(1-p**nu)])
 
     def lineage_llh(self):
         # override the function of the base class
@@ -126,11 +129,13 @@ class EM_solver(ML_solver):
             if v.is_root(): # base case
                 # Auxiliary components
                 v.A = [0]*self.numsites
-                v.X = [-self.params.nu*v.edge_length + log(1-exp(-v.edge_length))]*self.numsites if self.params.nu*v.edge_length > 0 else [min_llh]*self.numsites
+                #v.X = [-self.params.nu*v.edge_length + log(1-exp(-v.edge_length))]*self.numsites if self.params.nu*v.edge_length > 0 else [min_llh]*self.numsites
+                v.X = [-self.params.nu*v.edge_length + pseudo_log(1-exp(-v.edge_length))]*self.numsites
                 v.out_alpha = [{} for i in range(self.numsites)]
                 # Main components    
                 v.out0 = [-(1+self.params.nu)*v.edge_length]*self.numsites
-                v.out1 = [log(1-exp(-v.edge_length*self.params.nu))]*self.numsites if self.params.nu*v.edge_length > 0 else [min_llh]*self.numsites
+                #v.out1 = [log(1-exp(-v.edge_length*self.params.nu))]*self.numsites if self.params.nu*v.edge_length > 0 else [min_llh]*self.numsites
+                v.out1 = [pseudo_log(1-exp(-v.edge_length*self.params.nu))]*self.numsites
             else:
                 u = v.parent
                 w = None 
@@ -139,9 +144,6 @@ class EM_solver(ML_solver):
                     if x is not v:
                         w = x
                         break
-                #if w is None:
-                    #print("w is none", [x.label for x in u.traverse_leaves()])
-                    #print("w is none", len(u.children),u.is_root())
                 # Auxiliary components
                 v.A = [None]*self.numsites
                 v.X = [None]*self.numsites
@@ -153,30 +155,32 @@ class EM_solver(ML_solver):
                     # compute out0: P(~D_v,v=0)
                     v.out0[site] = u.out0[site] + w.L0[site] - (1+self.params.nu)*v.edge_length
                     v.A[site] = u.out0[site] + w.L0[site] 
-                    v.X[site] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + v.A[site] if v.edge_length > 0 else min_llh
+                    v.X[site] = -self.params.nu*v.edge_length + pseudo_log(1-exp(-v.edge_length)) + v.A[site]
                     # compute out1: P(~D_v,v=-1)
                     if w.alpha[site] == 'z': # z-branch
-                        v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + v.A[site] if self.params.nu*v.edge_length > 0 else min_llh + v.A[site]
+                        v.out1[site] = pseudo_log(1-exp(-v.edge_length*self.params.nu)) + v.A[site]
                     elif w.alpha[site] == '?': # masked branch
                         v.X[site] = log_sum_exp([v.X[site],u.X[site]+w.L1[site]-self.params.nu*v.edge_length])
                         p = 1-exp(-v.edge_length*self.params.nu) # if nu=0 then p=0
-                        pl = log(p) if p > 0 else min_llh
+                        pl = pseudo_log(p)
                         v.out1[site] = u.out1[site] if self.params.nu == 0 else log_sum_exp([pl+v.A[site],pl+u.X[site]+w.L1[site],u.out1[site]])
                     else:
                         alpha0 = w.alpha[site] 
                         if alpha0 not in u.out_alpha[site]:
                             self.__out_alpha_up__(u,site,alpha0)
                         B = u.out_alpha[site][alpha0] + self.params.nu*(-v.edge_length) + w.L1[site]  
-                        if v.edge_length > 0 and self.Q[site][alpha0] > 0:
-                            C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
-                        else:
-                            C = v.A[site] - self.params.nu*v.edge_length + min_llh    
+                        #if v.edge_length > 0 and self.Q[site][alpha0] > 0:
+                        #    C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+                        #else:
+                        #    C = v.A[site] - self.params.nu*v.edge_length + min_llh    
+                        C = v.A[site] - self.params.nu*v.edge_length + pseudo_log(1-exp(-v.edge_length)) + pseudo_log(self.Q[site][alpha0])
                         v.out_alpha[site][alpha0] = log_sum_exp([B,C])
                         v.X[site] = log_sum_exp([v.X[site],B])
-                        if self.params.nu*v.edge_length > 0:
-                            v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
-                        else:
-                            v.out1[site] = min_llh + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])   
+                        #if self.params.nu*v.edge_length > 0:
+                        #    v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
+                        #else:
+                        #    v.out1[site] = min_llh + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])   
+                        v.out1[site] = pseudo_log(1-exp(-v.edge_length*self.params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
 
     def __out_alpha_up__(self,node,site,alpha0):
         # auxiliary function, shoudn't be called outside
@@ -190,18 +194,20 @@ class EM_solver(ML_solver):
                     w = x
                     break
             if w.alpha[site] != '?' and w.alpha[site] != alpha0: # the branch above u is a z-branch
-                if v.edge_length > 0 and self.Q[site][alpha0] > 0:
-                    v.out_alpha[site][alpha0] = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
-                else:    
-                    v.out_alpha[site][alpha0] = min_llh
+                #if v.edge_length > 0 and self.Q[site][alpha0] > 0:
+                #    v.out_alpha[site][alpha0] = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+                #else:    
+                #    v.out_alpha[site][alpha0] = min_llh
+                v.out_alpha[site][alpha0] = v.A[site] - self.params.nu*v.edge_length + pseudo_log(1-exp(-v.edge_length)) + pseudo_log(self.Q[site][alpha0])
                 break
             path.append(v)
             v = u
         if v.is_root(): # no z-branch found along the way
-            if v.edge_length > 0 and self.Q[site][alpha0]:
-                v.out_alpha[site][alpha0] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])             
-            else:
-                v.out_alpha[site][alpha0] = min_llh   
+            #if v.edge_length > 0 and self.Q[site][alpha0]:
+            #    v.out_alpha[site][alpha0] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])             
+            #else:
+            #    v.out_alpha[site][alpha0] = min_llh   
+            v.out_alpha[site][alpha0] = -self.params.nu*v.edge_length + pseudo_log(1-exp(-v.edge_length)) + pseudo_log(self.Q[site][alpha0])             
         # going down to compute all the out_alpha along the path
         while path:
             v = path.pop()
@@ -210,10 +216,11 @@ class EM_solver(ML_solver):
                 if x is not v:
                     w = x
             B = u.out_alpha[site][alpha0] + self.params.nu*(-v.edge_length) + w.L1[site]  
-            if v.edge_length > 0 and self.Q[site][alpha0]:
-                C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
-            else:
-                C = min_llh    
+            #if v.edge_length > 0 and self.Q[site][alpha0]:
+            #    C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+            #else:
+            #    C = min_llh    
+            C = v.A[site] - self.params.nu*v.edge_length + pseudo_log(1-exp(-v.edge_length)) + pseudo_log(self.Q[site][alpha0])
             v.out_alpha[site][alpha0] = log_sum_exp([B,C])
 
     def Estep_posterior(self):
@@ -235,19 +242,19 @@ class EM_solver(ML_solver):
             v.S4 = [None]*self.numsites
             for site in range(self.numsites):
                 # compute auxiliary values: v_in1 = log P(D_v|v=-1),v_in0 = log P(D_v|v=0), v_in_alpha = log P(D_v|v=alpha0)
-                v_in1 = 0 if v.alpha[site] == '?' else None
+                v_in1 = 0 if v.alpha[site] == '?' else min_llh
                 if v.is_leaf():
                         c = self.charMtrx[v.label][site]
                         if c == 0:
-                            v_in0 = log(1-self.params.phi)
+                            v_in0 = pseudo_log(1-self.params.phi)
                         else:
-                            v_in0 = log(self.params.phi) if (c == '?' and self.params.phi > 0) else min_llh 
+                            v_in0 = pseudo_log(self.params.phi) if (c == '?') else min_llh 
                 else:    
                     v1,v2 = v.children
                     v_in0 = v1.L0[site] + v2.L0[site]                 
                 # compute posterior
-                v.post0[site] = v_in0 + v.out0[site] - full_llh[site] if v_in0 is not None else min_llh
-                v.post1[site] = v_in1 + v.out1[site] - full_llh[site] if v_in1 is not None else min_llh               
+                v.post0[site] = v_in0 + v.out0[site] - full_llh[site] #if v_in0 is not None else min_llh
+                v.post1[site] = v_in1 + v.out1[site] - full_llh[site] #if v_in1 is not None else min_llh               
                 # compute S (note that all S values are NOT in log-scale)
                 if v.alpha[site] == 'z': # z-branch
                     v.S0[site] = 1.0

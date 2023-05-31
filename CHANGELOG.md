@@ -1,4 +1,5 @@
 * Version 0.4b (beta, unstable):
+    * Fix bug of EM in computing likelihood of trees with polytomies
     * Bypass the case where cvxpy cannot solve on prolem instance in Mstep
 * Version 0.3:
     * Stable version of v0.3p
