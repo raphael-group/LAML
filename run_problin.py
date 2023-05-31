@@ -30,6 +30,7 @@ def main():
     parser.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
     parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.")
     parser.add_argument("--resolve_search",action='store_true', required=False,help="Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topoloy_search.")
+    parser.add_argument("--keep_polytomies",action='store_true', required=False,help="Keep polytomies while performing topology search. This option only works with --topoloy_search.")
     parser.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topoloy_search and --resolve_search.")
 
     # problem formulation
@@ -131,7 +132,9 @@ def main():
         # enforce ultrametric or not?
         my_strategy['ultra_constr'] = args["ultrametric"]
         # resolve polytomies or not?
-        my_strategy['resolve_search_only'] = args["resolve_search"] #or args["topology_search"])
+        resolve_polytomies = not args["keep_polytomies"]
+        # only resolve polytomies or do full search?
+        my_strategy['resolve_search_only'] = args["resolve_search"]
         # full search or local search to only resolve polytomies? 
         if not args["resolve_search"] and not args["topology_search"]:
             print("Optimizing branch lengths, phi, and nu without topology search")
@@ -142,12 +145,19 @@ def main():
             opt_params = myTopoSearch.params
         else:
             if args["resolve_search"]:
-                print("Starting local topology search to resolve polytomies")
+                if not resolve_polytomies:
+                    print("WARNING: --resolve_search was specified with --keep_polytomies. Program will only optimize numerical parameters WITHOUT any topology search.")
+                else:    
+                    print("Starting local topology search to resolve polytomies")
             else:
-                print("Starting topology search")                 
+                print("Starting topology search.")
+                if not resolve_polytomies:
+                    print("Keeping all the polytomies")                 
+                else:
+                    print("All polytomies will be resolved")    
             randval = int(random.random() * 1000)
             checkpoint_file = f"{prefix}._ckpt.{randval}.txt"
-            opt_tree,max_score,opt_params = myTopoSearch.search(maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'], checkpoint_file=checkpoint_file) 
+            opt_tree,max_score,opt_params = myTopoSearch.search(resolve_polytomies=resolve_polytomies,maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'], checkpoint_file=checkpoint_file) 
             nllh = -max_score        
     
     # post-processing: analyze results and output 

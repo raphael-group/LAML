@@ -40,7 +40,6 @@ class Topology_search:
         self.params = mySolver.get_params()
 
     def __mark_polytomies__(self,eps_len=1e-3):
-    #def __mark_polytomies__(self):
         # mark and resolve all polytomies in self.tree_obj
         self.has_polytomy = False
         for node in self.tree_obj.traverse_preorder():
@@ -64,10 +63,9 @@ class Topology_search:
         p = min(exp((new_score-curr_score-1e-12)/T),1)
         return random() < p
 
-    def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY,checkpoint_file="problin_topo_search._ckpt.txt"):
+    def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY,resolve_polytomies=True,checkpoint_file="problin_topo_search._ckpt.txt"):
         original_topo = self.treeTopo
         original_params = self.params
-        #nni_replicates = [(None,None)]*nreps
         best_tree = None
         best_score = -float("inf")
         best_params = None
@@ -78,13 +76,14 @@ class Topology_search:
             self.treeTopo = original_topo
             self.params = original_params
             self.__renew_tree_obj__()
-            self.__mark_polytomies__()
+            if resolve_polytomies:
+                self.__mark_polytomies__()
             if strategy['resolve_search_only']:
                 if verbose:
                     print("Only perform local nni moves to resolve polytomies")
-                if self.has_polytomy:
+                if resolve_polytomies and self.has_polytomy:
                     tree,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True,checkpoint_file=checkpoint_file)
-                else: # score this tree topology (optimize all numerical params)
+                else: # no need to do any topology search, but need to score this tree topology (optimize all numerical params)
                     mySolver = self.get_solver()
                     score_tree_strategy = deepcopy(strategy)
                     score_tree_strategy['fixed_brlen'] = {}

@@ -32,7 +32,6 @@ class Topology_search_parallel(Topology_search):
                 if nni_result['status'] == "optimal":
                     new_score = nni_result['score']
                     if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params               
-                        #print(curr_score,new_score,'accept') 
                         u,v,u_child,w = nni_result['cache']
                         u_child.set_parent(v)
                         u.remove_child(u_child)
@@ -44,7 +43,6 @@ class Topology_search_parallel(Topology_search):
                         self.tree_obj = nni_result['tree_obj']
                         took = True
                         break
-                    #print(curr_score,new_score,'reject') 
                 elif not checked_all:
                     nwk_str,score_tree_strategy,(u,v,u_child,w) = subset_nni_moves[i]
                     score_tree_strategy['fixed_brlen'] = {}
