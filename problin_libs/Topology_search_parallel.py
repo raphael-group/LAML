@@ -21,10 +21,6 @@ class Topology_search_parallel(Topology_search):
         took = False
         curr_queue = all_nni_moves
         while True:
-            #if checked_all:
-                #subset_nni_moves = retry_nni_moves
-            #else:
-            #    subset_nni_moves = all_nni_moves[curr_start_idx:curr_end_idx]
             subset_nni_moves = curr_queue[curr_start_idx:curr_end_idx]
             with Pool() as pool:
                 nni_results = pool.map(self.apply_nni,subset_nni_moves) 
@@ -51,14 +47,12 @@ class Topology_search_parallel(Topology_search):
             if checked_all or took:
                 break    
             if not checked_all and curr_end_idx == N: # reach the end of the main queue  
-                #checked_all = (curr_end_idx == N)
                 checked_all = True
                 curr_queue = retry_nni_moves # switch queue
                 curr_start_idx = 0 # restart index
             else:    
                 curr_start_idx += batch_size
             curr_end_idx = min(curr_start_idx+batch_size,len(curr_queue))
-        #print(curr_end_idx,curr_score,new_score,took)   
         return new_score,curr_end_idx,took    
    
     def apply_nni(self,arguments):

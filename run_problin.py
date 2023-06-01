@@ -7,13 +7,14 @@ from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
 from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
 from problin_libs.Topology_search import Topology_search as Topology_search_sequential
-#from problin_libs.Topology_search import Topology_search
 from treeswift import *
 import random
 import argparse
 import timeit
-from sys import argv,exit,stdout
+from sys import argv,exit,stdout,setrecursionlimit
 from copy import deepcopy
+
+setrecursionlimit(5000)
 
 def main():
     parser = argparse.ArgumentParser()

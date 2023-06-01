@@ -242,19 +242,19 @@ class EM_solver(ML_solver):
             v.S4 = [None]*self.numsites
             for site in range(self.numsites):
                 # compute auxiliary values: v_in1 = log P(D_v|v=-1),v_in0 = log P(D_v|v=0), v_in_alpha = log P(D_v|v=alpha0)
-                v_in1 = 0 if v.alpha[site] == '?' else min_llh
+                v_in1 = 0 if v.alpha[site] == '?' else None
                 if v.is_leaf():
                         c = self.charMtrx[v.label][site]
                         if c == 0:
                             v_in0 = pseudo_log(1-self.params.phi)
                         else:
-                            v_in0 = pseudo_log(self.params.phi) if (c == '?') else min_llh 
+                            v_in0 = pseudo_log(self.params.phi) if (c == '?') else min_llh
                 else:    
                     v1,v2 = v.children
                     v_in0 = v1.L0[site] + v2.L0[site]                 
                 # compute posterior
-                v.post0[site] = v_in0 + v.out0[site] - full_llh[site] #if v_in0 is not None else min_llh
-                v.post1[site] = v_in1 + v.out1[site] - full_llh[site] #if v_in1 is not None else min_llh               
+                v.post0[site] = v_in0 + v.out0[site] - full_llh[site] if v_in0 is not None else min_llh
+                v.post1[site] = v_in1 + v.out1[site] - full_llh[site] if v_in1 is not None else min_llh              
                 # compute S (note that all S values are NOT in log-scale)
                 if v.alpha[site] == 'z': # z-branch
                     v.S0[site] = 1.0

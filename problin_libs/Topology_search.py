@@ -30,7 +30,6 @@ class Topology_search:
     def __renew_tree_obj__(self):
         self.tree_obj = read_tree_newick(self.treeTopo)
         self.tree_obj.suppress_unifurcations()
-        #self.__mark_polytomies__()
     
     def get_solver(self):
         return self.solver(self.treeTopo,self.data,self.prior,self.params)
@@ -125,7 +124,6 @@ class Topology_search:
         if verbose:
             print("Initial score: " + str(curr_score))
         self.update_from_solver(mySolver)
-        #topo_list = [(self.treeTopo,curr_score)]            
         best_score = curr_score
         best_tree = self.treeTopo
         best_params = self.params 
