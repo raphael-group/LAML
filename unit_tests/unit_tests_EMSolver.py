@@ -591,7 +591,8 @@ class EMTest(unittest.TestCase):
         self.assertAlmostEqual(true_phi,phi,places=4,msg="EMTest: test_48 failed.")
         self.assertAlmostEqual(true_nu,nu,places=4,msg="EMTest: test_48 failed.")
     
-    def test_22(self): 
+    # tests on computing llh of multi-trees
+    def test_49(self): 
         Q = [{1:1}]
         T1 = "((a:1,b:1):0,c:1):1;"
         T2 = "((d:1,e:1):0,f:1):1;"
@@ -602,14 +603,14 @@ class EMTest(unittest.TestCase):
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_22 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_49 failed.")
         
         mySolver = EM_solver([T1,T2],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_22 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_49 failed.")
     
-    def test_23(self): 
+    def test_50(self): 
         Q = [{1:1}]
         T1 = "((a:1,b:1):1,c:1):1;"
         T2 = "((d:1,e:1):1,f:1):1;"
@@ -622,9 +623,9 @@ class EMTest(unittest.TestCase):
         #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_23 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_50 failed.")
         
         mySolver = EM_solver([T1,T2],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_23 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_50 failed.")
