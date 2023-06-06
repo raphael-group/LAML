@@ -255,11 +255,12 @@ class ML_solver(Virtual_solver):
                 for tree in self.trees:
                     for node in tree.traverse_postorder():
                         node.mark_fixed=False        
-                    fixed_nodes = find_LCAs(tree,list(fixed_brlen.keys()))        
+                    fixed_nodes = find_LCAs(tree,list(fixed_brlen.keys()))
                     for i,(a,b) in enumerate(fixed_brlen):
                         u = fixed_nodes[i]
-                        u.edge_length = fixed_brlen[(a,b)]
-                        u.mark_fixed = True
+                        if u is not None:
+                            u.edge_length = fixed_brlen[(a,b)]
+                            u.mark_fixed = True
                 nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
                 
                 if nllh is not None:

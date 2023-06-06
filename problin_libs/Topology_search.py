@@ -218,10 +218,12 @@ class Topology_search:
             fixed_branches = []
             for treeTopo in self.treeTopoList:
                 tree = read_tree_newick(treeTopo)
-                fixed_branches += find_LCAs(tree,fixed_branches_anchors)
+                fixed_branches += [x for x in find_LCAs(tree,fixed_branches_anchors) if x is not None]# find_LCAs will return None for invalid pairs
+            print(len(fixed_branches_anchors),len(fixed_branches))
             fixed_brlen = {}
             for i,node in enumerate(fixed_branches):
-                fixed_brlen[fixed_branches_anchors[i]] = node.edge_length
+                if node is not None:
+                    fixed_brlen[fixed_branches_anchors[i]] = node.edge_length
             score_tree_strategy['fixed_brlen'] = fixed_brlen
 
         for u_child in u_children:

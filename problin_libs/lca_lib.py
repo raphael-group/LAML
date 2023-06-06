@@ -76,8 +76,10 @@ def find_LCAs(myTree,myQueries):
             if a in F:
                 L = min(F[a],L) if L is not None else F[a]
                 R = max(F[a],R) if R is not None else F[a]
-            else:
-                logger.warning("ignored calibration for taxon " + a + " which is not found in the input tree")
+            #else:
+            #    logger.warning("ignored calibration for taxon " + a + " which is not found in the input tree")
+        if L is None or R is None:
+            return None
         try:
             lca = __query__(1,0,len(E)-1,L,R)
         except:
