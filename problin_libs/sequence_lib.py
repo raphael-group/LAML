@@ -9,7 +9,8 @@ def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
         # header
         fout.write("cell")
         for i in range(nsites):
-            fout.write(delimiter+"r" + str(i+1))
+            fout.write(delimiter+"r" + str(i))
+            #fout.write(delimiter+"r" + str(i+1))
         fout.write("\n")
         # actual data
         for cell in char_mtrx:
@@ -58,7 +59,10 @@ def check_missing(seen_missing, x):
 
 def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False,replace_mchar=False):
     D = {}
-    site_names = fin.readline().strip().split(delimiter)[1:]
+
+    site_names = fin.readline().strip().split(delimiter)
+    if site_names[0] == 'cell_name' or "cell" in site_names[0]:
+        site_names = site_names[1:]
 
     if masked_symbol != None:
         seen_missing = set([masked_symbol])
@@ -144,7 +148,7 @@ def load_pickle(f):
 
 def read_priors(pfile, site_names):
     file_extension = pfile.strip().split(".")[-1]
-    if file_extension == "pkl": #pickled file
+    if file_extension == "pkl" or file_extension == "pickle": #pickled file
         infile = open(pfile, "rb")
         priors = pickle.load(infile)
         infile.close()

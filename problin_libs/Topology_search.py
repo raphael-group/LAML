@@ -30,6 +30,7 @@ class Topology_search:
     def __renew_tree_obj__(self):
         self.tree_obj = read_tree_newick(self.treeTopo)
         self.tree_obj.suppress_unifurcations()
+        #self.__mark_polytomies__()
     
     def get_solver(self):
         return self.solver(self.treeTopo,self.data,self.prior,self.params)
@@ -100,7 +101,7 @@ class Topology_search:
                 best_params = params
             # The final optimization of parameters
             if verbose:
-                print("Optimal topology found. Re-optimizing other parameters ...")
+                print(f"Optimal topology found with score {best_score}.\nRe-optimizing other parameters ...")
             self.treeTopo = best_tree
             self.params = best_params
             self.__renew_tree_obj__()
@@ -124,6 +125,7 @@ class Topology_search:
         if verbose:
             print("Initial score: " + str(curr_score))
         self.update_from_solver(mySolver)
+        #topo_list = [(self.treeTopo,curr_score)]            
         best_score = curr_score
         best_tree = self.treeTopo
         best_params = self.params 
@@ -147,8 +149,9 @@ class Topology_search:
                 print("Runtime (s):", stop_time - start_time)
             if nni_iter % 50 == 0:
                 with open(checkpoint_file, "w") as fout:
+                    fout.write(f"NNI Iteration: {nni_iter}\n")
                     fout.write(f"Current newick tree: {best_tree}\n")
-                    fout.write(f"Current negative-llh: {best_score}\n")
+                    fout.write(f"Current negative-llh: {-best_score}\n")
                     fout.write(f"Current dropout rate: {best_params['phi']}\n")
                     fout.write(f"Current silencing rate: {best_params['nu']}\n")
         if verbose:

@@ -123,6 +123,11 @@ def sim_Q(k, m, prior_outfile=""):
     for i in range(k):
         q = {j+1:1/m for j in range(m)}
         Q.append(q)
+    if prior_outfile != "":
+        with open(prior_outfile, "w") as fout:
+            for i in range(k):
+                for x in Q[i]:
+                    fout.write(str(i) + "," + str(x) + "," + str(Q[i][x]) + "\n") 
     return Q
 
 def concat_Q(d):

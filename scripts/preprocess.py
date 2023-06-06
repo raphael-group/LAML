@@ -1,6 +1,6 @@
 import json
 import pickle
-from problin_libs.sequence_lib import read_sequences, write_sequences
+from problin_libs.sequence_lib import read_sequences, write_sequences, read_priors
 import sys
 
 # adapted from /n/fs/ragr-research/projects/problin_experiments/Real_biodata/test_kptracer/proc_scripts
@@ -26,6 +26,43 @@ def load_pickle(f):
         Q[i] = q
     return Q
 
+def drop_missing_cols(msafile, priorfile, missing_char='?'):
+    msa, site_names = read_sequences(msafile, filetype="charMtrx")
+    Q = read_priors(priorfile, site_names) 
+
+    final_msa = dict()
+    for cell in msa:
+        final_msa[cell] = []
+    final_Q = []
+
+    k = len(msa[next(iter(msa))])
+    all_missing_cols = []
+    for i in range(k):
+        print(f"col:{i}")
+        allMissing = True
+        for cell in msa:
+            if msa[cell][i] != missing_char:
+                allMissing = False
+                print(msa[cell][i])
+        if not allMissing:
+            for cell in msa:
+                final_msa[cell].append(msa[cell][i])
+            final_Q.append(Q[i])
+        else:
+            all_missing_cols.append(i)
+    final_len = len(final_Q)
+    print(f"all missing cols: {all_missing_cols}")
+
+    if len(all_missing_cols) > 0:
+       
+        outmsafile = msafile + ".dropmissing"
+        write_sequences(final_msa, final_len, outmsafile)
+        outpriorfile = priorfile + ".dropmissing.csv"
+        with open(outpriorfile, "w") as fout:
+            for i in range(final_len):
+                for x in final_Q[i]:
+                    fout.write(f"{i},{x},{Q[i][x]}\n")
+        
 def make_unique(fname, outfile, eqfile, delimiter='\t', missing_char="?", droplenti=False):
 
     msa, site_names = read_sequences(fname, filetype="charMtrx", delimiter=delimiter)
@@ -99,7 +136,8 @@ def writeQ2pickle(p, outfile):
     # zero index for cassiopeia inputs
     new_p = dict()
     for i, d in enumerate(p):
-        del d[0]
+        if 0 in d:
+            del d[0]
         new_p[i] = d
     p = new_p
     write_pickle(p, outfile)

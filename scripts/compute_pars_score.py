@@ -1,6 +1,6 @@
-from problin_libs.sequence_lib import read_sequences, read_Q 
+from problin_libs.sequence_lib import read_sequences, read_Q, read_priors
 from scripts.preprocess import load_pickle
-import startle # TODO: REMOVE BEFORE RELEASE!
+import startle2 as startle # TODO: REMOVE BEFORE RELEASE!
 import argparse
 from treeswift import *
 from math import log
@@ -9,11 +9,20 @@ import time
 
 def pars_score_startle(args):
     seed_tree = startle.from_newick_get_nx_tree(args.tree)
+    m, site_names = read_sequences(args.msa,delimiter="\t",masked_symbol=args.mchar, suppress_warnings=True)
+    #m, site_names = read_sequences(args.msa,args.delimiter,masked_symbol=args.mchar, suppress_warnings=True)
     character_matrix = pd.read_csv(args.msa, index_col=[0], sep=args.delimiter, dtype=str)
     character_matrix = character_matrix.replace('-', '-1')
+    #print(f"character matrix: {character_matrix}")
     #print(character_matrix)
     if args.prior != '':
-        mutation_prior_dict = load_pickle(args.prior)
+        mutation_prior = read_priors(args.prior, site_names)
+        mutation_prior_dict = dict()
+        #print(f"site names: {site_names}")
+        for idx, mp in enumerate(mutation_prior):
+            site_name = int(site_names[idx][1:]) 
+            mutation_prior_dict[site_name] = mp
+        #mutation_prior_dict = load_pickle(args.prior)
         #mutation_prior_dict = read_Q(args.prior)
         weighted_seed_parsimony, _, _ = startle.small_parsimony(mutation_prior_dict, seed_tree, character_matrix, weighted=True)
         return weighted_seed_parsimony
