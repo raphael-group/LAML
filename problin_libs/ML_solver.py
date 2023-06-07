@@ -267,6 +267,9 @@ class ML_solver(Virtual_solver):
                     all_failed = False
                     if verbose >= 0:
                         print("Optimal point found for initial point " + str(rep+1))
+                        print("Negative llh: " + str(nllh))
+                        print("Dropout rate: " + str(self.params.phi))
+                        print("Silencing rate: " + str(self.params.nu))
                         #self.show_params()
                     # remove zero-length branches
                     processed_trees = []

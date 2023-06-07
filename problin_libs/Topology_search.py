@@ -219,7 +219,6 @@ class Topology_search:
             for treeTopo in self.treeTopoList:
                 tree = read_tree_newick(treeTopo)
                 fixed_branches += [x for x in find_LCAs(tree,fixed_branches_anchors) if x is not None]# find_LCAs will return None for invalid pairs
-            print(len(fixed_branches_anchors),len(fixed_branches))
             fixed_brlen = {}
             for i,node in enumerate(fixed_branches):
                 if node is not None:
