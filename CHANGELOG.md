@@ -1,3 +1,5 @@
+* Version 0.4
+    * Stable version of v0.4b
 * Version 0.4b (beta, unstable):
     * Increase recursion depth limit
     * Fix bug of EM in computing likelihood of trees with polytomies
