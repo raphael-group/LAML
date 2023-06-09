@@ -1,2 +1,0 @@
-No	RefTree	Tree	RF(0.5)
-1	1	1	2.0000
