@@ -14,7 +14,7 @@ class SpaLinTest(unittest.TestCase):
         prior = {'Q':Q}
         params = {'phi':0,'nu':0,'sigma':sigma}
 
-        mySolver = SpaLin_solver(T,data,prior,params)
+        mySolver = SpaLin_solver([T],data,prior,params)
         mySolver.az_partition()
         my_llh = -mySolver.negative_llh()
         self.assertAlmostEqual(true_llh,my_llh,places=5,msg="SpaLinTest: test_1 failed.")

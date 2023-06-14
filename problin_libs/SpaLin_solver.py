@@ -18,15 +18,16 @@ class SpaLin_solver(ML_solver):
     
     def spatial_llh(self,locations):
         llh = 0
-        for node in self.tree.traverse_preorder():
-            if node.is_root() or not node.label in locations or not node.parent.label in locations:
-                continue
-            d = node.edge_length
-            curr_sigma = self.params.sigma*sqrt(d)
-            x,y = locations[node.label]
-            x_par,y_par = locations[node.parent.label]
-            llh -= (0.5*((x-x_par)/curr_sigma)**2 + log(curr_sigma))
-            llh -= (0.5*((y-y_par)/curr_sigma)**2 + log(curr_sigma))
+        for tree in self.trees:
+            for node in tree.traverse_preorder():
+                if node.is_root() or not node.label in locations or not node.parent.label in locations:
+                    continue
+                d = node.edge_length
+                curr_sigma = self.params.sigma*sqrt(d)
+                x,y = locations[node.label]
+                x_par,y_par = locations[node.parent.label]
+                llh -= (0.5*((x-x_par)/curr_sigma)**2 + log(curr_sigma))
+                llh -= (0.5*((y-y_par)/curr_sigma)**2 + log(curr_sigma))
         return llh 
 
     def __llh__(self):
