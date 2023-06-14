@@ -285,7 +285,10 @@ class EM_solver(ML_solver):
                             v.S4[site] = 0.0
                         else: # masked branch
                             v.S2[site] = exp(u.post0[site]-v.L0[site])*(1.0-exp(-self.params.nu*v.edge_length))
-                            v.S4[site] = (1.0-exp(u.post0[site])-exp(u.post1[site]))*(1.0-exp(-self.params.nu*v.edge_length))/exp(v.L1[site])
+                            if (1.0-exp(u.post0[site])-exp(u.post1[site]) == 0) or (1.0-exp(-self.params.nu*v.edge_length) == 0):
+                                v.S4[site] = 0
+                            else:    
+                                v.S4[site] = (1.0-exp(u.post0[site])-exp(u.post1[site]))*(1.0-exp(-self.params.nu*v.edge_length))/exp(v.L1[site])
                         v.S1[site] = exp(u.post0[site]) - v.S0[site] - v.S2[site] 
                         v.S3[site] = 1.0-v.S0[site]-v.S1[site]-exp(v.post1[site])
 
