@@ -3,7 +3,7 @@ from math import log,exp,sqrt, isclose
 from random import random, seed, choice
 
 class Virtual_solver:
-    def __init__(self,treeTopo,data,prior,params):
+    def __init__(self,treeList,data,prior,params):
     # virtual method. Should never be called!
         pass
     def get_tree_newick(self):

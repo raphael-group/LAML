@@ -16,59 +16,69 @@ def pseudo_log(x):
     return log(x) if x>0 else min_llh
 
 class EM_solver(ML_solver):
-    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):
-        super(EM_solver,self).__init__(treeTopo,data,prior,params)
+    def __init__(self,treeList,data,prior,params={'nu':0,'phi':0,'sigma':0}):
+        super(EM_solver,self).__init__(treeList,data,prior,params)
         self.has_polytomy = False
-        self.__mark_polytomies__(eps_len=0)
-        self.num_edges = len(list(self.tree.traverse_postorder()))
+        self.__mark_polytomies__(eps_len=self.dmin*0.01)
+        self.num_edges = sum([len(list(tree.traverse_postorder())) for tree in self.trees])
     
     def __mark_polytomies__(self,eps_len=0):
         # polytomy_mark and resolve all polytomies in self.tree_obj
         self.has_polytomy = False
         self.num_polytomy_mark = 0
-        for node in self.tree.traverse_preorder():
-            node.polytomy_mark = False
-            if len(node.children) > 2:
-                self.has_polytomy = True
-        self.tree.resolve_polytomies()
-        for node in self.tree.traverse_preorder():
-            if not hasattr(node,'polytomy_mark'):
-                node.polytomy_mark = True
-                self.num_polytomy_mark += 1
-                node.edge_length = eps_len  
-                self.has_polytomy = True              
+        for tree in self.trees:
+            for node in tree.traverse_preorder():
+                node.polytomy_mark = False
+                if len(node.children) > 2:
+                    self.has_polytomy = True
+            tree.resolve_polytomies()
+            for node in tree.traverse_preorder():
+                if not hasattr(node,'polytomy_mark'):
+                    node.polytomy_mark = True
+                    self.num_polytomy_mark += 1
+                    node.edge_length = eps_len  
+                    self.has_polytomy = True              
     
-    def x2brlen(self,x):        
-        for i, node in enumerate(self.tree.traverse_postorder()):
-            if not node.polytomy_mark:
-                node.edge_length = x[i]
+    def x2brlen(self,x):
+        i = 0
+        for tree in self.trees:        
+            for node in tree.traverse_postorder():
+                if not node.polytomy_mark:
+                    node.edge_length = x[i]
+                    i += 1
     
     def ultrametric_constr(self,local_brlen_opt=True):
         N = self.num_edges-self.num_polytomy_mark
         if local_brlen_opt:
-            N -= len([node for node in self.tree.traverse_postorder() if node.mark_fixed])
+            for tree in self.trees:
+                N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
         M = []
         b = []
-        idx = 0 
-        for node in self.tree.traverse_postorder():
-            if node.is_leaf():
-                node.constraint = [0.]*N
-                node.constant = node.edge_length if node.mark_fixed else 0
-            else:
-                c1,c2 = node.children
-                m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]                
-                m_compl = [-x for x in m]
-                if sum([x!=0 for x in m]) > 0 and not (m in M or m_compl in M):
-                    M.append(m)
-                    b.append(c2.constant-c1.constant)
-                node.constraint = c1.constraint
-                if node.mark_fixed:
-                    node.constant = c1.constant + node.edge_length
+        idx = 0
+        for tree in self.trees: 
+            for node in tree.traverse_postorder():
+                if node.is_leaf():
+                    node.constraint = [0.]*N
+                    node.constant = node.edge_length if node.mark_fixed else 0
                 else:
-                    node.constant = c1.constant
-            if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
-                node.constraint[idx] = 1
-                idx += 1        
+                    c1,c2 = node.children
+                    m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]                
+                    m_compl = [-x for x in m]
+                    if sum([x!=0 for x in m]) > 0 and not (m in M or m_compl in M):
+                        M.append(m)
+                        b.append(c2.constant-c1.constant)
+                    node.constraint = c1.constraint
+                    if node.mark_fixed:
+                        node.constant = c1.constant + node.edge_length
+                    else:
+                        node.constant = c1.constant
+                if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+                    node.constraint[idx] = 1
+                    idx += 1
+        for tree in self.trees[1:]:
+            m = [x-y for (x,y) in zip(self.trees[0].root.constraint,tree.root.constraint)]
+            M.append(m)
+            b.append(tree.root.constant-self.trees[0].root.constant)                    
         return M,b
 
     def Estep_in_llh(self):
@@ -76,48 +86,52 @@ class EM_solver(ML_solver):
         # compute the inside llh, store in L0 and L1 of each node
         phi = self.params.phi
         nu = self.params.nu
-        for node in self.tree.traverse_postorder():
-            p = exp(-node.edge_length)
-            node.L0 = [0]*self.numsites # L0 and L1 are stored in log-scale
-            node.L1 = [0]*self.numsites
-            for site in range(self.numsites):   
-                q = self.Q[site][node.alpha[site]] if node.alpha[site] not in ['?','z'] else 1.0
-                if node.is_leaf():
-                    if node.alpha[site] == "?":
-                        masked_llh = pseudo_log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else pseudo_log(1-p**nu)
-                        #if self.charMtrx[node.label][site] == '?':
-                        #    masked_llh = log(1-(1-phi)*p**nu) if (1-(1-phi)*p**nu)>0 else min_llh
-                        #else:
-                        #    masked_llh = log(1-p**nu) if (1-p**nu)>0 else min_llh           
-                        node.L0[site] = node.L1[site] = masked_llh
-                    elif node.alpha[site] == 'z':
-                        node.L0[site] = (nu+1)*(-node.edge_length) + pseudo_log(1-phi) #if 1-phi>0 else min_llh
-                        node.L1[site] = min_llh
+        for tree in self.trees:
+            for node in tree.traverse_postorder():
+                p = exp(-node.edge_length)
+                node.L0 = [0]*self.numsites # L0 and L1 are stored in log-scale
+                node.L1 = [0]*self.numsites
+                for site in range(self.numsites):   
+                    q = self.Q[site][node.alpha[site]] if node.alpha[site] not in ['?','z'] else 1.0
+                    if node.is_leaf():
+                        if node.alpha[site] == "?":
+                            if self.charMtrx[node.label][site] == '?':
+                                masked_llh = log(1-(1-phi)*p**nu) if (1-(1-phi)*p**nu)>0 else min_llh
+                            else:
+                                masked_llh = log(1-p**nu) if (1-p**nu)>0 else min_llh           
+                            #masked_llh = log(1-(1-phi)*p**nu) if self.charMtrx[node.label][site] == '?' else log(1-p**nu)
+                            node.L0[site] = node.L1[site] = masked_llh
+                        elif node.alpha[site] == 'z':
+                            node.L0[site] = (nu+1)*(-node.edge_length) + log(1-phi) if 1-phi>0 else min_llh
+                            node.L1[site] = min_llh
+                        else:
+                            node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi) if (1-p)*q*(1-phi)>0 else min_llh
+                            node.L1[site] = nu*(-node.edge_length) + log(1-phi) if (1-phi)>0 else min_llh
                     else:
-                        node.L0[site] = nu*(-node.edge_length) + pseudo_log(1-p) + pseudo_log(q) + pseudo_log(1-phi) #if (1-p)*q*(1-phi)>0 else min_llh
-                        node.L1[site] = nu*(-node.edge_length) + pseudo_log(1-phi) #if (1-phi)>0 else min_llh
-                else:
-                    C = node.children
-                    l0 = l1 = 0
-                    for c in C:
-                        l0 += c.L0[site]
-                        l1 += c.L1[site]
-                    # note: l0_z, l0_alpha, and l0_masked are lists    
-                    l0_z = [l0 + (nu+1)*(-node.edge_length)]
-                    l0_alpha = [l1 + pseudo_log(1-p) + pseudo_log(q) + nu*(-node.edge_length)] if (node.alpha[site] != 'z') else []
-                    l0_masked = [pseudo_log(1-p**nu)] if (node.alpha[site] == '?') else []
-                    node.L0[site] = log_sum_exp(l0_z + l0_alpha + l0_masked)
-                    if node.alpha[site] == 'z':
-                        node.L1[site] = min_llh
-                    elif node.alpha[site] != '?' or nu == 0 or p==1:
-                        node.L1[site] = l1 + nu*(-node.edge_length) 
-                    else:
-                        node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length), pseudo_log(1-p**nu)])
+                        C = node.children
+                        l0 = l1 = 0
+                        for c in C:
+                            l0 += c.L0[site]
+                            l1 += c.L1[site]
+                        # note: l0_z, l0_alpha, and l0_masked are lists    
+                        l0_z = [l0 + (nu+1)*(-node.edge_length)]
+                        l0_alpha = [l1 + log(1-p)+log(q) + nu*(-node.edge_length)] if (node.alpha[site] != 'z' and q*(1-p)>0) else []
+                        l0_masked = [log(1-p**nu)] if (node.alpha[site] == '?' and (1-p**nu) > 0) else []
+                        node.L0[site] = log_sum_exp(l0_z + l0_alpha + l0_masked)
+                        if node.alpha[site] == 'z':
+                            node.L1[site] = min_llh
+                        elif node.alpha[site] != '?' or nu == 0 or p==1:
+                            node.L1[site] = l1 + nu*(-node.edge_length) 
+                        else:
+                            node.L1[site] = log_sum_exp([l1 + nu*(-node.edge_length), log(1-p**nu)])
 
     def lineage_llh(self):
         # override the function of the base class
         self.Estep_in_llh()
-        return sum(self.tree.root.L0)
+        llh = 0
+        for tree in self.trees:
+            llh += sum(tree.root.L0)
+        return llh
     
     def Estep_out_llh(self):
         # assume binary tree
@@ -125,62 +139,62 @@ class EM_solver(ML_solver):
         # so that all nodes have `alpha`, `L0` and `L1` attribues
         # output: add the attributes `out0` and `out1` to each node
         # where v.out0 = P(~D_v,v=0) and v.out1 = P(~D_v,v=-1) 
-        for v in self.tree.traverse_preorder():
-            if v.is_root(): # base case
-                # Auxiliary components
-                v.A = [0]*self.numsites
-                #v.X = [-self.params.nu*v.edge_length + log(1-exp(-v.edge_length))]*self.numsites if self.params.nu*v.edge_length > 0 else [min_llh]*self.numsites
-                v.X = [-self.params.nu*v.edge_length + pseudo_log(1-exp(-v.edge_length))]*self.numsites
-                v.out_alpha = [{} for i in range(self.numsites)]
-                # Main components    
-                v.out0 = [-(1+self.params.nu)*v.edge_length]*self.numsites
-                #v.out1 = [log(1-exp(-v.edge_length*self.params.nu))]*self.numsites if self.params.nu*v.edge_length > 0 else [min_llh]*self.numsites
-                v.out1 = [pseudo_log(1-exp(-v.edge_length*self.params.nu))]*self.numsites
-            else:
-                u = v.parent
-                w = None 
-                # get the sister
-                for x in u.children:
-                    if x is not v:
-                        w = x
-                        break
-                # Auxiliary components
-                v.A = [None]*self.numsites
-                v.X = [None]*self.numsites
-                v.out_alpha = [{} for i in range(self.numsites)]
-                # Main components
-                v.out0 = [None]*self.numsites
-                v.out1 = [None]*self.numsites
-                for site in range(self.numsites): 
-                    # compute out0: P(~D_v,v=0)
-                    v.out0[site] = u.out0[site] + w.L0[site] - (1+self.params.nu)*v.edge_length
-                    v.A[site] = u.out0[site] + w.L0[site] 
-                    v.X[site] = -self.params.nu*v.edge_length + pseudo_log(1-exp(-v.edge_length)) + v.A[site]
-                    # compute out1: P(~D_v,v=-1)
-                    if w.alpha[site] == 'z': # z-branch
-                        v.out1[site] = pseudo_log(1-exp(-v.edge_length*self.params.nu)) + v.A[site]
-                    elif w.alpha[site] == '?': # masked branch
-                        v.X[site] = log_sum_exp([v.X[site],u.X[site]+w.L1[site]-self.params.nu*v.edge_length])
-                        p = 1-exp(-v.edge_length*self.params.nu) # if nu=0 then p=0
-                        pl = pseudo_log(p)
-                        v.out1[site] = u.out1[site] if self.params.nu == 0 else log_sum_exp([pl+v.A[site],pl+u.X[site]+w.L1[site],u.out1[site]])
-                    else:
-                        alpha0 = w.alpha[site] 
-                        if alpha0 not in u.out_alpha[site]:
-                            self.__out_alpha_up__(u,site,alpha0)
-                        B = u.out_alpha[site][alpha0] + self.params.nu*(-v.edge_length) + w.L1[site]  
-                        #if v.edge_length > 0 and self.Q[site][alpha0] > 0:
-                        #    C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
-                        #else:
-                        #    C = v.A[site] - self.params.nu*v.edge_length + min_llh    
-                        C = v.A[site] - self.params.nu*v.edge_length + pseudo_log(1-exp(-v.edge_length)) + pseudo_log(self.Q[site][alpha0])
-                        v.out_alpha[site][alpha0] = log_sum_exp([B,C])
-                        v.X[site] = log_sum_exp([v.X[site],B])
-                        #if self.params.nu*v.edge_length > 0:
-                        #    v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
-                        #else:
-                        #    v.out1[site] = min_llh + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])   
-                        v.out1[site] = pseudo_log(1-exp(-v.edge_length*self.params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
+        for tree in self.trees:
+            for v in tree.traverse_preorder():
+                if v.is_root(): # base case
+                    # Auxiliary components
+                    v.A = [0]*self.numsites
+                    v.X = [-self.params.nu*v.edge_length + log(1-exp(-v.edge_length))]*self.numsites if self.params.nu*v.edge_length > 0 else [min_llh]*self.numsites
+                    v.out_alpha = [{} for i in range(self.numsites)]
+                    # Main components    
+                    v.out0 = [-(1+self.params.nu)*v.edge_length]*self.numsites
+                    v.out1 = [log(1-exp(-v.edge_length*self.params.nu))]*self.numsites if self.params.nu*v.edge_length > 0 else [min_llh]*self.numsites
+                else:
+                    u = v.parent
+                    w = None 
+                    # get the sister
+                    for x in u.children:
+                        if x is not v:
+                            w = x
+                            break
+                    #if w is None:
+                        #print("w is none", [x.label for x in u.traverse_leaves()])
+                        #print("w is none", len(u.children),u.is_root())
+                    # Auxiliary components
+                    v.A = [None]*self.numsites
+                    v.X = [None]*self.numsites
+                    v.out_alpha = [{} for i in range(self.numsites)]
+                    # Main components
+                    v.out0 = [None]*self.numsites
+                    v.out1 = [None]*self.numsites
+                    for site in range(self.numsites): 
+                        # compute out0: P(~D_v,v=0)
+                        v.out0[site] = u.out0[site] + w.L0[site] - (1+self.params.nu)*v.edge_length
+                        v.A[site] = u.out0[site] + w.L0[site] 
+                        v.X[site] = -self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + v.A[site] if v.edge_length > 0 else min_llh
+                        # compute out1: P(~D_v,v=-1)
+                        if w.alpha[site] == 'z': # z-branch
+                            v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + v.A[site] if self.params.nu*v.edge_length > 0 else min_llh
+                        elif w.alpha[site] == '?': # masked branch
+                            v.X[site] = log_sum_exp([v.X[site],u.X[site]+w.L1[site]-self.params.nu*v.edge_length])
+                            p = 1-exp(-v.edge_length*self.params.nu) # if nu=0 then p=0
+                            pl = log(p) if p > 0 else min_llh
+                            v.out1[site] = u.out1[site] if self.params.nu == 0 else log_sum_exp([pl+v.A[site],pl+u.X[site]+w.L1[site],u.out1[site]])
+                        else:
+                            alpha0 = w.alpha[site] 
+                            if alpha0 not in u.out_alpha[site]:
+                                self.__out_alpha_up__(u,site,alpha0)
+                            B = u.out_alpha[site][alpha0] + self.params.nu*(-v.edge_length) + w.L1[site]  
+                            if v.edge_length > 0 and self.Q[site][alpha0] > 0:
+                                C = v.A[site] - self.params.nu*v.edge_length + log(1-exp(-v.edge_length)) + log(self.Q[site][alpha0])
+                            else:
+                                C = min_llh    
+                            v.out_alpha[site][alpha0] = log_sum_exp([B,C])
+                            v.X[site] = log_sum_exp([v.X[site],B])
+                            if self.params.nu*v.edge_length > 0:
+                                v.out1[site] = log(1-exp(-v.edge_length*self.params.nu)) + log_sum_exp([v.A[site],w.L1[site]+u.out_alpha[site][alpha0]])
+                            else:
+                                v.out1[site] = min_llh    
 
     def __out_alpha_up__(self,node,site,alpha0):
         # auxiliary function, shoudn't be called outside
@@ -229,52 +243,51 @@ class EM_solver(ML_solver):
         # so that all nodes have `alpha`, `L0`, `L1`, `out0`, and `out1` attribues
         # output: add the attributes `S0-4` (refer to the paper for definitions; all S are NOT stored in log-scale)
         # and `post0` and `post1` to each node where v.post0 = log P(v=0|D) and v.post1 = log P(v=-1|D) 
-        #full_llh = params.tree.root.L0
-        full_llh = self.tree.root.L0
-        #for v in params.tree.traverse_preorder():
-        for v in self.tree.traverse_preorder():
-            v.post0 = [None]*self.numsites
-            v.post1 = [None]*self.numsites
-            v.S0 = [None]*self.numsites
-            v.S1 = [None]*self.numsites
-            v.S2 = [None]*self.numsites
-            v.S3 = [None]*self.numsites
-            v.S4 = [None]*self.numsites
-            for site in range(self.numsites):
-                # compute auxiliary values: v_in1 = log P(D_v|v=-1),v_in0 = log P(D_v|v=0), v_in_alpha = log P(D_v|v=alpha0)
-                v_in1 = 0 if v.alpha[site] == '?' else None
-                if v.is_leaf():
-                        c = self.charMtrx[v.label][site]
-                        if c == 0:
-                            v_in0 = pseudo_log(1-self.params.phi)
-                        else:
-                            v_in0 = pseudo_log(self.params.phi) if (c == '?') else min_llh
-                else:    
-                    v1,v2 = v.children
-                    v_in0 = v1.L0[site] + v2.L0[site]                 
-                # compute posterior
-                v.post0[site] = v_in0 + v.out0[site] - full_llh[site] if v_in0 is not None else min_llh
-                v.post1[site] = v_in1 + v.out1[site] - full_llh[site] if v_in1 is not None else min_llh              
-                # compute S (note that all S values are NOT in log-scale)
-                if v.alpha[site] == 'z': # z-branch
-                    v.S0[site] = 1.0
-                    v.S1[site] = v.S2[site] = v.S3[site] = v.S4[site] = 0.0
-                elif v.is_root():
-                    v.S0[site] = exp(v_in0 + (1.0+self.params.nu)*(-v.edge_length) - v.L0[site])
-                    v.S2[site] = 0.0 if v.alpha[site] != '?' else (1.0-exp(-self.params.nu*v.edge_length))/exp(v.L0[site])
-                    v.S1[site] = 1.0-v.S0[site]-v.S2[site]
-                    v.S3[site] = v.S4[site] = 0.0
-                else:
-                    u = v.parent
-                    v.S0[site] = exp(u.post0[site] + v_in0 + (1.0+self.params.nu)*(-v.edge_length) - v.L0[site])
-                    if v.alpha[site] != '?':
-                        v.S2[site] = 0.0
-                        v.S4[site] = 0.0
-                    else: # masked branch
-                        v.S2[site] = exp(u.post0[site]-v.L0[site])*(1.0-exp(-self.params.nu*v.edge_length))
-                        v.S4[site] = (1.0-exp(u.post0[site])-exp(u.post1[site]))*(1.0-exp(-self.params.nu*v.edge_length))/exp(v.L1[site])
-                    v.S1[site] = exp(u.post0[site]) - v.S0[site] - v.S2[site] 
-                    v.S3[site] = 1.0-v.S0[site]-v.S1[site]-exp(v.post1[site])
+        for tree in self.trees:
+            full_llh = tree.root.L0
+            for v in tree.traverse_preorder():
+                v.post0 = [None]*self.numsites
+                v.post1 = [None]*self.numsites
+                v.S0 = [None]*self.numsites
+                v.S1 = [None]*self.numsites
+                v.S2 = [None]*self.numsites
+                v.S3 = [None]*self.numsites
+                v.S4 = [None]*self.numsites
+                for site in range(self.numsites):
+                    # compute auxiliary values: v_in1 = log P(D_v|v=-1),v_in0 = log P(D_v|v=0), v_in_alpha = log P(D_v|v=alpha0)
+                    v_in1 = 0 if v.alpha[site] == '?' else None
+                    if v.is_leaf():
+                            c = self.charMtrx[v.label][site]
+                            if c == 0:
+                                v_in0 = log(1-self.params.phi)
+                            else:
+                                v_in0 = log(self.params.phi) if (c == '?' and self.params.phi > 0) else min_llh 
+                    else:    
+                        v1,v2 = v.children
+                        v_in0 = v1.L0[site] + v2.L0[site]                 
+                    # compute posterior
+                    v.post0[site] = v_in0 + v.out0[site] - full_llh[site] if v_in0 is not None else min_llh
+                    v.post1[site] = v_in1 + v.out1[site] - full_llh[site] if v_in1 is not None else min_llh               
+                    # compute S (note that all S values are NOT in log-scale)
+                    if v.alpha[site] == 'z': # z-branch
+                        v.S0[site] = 1.0
+                        v.S1[site] = v.S2[site] = v.S3[site] = v.S4[site] = 0.0
+                    elif v.is_root():
+                        v.S0[site] = exp(v_in0 + (1.0+self.params.nu)*(-v.edge_length) - v.L0[site])
+                        v.S2[site] = 0.0 if v.alpha[site] != '?' else (1.0-exp(-self.params.nu*v.edge_length))/exp(v.L0[site])
+                        v.S1[site] = 1.0-v.S0[site]-v.S2[site]
+                        v.S3[site] = v.S4[site] = 0.0
+                    else:
+                        u = v.parent
+                        v.S0[site] = exp(u.post0[site] + v_in0 + (1.0+self.params.nu)*(-v.edge_length) - v.L0[site])
+                        if v.alpha[site] != '?':
+                            v.S2[site] = 0.0
+                            v.S4[site] = 0.0
+                        else: # masked branch
+                            v.S2[site] = exp(u.post0[site]-v.L0[site])*(1.0-exp(-self.params.nu*v.edge_length))
+                            v.S4[site] = (1.0-exp(u.post0[site])-exp(u.post1[site]))*(1.0-exp(-self.params.nu*v.edge_length))/exp(v.L1[site])
+                        v.S1[site] = exp(u.post0[site]) - v.S0[site] - v.S2[site] 
+                        v.S3[site] = 1.0-v.S0[site]-v.S1[site]-exp(v.post1[site])
 
     def Estep(self):
         self.Estep_in_llh()
@@ -295,16 +308,18 @@ class EM_solver(ML_solver):
                 print("Optimizing phi")
             R = []
             R_tilde = []
-            for i,v in enumerate(self.tree.traverse_leaves()):
-                R.append(sum([x != '?' for x in self.charMtrx[v.label]]))
-                R_tilde.append(sum([1-exp(p) for (j,p) in enumerate(v.post1) if self.charMtrx[v.label][j] == '?'])) 
+            for tree in self.trees:
+                for v in tree.traverse_leaves():
+                    R.append(sum([x != '?' for x in self.charMtrx[v.label]]))
+                    R_tilde.append(sum([1-exp(p) for (j,p) in enumerate(v.post1) if self.charMtrx[v.label][j] == '?'])) 
             phi_star = sum(R_tilde)/(sum(R)+sum(R_tilde))
             if abs(phi_star) < 1/(self.numsites*len(self.charMtrx)):
                 phi_star = 0
         # optimize nu and all branch lengths
         N = self.num_edges-self.num_polytomy_mark
         if local_brlen_opt:
-            N -= len([node for node in self.tree.traverse_postorder() if node.mark_fixed])
+            for tree in self.trees:
+                N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
         S0 = np.zeros(N)
         S1 = np.zeros(N)
         S2 = np.zeros(N)
@@ -312,15 +327,15 @@ class EM_solver(ML_solver):
         S4 = np.zeros(N)
         d_ini = np.zeros(N)
         i = 0
-        for v in self.tree.traverse_postorder():
-            if not v.polytomy_mark and not (v.mark_fixed and local_brlen_opt):    
-                s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
-                s = [max(eps_s,x) for x in s]
-                #s = [x if x > eps_s else 0 for x in s]
-                s = [x/sum(s)*self.numsites for x in s]
-                S0[i],S1[i],S2[i],S3[i],S4[i] = s
-                d_ini[i] = v.edge_length
-                i += 1
+        for tree in self.trees:
+            for v in tree.traverse_postorder():
+                if not v.polytomy_mark and not (v.mark_fixed and local_brlen_opt):    
+                    s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
+                    s = [max(eps_s,x) for x in s]
+                    #s = [x if x > eps_s else 0 for x in s]
+                    s = [x/sum(s)*self.numsites for x in s]
+                    S0[i],S1[i],S2[i],S3[i],S4[i] = s
+                    i += 1
         #stop_time = timeit.default_timer()
         #print("Time", stop_time-start_time,"preprocess")
         def __optimize_brlen__(nu,verbose=False): # nu is a single number
@@ -402,24 +417,21 @@ class EM_solver(ML_solver):
         self.params.phi = phi_star
         self.params.nu = nu_star
         i = 0
-        for node in self.tree.traverse_postorder():
-            if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
-            #if not node.polytomy_mark and not node.mark_fixed:
-                node.edge_length = d_star[i]
-                #if node.edge_length <= 0.0055:
-                #    node.edge_length = 0.005
-                #    node.mark_fixed = True
-                i += 1
+        for tree in self.trees:
+            for node in tree.traverse_postorder():
+                if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+                    node.edge_length = d_star[i]
+                    i += 1
         success = (status_d == "optimal") and (status_nu == "optimal")
         if success:
             status = "optimal"
-        else:    
+        else:
             status = ""
             if status_d != "optimal":
                 status += "failed_d"
             if status_nu != "optimal":
-                status += ",failed_nu"
-        return success,status
+                status = ",failed_nu"
+        return success, status
     
     def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,maxIter=1000):
         # assume that az_partition has been performed
@@ -461,11 +473,6 @@ class EM_solver(ML_solver):
         if not converged and verbose >= 0:
             print("Warning: exceeded maximum number of EM iterations (" + str(maxIter) + " iters)!")
         return -curr_llh, em_iter,status    
-  
-    def posterior_silence(self):
-        self.Estep()
-        for leaf in self.tree.traverse_leaves():
-            print(leaf.label,[round(exp(x),2) for x in leaf.post1])
 
     def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False):
         # optimize using a specific initial point identified by the input randseed

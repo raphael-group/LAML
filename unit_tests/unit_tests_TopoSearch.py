@@ -74,7 +74,7 @@ class TopoSearchTest(unittest.TestCase):
         params = {'phi':0,'nu':0}
         
         # topology search with EM_solver
-        myTopoSearch_EM = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
+        myTopoSearch_EM = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         best_tree,max_score,best_params = myTopoSearch_EM.search(maxiter=200,nreps=1,verbose=False)
         nllh_nni_EM = -max_score
         
@@ -92,7 +92,7 @@ class TopoSearchTest(unittest.TestCase):
         params = {'nu':0,'phi':0}
         
         # topology search with ML_solver
-        myTopoSearch_ML = Topology_search(T0,ML_solver,data=data,prior=prior,params=params)
+        myTopoSearch_ML = Topology_search([T0],ML_solver,data=data,prior=prior,params=params)
         best_tree,max_score,best_params = myTopoSearch_ML.search(maxiter=200,verbose=False,nreps=1)
         nllh_nni_ML = -max_score
         
@@ -109,7 +109,7 @@ class TopoSearchTest(unittest.TestCase):
         prior = {'Q':Q}
         params = {'nu':0,'phi':0}
         
-        myTopoSearch = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
+        myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,nreps=1)
         nllh_nni = -max_score
         
@@ -126,7 +126,7 @@ class TopoSearchTest(unittest.TestCase):
         prior = {'Q':Q}
         params = {'nu':0,'phi':0}
         
-        myTopoSearch = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
+        myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         my_strategy['resolve_search_only'] = True
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
@@ -147,7 +147,7 @@ class TopoSearchTest(unittest.TestCase):
         params = {'phi':0,'nu':0}
         
         # topology search with EM_solver
-        myTopoSearch = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
+        myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         my_strategy['resolve_search_only'] = True
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
@@ -168,7 +168,7 @@ class TopoSearchTest(unittest.TestCase):
         prior = {'Q':Q}
         params = {'phi':0,'nu':0}
         
-        myTopoSearch = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
+        myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         #my_strategy['resolve_search_only'] = True
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
@@ -189,7 +189,7 @@ class TopoSearchTest(unittest.TestCase):
         prior = {'Q':Q}
         params = {'phi':0,'nu':0}
         
-        myTopoSearch = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
+        myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         my_strategy['resolve_search_only'] = True
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
@@ -208,7 +208,7 @@ class TopoSearchTest(unittest.TestCase):
         prior = {'Q':Q}
         params = {'phi':0,'nu':0}
         
-        myTopoSearch = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
+        myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         my_strategy['resolve_search_only'] = True
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
@@ -227,7 +227,7 @@ class TopoSearchTest(unittest.TestCase):
         prior = {'Q':Q}
         params = {'phi':0,'nu':0}
         
-        myTopoSearch = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
+        myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         my_strategy['ultra_constr'] = True
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
@@ -244,7 +244,7 @@ class TopoSearchTest(unittest.TestCase):
         prior = {'Q':Q}
         params = {'phi':0,'nu':0}
         
-        myTopoSearch = Topology_search(T0,EM_solver,data=data,prior=prior,params=params)
+        myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
         my_strategy['ultra_constr'] = True
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)

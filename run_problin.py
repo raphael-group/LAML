@@ -64,7 +64,9 @@ def main():
     prefix = '.'.join(args["output"].split('.')[:-1])
 
     with open(args["topology"],'r') as f:
-        input_tree = f.read().strip()
+        input_trees = []
+        for line in f:
+            input_trees.append(line.strip())
 
     k = len(msa[next(iter(msa.keys()))])
     if args["compute_llh"]:
@@ -92,7 +94,6 @@ def main():
             Q.append(q)
     else:
         Q = read_priors(args["priors"], site_names)
-        # TODO: Normalize Q matrix here instead of inside ML_solver
 
     selected_solver = EM_solver
     em_selected = True
@@ -112,14 +113,14 @@ def main():
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
 
-    myTopoSearch = Topology_search(input_tree, selected_solver, data=data, prior=prior, params=params)
+    myTopoSearch = Topology_search(input_trees, selected_solver, data=data, prior=prior, params=params)
 
 
     if args["compute_llh"]:
         print("Compute likelihood of the input tree and specified parameters without any optimization")
         mySolver = myTopoSearch.get_solver()
         nllh = mySolver.negative_llh()
-        opt_tree = myTopoSearch.treeTopo
+        opt_trees = myTopoSearch.treeTopoList
         opt_params = myTopoSearch.params
         print("Tree neagtive log-likelihood: " + str(nllh))
         print("Tree log-likelihood: " + str(-nllh))
@@ -142,7 +143,7 @@ def main():
             mySolver = myTopoSearch.get_solver()
             nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])      
             myTopoSearch.update_from_solver(mySolver)
-            opt_tree = myTopoSearch.treeTopo
+            opt_trees = myTopoSearch.treeTopoList
             opt_params = myTopoSearch.params
         else:
             if args["resolve_search"]:
@@ -158,13 +159,15 @@ def main():
                     print("All polytomies will be resolved")    
             randval = int(random.random() * 1000)
             checkpoint_file = f"{prefix}._ckpt.{randval}.txt"
-            opt_tree,max_score,opt_params = myTopoSearch.search(resolve_polytomies=resolve_polytomies,maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'], checkpoint_file=checkpoint_file) 
+            opt_trees,max_score,opt_params = myTopoSearch.search(maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'],checkpoint_file=checkpoint_file) 
             nllh = -max_score        
     
     # post-processing: analyze results and output 
     outfile = args["output"]        
     with open(outfile,'w') as fout:
-        fout.write("Newick tree: " +  opt_tree + "\n")
+        fout.write("Newick tree (s):\n") 
+        for tree in opt_trees:
+            fout.write(tree + "\n")
         fout.write("Negative-llh: " +  str(nllh) + "\n")
         fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")
         fout.write("Silencing rate: " + str(opt_params['nu']) + "\n") 

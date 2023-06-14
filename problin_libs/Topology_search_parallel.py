@@ -36,7 +36,7 @@ class Topology_search_parallel(Topology_search):
                         v.remove_child(w)
                         u.add_child(w)
                         self.update_from_solver(nni_result['mySolver'])
-                        self.tree_obj = nni_result['tree_obj']
+                        self.treeList_obj = nni_result['treeList_obj']
                         took = True
                         break
                 elif not checked_all:
@@ -56,19 +56,20 @@ class Topology_search_parallel(Topology_search):
         return new_score,curr_end_idx,took    
    
     def apply_nni(self,arguments):
-        treeTopo,score_tree_strategy,cache = arguments
-        mySolver = self.solver(treeTopo,self.data,self.prior,self.params)            
+        treeTopoList,score_tree_strategy,cache = arguments
+        mySolver = self.solver(treeTopoList,self.data,self.prior,self.params)            
         score,status = mySolver.score_tree(strategy=score_tree_strategy)
-        nni_result = {'mySolver':mySolver,'score':score,'status':status,'cache':cache,'tree_obj':self.tree_obj}
+        nni_result = {'mySolver':mySolver,'score':score,'status':status,'cache':cache,'treeList_obj':self.treeList_obj}
         return nni_result
 
     def list_all_nni(self,strategy,only_marked=False):    
         branches = []
-        for node in self.tree_obj.traverse_preorder():
-            if node.is_leaf() or node.is_root():
-                continue
-            if not only_marked or node.mark:
-                branches.append(node)
+        for tree in self.treeList_obj:
+            for node in tree.traverse_preorder():
+                if node.is_leaf() or node.is_root():
+                    continue
+                if not only_marked or node.mark:
+                    branches.append(node)
         shuffle(branches)        
         all_nni_moves = []
         for u in branches:        
@@ -85,18 +86,21 @@ class Topology_search_parallel(Topology_search):
                 score_tree_strategy['fixed_phi'] = self.params['phi'] 
                 free_branches = set(u.child_nodes() + v.child_nodes() + [v])
                 fixed_branches_anchors = []
-                for node in self.tree_obj.traverse_postorder():
-                    if node.is_leaf():
-                        node.anchors = (node.label,node.label)
-                    else:
-                        C = node.child_nodes()
-                        a = C[0].anchors[0]
-                        b = C[-1].anchors[0]
-                        node.anchors = (a,b)
-                    if not node in free_branches:
-                        fixed_branches_anchors.append(node.anchors)
-                tree = read_tree_newick(self.treeTopo)
-                fixed_branches = find_LCAs(tree,fixed_branches_anchors)
+                for tree in self.treeList_obj: 
+                    for node in tree.traverse_postorder():
+                        if node.is_leaf():
+                            node.anchors = (node.label,node.label)
+                        else:
+                            C = node.child_nodes()
+                            a = C[0].anchors[0]
+                            b = C[-1].anchors[0]
+                            node.anchors = (a,b)
+                        if not node in free_branches:
+                            fixed_branches_anchors.append(node.anchors)
+                fixed_branches = []            
+                for treeTopo in self.treeTopoList:
+                    tree = read_tree_newick(treeTopo)
+                    fixed_branches += find_LCAs(tree,fixed_branches_anchors)
                 fixed_brlen = {}
                 for i,node in enumerate(fixed_branches):
                     fixed_brlen[fixed_branches_anchors[i]] = node.edge_length
@@ -111,9 +115,9 @@ class Topology_search_parallel(Topology_search):
                 w.set_parent(u)
                 v.remove_child(w)
                 u.add_child(w)
-                # get the new tree string
-                nwk_str = self.tree_obj.newick()
-                all_nni_moves.append((nwk_str,score_tree_strategy,(u,v,u_child,w)))
+                # get the new trees' strings
+                nwk_strs = [tree.newick() for tree in self.treeList_obj]
+                all_nni_moves.append((nwk_strs,score_tree_strategy,(u,v,u_child,w)))
                 # turn back the move
                 u_child.set_parent(u)
                 v.remove_child(u_child)
