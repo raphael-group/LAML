@@ -73,7 +73,7 @@ def make_unique(fname, outfile, eqfile, delimiter='\t', missing_char="?", drople
 
     for cellBC in msa:
         s = [str(x) for x in msa[cellBC]]
-        s = ''.join(s)
+        s = ','.join(s)
         k = len(msa[cellBC])
         if s not in seen:
             # final_msa[cellBC] = msa[cellBC]
