@@ -158,7 +158,7 @@ class ML_solver(Virtual_solver):
         for tree in self.trees:
             for node in tree.traverse_postorder():
                 if node.edge_length is not None:
-                    x[idx] = node.edge_length
+                    x[idx] = max(2*self.dmin,node.edge_length)
                 idx += 1     
         return x    
 

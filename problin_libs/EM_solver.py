@@ -338,6 +338,7 @@ class EM_solver(ML_solver):
                     #s = [x if x > eps_s else 0 for x in s]
                     s = [x/sum(s)*self.numsites for x in s]
                     S0[i],S1[i],S2[i],S3[i],S4[i] = s
+                    d_ini[i] = v.edge_length
                     i += 1
         #stop_time = timeit.default_timer()
         #print("Time", stop_time-start_time,"preprocess")
@@ -400,6 +401,7 @@ class EM_solver(ML_solver):
             except:
                 d_star = d_ini
                 status_d = "failure"
+            d_star = np.array([max(x,self.dmin) for x in d_star])     
             if status_d == "infeasible": # should only happen with local EM 
                 return False,"d_infeasible"
             if not optimize_nu:
@@ -425,7 +427,7 @@ class EM_solver(ML_solver):
                 if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
                     node.edge_length = d_star[i]
                     i += 1
-        success = (status_d == "optimal") and (status_nu == "optimal")
+        success = (status_d == "optimal" or status_d == "UNKNOWN") and (status_nu == "optimal" or status_nu == "UNKNOWN")
         if success:
             status = "optimal"
         else:

@@ -1,4 +1,6 @@
 * Version 0.5b
+    * Slight change in branch length initialization
+    * Fixed bug in the Mstep when MOSEK failed
     * Allow multiple tree topologies --> handle data with multiple progenitors
 * Version 0.4
     * Stable version of v0.4b
