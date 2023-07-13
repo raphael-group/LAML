@@ -1,0 +1,1 @@
+Purpose: test problin on computing likelihood of a tree and the specified nu and phi without any optimization when the flag --compute_llh is on.
