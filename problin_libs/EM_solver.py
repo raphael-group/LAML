@@ -47,7 +47,7 @@ class EM_solver(ML_solver):
                     node.edge_length = x[i]
                     i += 1
     
-    def ultrametric_constr(self,local_brlen_opt=True):
+    def ultrametric_constr_old(self,local_brlen_opt=True):
         N = self.num_edges-self.num_polytomy_mark
         if local_brlen_opt:
             for tree in self.trees:
@@ -79,6 +79,44 @@ class EM_solver(ML_solver):
             m = [x-y for (x,y) in zip(self.trees[0].root.constraint,tree.root.constraint)]
             M.append(m)
             b.append(tree.root.constant-self.trees[0].root.constant)                    
+        return M,b
+    
+    def ultrametric_constr(self,local_brlen_opt=True):
+        N = self.num_edges-self.num_polytomy_mark
+        if local_brlen_opt:
+            for tree in self.trees:
+                N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
+        constrs = {}        
+        idx = 0
+        for tree in self.trees: 
+            for node in tree.traverse_postorder():
+                if node.is_leaf():
+                    node.constraint = [0.]*N
+                    node.constant = node.edge_length if node.mark_fixed else 0
+                else:
+                    c1,c2 = node.children
+                    m = tuple(x-y for (x,y) in zip(c1.constraint,c2.constraint))
+                    m_compl = tuple(-x for x in m)
+                    c = c2.constant-c1.constant
+                    if sum([x!=0 for x in m]) > 0 and not (m in constrs or m_compl in constrs):
+                        constrs[m] = c
+                    node.constraint = c1.constraint
+                    if node.mark_fixed:
+                        node.constant = c1.constant + node.edge_length
+                    else:
+                        node.constant = c1.constant
+                if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+                    node.constraint[idx] = 1
+                    idx += 1
+        for tree in self.trees[1:]:
+            m = tuple(x-y for (x,y) in zip(self.trees[0].root.constraint,tree.root.constraint))
+            c = tree.root.constant-self.trees[0].root.constant
+            constrs[m] = c
+        M = []
+        b = []
+        for m in constrs:
+            M.append(list(m))
+            b.append(constrs[m])
         return M,b
 
     def Estep_in_llh(self):
@@ -297,7 +335,7 @@ class EM_solver(ML_solver):
         self.Estep_out_llh()
         self.Estep_posterior()
 
-    def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=1,eps_nu=1e-5,eps_s=1e-6,ultra_constr=False,local_brlen_opt=True):
+    def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=1,eps_nu=1e-5,eps_s=1e-6,ultra_constr_cache=None,local_brlen_opt=True):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
@@ -340,8 +378,6 @@ class EM_solver(ML_solver):
                     S0[i],S1[i],S2[i],S3[i],S4[i] = s
                     d_ini[i] = v.edge_length
                     i += 1
-        #stop_time = timeit.default_timer()
-        #print("Time", stop_time-start_time,"preprocess")
         def __optimize_brlen__(nu,verbose=False): # nu is a single number
             var_d = cp.Variable(N,nonneg=True) # the branch length variables
             C0 = -(nu+1)*S0.T @ var_d
@@ -351,13 +387,16 @@ class EM_solver(ML_solver):
             C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu > eps_nu else 0
 
             objective = cp.Maximize(C0+C1+C2+C3+C4)
-            constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax] 
-            if ultra_constr:
-                M,b = self.ultrametric_constr(local_brlen_opt=local_brlen_opt)
+            constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax]             
+            if ultra_constr_cache is not None:
+                M,b = ultra_constr_cache
                 constraints += [np.array(M) @ var_d == np.array(b)]
             prob = cp.Problem(objective,constraints)
             #prob.solve(verbose=True,solver=cp.ECOS,max_iters=100000)
+            #prob.solve(verbose=False,solver=cp.MOSEK)
+            start_time = timeit.default_timer()
             prob.solve(verbose=False,solver=cp.MOSEK)
+            stop_time = timeit.default_timer()
             return var_d.value,prob.status
        
         def __optimize_brlen_scipy__(nu):
@@ -371,8 +410,9 @@ class EM_solver(ML_solver):
             x0 = d_ini
             bounds = optimize.Bounds(np.zeros(N)+self.dmin,np.zeros(N)+self.dmax,keep_feasible=True)
             constraints = []
-            if ultra_constr:
-                M,b = self.ultrametric_constr(local_brlen_opt=local_brlen_opt)
+            if ultra_constr_cache is not None:
+                #M,b = self.ultrametric_constr(local_brlen_opt=local_brlen_opt)
+                M,b = ultra_constr_cache
                 constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
             out = optimize.minimize(f, x0, method="SLSQP", options={'disp':True,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)    
             status = "optimal" if out.success else out.message
@@ -401,7 +441,7 @@ class EM_solver(ML_solver):
             except:
                 d_star = d_ini
                 status_d = "failure"
-            d_star = np.array([max(x,self.dmin) for x in d_star])     
+            #d_star = np.array([max(x,self.dmin) for x in d_star])     
             if status_d == "infeasible": # should only happen with local EM 
                 return False,"d_infeasible"
             if not optimize_nu:
@@ -450,6 +490,10 @@ class EM_solver(ML_solver):
             print("Initial phi: " + str(self.params.phi) + ". Initial nu: " + str(self.params.nu) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
         converged = False
+        if ultra_constr:
+            ultra_constr_cache = self.ultrametric_constr(local_brlen_opt=True) 
+        else:
+            ultra_constr_cache = None        
         while em_iter <= maxIter:
             if verbose > 0:
                 print("Starting EM iter: " + str(em_iter))
@@ -457,7 +501,7 @@ class EM_solver(ML_solver):
             self.Estep()
             if verbose > 0:
                 print("Mstep")
-            m_success,status=self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr,local_brlen_opt=True)
+            m_success,status=self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,local_brlen_opt=True,ultra_constr_cache=ultra_constr_cache)
             if not m_success:
                 if status == "d_infeasible": # should only happen with local EM
                     if verbose >= 0:
@@ -491,4 +535,5 @@ class EM_solver(ML_solver):
         nllh,em_iter,status = self.EM_optimization(verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None),ultra_constr=ultra_constr)
         if verbose >= 0:
             print("EM finished after " + str(em_iter) + " iterations.")
+            print("Optimal phi: " + str(self.params.phi) + ". Optimal nu: " + str(self.params.nu) + ". Optimal nllh: " + str(nllh))
         return nllh,status

@@ -1,4 +1,4 @@
-from treeswift import *
+ from treeswift import *
 from math import log,exp,sqrt, isclose
 from random import random, seed, choice
 from scipy import optimize
@@ -248,9 +248,9 @@ class ML_solver(Virtual_solver):
                     print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
                 if verbose >= 0:
                     if ultra_constr:
-                        print("Solving with ultrametric constraint")
+                        print("Numerical optimization started with ultrametric constraint")
                     else:      
-                        print("Solving ML without ultrametric constraint")
+                        print("Numerical optimization started without ultrametric constraint")
                 # read in fixed_brlen and mark the tree nodes
                 for tree in self.trees:
                     for node in tree.traverse_postorder():
@@ -279,7 +279,7 @@ class ML_solver(Virtual_solver):
             all_trials += initials    
         if all_failed:
             if verbose >= 0:
-                print("Fatal: Optimization failed on more than " + str(max_trials) + " retries")
+                print("Fatal: Optimization failed on more than " + str(max_trials) + " retries. Aborting ...")
             return None
         else:    
             results.sort()
@@ -288,6 +288,8 @@ class ML_solver(Virtual_solver):
             for tree in best_trees:
                 self.trees.append(read_tree_newick(tree))
             self.params = best_params
+            if verbose >= 0:
+                print("Numerical optimization finished successfully")
             return results[0][0],status
 
     def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False):

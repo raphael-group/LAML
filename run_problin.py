@@ -100,10 +100,6 @@ def main():
     if args["solver"].lower() != "em": 
         selected_solver = ML_solver   
         em_selected = False
-    if em_selected:
-        print("Optimization by EM algorithm") 
-    else:    
-        print("Optimization by generic solver (Scipy-SLSQP)")        
 
     # main tasks        
     data = {'charMtrx':msa} 
@@ -125,10 +121,6 @@ def main():
         print("Tree neagtive log-likelihood: " + str(nllh))
         print("Tree log-likelihood: " + str(-nllh))
     else:
-        if args["parallel"]:
-            print("Running topology search in parallel...")
-        else:
-            print("Running topology search sequentially...")
         # setup the strategy
         my_strategy = deepcopy(problin.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
@@ -140,6 +132,10 @@ def main():
         # full search or local search to only resolve polytomies? 
         if not args["resolve_search"] and not args["topology_search"]:
             print("Optimizing branch lengths, phi, and nu without topology search")
+            if em_selected:
+                print("Optimization by EM algorithm") 
+            else:    
+                print("Optimization by generic solver (Scipy-SLSQP)")        
             mySolver = myTopoSearch.get_solver()
             nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])      
             myTopoSearch.update_from_solver(mySolver)
@@ -152,14 +148,18 @@ def main():
                 else:    
                     print("Starting local topology search to resolve polytomies")
             else:
-                print("Starting topology search.")
                 if not resolve_polytomies:
                     print("Keeping all the polytomies")                 
                 else:
                     print("All polytomies will be resolved")    
+                print("Starting topology search")
+            if args["parallel"]:
+                print("Running topology search in parallel...")
+            else:
+                print("Running topology search sequentially...")
             randval = int(random.random() * 1000)
             checkpoint_file = f"{prefix}._ckpt.{randval}.txt"
-            opt_trees,max_score,opt_params = myTopoSearch.search(maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'],checkpoint_file=checkpoint_file) 
+            opt_trees,max_score,opt_params = myTopoSearch.search(resolve_polytomies=resolve_polytomies,maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'],checkpoint_file=checkpoint_file) 
             nllh = -max_score        
     
     # post-processing: analyze results and output 

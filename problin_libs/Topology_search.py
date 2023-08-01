@@ -68,7 +68,7 @@ class Topology_search:
         p = min(exp((new_score-curr_score-1e-12)/T),1)
         return random() < p
 
-    def search(self,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY,checkpoint_file="problin_topo_search._ckpt.txt"):
+    def search(self,resolve_polytomies=True,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY,checkpoint_file="problin_topo_search._ckpt.txt"):
         original_topos = self.treeTopoList
         original_params = self.params
         #nni_replicates = [(None,None)]*nreps
@@ -82,7 +82,8 @@ class Topology_search:
             self.treeTopoList = original_topos
             self.params = original_params
             self.__renew_treeList_obj__()
-            self.__mark_polytomies__()
+            if resolve_polytomies:
+                self.__mark_polytomies__()
             if strategy['resolve_search_only']:
                 if verbose:
                     print("Only perform local nni moves to resolve polytomies")
