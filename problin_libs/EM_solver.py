@@ -47,40 +47,6 @@ class EM_solver(ML_solver):
                     node.edge_length = x[i]
                     i += 1
     
-    def ultrametric_constr_old(self,local_brlen_opt=True):
-        N = self.num_edges-self.num_polytomy_mark
-        if local_brlen_opt:
-            for tree in self.trees:
-                N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
-        M = []
-        b = []
-        idx = 0
-        for tree in self.trees: 
-            for node in tree.traverse_postorder():
-                if node.is_leaf():
-                    node.constraint = [0.]*N
-                    node.constant = node.edge_length if node.mark_fixed else 0
-                else:
-                    c1,c2 = node.children
-                    m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]                
-                    m_compl = [-x for x in m]
-                    if sum([x!=0 for x in m]) > 0 and not (m in M or m_compl in M):
-                        M.append(m)
-                        b.append(c2.constant-c1.constant)
-                    node.constraint = c1.constraint
-                    if node.mark_fixed:
-                        node.constant = c1.constant + node.edge_length
-                    else:
-                        node.constant = c1.constant
-                if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
-                    node.constraint[idx] = 1
-                    idx += 1
-        for tree in self.trees[1:]:
-            m = [x-y for (x,y) in zip(self.trees[0].root.constraint,tree.root.constraint)]
-            M.append(m)
-            b.append(tree.root.constant-self.trees[0].root.constant)                    
-        return M,b
-    
     def ultrametric_constr(self,local_brlen_opt=True):
         N = self.num_edges-self.num_polytomy_mark
         if local_brlen_opt:
