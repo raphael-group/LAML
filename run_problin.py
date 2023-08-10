@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+../../run_problin.py#! /usr/bin/env python
 import os
 import pickle
 import problin_libs as problin
@@ -7,6 +7,7 @@ from problin_libs.ML_solver import ML_solver
 from problin_libs.EM_solver import EM_solver
 from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
 from problin_libs.Topology_search import Topology_search as Topology_search_sequential
+from math import *
 from treeswift import *
 import random
 import argparse
@@ -25,7 +26,7 @@ def main():
     parser.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
     parser.add_argument("--delimiter",required=False,default="tab",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.")
     parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked character. Default: if not specified, assumes '-'.")
-    parser.add_argument("-o","--output",required=True,help="The output file.")
+    parser.add_argument("-o","--output",required=True,help="Output prefix.")
    
     # which problem are you solving? 
     parser.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
@@ -61,7 +62,8 @@ def main():
     delim_map = {'tab':'\t','comma':',','whitespace':' '}
     delimiter = delim_map[args["delimiter"]]
     msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["maskedchar"])
-    prefix = '.'.join(args["output"].split('.')[:-1])
+    #prefix = '.'.join(args["output"].split('.')[:-1])
+    prefix = args["output"]
 
     with open(args["topology"],'r') as f:
         input_trees = []
@@ -163,14 +165,76 @@ def main():
             nllh = -max_score        
     
     # post-processing: analyze results and output 
-    outfile = args["output"]        
-    with open(outfile,'w') as fout:
-        fout.write("Newick tree (s):\n") 
+    out_tree = prefix + "_trees.nwk"
+    out_annotate = prefix + "_annotations.txt"
+    out_params = prefix + "_params.txt"
+
+    with open(out_tree,'w') as fout:
         for tree in opt_trees:
             fout.write(tree + "\n")
-        fout.write("Negative-llh: " +  str(nllh) + "\n")
+
+    # output annotations
+    def format_posterior(p0,p_minus_1,p_alpha,alpha,q):
+        if p0 == 1:
+            return '0'
+        elif p_minus_1 == 1:
+            return '-1'
+        elif p_alpha == 1:
+            return alpha
+        else:
+            out = ''
+            if p0 > 0:
+                out += '0:' + str(p0)
+            if p_minus_1 > 0:
+                if out != '':
+                    out += '/'
+                out += '-1:' + str(p_minus_1)
+            if p_alpha > 0:
+                if out != '':
+                    out += '/'
+                if alpha == '?':
+                    out += "/".join([str(y) + ':' + str(round(p_alpha*q[y],3)) for y in q if round(p_alpha*q[y],3)>0])
+                else:
+                    out += alpha + ":" + str(p_alpha)
+            return out
+
+    my_solver = EM_solver(opt_trees,{'charMtrx':msa},{'Q':Q},{'phi':opt_params['phi'],'nu':opt_params['nu']})
+    my_solver.az_partition()
+    my_solver.Estep()
+    idx = 0
+    with open(out_annotate,'w') as fout:
+        for tree in my_solver.trees:
+            # branch length by expected number of mutations
+            all_labels = set()
+            for node in tree.traverse_preorder():
+                # label the node
+                if node.label is None or node.label in all_labels:
+                    node.label = 'I' + str(idx)
+                    idx += 1                    
+                all_labels.add(node.label)
+                node.edge_length = sum(node.S1)+sum(node.S2)+sum(node.S4)
+            fout.write(tree.newick()+"\n")    
+            
+            # ancestral labeling and imputation
+            for node in tree.traverse_preorder():
+                node.posterior = ''
+                for j in range(len(node.alpha)):
+                    if not node.is_root():
+                        if node.alpha[j] == '?' and node.parent.alpha[j] != 'z':
+                            node.alpha[j] = node.parent.alpha[j]
+                    p0 = round(exp(node.post0[j]),2)
+                    p_minus_1 = round(exp(node.post1[j]),2)
+                    p_alpha = round(1-p0-p_minus_1,2)
+                    if node.posterior != '':
+                        node.posterior += '|'
+                    node.posterior += format_posterior(p0,p_minus_1,p_alpha,str(node.alpha[j]),Q[j])
+                fout.write(node.label+" " + str(node.posterior)+"\n")
+    
+    with open(out_params,'w') as fout:
         fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")
         fout.write("Silencing rate: " + str(opt_params['nu']) + "\n") 
+        fout.write("Negative-llh: " +  str(nllh) + "\n")
+                
     stop_time = timeit.default_timer()
     print("Runtime (s):", stop_time - start_time)
 

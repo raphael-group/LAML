@@ -1,4 +1,4 @@
- from treeswift import *
+from treeswift import *
 from math import log,exp,sqrt, isclose
 from random import random, seed, choice
 from scipy import optimize
