@@ -1,4 +1,4 @@
-../../run_problin.py#! /usr/bin/env python
+#! /usr/bin/env python
 import os
 import pickle
 import problin_libs as problin
@@ -204,15 +204,28 @@ def main():
     idx = 0
     with open(out_annotate,'w') as fout:
         for tree in my_solver.trees:
+            # add root
+            if len(tree.root.children) > 1:
+                root = Node()
+                root.label = 'I0'
+                k = len(tree.root.alpha)
+                root.alpha = ['z']*k
+                root.post0 = [0]*k
+                root.post1 = [-float("inf")]*k
+                idx = 1
+                root.add_child(tree.root)
+                tree.root = root
             # branch length by expected number of mutations
             all_labels = set()
             for node in tree.traverse_preorder():
+                if node.is_root():
+                    continue
                 # label the node
                 if node.label is None or node.label in all_labels:
                     node.label = 'I' + str(idx)
                     idx += 1                    
                 all_labels.add(node.label)
-                node.edge_length = sum(node.S1)+sum(node.S2)+sum(node.S4)
+                node.edge_length = round(sum(node.S1)+sum(node.S2)+sum(node.S4),3)
             fout.write(tree.newick()+"\n")    
             
             # ancestral labeling and imputation
@@ -226,9 +239,9 @@ def main():
                     p_minus_1 = round(exp(node.post1[j]),2)
                     p_alpha = round(1-p0-p_minus_1,2)
                     if node.posterior != '':
-                        node.posterior += '|'
+                        node.posterior += ','
                     node.posterior += format_posterior(p0,p_minus_1,p_alpha,str(node.alpha[j]),Q[j])
-                fout.write(node.label+" " + str(node.posterior)+"\n")
+                fout.write(node.label+"," + str(node.posterior)+"\n")
     
     with open(out_params,'w') as fout:
         fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")

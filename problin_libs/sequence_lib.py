@@ -20,14 +20,13 @@ def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
             fout.write("\n")
 
 
-def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol=None, suppress_warnings=False, replace_mchar=False):
+def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol=None, suppress_warnings=False, replace_mchar='?'):
     with open(inFile,'r') as fin:
         if filetype == "fasta":
             if not suppress_warnings: 
                 print("Warning: Reading " + str(inFile) + " as fasta file. Processing missing data in these files is not yet implemented.")
             return read_fasta(fin)
         elif filetype == "charMtrx":
-
             return read_charMtrx(fin,delimiter=delimiter,masked_symbol=masked_symbol,suppress_warnings=suppress_warnings,replace_mchar=replace_mchar)
 
 def read_fasta(fin):    
@@ -52,12 +51,13 @@ def check_missing(seen_missing, x):
         return True
     elif x.isalpha(): # check alphanumeric 
         return True 
-    elif int(x) < 0: # check positivity
-        return True 
-    else:
-        return False
+    else: # check positivity
+        try:
+            return int(x) < 0
+        except:
+            return False
 
-def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False,replace_mchar=False):
+def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False,replace_mchar='?',convert_to_int=True):
     D = {}
 
     site_names = fin.readline().strip().split(delimiter)
@@ -76,18 +76,21 @@ def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False,r
         seq = []
         for x in line_split[1:]:
             if check_missing(seen_missing, x):
-                seen_missing.add(x)
-                if replace_mchar:
-                    seq.append(-1)
+                seen_missing.add(x)                
+                if replace_mchar is not None:
+                    seq.append(replace_mchar)
                 else:
-                    seq.append('?')
+                    seq.append(x)    
             else:
-                seq.append(int(x))
+                if convert_to_int:
+                    seq.append(int(x))
+                else:    
+                    seq.append(x)
         D[name] = seq
-    if len(seen_missing) > 1 and not suppress_warnings:
-        print("Warning: Found " + str(seen_missing) + " characters and treated them as missing.")
-    elif masked_symbol == None and len(seen_missing) >= 1 and not suppress_warnings:
-        print("Warning: Reading sequences, detected " + str(seen_missing) + " as the missing character(s). We recommend explicitly providing the missing character.")
+    #if len(seen_missing) > 1 and not suppress_warnings:
+    #    print("Warning: Found " + str(seen_missing) + " characters and treated them as missing.")
+    #elif masked_symbol == None and len(seen_missing) >= 1 and not suppress_warnings:
+    #    print("Warning: Reading sequences, detected " + str(seen_missing) + " as the missing character(s). We recommend explicitly providing the missing character.")
     return D, site_names    
 
 def read_Q(inFile,has_head=True):

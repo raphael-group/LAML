@@ -271,7 +271,7 @@ class EM_solver(ML_solver):
                         v_in0 = v1.L0[site] + v2.L0[site]                 
                     # compute posterior
                     v.post0[site] = v_in0 + v.out0[site] - full_llh[site] if v_in0 is not None else min_llh
-                    v.post1[site] = v_in1 + v.out1[site] - full_llh[site] if v_in1 is not None else min_llh               
+                    v.post1[site] = v_in1 + v.out1[site] - full_llh[site] if v_in1 is not None else min_llh                                     
                     # compute S (note that all S values are NOT in log-scale)
                     if v.alpha[site] == 'z': # z-branch
                         v.S0[site] = 1.0
