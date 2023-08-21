@@ -191,6 +191,8 @@ def read_priors(pfile, site_names):
                 prob = float(prob)
                 Q[len(seen_sites) - 1][char_state] = prob
     else:
+        k = len(site_names)
+        print("Warning: provided prior file not recognized as a pkl or csv file.")
         Q = [{0:0} for i in range(k)]
         with open(pfile, 'r') as fin:
             for line in fin:

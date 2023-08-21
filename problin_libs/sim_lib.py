@@ -5,9 +5,10 @@ import random
 from problin_libs.sequence_lib import load_pickle
 from random import lognormvariate, randint
 import networkx as nx
-import cassiopeia as cass
+#import cassiopeia as cass
 import pickle
 
+"""
 def simTree_lnorm(nLeaves,scale,std,randseed=None):
     # simulate tree using Cassiopeia where branch lengths
     # follow a lognormal distribution
@@ -23,6 +24,7 @@ def simTree_lnorm(nLeaves,scale,std,randseed=None):
     ground_truth_tree = bd_sim.simulate_tree()
     nwstr = ground_truth_tree.get_newick(record_branch_lengths=True)
     return nwstr
+"""
 
 def get_balanced_tree(tree_height,branch_length,num_nodes=None):
 # create a fully balanced tree with height = `tree_height`
