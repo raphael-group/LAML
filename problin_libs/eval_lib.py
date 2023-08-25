@@ -1,6 +1,9 @@
 #! /usr/bin/env python
 from problin_libs.sequence_lib import read_sequences,read_charMtrx
 from problin_libs.lca_lib import find_LCAs
+from problin_libs.EM_solver import EM_solver
+from math import *
+from treeswift import *
 
 def score_char(trueChar,estCharProbs,silencing_symbol='-1'):
     if trueChar == 'd':
@@ -100,3 +103,75 @@ def tree_coupling(tree,cells,charMtrx):
             c1,c2 = leaf_j.label,leaf_i.label
         answer[(c1,c2)] = (s_ij,d_ij)
     return answer            
+
+def read_annotation(infile):
+    fin = open(infile,'r')
+    charMtrx,_ = read_charMtrx(fin,replace_mchar=None,convert_to_int=False)
+    fin.close()
+
+    fin = open(infile,'r')
+    tree = read_tree_newick(fin.readline())
+    fin.close()
+   
+    # place sequences onto the tree
+    for node in tree.traverse_postorder():
+        node.seq = charMtrx[node.label]
+    
+    return charMtrx,tree
+
+def read_groundtruth(infile,restricted_leafset=None):
+    fin = open(infile,'r')
+    charMtrx,_ = read_charMtrx(fin,replace_mchar=None,convert_to_int=False,stop_key="Evolve tree")
+    k = len(charMtrx['I0'])
+    fin.close()
+
+    fin = open(infile,'r')
+    for line in fin:
+        if line.startswith("Evolve tree:"):
+            treeStr = line.split("Evolve tree:")[1]
+            tree = read_tree_newick(treeStr)
+    fin.close()
+
+    if restricted_leafset is not None:
+        tree = tree.extract_tree_with(restricted_leafset)
+
+    # HACKING: the groundtruth does not give the actual state for every dropout,
+    # but only puts 'd'. Below is an attempt to recover it
+    for node in tree.traverse_preorder():
+        node.seq = [x for x in charMtrx[node.label]]
+        if node.is_leaf():
+            p0 = exp(-node.edge_length)
+            for i in range(len(node.seq)):
+                if node.seq[i] =='d':
+                    node.seq[i] = '0' if (node.parent.seq[i] == '0' and p0>0.5) else node.parent.seq[i]
+
+    # convert edge lengths to the number of mutations                    
+    for node in tree.traverse_preorder():
+        for c in node.children:
+                d = k-score_seq(c.seq,node.seq,soft_assignment=False,silencing_symbol='s')*k
+                c.edge_length = d 
+    return charMtrx,tree
+
+def convert_to_hard_assignment(seq):
+    new_seq = []
+    for x in seq:
+        tokens = x.split("/")
+        charProbs = get_charProbs(tokens,soft_assignment=False,masked_symbol='?')
+        y = list(charProbs.keys())[0]
+        new_seq.append(y)
+    return new_seq    
+        
+def count_mutation(ann_tree,silence_symbol='-1'):
+    # count the total number of mutations on the tree for each site
+    # ann_tree is a treeswift object; here assume the tree has been "annotated",
+    # so that every node has attribute node.seq
+    k = len(ann_tree.root.seq)
+    N_mus = [0]*k
+    for node in ann_tree.traverse_postorder():
+        if node.is_root():
+            continue
+        seq = convert_to_hard_assignment(node.seq)
+        pseq = convert_to_hard_assignment(node.parent.seq)
+        for i,(x,y) in enumerate(zip(pseq,seq)):
+            N_mus[i] += (x!=y and y!=silence_symbol)
+    return N_mus 

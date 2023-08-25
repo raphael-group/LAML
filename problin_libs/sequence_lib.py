@@ -57,7 +57,7 @@ def check_missing(seen_missing, x):
         except:
             return False
 
-def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False,replace_mchar='?',convert_to_int=True):
+def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False,replace_mchar='?',convert_to_int=True,stop_key=None):
     D = {}
 
     site_names = fin.readline().strip().split(delimiter)
@@ -70,6 +70,8 @@ def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False,r
         seen_missing = set([])
 
     for line in fin:
+        if stop_key is not None and line.startswith(stop_key):
+            break
         line_split = line.strip().split(delimiter)
         name = line_split[0]
         # check if any are missing characters or nonnegative
@@ -149,7 +151,7 @@ def load_pickle(f):
             Q[i] = q
             return Q
 
-def read_priors(pfile, site_names):
+def read_priors(pfile, site_names=None):
     file_extension = pfile.strip().split(".")[-1]
     if file_extension == "pkl" or file_extension == "pickle": #pickled file
         infile = open(pfile, "rb")
@@ -157,7 +159,7 @@ def read_priors(pfile, site_names):
         infile.close()
         Q = []
         priorkeys = sorted(priors.keys())
-        if priorkeys != sorted([int(x[1:]) for x in site_names]):
+        if site_names is not None and priorkeys != sorted([int(x[1:]) for x in site_names]):
             print("Prior keys mismatch with site names.")
             print("Prior keys:", priorkeys)
             print("Site names:", site_names)
@@ -166,8 +168,10 @@ def read_priors(pfile, site_names):
             q[0] = 0
             Q.append(q)
     elif file_extension == "csv":
-        k = len(site_names)
-        Q = [{0:0} for i in range(k)]
+        #k = len(site_names)
+        #Q = [{0:0} for i in range(k)]
+        Q = []
+        Qi = {}
         seen_sites = set()
         with open(pfile, 'r') as fin:
             lines = fin.readlines()
@@ -186,18 +190,21 @@ def read_priors(pfile, site_names):
                 else:
                     site_idx = int(site_idx)
                 if site_idx not in seen_sites:
+                    if len(seen_sites) > 0:
+                        Q.append(Qi)
+                        Qi = {}
                     seen_sites.add(site_idx)
                 char_state = int(char_state)
                 prob = float(prob)
-                Q[len(seen_sites) - 1][char_state] = prob
-    else:
-        k = len(site_names)
-        print("Warning: provided prior file not recognized as a pkl or csv file.")
-        Q = [{0:0} for i in range(k)]
-        with open(pfile, 'r') as fin:
-            for line in fin:
-                site_idx, char_state, prob = line.strip().split()
-                site_idx, char_state, prob = int(site_idx), int(char_state), float(prob)
-                Q[site_idx][char_state] = prob
+                #Q[len(seen_sites) - 1][char_state] = prob
+                Qi[char_state] = prob
+            Q.append(Qi)
+    #else:
+    #    Q = [{0:0} for i in range(k)]
+    #    with open(pfile, 'r') as fin:
+    #        for line in fin:
+    #            site_idx, char_state, prob = line.strip().split()
+    #            site_idx, char_state, prob = int(site_idx), int(char_state), float(prob)
+    #            Q[site_idx][char_state] = prob '''
     return Q
                 
