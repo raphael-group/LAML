@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 from treeswift import *
 from problin_libs.sequence_lib import * 
+from math import *
 
 def small_MP(nwkStr,seqs,Q=None):
     T = read_tree_newick(nwkStr)
@@ -45,7 +46,9 @@ def small_MP(nwkStr,seqs,Q=None):
                 if z == '?':
                     z = x
                     cnode.seq[i] = z
-                cnode.edge_length += (x != z)*(-log(Q[i][z]) if Q is not None else 1) 
+                if z != 0:    
+                    cost = (x != z)*(-log(Q[i][z]) if Q is not None else 1)    
+                    cnode.edge_length += cost
             MP_cost += cnode.edge_length
             
     return T.newick(),lb2seqs,MP_cost
