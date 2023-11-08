@@ -5,7 +5,7 @@ sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Mis
 # Precursors
 
 1. First, we ask users to set up a MOSEK license. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
-2. Then, add the following to your `.bashrc`. 
+2. Add the following to your `.bashrc`. [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
 
 ```
 export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
@@ -13,11 +13,7 @@ export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
 
 # Installation
 
-## Installing from pip/conda
-
-in progress...
-
-## Installing for source
+## Installing from source
 
 For users:
 
@@ -36,6 +32,10 @@ python scmail_tests.py
 ```
 python setup.py install --prefix=<your_preferred_install_dir>
 ```
+
+## Installing from pip/conda
+
+in progress...
 
 
 # Running sc-mail
