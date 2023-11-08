@@ -2,9 +2,9 @@ import os
 from treeswift import *
 from math import *
 import random
-from problin_libs.sequence_lib import load_pickle
+from scmail_libs.sequence_lib import load_pickle
 from random import lognormvariate, randint
-import networkx as nx
+#import networkx as nx
 #import cassiopeia as cass
 import pickle
 

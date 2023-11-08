@@ -4,7 +4,7 @@ import math
 from random import random,seed
 from math import log,exp
 from scipy import optimize
-from problin_libs.sequence_lib import read_sequences
+from scmail_libs.sequence_lib import read_sequences
 
 ### Defining Max Parsimony Likelihood
 

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
-from problin_libs.sequence_lib import read_sequences,read_charMtrx
-from problin_libs.lca_lib import find_LCAs
-from problin_libs.EM_solver import EM_solver
+from scmail_libs.sequence_lib import read_sequences,read_charMtrx
+from scmail_libs.lca_lib import find_LCAs
+from scmail_libs.EM_solver import EM_solver
 from math import *
 from treeswift import *
 

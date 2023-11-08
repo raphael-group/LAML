@@ -132,7 +132,7 @@ def alphabet_size(mtx):
     #unique_series = df.nunique()
     #return max(unique_series), min(unique_series), mean(unique_series)
 
-# adapted from /n/fs/ragr-research/projects/problin_experiments/Real_biodata/test_kptracer/proc_scripts
+# adapted from /n/fs/ragr-research/projects/scmail_experiments/Real_biodata/test_kptracer/proc_scripts
 def load_pickle(f):
 # returns dictionary for use with Cassiopeia
     infile = open(f, "rb")

@@ -1,7 +1,7 @@
 from itertools import combinations
 import treeswift
 import unittest
-from problin_libs.sim_lib import *
+from scmail_libs.sim_lib import *
 from unit_tests.utils import count_all, count_missing, setup, calc_expected
 
 class SimulatorTest(unittest.TestCase):

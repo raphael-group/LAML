@@ -1,12 +1,12 @@
 #! /usr/bin/env python
 import os
 import pickle
-import problin_libs as problin
-from problin_libs.sequence_lib import read_sequences, read_priors
-from problin_libs.ML_solver import ML_solver
-from problin_libs.EM_solver import EM_solver
-from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
-from problin_libs.Topology_search import Topology_search as Topology_search_sequential
+import scmail_libs as scmail
+from scmail_libs.sequence_lib import read_sequences, read_priors
+from scmail_libs.ML_solver import ML_solver
+from scmail_libs.EM_solver import EM_solver
+from scmail_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
+from scmail_libs.Topology_search import Topology_search as Topology_search_sequential
 from math import *
 from treeswift import *
 import random
@@ -31,9 +31,9 @@ def main():
     # which problem are you solving? 
     parser.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
     parser.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.")
-    parser.add_argument("--resolve_search",action='store_true', required=False,help="Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topoloy_search.")
+    parser.add_argument("--resolve_search",action='store_true', required=False,help="Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.")
     parser.add_argument("--keep_polytomies",action='store_true', required=False,help="Keep polytomies while performing topology search. This option only works with --topology_search.")
-    parser.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topoloy_search and --resolve_search.")
+    parser.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
 
     # problem formulation
     parser.add_argument("--ultrametric",action='store_true',help="Enforce ultrametricity to the output tree.")
@@ -52,8 +52,8 @@ def main():
         parser.print_help()
         exit(0)
     
-    print("Launching " + problin.PROGRAM_NAME + " version " + problin.PROGRAM_VERSION)
-    print(problin.PROGRAM_NAME + " was called as follow: " + " ".join(argv))
+    print("Launching " + scmail.PROGRAM_NAME + " version " + scmail.PROGRAM_VERSION)
+    print(scmail.PROGRAM_NAME + " was called as follow: " + " ".join(argv))
     start_time = timeit.default_timer()
     
     args = vars(parser.parse_args())
@@ -107,7 +107,7 @@ def main():
     data = {'charMtrx':msa} 
     prior = {'Q':Q} 
     
-    params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps}  
+    params = {'nu':fixed_nu if fixed_nu is not None else scmail.eps,'phi':fixed_phi if fixed_phi is not None else scmail.eps}  
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
 
@@ -124,7 +124,7 @@ def main():
         print("Tree log-likelihood: " + str(-nllh))
     else:
         # setup the strategy
-        my_strategy = deepcopy(problin.DEFAULT_STRATEGY)
+        my_strategy = deepcopy(scmail.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
         my_strategy['ultra_constr'] = args["ultrametric"]
         # resolve polytomies or not?

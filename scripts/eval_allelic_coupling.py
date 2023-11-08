@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-from problin_libs.sequence_lib import read_sequences,read_charMtrx
-from problin_libs.eval_lib import *
+from scmail_libs.sequence_lib import read_sequences,read_charMtrx
+from scmail_libs.eval_lib import *
 from treeswift import *
 from eval_tree_coupling import read_groundtruth
 

@@ -1,11 +1,11 @@
 from math import log,isclose,exp
 import timeit
 from random import choice, shuffle, random
-from problin_libs import *
+from scmail_libs import *
 from treeswift import *
-from problin_libs.EM_solver import EM_solver
+from scmail_libs.EM_solver import EM_solver
 from copy import deepcopy
-from problin_libs.lca_lib import find_LCAs
+from scmail_libs.lca_lib import find_LCAs
 
 class Topology_search:
     def __init__(self,treeTopoList,solver,data={},prior={},params={},T_cooldown=20,alpha_cooldown=0.9):
@@ -68,7 +68,7 @@ class Topology_search:
         p = min(exp((new_score-curr_score-1e-12)/T),1)
         return random() < p
 
-    def search(self,resolve_polytomies=True,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY,checkpoint_file="problin_topo_search._ckpt.txt"):
+    def search(self,resolve_polytomies=True,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY,checkpoint_file="scmail_topo_search._ckpt.txt"):
         original_topos = self.treeTopoList
         original_params = self.params
         #nni_replicates = [(None,None)]*nreps
@@ -128,7 +128,7 @@ class Topology_search:
         
         return best_trees,best_score,best_params
     
-    def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False, checkpoint_file="problin_topo_search._ckpt.txt"):
+    def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False, checkpoint_file="scmail_topo_search._ckpt.txt"):
         # optimize branch lengths and other parameters for the starting tree
         mySolver = self.get_solver()
         score_tree_strategy = deepcopy(strategy)

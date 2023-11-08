@@ -2,28 +2,114 @@
 
 sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, sc-MAIL will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
-# Dependencies
-1. Please set up a MOSEK license.
-2. `pip install cvxpy`
+# Precursors
 
+1. First, we ask users to set up a MOSEK license. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
+2. Then, add the following to your `.bashrc`. 
+
+```
+export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
+```
 
 # Installation
+
+## Installing from pip/conda
+
+in progress...
+
+## Installing for source
+
 For users:
 
-Please clone the repository with:
+1. Please clone the repository with:
 
 ```
 git clone https://github.com/raphael-group/sc-mail.git
 ```
-Please run the unit tests with:
+2. (optional) Please run the unit tests with:
 
 ```
-python problin_tests.py
+python scmail_tests.py
 ```
+
+3. Run the setup script.
+```
+python setup.py install --prefix=<your_preferred_install_dir>
+```
+
+
+# Running sc-mail
 
 Although there are many more options available, sc-MAIL only strictly requires three arguments, using the following command.
 ```
-python run_problin.py -t <topology> -c <characters> -o <output> 
+python run_scmail.py -t <topology> -c <characters> -o <output> 
 ```
-<!-- # Reference -->
+
+The output consists of three files: 
+
+1. `<prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
+2. `<prefix>_params.txt`: this file contains the dropout rate, silencing rate, and negative log likelihood.
+3. `<prefix>_trees.nwk`: this file contains the rooted estimated tree with branch lengths.
+
+
+
+## Examples
+
+### Use Case 1: Infer branch lengths on a topology
+
+From the `sc-mail/` directory, please run the following code:
+```
+python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example1 --nInitials 1
+```
+
+This will output three files. You can compare these outputs with those in `examples/out_example1/`.
+
+
+### Use Case 2: Compute the likelihood of an existing tree
+
+From the `sc-mail/` directory, please run the following code:
+```
+python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
+```
+
+This will output three files. You can compare these outputs with those in `examples/out_example2/`.
+
+### Use Case 3: Infer a topology
+
+From the `sc-mail/` directory, please run the following code:
+```
+python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel
+```
+
+This will output four files. You can compare these outputs with those in `examples/out_example3/`. Note that when performing topology search, a checkpoint file will be generated (and updated) as well. Note that this will resolve all polytomies, run in parallel, and return an ultrametric tree.
+
+## Documentation
+
+
+```
+-t TOPOLOGY, --topology TOPOLOGY    Binary input tree topology in newick format. Branch lengths will be ignored.
+-c CHARACTERS, --characters CHARACTERS  The input character matrix. Must have header.
+-p PRIORS, --priors PRIORS  The input prior matrix Q. Default: if not specified, use a uniform prior.
+--delimiter DELIMITER   The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.
+-m MASKEDCHAR, --maskedchar MASKEDCHAR  Masked character. Default: if not specified, assumes '-'.
+-o OUTPUT, --output OUTPUT  Output prefix.
+--solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
+--topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
+--resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher
+priority than --topology_search.
+--keep_polytomies     Keep polytomies while performing topology search. This option only works with --topology_search.
+-L COMPUTE_LLH, --compute_llh COMPUTE_LLH   Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topoloy_search and
+--resolve_search.
+--ultrametric         Enforce ultrametricity to the output tree.
+--noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
+--noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
+-v, --verbose         Show verbose messagesRandom seeds. Can be a single interger number or a list of intergers whose length is equal to the number of random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of.
+--nInitials NINITIALS   The number of initial points. Default: 20.
+--randseeds RANDSEEDS   Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of
+initial points (see --nInitials).
+--randomreps RANDOMREPS
+Number of replicates to run for the random strategy of topology search.
+--maxIters MAXITERS   Maximum number of iterations to run topology search.
+--parallel            Turn on parallel version of topology search.
+```
 

@@ -1,9 +1,9 @@
 import json
 import pickle
-from problin_libs.sequence_lib import read_sequences, write_sequences, read_priors
+from scmail_libs.sequence_lib import read_sequences, write_sequences, read_priors
 import sys
 
-# adapted from /n/fs/ragr-research/projects/problin_experiments/Real_biodata/test_kptracer/proc_scripts
+# adapted from /n/fs/ragr-research/projects/scmail_experiments/Real_biodata/test_kptracer/proc_scripts
 def load_pickle(f):
     # returns dictionary for use with Cassiopeia
     infile = open(f, "rb")

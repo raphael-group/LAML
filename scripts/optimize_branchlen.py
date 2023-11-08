@@ -270,7 +270,7 @@ def main():
     global k 
 
     for k in (20, 30, 40, 50, 100, 200, 300, 400, 500, 1000, 5000):
-        outdir = "/Users/gillianchu/raphael/repos/problin/results_estbl/"
+        outdir = "/Users/gillianchu/raphael/repos/scmail/results_estbl/"
         # subprocess.run(["mkdir", "-p", outdir])
 
         est_dicts = run_mats("MP_inconsistent/seqs_m10_k{0}.txt".format(k), topo, 11, 1000)

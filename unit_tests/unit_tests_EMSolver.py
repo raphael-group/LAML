@@ -1,11 +1,11 @@
 import unittest
-from problin_libs.sequence_lib import read_sequences
-from problin_libs.EM_solver import EM_solver
-from problin_libs.ML_solver import ML_solver
+from scmail_libs.sequence_lib import read_sequences
+from scmail_libs.EM_solver import EM_solver
+from scmail_libs.ML_solver import ML_solver
 from treeswift import *
 from math import log
 from random import random
-from problin_libs import DEFAULT_STRATEGY
+from scmail_libs import DEFAULT_STRATEGY
 from copy import deepcopy
 
 class EMTest(unittest.TestCase):

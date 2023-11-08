@@ -4,8 +4,8 @@ from random import random, seed
 from scipy import optimize
 import warnings
 import numpy as np
-from problin_libs import min_llh, eps
-from problin_libs.ML_solver import ML_solver
+from scmail_libs import min_llh, eps
+from scmail_libs.ML_solver import ML_solver
 
 class SpaLin_solver(ML_solver):
     def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):

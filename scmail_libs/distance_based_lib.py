@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 from math import log,exp
-from problin_libs.sequence_lib import read_sequences, read_Q
+from scmail_libs.sequence_lib import read_sequences, read_Q
 from scipy import optimize
 from random import random,seed
 from treeswift import *

@@ -1,12 +1,12 @@
 from math import log,isclose,exp
 import timeit
 from random import choice, shuffle, random
-from problin_libs import *
+from scmail_libs import *
 from treeswift import *
-from problin_libs.EM_solver import EM_solver
-from problin_libs.Topology_search import Topology_search
+from scmail_libs.EM_solver import EM_solver
+from scmail_libs.Topology_search import Topology_search
 from copy import deepcopy
-from problin_libs.lca_lib import find_LCAs
+from scmail_libs.lca_lib import find_LCAs
 from multiprocessing import Pool
 
 class Topology_search_parallel(Topology_search):

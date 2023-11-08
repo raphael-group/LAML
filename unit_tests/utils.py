@@ -1,7 +1,7 @@
 import scipy.stats as stats
 import treeswift
 import unittest
-from problin_libs.sim_lib import *
+from scmail_libs.sim_lib import *
 from math import exp
 
 def setup(tree, m, mu, k):

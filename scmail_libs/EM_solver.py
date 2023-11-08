@@ -1,7 +1,7 @@
-from problin_libs.ML_solver import *
+from scmail_libs.ML_solver import *
 from math import exp,log
 import cvxpy as cp
-from problin_libs import min_llh, conv_eps, eps
+from scmail_libs import min_llh, conv_eps, eps
 import timeit
 import numpy as np
 

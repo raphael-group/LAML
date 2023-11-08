@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 from treeswift import *
-from problin_libs.sequence_lib import * 
+from scmail_libs.sequence_lib import * 
 from math import *
 
 def small_MP(nwkStr,seqs,Q=None):

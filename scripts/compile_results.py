@@ -2,7 +2,7 @@ import treeswift
 import argparse
 
 
-# python ${problindir}/problin_libs/compile_results.py --tt "" -bm --pre ${odir}/results_ML_${data_name} --out_param ${paramfile}p
+# python ${scmaildir}/scmail_libs/compile_results.py --tt "" -bm --pre ${odir}/results_ML_${data_name} --out_param ${paramfile}p
 
 
 def main(pre, out_param, out_bl, tt, nm, bm, nd, ns, rep, datatype):

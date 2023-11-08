@@ -248,7 +248,7 @@ def main():
     # k = 1000
     # mu = 0.025
     # nstate=9
-    # # borrowed from https://github.com/uym2/problin/blob/main/scripts/sim_test.py
+    # # borrowed from https://github.com/uym2/scmail/blob/main/scripts/sim_test.py
     # tree = read_tree_newick(t_B)
     # tree.root.seq = '0'*k
     # msa = []

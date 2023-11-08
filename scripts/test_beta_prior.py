@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-from problin_libs.ML_solver import beta_prior
-from problin_libs.sequence_lib import read_sequences
+from scmail_libs.ML_solver import beta_prior
+from scmail_libs.sequence_lib import read_sequences
 from sys import argv
 
 msa,_ = read_sequences(argv[1],masked_symbol="-1",filetype="charMtrx")

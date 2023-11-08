@@ -1,9 +1,9 @@
 import os 
 import unittest
-from problin_libs import *
-from problin_libs.EM_solver import EM_solver
-from problin_libs.ML_solver import ML_solver
-from problin_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
+from scmail_libs import *
+from scmail_libs.EM_solver import EM_solver
+from scmail_libs.ML_solver import ML_solver
+from scmail_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
 from treeswift import *
 from copy import deepcopy
 

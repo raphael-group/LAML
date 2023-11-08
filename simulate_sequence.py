@@ -1,8 +1,8 @@
 #! /usr/bin/env python
-from problin_libs.sequence_lib import read_sequences, read_Q, write_sequences
-from problin_libs.ML_solver import ML_solver
-from problin_libs.EM_solver import EM_solver
-from problin_libs.sim_lib import *
+from scmail_libs.sequence_lib import read_sequences, read_Q, write_sequences
+from scmail_libs.ML_solver import ML_solver
+from scmail_libs.EM_solver import EM_solver
+from scmail_libs.sim_lib import *
 from treeswift import *
 import random
 import argparse

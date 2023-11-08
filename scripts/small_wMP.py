@@ -1,5 +1,5 @@
 from treeswift import *
-from problin_libs.sequence_lib import * 
+from scmail_libs.sequence_lib import * 
 from small_MP import small_MP
 
 if __name__ == "__main__":

@@ -4,11 +4,11 @@ from random import random, seed, choice
 from scipy import optimize
 import warnings
 import numpy as np
-from problin_libs import min_llh, eps, nni_conv_eps
-from problin_libs.Virtual_solver import Virtual_solver
+from scmail_libs import min_llh, eps, nni_conv_eps
+from scmail_libs.Virtual_solver import Virtual_solver
 from scipy.sparse import csr_matrix
 from copy import deepcopy
-from problin_libs.lca_lib import find_LCAs
+from scmail_libs.lca_lib import find_LCAs
 
 class Params:
     def __init__(self,nu,phi):
