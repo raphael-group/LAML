@@ -25,8 +25,9 @@ git clone https://github.com/raphael-group/sc-mail.git
 
 2. Run the setup script.
 ```
-python setup.py install --prefix=<your_preferred_install_dir>
+python setup.py install 
 ```
+You can run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH.
 
 3. (optional) Please run the unit tests with:
 
