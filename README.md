@@ -5,7 +5,7 @@ sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Mis
 # Precursors
 
 1. First, we ask users to set up a MOSEK license. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
-2. Add the following to your `.bashrc`. [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
+2. Add the license file to your path by adding an environment variable. For instance, add the following to your `.bashrc` and load [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
 
 ```
 export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
@@ -83,7 +83,9 @@ From the `sc-mail/` directory, please run the following code:
 python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel
 ```
 
-This will output four files. You can compare these outputs with those in `examples/out_example3/`. Note that when performing topology search, a checkpoint file will be generated (and updated) as well. Note that this will resolve all polytomies, run in parallel, and return an ultrametric tree.
+This will output four files. You can compare **the likelihood** of the resulting tree with the results in `examples/out_example3/`. Note that when performing topology search, a checkpoint file will be generated (and updated) as well. Note that this will resolve all polytomies, run in parallel, and return an ultrametric tree.
+
+Note that if you get an error in this step, please make sure you have installed the MOSEK license file.
 
 ## Documentation
 
