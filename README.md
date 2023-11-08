@@ -33,7 +33,7 @@ python setup.py install --prefix=<your_preferred_install_dir>
 ```
 python scmail_tests.py
 ```
-You can comment out lines 1 and 2 if you'd like the unit tests to run faster.
+You can comment out lines 1 and 2 if you'd like the unit tests to run faster. The full test suite runs in about ~9 minutes on my Linux machine.
 
 ## Installing from pip/conda
 
@@ -56,6 +56,8 @@ The output consists of three files:
 
 
 ## Examples
+
+Note that if you get an error in the following runs (especially use case 3), please make sure you have installed the MOSEK license file.
 
 ### Use Case 1: Infer branch lengths on a topology
 
@@ -80,12 +82,12 @@ This will output three files. You can compare these outputs with those in `examp
 
 From the `sc-mail/` directory, please run the following code:
 ```
-python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel
+python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel --randseeds 1984
 ```
 
 This will output four files. You can compare **the likelihood** of the resulting tree with the results in `examples/out_example3/`. Note that when performing topology search, a checkpoint file will be generated (and updated) as well. Note that this will resolve all polytomies, run in parallel, and return an ultrametric tree.
 
-Note that if you get an error in this step, please make sure you have installed the MOSEK license file.
+
 
 ## Documentation
 
@@ -107,10 +109,9 @@ priority than --topology_search.
 --ultrametric         Enforce ultrametricity to the output tree.
 --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
 --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
--v, --verbose         Show verbose messagesRandom seeds. Can be a single interger number or a list of intergers whose length is equal to the number of random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of.
+-v, --verbose         Show verbose messagesRandom seeds. Can be a single integer number or a list of integers whose length is equal to the number of random seeds. Can be a single integer number or a list of integers whose length is equal to the number of.
 --nInitials NINITIALS   The number of initial points. Default: 20.
---randseeds RANDSEEDS   Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of
-initial points (see --nInitials).
+--randseeds RANDSEEDS   Random seeds. Can be a single integer number or a list of integers whose length is equal to the number of initial points (see --nInitials).
 --randomreps RANDOMREPS
 Number of replicates to run for the random strategy of topology search.
 --maxIters MAXITERS   Maximum number of iterations to run topology search.
