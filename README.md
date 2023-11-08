@@ -22,23 +22,25 @@ For users:
 ```
 git clone https://github.com/raphael-group/sc-mail.git
 ```
-2. (optional) Please run the unit tests with:
+
+2. Run the setup script.
+```
+python setup.py install --prefix=<your_preferred_install_dir>
+```
+
+3. (optional) Please run the unit tests with:
 
 ```
 python scmail_tests.py
 ```
-
-3. Run the setup script.
-```
-python setup.py install --prefix=<your_preferred_install_dir>
-```
+You can comment out lines 1 and 2 if you'd like the unit tests to run faster.
 
 ## Installing from pip/conda
 
 in progress...
 
 
-# Running sc-mail
+# Running sc-MAIL
 
 Although there are many more options available, sc-MAIL only strictly requires three arguments, using the following command.
 ```
