@@ -23,18 +23,21 @@ For users:
 git clone https://github.com/raphael-group/sc-mail.git
 ```
 
-2. Run the setup script.
+2. Run the setup script from inside the sc-mail directory.
 ```
+cd sc-mail
 python setup.py install 
 ```
 You can run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH.
 
-3. (optional) Please run the unit tests with:
+3. Set up the MOSEK license file. See above (section Precursors).
+
+4. (optional) Please run the unit tests with:
 
 ```
 python scmail_tests.py
 ```
-You can comment out lines 1 and 2 if you'd like the unit tests to run faster. The full test suite runs in about ~9 minutes on my Linux machine.
+You can comment out lines 1 and 2 of `scmail_tests.py` if you'd like the unit tests to run faster. The full test suite runs in about ~9 minutes on my Linux machine.
 
 ## Installing from pip/conda
 
@@ -43,7 +46,7 @@ in progress...
 
 # Running sc-MAIL
 
-Although there are many more options available, sc-MAIL only strictly requires three arguments, using the following command.
+Although there are many more options available, sc-MAIL only strictly requires three arguments, using the following command:
 ```
 python run_scmail.py -t <topology> -c <characters> -o <output> 
 ```
@@ -53,22 +56,25 @@ The output consists of three files:
 1. `<prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
 2. `<prefix>_params.txt`: this file contains the dropout rate, silencing rate, and negative log likelihood.
 3. `<prefix>_trees.nwk`: this file contains the rooted estimated tree with branch lengths.
-
+4. (optional) `<prefix>._ckpt.<randomnumber>.txt`: this file contains checkpoints in the topology search process.
 
 
 ## Examples
 
-Note that if you get an error in the following runs (especially use case 3), please make sure you have installed the MOSEK license file.
+Note that if you get an error in trying the following commands (especially use case 3), please make sure you have set up the MOSEK license file.
 
 ### Use Case 1: Infer branch lengths on a topology
 
 From the `sc-mail/` directory, please run the following code:
 ```
-python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example1 --nInitials 1
+python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984
 ```
 
-This will output three files. You can compare these outputs with those in `examples/out_example1/`.
-
+This will output three files (`example1_annotations.txt`, `example1_params.txt`, `example1_trees.nwk`). You can compare these outputs with those in `examples/out_example1/`. For instance, to compare the likelihoods, you can use the following:
+```
+cat example1_params.txt
+cat examples/out_example1/example1_params.txt
+```
 
 ### Use Case 2: Compute the likelihood of an existing tree
 
@@ -77,17 +83,26 @@ From the `sc-mail/` directory, please run the following code:
 python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
 ```
 
-This will output three files. You can compare these outputs with those in `examples/out_example2/`.
+This will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, to compare the likelihoods, you can use the following:
+```
+cat example2_params.txt
+cat examples/out_example2/example2_params.txt
+```
 
 ### Use Case 3: Infer a topology
 
 From the `sc-mail/` directory, please run the following code:
 ```
-python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel --randseeds 1984
+python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel
 ```
 
-This will output four files. You can compare **the likelihood** of the resulting tree with the results in `examples/out_example3/`. Note that when performing topology search, a checkpoint file will be generated (and updated) as well. Note that this will resolve all polytomies, run in parallel, and return an ultrametric tree.
+This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and return an ultrametric tree.
 
+You can compare these outputs with those in `examples/out_example3/`. For instance, to compare the likelihoods, you can use the following:
+```
+cat example3_params.txt
+cat examples/out_example3/example3_params.txt
+```
 
 
 ## Documentation

@@ -51,6 +51,10 @@ def main():
     if len(argv) == 1:
         parser.print_help()
         exit(0)
+
+    if 'MOSEKLM_LICENSE_FILE' not in os.environ:
+        print("MOSEK license not found in environment variables. Please set the MOSEK license!")
+        exit(0)
     
     print("Launching " + scmail.PROGRAM_NAME + " version " + scmail.PROGRAM_VERSION)
     print(scmail.PROGRAM_NAME + " was called as follow: " + " ".join(argv))
@@ -120,7 +124,7 @@ def main():
         nllh = mySolver.negative_llh()
         opt_trees = myTopoSearch.treeTopoList
         opt_params = myTopoSearch.params
-        print("Tree neagtive log-likelihood: " + str(nllh))
+        print("Tree negative log-likelihood: " + str(nllh))
         print("Tree log-likelihood: " + str(-nllh))
     else:
         # setup the strategy
