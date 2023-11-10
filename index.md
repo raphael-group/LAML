@@ -1,8 +1,8 @@
-## sc-MAIL: single-cell Maximum-likelihood Ancestral Inference for Lineage-tracing
+## Maximum Likelihood Inference of Time-scaled Cell Lineage Trees with Mixed-type Missing Data
 Github page for [the python code](https://github.com/raphael-group/sc-mail) of sc-MAIL.
 
 ### Publication
-tbd
+Under review for RECOMB 2024
 
 ### Datasets
 Data and some related scripts used in the paper can be found [here](https://github.com/gillichu/sc-mail-experiments)
