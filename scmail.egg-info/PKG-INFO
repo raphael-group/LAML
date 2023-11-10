@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: scmail
-Version: 0.5
+Version: 1.0.1
 Summary: sc-MAIL: single-cell Maximum-likelihood Ancestral Inference for Lineage-tracing
 Author: ['Uyen Mai', 'Gillian Chu', 'Ben Raphael']
 License: GNU General Public License, version 3

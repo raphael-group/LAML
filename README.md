@@ -2,7 +2,7 @@
 
 sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, sc-MAIL will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
-The data repository can be found [here](https://github.com/gillichu/sc-mail-experiments). The current latest version of the code is `1.0.0`.
+The data repository can be found [here](https://github.com/gillichu/sc-mail-experiments). The current latest version of the code is `1.0.1`.
 
 # Precursors
 
@@ -52,7 +52,7 @@ You can comment out lines 1 and 2 of `scmail_tests.py` if you'd like the unit te
 
 sc-MAIL is available on the Python Package Index (PyPI). To install, use `pip` as follows:
 ```
-pip install scmail==1.0.0
+pip install scmail
 ```
 then, if you open a python interpreter as follows:
 
