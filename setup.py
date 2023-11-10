@@ -24,7 +24,7 @@ param = {
             "Natural Language :: English",
             "Operating System :: OS Independent",
             "Programming Language :: Python",
-            "Topic :: Scientific/Engineering :: Bioinformatics",
+            "Topic :: Scientific/Engineering :: Bio-Informatics",
             ],
         }
 

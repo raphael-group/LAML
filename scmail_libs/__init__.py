@@ -1,7 +1,7 @@
 # below we define the constants that are shared among all libraries
 
 
-PROGRAM_NAME = "sc-MAIL"
+PROGRAM_NAME = "scmail" # sc-MAIL"
 PROGRAM_AUTHOR = ["Uyen Mai","Gillian Chu","Ben Raphael"]
 PROGRAM_LICENSE = "GNU General Public License, version 3"
 PROGRAM_VERSION = "0.5"

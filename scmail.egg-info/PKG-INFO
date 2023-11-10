@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: scmail
+Version: 0.5
+Summary: sc-MAIL: single-cell Maximum-likelihood Ancestral Inference for Lineage-tracing
+Author: ['Uyen Mai', 'Gillian Chu', 'Ben Raphael']
+License: GNU General Public License, version 3
+Keywords: Phylogenetics Evolution Computational Maximum-likelihood Single-cell Lineage Tracing
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+License-File: LICENSE
+
+sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, sc-MAIL will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates.

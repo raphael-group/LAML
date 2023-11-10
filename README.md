@@ -4,8 +4,13 @@ sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Mis
 
 # Precursors
 
+We ask that users use python >= 3.6 with our code. Please also [install CMAKE](https://cmake.org/download/) either by downloading a binary and setting the path variable, or running `brew install CMAKE` if you're on Linux/MacOS.
+
+
+## MOSEK License
 1. First, we ask users to set up a MOSEK license. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
 2. Add the license file to your path by adding an environment variable. For instance, add the following to your `.bashrc` and load [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
+
 
 ```
 export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
@@ -23,10 +28,10 @@ For users:
 git clone https://github.com/raphael-group/sc-mail.git
 ```
 
-2. Run the setup script from inside the sc-mail directory.
+2. Run the setup script from inside the sc-mail directory. 
 ```
 cd sc-mail
-python setup.py install 
+python3 setup.py install 
 ```
 You can run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH.
 
@@ -41,8 +46,32 @@ You can comment out lines 1 and 2 of `scmail_tests.py` if you'd like the unit te
 
 ## Installing from pip/conda
 
-in progress...
+### Install using pip
 
+sc-MAIL is available on the Python Package Index (PyPI). To install, use `pip` as follows:
+```
+pip install scmail==0.5
+```
+then, if you open a python interpreter as follows:
+
+```
+$ python
+Python 3.9.16 (main, Sep 12 2023, 00:00:00)
+[GCC 11.3.1 20221121 (Red Hat 11.3.1-4)] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import scmail_libs
+>>>
+```
+
+You can now import functions from `scmail_libs`.
+
+## Install using conda
+
+in progress..
+
+## Executables (Windows users)
+
+in progress..
 
 # Running sc-MAIL
 
