@@ -22,8 +22,6 @@ export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
 
 ## Installing from source
 
-For users:
-
 1. Please clone the repository with:
 
 ```
