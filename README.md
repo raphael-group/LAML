@@ -2,6 +2,8 @@
 
 sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, sc-MAIL will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
+The data repository can be found [here](https://github.com/gillichu/sc-mail-experiments).
+
 # Precursors
 
 We ask that users use python >= 3.6 with our code. Please also [install CMAKE](https://cmake.org/download/) either by downloading a binary and setting the path variable, or running `brew install CMAKE` if you're on Linux/MacOS.
