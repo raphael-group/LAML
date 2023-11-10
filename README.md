@@ -80,6 +80,13 @@ $ python scmail_tests.py
 ```
 You can comment out lines 1 and 2 of `scmail_tests.py` if you'd like the unit tests to run faster. The full test suite runs in about 9 minutes on the tested Linux machine.
 
+After installation, run:
+
+```bash
+run_scmail.py -h
+```
+to see the commandline help of sc_MAIL.
+
 # Usage
 
 Although there are many more options available, sc-MAIL only strictly requires three arguments, using the following command:
