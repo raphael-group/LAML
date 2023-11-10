@@ -19,35 +19,7 @@ export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
 ```
 
 # Installation
-
-## Installing from source
-
-1. Please clone the repository with:
-
-```
-git clone https://github.com/raphael-group/sc-mail.git
-```
-
-2. Run the setup script from inside the sc-mail directory. 
-```
-cd sc-mail
-python3 setup.py install 
-```
-You can run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH.
-
-3. Set up the MOSEK license file. See above (section Precursors).
-
-4. (optional) Please run the unit tests with:
-
-```
-$ python scmail_tests.py
-```
-You can comment out lines 1 and 2 of `scmail_tests.py` if you'd like the unit tests to run faster. The full test suite runs in about ~9 minutes on my Linux machine.
-
-## Installing from pip/conda
-
-### Install using pip
-
+## Install using pip
 sc-MAIL is available on the Python Package Index (PyPI). To install, use `pip` as follows:
 ```
 pip install scmail
@@ -84,7 +56,31 @@ $ conda install -c gc3045 scmail
 
 in progress..
 
-# Running sc-MAIL
+## Install from source
+
+1. Please clone the repository with:
+
+```
+git clone https://github.com/raphael-group/sc-mail.git
+```
+
+2. Run the setup script from inside the sc-mail directory. 
+```
+cd sc-mail
+python3 setup.py install 
+```
+You can run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH.
+
+3. Set up the MOSEK license file. See above (section Precursors).
+
+4. (optional) Please run the unit tests with:
+
+```
+$ python scmail_tests.py
+```
+You can comment out lines 1 and 2 of `scmail_tests.py` if you'd like the unit tests to run faster. The full test suite runs in about 9 minutes on the tested Linux machine.
+
+# Usage
 
 Although there are many more options available, sc-MAIL only strictly requires three arguments, using the following command:
 ```
