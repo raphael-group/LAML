@@ -2,7 +2,7 @@
 
 sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, sc-MAIL will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
-The data repository can be found [here](https://github.com/gillichu/sc-mail-experiments).
+The data repository can be found [here](https://github.com/gillichu/sc-mail-experiments). The current latest version of the code is `1.0.0`.
 
 # Precursors
 
@@ -11,7 +11,7 @@ We ask that users use python >= 3.6 with our code. Please also [install CMAKE](h
 
 ## MOSEK License
 1. First, we ask users to set up a MOSEK license. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
-2. Add the license file to your path by adding an environment variable. For instance, add the following to your `.bashrc` and load [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
+2. Add the license file to your path by adding an environment variable. For instance, add the following to your `.bashrc` and load. [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
 
 
 ```
@@ -42,7 +42,7 @@ You can run it with `--prefix=<your_preferred_install_dir>` but be sure to set t
 4. (optional) Please run the unit tests with:
 
 ```
-python scmail_tests.py
+$ python scmail_tests.py
 ```
 You can comment out lines 1 and 2 of `scmail_tests.py` if you'd like the unit tests to run faster. The full test suite runs in about ~9 minutes on my Linux machine.
 
@@ -52,7 +52,7 @@ You can comment out lines 1 and 2 of `scmail_tests.py` if you'd like the unit te
 
 sc-MAIL is available on the Python Package Index (PyPI). To install, use `pip` as follows:
 ```
-pip install scmail==0.5
+pip install scmail==1.0.0
 ```
 then, if you open a python interpreter as follows:
 
@@ -69,7 +69,18 @@ You can now import functions from `scmail_libs`.
 
 ## Install using conda
 
-in progress..
+sc-MAIL is available on conda. First add channel configurations with the following lines: 
+```
+conda config --add channels mosek
+conda config --add channels conda-forge
+conda config --add channels bioconda
+```
+
+To install, use the following:
+```
+$ conda install -c gc3045 scmail
+
+```
 
 ## Executables (Windows users)
 
@@ -79,7 +90,7 @@ in progress..
 
 Although there are many more options available, sc-MAIL only strictly requires three arguments, using the following command:
 ```
-python run_scmail.py -t <topology> -c <characters> -o <output> 
+$ python run_scmail.py -t <topology> -c <characters> -o <output> 
 ```
 
 The output consists of three files: 
@@ -98,41 +109,54 @@ Note that if you get an error in trying the following commands (especially use c
 
 From the `sc-mail/` directory, please run the following code:
 ```
-python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984
+$ python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984
 ```
 
-This will output three files (`example1_annotations.txt`, `example1_params.txt`, `example1_trees.nwk`). You can compare these outputs with those in `examples/out_example1/`. For instance, to compare the likelihoods, you can use the following:
+This will output three files (`example1_annotations.txt`, `example1_params.txt`, `example1_trees.nwk`). You can compare these outputs with those in `examples/out_example1/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
-cat example1_params.txt
-cat examples/out_example1/example1_params.txt
+$ cat example1_params.txt
+$ cat examples/out_example1/example1_params.txt
 ```
+or (if on Windows in Command Prompt):
+```
+$ type example1_params.txt examples/out_example1/example1_params.txt
+```
+
 
 ### Use Case 2: Compute the likelihood of an existing tree
 
 From the `sc-mail/` directory, please run the following code:
 ```
-python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
+$ python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
 ```
 
-This will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, to compare the likelihoods, you can use the following:
+This will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
-cat example2_params.txt
-cat examples/out_example2/example2_params.txt
+$ cat example2_params.txt
+$ cat examples/out_example2/example2_params.txt
+```
+or (if on Windows in Command Prompt):
+```
+$ type example2_params.txt examples/out_example2/example2_params.txt
 ```
 
 ### Use Case 3: Infer a topology
 
 From the `sc-mail/` directory, please run the following code:
 ```
-python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel
+$ python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel
 ```
 
 This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and return an ultrametric tree.
 
-You can compare these outputs with those in `examples/out_example3/`. For instance, to compare the likelihoods, you can use the following:
+You can compare these outputs with those in `examples/out_example3/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
-cat example3_params.txt
-cat examples/out_example3/example3_params.txt
+$ cat example3_params.txt
+$ cat examples/out_example3/example3_params.txt
+```
+or (if on Windows in Command Prompt):
+```
+$ type example3_params.txt examples/out_example3/example3_params.txt
 ```
 
 
