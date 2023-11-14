@@ -1,0 +1,3 @@
+[console_scripts]
+run_scmail = run_scmail:main
+run_scmail_tests = scmail_tests:main

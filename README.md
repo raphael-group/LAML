@@ -72,7 +72,13 @@ You can (for example, if you are running on a server and get permission denied w
 ```
 $ run_scmail_tests
 ```
-The lightweight test suite runs in about 2 minutes on my Linux machine.
+You can also run it with
+```
+$ python scmail_tests.py 
+```
+from inside the `sc-mail/` directory.
+
+The lightweight test suite runs in ~3 minutes on my Linux machine.
 
 After installation, run:
 

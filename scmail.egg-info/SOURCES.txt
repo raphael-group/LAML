@@ -6,6 +6,7 @@ setup.py
 scmail.egg-info/PKG-INFO
 scmail.egg-info/SOURCES.txt
 scmail.egg-info/dependency_links.txt
+scmail.egg-info/entry_points.txt
 scmail.egg-info/requires.txt
 scmail.egg-info/top_level.txt
 scmail.egg-info/zip-safe
