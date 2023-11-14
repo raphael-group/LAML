@@ -2,59 +2,35 @@
 
 sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, sc-MAIL will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
-The data repository can be found [here](https://github.com/gillichu/sc-mail-experiments). The current latest version of the code is `1.0.3`.
-
-# Precursors
+For additional information about the method, you can refer to the [website](https://raphael-group.github.io/sc-mail/).
+# Precursors (required before installation)
 
 We ask that users use python >= 3.6 with our code. 
-<!--Please also [install CMAKE](https://cmake.org/download/) either by downloading a binary and setting the path variable, or running `brew install CMAKE` if you're on Linux/MacOS.-->
-
 
 ## MOSEK License
-1. First, we ask users to set up a MOSEK license. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
-2. Add the license file to your path by adding an environment variable. For instance, add the following line to your `.bashrc` and load (`source ~/.bashrc` for Linux/Unix and `. ~/.bashrc` for Windows). [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
+1. First, we ask users to set up a MOSEK license. The preferred option is to place the license file mosek.lic in the directory mosek in the user’s home directory. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
+2. (Optional): If you decide to add the license file elsewhere, please add the license file to your path by adding an environment variable. For instance, add the following line to your `.bashrc` and load (`source ~/.bashrc` for Linux/Unix and `. ~/.bashrc` for Windows). [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
 
 ```
 export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
 ```
 
 # Installation
+If you've fulfilled the required precursor steps, you can pick one of two ways to install sc-MAIL. We recommend installing using `pip`, but you can also install from source.
 
-## Installing from source
+### Install using pip (recommended)
 
-1. Please clone the repository with:
+0. Please set up the MOSEK license. 
 
+1. sc-MAIL is available on the Python Package Index (PyPI). To install, use `pip` as follows:
 ```
-git clone https://github.com/raphael-group/sc-mail.git
+pip install scmail"
 ```
+This will install the scmail package to your default package location. If you would like to specify a separate installation location, you can use the flag: `--prefix="<your_preferred_install_dir>`, then set this prefix in your PATH and PYTHONPATH (see below for help).
 
-2. Run the setup script from inside the cloned sc-mail directory. 
-```
-cd sc-mail
-python3 setup.py install 
-```
-You can run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix in your PYTHONPATH.
+If `pip` installs the package in a directory which is not on path, `pip` will throw a warning and ask the user to consider adding this directory to PATH. This should be heeded (see below for help).
 
-3. Set up the MOSEK license file. See above (section Precursors).
-
-4. (optional) Please run the unit tests with:
-
-```
-$ python scmail_tests.py
-```
-You can comment out lines 1 and 2 of `scmail_tests.py` if you'd like the unit tests to run faster. The full test suite runs in about ~9 minutes on my Linux machine.
-
-## Installing from pip/conda
-
-### Install using pip
-
-sc-MAIL is available on the Python Package Index (PyPI). To install, use `pip` as follows:
-```
-pip install scmail --prefix="<your_preferred_install_dir>"
-```
-then set this prefix in your PATH and PYTHONPATH (see below for help).
-
-Then, if you open a python interpreter as follows:
+2. If you open a python interpreter as follows:
 
 ```
 $ python
@@ -67,24 +43,45 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 You can now import functions from `scmail_libs`.
 
-## Install using conda
-
-sc-MAIL is available on conda. First add channel configurations with the following lines: 
-```
-conda config --add channels mosek
-conda config --add channels conda-forge
-conda config --add channels bioconda
-```
-
-To install, use the following:
-```
-$ conda install -c gc3045 scmail --prefix="<your_preferred_install_dir>"
+3. You can also run the following:
 
 ```
+run_scmail
+```
+to see the commandline help of sc-MAIL.
 
-Then, set this prefix in your PATH and PYTHONPATH (see below for help).
+## Install from source
 
-## Setting prefix in environment variable
+1. Please clone the repository with:
+
+```
+git clone https://github.com/raphael-group/sc-mail.git
+```
+
+2. Run the setup script from inside the sc-mail directory. 
+```
+cd sc-mail
+python setup.py install 
+```
+You can (for example, if you are running on a server and get permission denied when you try to install it in the default location), run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH (see below for help).
+
+3. Set up the MOSEK license file. See above (section Precursors).
+
+4. (optional) Please run the unit tests with:
+
+```
+$ run_scmail_tests
+```
+The lightweight test suite runs in about 2 minutes on my Linux machine.
+
+After installation, run:
+
+```
+run_scmail -h
+```
+to see the commandline help of sc-MAIL.
+
+## (optional) Setting prefix in environment variable 
 
 To set the prefix `<your_preferred_install_dir>` in your PATH and PYTHONPATH, follow these steps:
 
@@ -104,40 +101,10 @@ setx PYTHONPATH "%PYTHONPATH%;C:<your_preferred_install_dir>"
 
 For both users, be sure to restart any applications or shells you want to use the updated PATH variable.
 
-## Install from source
-
-1. Please clone the repository with:
-
-```
-git clone https://github.com/raphael-group/sc-mail.git
-```
-
-2. Run the setup script from inside the sc-mail directory. 
-```
-cd sc-mail
-python3 setup.py install 
-```
-You can run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH.
-
-3. Set up the MOSEK license file. See above (section Precursors).
-
-4. (optional) Please run the unit tests with:
-
-```
-$ python scmail_tests.py
-```
-You can comment out lines 1 and 2 of `scmail_tests.py` if you'd like the unit tests to run faster. The full test suite runs in about 9 minutes on the tested Linux machine.
-
-After installation, run:
-
-```bash
-run_scmail.py -h
-```
-to see the commandline help of sc_MAIL.
 
 # Usage
 
-If you downloaded using `pip` or `conda`, you should download the examples from github from [examples.zip](https://github.com/raphael-group/sc-mail/tree/master/examples.zip), unzip it, and run from the directory containing this examples folder. Note that the examples below all assume you installed from source and can run `python run_scmail.py` from inside the `sc-mail/` folder. If you installed using `pip` or `conda`, change each instance of this to `run_scmail` to run the executable.
+If you downloaded using `pip` or `conda`, you should download the examples from github from [examples.zip](https://github.com/raphael-group/sc-mail/tree/master/examples.zip), unzip it, and run each command below from the directory containing this examples folder. If you downloaded from source, you can run `run_scmail` after the setup.
 
 Although there are many more options available, sc-MAIL only strictly requires three arguments, using the following command:
 ```
@@ -160,7 +127,7 @@ Note that if you get an error in trying the following commands (especially use c
 
 From the `sc-mail/` directory, please run the following code:
 ```
-$ python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984
+$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984
 ```
 
 This will output three files (`example1_annotations.txt`, `example1_params.txt`, `example1_trees.nwk`). You can compare these outputs with those in `examples/out_example1/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
@@ -178,7 +145,7 @@ $ type example1_params.txt examples/out_example1/example1_params.txt
 
 From the `sc-mail/` directory, please run the following code:
 ```
-$ python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
+$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
 ```
 
 This will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
