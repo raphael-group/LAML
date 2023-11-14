@@ -108,7 +108,7 @@ If you downloaded using `pip` or `conda`, you should download the examples from 
 
 Although there are many more options available, sc-MAIL only strictly requires three arguments, using the following command:
 ```
-$ python run_scmail.py -t <topology> -c <characters> -o <output> 
+$ run_scmail -t <topology> -c <characters> -o <output> 
 ```
 
 The output consists of three files: 
@@ -162,7 +162,7 @@ $ type example2_params.txt examples/out_example2/example2_params.txt
 
 From the `sc-mail/` directory, please run the following code:
 ```
-$ python run_scmail.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel
+$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel
 ```
 
 This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and return an ultrametric tree.
