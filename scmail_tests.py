@@ -8,9 +8,12 @@ from unit_tests.utils import *
 import sys
 import os
 
-def main():
-    sys.path.append(os.path.join(os.path.dirname(__file__), 'helpers'))
+#def main():
+
 
 if __name__ == '__main__':
+    #print(os.getcwd())
+    sys.path.append(os.path.dirname(__file__))
+    sys.path.append(os.path.join(os.path.dirname(__file__), 'helpers'))
+    print("Running tests for sc-MAIL...")
     unittest.main()
-    print("PASS")

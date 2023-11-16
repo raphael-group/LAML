@@ -52,6 +52,8 @@ to see the commandline help of sc-MAIL.
 
 ## Install from source
 
+0. Set up the MOSEK license file. See above (section Precursors).
+
 1. Please clone the repository with:
 
 ```
@@ -65,12 +67,19 @@ python setup.py install
 ```
 You can (for example, if you are running on a server and get permission denied when you try to install it in the default location), run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH (see below for help).
 
-3. Set up the MOSEK license file. See above (section Precursors).
-
-4. (optional) Please run the unit tests with:
+After installation, run:
 
 ```
-$ run_scmail_tests
+run_scmail -h
+```
+to see the commandline help of sc-MAIL.
+
+## (Optional) Testing
+
+Please run the unit tests with:
+
+```
+$ scmail_tests.py 
 ```
 You can also run it with
 ```
@@ -78,14 +87,19 @@ $ python scmail_tests.py
 ```
 from inside the `sc-mail/` directory.
 
-The lightweight test suite runs in ~3 minutes on my Linux machine.
-
-After installation, run:
-
+This will print `Running tests for sc-MAIL...` to begin, and print progress dots (one for each test passed). 
+At the end, it should print:
 ```
-run_scmail -h
+Running tests for sc-MAIL...
+....................................................................
+----------------------------------------------------------------------
+Ran 68 tests in 95.651s
+
+OK
 ```
-to see the commandline help of sc-MAIL.
+The lightweight test suite runs in ~1.5 minutes on my Linux machine.
+
+
 
 ## (optional) Setting prefix in environment variable 
 

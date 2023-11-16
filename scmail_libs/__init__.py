@@ -4,7 +4,7 @@
 PROGRAM_NAME = "scmail" # sc-MAIL"
 PROGRAM_AUTHOR = ["Uyen Mai","Gillian Chu","Ben Raphael"]
 PROGRAM_LICENSE = "GNU General Public License, version 3"
-PROGRAM_VERSION = "1.0.4"
+PROGRAM_VERSION = "1.0.6"
 PROGRAM_YEAR = "2023"
 PROGRAM_INSTITUTE = "Computer Science Department, Princeton University"
 PROGRAM_DESCRIPTION = "sc-MAIL: single-cell Maximum-likelihood Ancestral Inference for Lineage-tracing"
