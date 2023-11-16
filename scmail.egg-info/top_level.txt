@@ -1,2 +1,2 @@
 scmail_libs
-unit_tests
+scmail_unit_tests

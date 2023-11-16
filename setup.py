@@ -25,7 +25,7 @@ param = {
         'author': scmail_libs.PROGRAM_AUTHOR,
         'license': scmail_libs.PROGRAM_LICENSE,
         'packages': find_packages(),
-        'package_data': {'':recursive_list_dir('unit_tests')},
+        'package_data': {'':recursive_list_dir('scmail_unit_tests')},
         'include_package_data': True,
         'scripts': ['run_scmail.py', 'scmail_tests.py'],
         'zip_safe': True,
