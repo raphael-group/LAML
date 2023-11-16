@@ -23,7 +23,6 @@ scmail_libs/lca_lib.py
 scmail_libs/plot_lib.py
 scmail_libs/sequence_lib.py
 scmail_libs/sim_lib.py
-scmail_libs/__pycache__/__init__.cpython-39.pyc
 scmail_unit_tests/__init__.py
 scmail_unit_tests/unit_tests_EMSolver.py
 scmail_unit_tests/unit_tests_MLSolver.py
@@ -32,14 +31,6 @@ scmail_unit_tests/unit_tests_SpaLinSolver.py
 scmail_unit_tests/unit_tests_TopoSearch.py
 scmail_unit_tests/unit_tests_TopoSearchParallel.py
 scmail_unit_tests/utils.py
-scmail_unit_tests/__pycache__/__init__.cpython-39.pyc
-scmail_unit_tests/__pycache__/unit_tests_EMSolver.cpython-39-pytest-6.2.2.pyc
-scmail_unit_tests/__pycache__/unit_tests_EMSolver.cpython-39.pyc
-scmail_unit_tests/__pycache__/unit_tests_MLSolver.cpython-39.pyc
-scmail_unit_tests/__pycache__/unit_tests_Simulator.cpython-39.pyc
-scmail_unit_tests/__pycache__/unit_tests_TopoSearch.cpython-39.pyc
-scmail_unit_tests/__pycache__/unit_tests_TopoSearchParallel.cpython-39.pyc
-scmail_unit_tests/__pycache__/utils.cpython-39.pyc
 scmail_unit_tests/test_data/test_EM/test1.tre
 scmail_unit_tests/test_data/test_EM/test1_charMtrx.txt
 scmail_unit_tests/test_data/test_EM/test2.tre

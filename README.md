@@ -87,17 +87,17 @@ $ python scmail_tests.py
 ```
 from inside the `sc-mail/` directory.
 
-This will print `Running tests for sc-MAIL...` to begin, and print progress dots (one for each test passed). 
+This will print `Running tests for sc-MAIL...` to begin, and print progress dots (one for each test passed). Please note that this suite does not test the multiprocessing version of sc-MAIL, since starting new processes may not be allowed on different machines.
 At the end, it should print:
 ```
 Running tests for sc-MAIL...
 ....................................................................
 ----------------------------------------------------------------------
-Ran 68 tests in 95.651s
+Ran 58 tests in 13.554s
 
 OK
 ```
-The lightweight test suite runs in ~1.5 minutes on my Linux machine.
+The lightweight test suite runs in ~1.5 minutes on my Linux machine. 
 
 
 
