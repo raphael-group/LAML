@@ -2,8 +2,8 @@ from scmail_libs.ML_solver import *
 from math import exp,log
 import cvxpy as cp
 from scmail_libs import min_llh, conv_eps, eps
-import timeit
 import numpy as np
+import time
 
 def log_sum_exp(numlist):
     # using log-trick to compute log(sum(exp(x) for x in numlist))
@@ -297,15 +297,19 @@ class EM_solver(ML_solver):
                         v.S3[site] = 1.0-v.S0[site]-v.S1[site]-exp(v.post1[site])
 
     def Estep(self):
+        start_estep_time = time.time()
         self.Estep_in_llh()
         self.Estep_out_llh()
         self.Estep_posterior()
+        end_estep_time = time.time()
+        #print(f"E-step runtime: {end_estep_time - start_estep_time}")
 
     def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=1,eps_nu=1e-5,eps_s=1e-6,ultra_constr_cache=None,local_brlen_opt=True):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
         #start_time = timeit.default_timer()
+        start_mstep_time = time.time()
         if not optimize_phi:
             if verbose > 0:
                 print("Fixing phi to " + str(self.params.phi))    
@@ -442,6 +446,9 @@ class EM_solver(ML_solver):
                 status += "failed_d"
             if status_nu != "optimal":
                 status = ",failed_nu"
+
+        end_mstep_time = time.time()
+        #print(f"M-step runtime: {end_mstep_time - start_mstep_time}")
         return success, status
     
     def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,maxIter=1000):
