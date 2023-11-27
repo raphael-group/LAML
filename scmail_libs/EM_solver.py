@@ -297,19 +297,16 @@ class EM_solver(ML_solver):
                         v.S3[site] = 1.0-v.S0[site]-v.S1[site]-exp(v.post1[site])
 
     def Estep(self):
-        start_estep_time = time.time()
         self.Estep_in_llh()
         self.Estep_out_llh()
         self.Estep_posterior()
-        end_estep_time = time.time()
-        #print(f"E-step runtime: {end_estep_time - start_estep_time}")
+
 
     def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=1,eps_nu=1e-5,eps_s=1e-6,ultra_constr_cache=None,local_brlen_opt=True):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
         #start_time = timeit.default_timer()
-        start_mstep_time = time.time()
         if not optimize_phi:
             if verbose > 0:
                 print("Fixing phi to " + str(self.params.phi))    
@@ -388,6 +385,11 @@ class EM_solver(ML_solver):
             status = "optimal" if out.success else out.message
             return out.x,status
 
+        def __compute_brlen__():
+            tmp = S0/(S0 + S1)
+            d = -np.log(tmp)
+            return d, "optimal"
+
         def __optimize_nu__(d): # d is a vector of all branch lengths
             var_nu = cp.Variable(1,nonneg=True) # the nu variable
             C0 = -(var_nu+1)*S0.T @ d
@@ -403,31 +405,43 @@ class EM_solver(ML_solver):
 
         nIters = 1
         nu_star = self.params.nu
-        for r in range(nIters):
-            if verbose > 0:
-                print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
-            try:
-                d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
-            except:
-                d_star = d_ini
-                status_d = "failure"
-            #d_star = np.array([max(x,self.dmin) for x in d_star])     
-            if status_d == "infeasible": # should only happen with local EM 
-                return False,"d_infeasible"
-            if not optimize_nu:
+
+        if (nu_star == 0): # no heritable missing rate
+            d_star,status_d = __compute_brlen__()
+            status_nu = "optimal"
+            # optimize_nu should already be False, since nu = 0
+            # set phi_star as well
+            #n_missing = 0
+            #for tree in self.trees:
+            #    for v in tree.traverse_leaves():
+            #        n_missing += sum([x == '?' for x in self.charMtrx[v.label]])
+            #phi_star = n_missing / self.numsites * len(self.charMtrx) # NK
+        else:
+            for r in range(nIters):
                 if verbose > 0:
-                    print("Fixing nu to " + str(self.params.nu))
-                nu_star = self.params.nu
-                status_nu = "optimal"    
-            else:    
-                if verbose > 0:
-                    print("Optimizing nu")
+                    print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
                 try:
-                    nu_star,status_nu = __optimize_nu__(d_star)                 
+                    d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
                 except:
-                    status_nu = "failure"
-                #if status_nu != "optimal":
-                #    return False,status_nu
+                    d_star = d_ini
+                    status_d = "failure"
+                #d_star = np.array([max(x,self.dmin) for x in d_star])     
+                if status_d == "infeasible": # should only happen with local EM 
+                    return False,"d_infeasible"
+                if not optimize_nu:
+                    if verbose > 0:
+                        print("Fixing nu to " + str(self.params.nu))
+                    nu_star = self.params.nu
+                    status_nu = "optimal"    
+                else:    
+                    if verbose > 0:
+                        print("Optimizing nu")
+                    try:
+                        nu_star,status_nu = __optimize_nu__(d_star)                 
+                    except:
+                        status_nu = "failure"
+                    #if status_nu != "optimal":
+                    #    return False,status_nu
         # place the optimal value back to params
         self.params.phi = phi_star
         self.params.nu = nu_star
@@ -447,8 +461,6 @@ class EM_solver(ML_solver):
             if status_nu != "optimal":
                 status = ",failed_nu"
 
-        end_mstep_time = time.time()
-        #print(f"M-step runtime: {end_mstep_time - start_mstep_time}")
         return success, status
     
     def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,maxIter=1000):
@@ -471,10 +483,17 @@ class EM_solver(ML_solver):
             if verbose > 0:
                 print("Starting EM iter: " + str(em_iter))
                 print("Estep")
+            start_estep_time = time.time()
             self.Estep()
+            end_estep_time = time.time()
+            print(f"Estep runtime (s): {end_estep_time - start_estep_time}")
             if verbose > 0:
                 print("Mstep")
+            
+            start_mstep_time = time.time()
             m_success,status=self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,local_brlen_opt=True,ultra_constr_cache=ultra_constr_cache)
+            end_mstep_time = time.time()
+            print(f"Mstep runtime (s): {end_mstep_time - start_mstep_time}")
             if not m_success:
                 if status == "d_infeasible": # should only happen with local EM
                     if verbose >= 0:
@@ -494,7 +513,7 @@ class EM_solver(ML_solver):
             em_iter += 1
         if not converged and verbose >= 0:
             print("Warning: exceeded maximum number of EM iterations (" + str(maxIter) + " iters)!")
-        return -curr_llh, em_iter,status    
+        return -curr_llh, em_iter,status
 
     def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False):
         # optimize using a specific initial point identified by the input randseed
