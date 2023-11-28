@@ -2,8 +2,8 @@ from scmail_libs.ML_solver import *
 from math import exp,log
 import cvxpy as cp
 from scmail_libs import min_llh, conv_eps, eps
-import timeit
 import numpy as np
+import time
 
 def log_sum_exp(numlist):
     # using log-trick to compute log(sum(exp(x) for x in numlist))
@@ -305,7 +305,6 @@ class EM_solver(ML_solver):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
-        #start_time = timeit.default_timer()
         if not optimize_phi:
             if verbose > 0:
                 print("Fixing phi to " + str(self.params.phi))    
@@ -360,9 +359,7 @@ class EM_solver(ML_solver):
             prob = cp.Problem(objective,constraints)
             #prob.solve(verbose=True,solver=cp.ECOS,max_iters=100000)
             #prob.solve(verbose=False,solver=cp.MOSEK)
-            start_time = timeit.default_timer()
             prob.solve(verbose=False,solver=cp.MOSEK)
-            stop_time = timeit.default_timer()
             return var_d.value,prob.status
        
         def __optimize_brlen_scipy__(nu):
@@ -473,10 +470,17 @@ class EM_solver(ML_solver):
             if verbose > 0:
                 print("Starting EM iter: " + str(em_iter))
                 print("Estep")
+            estep_start = time.time()
             self.Estep()
+            estep_end = time.time()
             if verbose > 0:
+                print(f"Estep runtime (s): {estep_end - estep_start}")
                 print("Mstep")
+            mstep_start = time.time()
             m_success,status=self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,local_brlen_opt=True,ultra_constr_cache=ultra_constr_cache)
+            mstep_end = time.time()
+            if verbose > 0:
+                print(f"Mstep runtime (s): {mstep_end - mstep_start}")
             if not m_success:
                 if status == "d_infeasible": # should only happen with local EM
                     if verbose >= 0:
