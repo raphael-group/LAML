@@ -384,6 +384,11 @@ class EM_solver(ML_solver):
             status = "optimal" if out.success else out.message
             return out.x,status
 
+        def __compute_brlen__():
+            tmp = S0/(S0 + S1)
+            d = -np.log(tmp)
+            return d, "optimal"
+
         def __optimize_nu__(d): # d is a vector of all branch lengths
             var_nu = cp.Variable(1,nonneg=True) # the nu variable
             C0 = -(var_nu+1)*S0.T @ d
@@ -399,31 +404,35 @@ class EM_solver(ML_solver):
 
         nIters = 1
         nu_star = self.params.nu
-        for r in range(nIters):
-            if verbose > 0:
-                print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
-            try:
-                d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
-            except:
-                d_star = d_ini
-                status_d = "failure"
-            #d_star = np.array([max(x,self.dmin) for x in d_star])     
-            if status_d == "infeasible": # should only happen with local EM 
-                return False,"d_infeasible"
-            if not optimize_nu:
+        if (nu_star == 0):
+            d_star,status_d = __compute_brlen__()
+            status_nu = "optimal"
+        else:
+            for r in range(nIters):
                 if verbose > 0:
-                    print("Fixing nu to " + str(self.params.nu))
-                nu_star = self.params.nu
-                status_nu = "optimal"    
-            else:    
-                if verbose > 0:
-                    print("Optimizing nu")
+                    print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
                 try:
-                    nu_star,status_nu = __optimize_nu__(d_star)                 
+                    d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
                 except:
-                    status_nu = "failure"
-                #if status_nu != "optimal":
-                #    return False,status_nu
+                    d_star = d_ini
+                    status_d = "failure"
+                #d_star = np.array([max(x,self.dmin) for x in d_star])     
+                if status_d == "infeasible": # should only happen with local EM 
+                    return False,"d_infeasible"
+                if not optimize_nu:
+                    if verbose > 0:
+                        print("Fixing nu to " + str(self.params.nu))
+                    nu_star = self.params.nu
+                    status_nu = "optimal"    
+                else:    
+                    if verbose > 0:
+                        print("Optimizing nu")
+                    try:
+                        nu_star,status_nu = __optimize_nu__(d_star)                 
+                    except:
+                        status_nu = "failure"
+                    #if status_nu != "optimal":
+                    #    return False,status_nu
         # place the optimal value back to params
         self.params.phi = phi_star
         self.params.nu = nu_star
