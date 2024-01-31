@@ -248,9 +248,9 @@ class ML_solver(Virtual_solver):
                     print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
                 if verbose >= 0:
                     if ultra_constr:
-                        print("Numerical optimization started with ultrametric constraint")
+                        print("Numerical optimization started with ultrametric constraint (default)")
                     else:      
-                        print("Numerical optimization started without ultrametric constraint")
+                        print("Numerical optimization started without ultrametric constraint [deprecated]")
                 # read in fixed_brlen and mark the tree nodes
                 for tree in self.trees:
                     for node in tree.traverse_postorder():

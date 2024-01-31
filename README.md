@@ -87,7 +87,7 @@ $ python scmail_tests.py
 ```
 from inside the `sc-mail/` directory.
 
-This will print `Running tests for sc-MAIL...` to begin, and print progress dots (one for each test passed). Please note that this suite does not test the multiprocessing version of sc-MAIL, since starting new processes may not be allowed on different machines.
+This will print `Running tests for sc-MAIL...` to begin, and print progress dots (one for each test passed). Please note that this suite does not by default test the multiprocessing version of sc-MAIL, since starting new processes may not be allowed on different machines.
 At the end, it should print:
 ```
 Running tests for sc-MAIL...
@@ -97,9 +97,6 @@ Ran 58 tests in 13.554s
 
 OK
 ```
-The lightweight test suite runs in ~1.5 minutes on my Linux machine. 
-
-
 
 ## (optional) Setting prefix in environment variable 
 
@@ -147,7 +144,7 @@ Note that if you get an error in trying the following commands (especially use c
 
 From the `sc-mail/` directory, please run the following code:
 ```
-$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984
+$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 1.0
 ```
 
 This will output three files (`example1_annotations.txt`, `example1_params.txt`, `example1_trees.nwk`). You can compare these outputs with those in `examples/out_example1/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
@@ -160,6 +157,7 @@ or (if on Windows in Command Prompt):
 $ type example1_params.txt examples/out_example1/example1_params.txt
 ```
 
+Note that the reported tree height in the progress logs includes the root node's branch length. If you compare this distance with the one reported by `nw_distance` from `newick_utils`, you need to add this branch length.
 
 ### Use Case 2: Compute the likelihood of an existing tree
 
@@ -202,29 +200,26 @@ $ type example3_params.txt examples/out_example3/example3_params.txt
 
 
 ```
--t TOPOLOGY, --topology TOPOLOGY    Binary input tree topology in newick format. Branch lengths will be ignored.
--c CHARACTERS, --characters CHARACTERS  The input character matrix. Must have header.
--p PRIORS, --priors PRIORS  The input prior matrix Q. Default: if not specified, use a uniform prior.
---delimiter DELIMITER   The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.
--m MASKEDCHAR, --maskedchar MASKEDCHAR  Masked character. Default: if not specified, assumes '-'.
--o OUTPUT, --output OUTPUT  Output prefix.
---solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
---topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
---resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher
-priority than --topology_search.
---keep_polytomies     Keep polytomies while performing topology search. This option only works with --topology_search.
--L COMPUTE_LLH, --compute_llh COMPUTE_LLH   Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topoloy_search and
---resolve_search.
---ultrametric         Enforce ultrametricity to the output tree.
---noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
---noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
--v, --verbose         Show verbose messagesRandom seeds. Can be a single integer number or a list of integers whose length is equal to the number of random seeds. Can be a single integer number or a list of integers whose length is equal to the number of.
---nInitials NINITIALS   The number of initial points. Default: 20.
---randseeds RANDSEEDS   Random seeds. Can be a single integer number or a list of integers whose length is equal to the number of initial points (see --nInitials).
---randomreps RANDOMREPS
-Number of replicates to run for the random strategy of topology search.
---maxIters MAXITERS   Maximum number of iterations to run topology search.
---parallel            Turn on parallel version of topology search.
+  -t TOPOLOGY, --topology TOPOLOGY  Binary input tree topology in newick format. Branch lengths will be ignored.
+  -c CHARACTERS, --characters CHARACTERS    The input character matrix. Must have header.
+  -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
+  --delimiter DELIMITER The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.
+  -m MASKEDCHAR, --maskedchar MASKEDCHAR    Masked character. Default: if not specified, assumes '-'.
+  -o OUTPUT, --output OUTPUT    Output prefix.
+  --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
+  --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
+  --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
+  --keep_polytomies     Keep polytomies while performing topology search. This option only works with --topology_search.
+  -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
+  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale.
+  --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
+  --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
+  -v, --verbose         Show verbose messages.
+  --nInitials NINITIALS The number of initial points. Default: 20.
+  --randseeds RANDSEEDS Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).
+  --randomreps RANDOMREPS   Number of replicates to run for the random strategy of topology search.
+  --maxIters MAXITERS   Maximum number of iterations to run topology search.
+  --parallel            Turn on parallel version of topology search.
 ```
 
 ## Troubleshooting
