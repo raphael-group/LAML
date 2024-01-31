@@ -2,8 +2,8 @@ from scmail_libs.ML_solver import *
 from math import exp,log
 import cvxpy as cp
 from scmail_libs import min_llh, conv_eps, eps
-import timeit
 import numpy as np
+import time
 
 def log_sum_exp(numlist):
     # using log-trick to compute log(sum(exp(x) for x in numlist))
@@ -305,7 +305,6 @@ class EM_solver(ML_solver):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
-        #start_time = timeit.default_timer()
         if not optimize_phi:
             if verbose > 0:
                 print("Fixing phi to " + str(self.params.phi))    
@@ -360,9 +359,7 @@ class EM_solver(ML_solver):
             prob = cp.Problem(objective,constraints)
             #prob.solve(verbose=True,solver=cp.ECOS,max_iters=100000)
             #prob.solve(verbose=False,solver=cp.MOSEK)
-            start_time = timeit.default_timer()
             prob.solve(verbose=False,solver=cp.MOSEK)
-            stop_time = timeit.default_timer()
             return var_d.value,prob.status
        
         def __optimize_brlen_scipy__(nu):
@@ -384,6 +381,11 @@ class EM_solver(ML_solver):
             status = "optimal" if out.success else out.message
             return out.x,status
 
+        def __compute_brlen__():
+            tmp = S0/(S0 + S1)
+            d = -np.log(tmp)
+            return d, "optimal"
+
         def __optimize_nu__(d): # d is a vector of all branch lengths
             var_nu = cp.Variable(1,nonneg=True) # the nu variable
             C0 = -(var_nu+1)*S0.T @ d
@@ -399,31 +401,35 @@ class EM_solver(ML_solver):
 
         nIters = 1
         nu_star = self.params.nu
-        for r in range(nIters):
-            if verbose > 0:
-                print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
-            try:
-                d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
-            except:
-                d_star = d_ini
-                status_d = "failure"
-            #d_star = np.array([max(x,self.dmin) for x in d_star])     
-            if status_d == "infeasible": # should only happen with local EM 
-                return False,"d_infeasible"
-            if not optimize_nu:
+        if (nu_star == 0):
+            d_star,status_d = __compute_brlen__()
+            status_nu = "optimal"
+        else:
+            for r in range(nIters):
                 if verbose > 0:
-                    print("Fixing nu to " + str(self.params.nu))
-                nu_star = self.params.nu
-                status_nu = "optimal"    
-            else:    
-                if verbose > 0:
-                    print("Optimizing nu")
+                    print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
                 try:
-                    nu_star,status_nu = __optimize_nu__(d_star)                 
+                    d_star,status_d = __optimize_brlen__(nu_star,verbose=False)
                 except:
-                    status_nu = "failure"
-                #if status_nu != "optimal":
-                #    return False,status_nu
+                    d_star = d_ini
+                    status_d = "failure"
+                #d_star = np.array([max(x,self.dmin) for x in d_star])     
+                if status_d == "infeasible": # should only happen with local EM 
+                    return False,"d_infeasible"
+                if not optimize_nu:
+                    if verbose > 0:
+                        print("Fixing nu to " + str(self.params.nu))
+                    nu_star = self.params.nu
+                    status_nu = "optimal"    
+                else:    
+                    if verbose > 0:
+                        print("Optimizing nu")
+                    try:
+                        nu_star,status_nu = __optimize_nu__(d_star)                 
+                    except:
+                        status_nu = "failure"
+                    #if status_nu != "optimal":
+                    #    return False,status_nu
         # place the optimal value back to params
         self.params.phi = phi_star
         self.params.nu = nu_star
@@ -464,10 +470,17 @@ class EM_solver(ML_solver):
             if verbose > 0:
                 print("Starting EM iter: " + str(em_iter))
                 print("Estep")
+            estep_start = time.time()
             self.Estep()
+            estep_end = time.time()
             if verbose > 0:
+                print(f"Estep runtime (s): {estep_end - estep_start}")
                 print("Mstep")
+            mstep_start = time.time()
             m_success,status=self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,local_brlen_opt=True,ultra_constr_cache=ultra_constr_cache)
+            mstep_end = time.time()
+            if verbose > 0:
+                print(f"Mstep runtime (s): {mstep_end - mstep_start}")
             if not m_success:
                 if status == "d_infeasible": # should only happen with local EM
                     if verbose >= 0:
