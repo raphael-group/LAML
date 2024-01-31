@@ -65,7 +65,7 @@ git clone https://github.com/raphael-group/sc-mail.git
 cd sc-mail
 python setup.py install 
 ```
-You can (for example, if you are running on a server and get permission denied when you try to install it in the default location), run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH (see below for help).
+You can (for example, if you are running on a server and get permission denied when you try to install it in the default location), run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH (see below for help). If you have installed before, you may want to additionally add the flag `--force``. `
 
 After installation, run:
 
