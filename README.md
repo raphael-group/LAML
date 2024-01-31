@@ -24,7 +24,7 @@ If you've fulfilled the required precursor steps, you can pick one of two ways t
 
 1. sc-MAIL is available on the Python Package Index (PyPI). To install, use `pip` as follows:
 ```
-pip install scmail"
+pip install scmail
 ```
 This will install the scmail package to your default package location. If you would like to specify a separate installation location, you can use the flag: `--prefix="<your_preferred_install_dir>`, then set this prefix in your PATH and PYTHONPATH (see below for help).
 
