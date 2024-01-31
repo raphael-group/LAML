@@ -187,8 +187,8 @@ def main():
                         continue
                     node.edge_length = node.edge_length / scaling_factor 
                 tree_height = tree.height(weighted=True)
-                mutation_rate = scaling_factor/k # mutation rate is usually a per-site quantity
-                print(f"Tree height after scaling: {tree_height}, per-site mutation rate: {mutation_rate}")
+                mutation_rate = scaling_factor # not divided per site
+                print(f"Tree height after scaling: {tree_height}, mutation rate: {mutation_rate}")
             fout.write(tree.__str__() + "\n")
 
     # output annotations
@@ -266,7 +266,7 @@ def main():
         fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")
         fout.write("Silencing rate: " + str(opt_params['nu']) + "\n") 
         fout.write("Negative-llh: " +  str(nllh) + "\n")
-        fout.write("Per-site mutation rate: " +  str(mutation_rate) + "\n") 
+        fout.write("Mutation rate: " +  str(mutation_rate) + "\n") 
                 
     stop_time = timeit.default_timer()
     print("Runtime (s):", stop_time - start_time)

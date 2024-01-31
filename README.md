@@ -144,7 +144,7 @@ Note that if you get an error in trying the following commands (especially use c
 
 From the `sc-mail/` directory, please run the following code:
 ```
-$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 1.0
+$ run_scmail -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
 ```
 
 This will output three files (`example1_annotations.txt`, `example1_params.txt`, `example1_trees.nwk`). You can compare these outputs with those in `examples/out_example1/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
@@ -157,7 +157,7 @@ or (if on Windows in Command Prompt):
 $ type example1_params.txt examples/out_example1/example1_params.txt
 ```
 
-Note that the reported tree height in the progress logs includes the root node's branch length. If you compare this distance with the one reported by `nw_distance` from `newick_utils`, you need to add this branch length.
+Note that the reported tree height in the progress logs includes the root node's branch length. If you compare this distance with the one reported by `nw_distance` from `newick_utils`, you need to add this branch length. The mutation rate estimated in this example is `0.1`, since this example is drawn from our simulated data.
 
 ### Use Case 2: Compute the likelihood of an existing tree
 
@@ -180,10 +180,10 @@ $ type example2_params.txt examples/out_example2/example2_params.txt
 
 From the `sc-mail/` directory, please run the following code:
 ```
-$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --ultrametric --parallel
+$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel
 ```
 
-This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and return an ultrametric tree.
+This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.
 
 You can compare these outputs with those in `examples/out_example3/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
@@ -197,7 +197,6 @@ $ type example3_params.txt examples/out_example3/example3_params.txt
 
 
 ## Documentation
-
 
 ```
   -t TOPOLOGY, --topology TOPOLOGY  Binary input tree topology in newick format. Branch lengths will be ignored.
