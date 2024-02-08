@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-#from unit_tests.unit_tests_MLSolver import *
+from scmail_unit_tests.unit_tests_MLSolver import *
 #from unit_tests.unit_tests_Simulator import *
 #from unit_tests.unit_tests_SpaLinSolver import *
 from scmail_unit_tests.unit_tests_TopoSearch import *

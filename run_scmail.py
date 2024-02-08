@@ -36,8 +36,9 @@ def main():
     parser.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
 
     # problem formulation
-    parser.add_argument("--ultrametric",action='store_true',help="Enforce ultrametricity to the output tree.")
-    parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.")
+    parser.add_argument("--timescale",required=False,default=1.0,help="Timeframe of experiment. Scales ultrametric output tree branches to this timescale. To get an accurate estimate of mutation rate, provide timeframe in number of cell generations.")
+    #parser.add_argument("--ultrametric",action='store_true',help="Enforce ultrametricity to the output tree.") # TODO: remove this flag
+    parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing. Does not necessarily produce ultrametric trees, and cannot be time-scaled. This option has higher priority than --timescale or --ultrametric.")
     parser.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
 
     # miscellaneous
@@ -130,7 +131,7 @@ def main():
         # setup the strategy
         my_strategy = deepcopy(scmail.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
-        my_strategy['ultra_constr'] = args["ultrametric"]
+        my_strategy['ultra_constr'] = True #args["ultrametric"] # TODO: Remove this flag
         # resolve polytomies or not?
         resolve_polytomies = not args["keep_polytomies"]
         # only resolve polytomies or do full search?
@@ -143,7 +144,7 @@ def main():
             else:    
                 print("Optimization by generic solver (Scipy-SLSQP)")        
             mySolver = myTopoSearch.get_solver()
-            nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"])      
+            nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True) #args["ultrametric"]) # TODO: Remove this flag
             myTopoSearch.update_from_solver(mySolver)
             opt_trees = myTopoSearch.treeTopoList
             opt_params = myTopoSearch.params
@@ -174,8 +175,21 @@ def main():
     out_params = prefix + "_params.txt"
 
     with open(out_tree,'w') as fout:
-        for tree in opt_trees:
-            fout.write(tree + "\n")
+        for tstr in opt_trees:
+            tree = read_tree_newick(tstr)
+            if not args['noSilence']:
+                # get the height of the tree
+                tree_height = tree.height(weighted=True) # includes the root's length, mutation units
+                scaling_factor = tree_height/float(args['timescale'])
+                print(f"Tree height pre-scaling: {tree_height}, input timescale: {args['timescale']}") 
+                for node in tree.traverse_preorder(): 
+                    if node.is_root():
+                        continue
+                    node.edge_length = node.edge_length / scaling_factor 
+                tree_height = tree.height(weighted=True)
+                mutation_rate = scaling_factor # not divided per site
+                print(f"Tree height after scaling: {tree_height}, mutation rate: {mutation_rate}")
+            fout.write(tree.__str__() + "\n")
 
     # output annotations
     def format_posterior(p0,p_minus_1,p_alpha,alpha,q):
@@ -230,6 +244,7 @@ def main():
                     idx += 1                    
                 all_labels.add(node.label)
                 node.edge_length = round(sum(node.S1)+sum(node.S2)+sum(node.S4),3)
+
             fout.write(tree.newick()+"\n")    
             
             # ancestral labeling and imputation
@@ -251,6 +266,7 @@ def main():
         fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")
         fout.write("Silencing rate: " + str(opt_params['nu']) + "\n") 
         fout.write("Negative-llh: " +  str(nllh) + "\n")
+        fout.write("Mutation rate: " +  str(mutation_rate) + "\n") 
                 
     stop_time = timeit.default_timer()
     print("Runtime (s):", stop_time - start_time)
