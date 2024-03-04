@@ -1,4 +1,4 @@
-# :camel: LAML: single-cell Maximum-likelihood Ancestral Inference for Lineage-tracing
+# :camel: LAML: Lineage Analysis via Maximum Likelihood
 
 LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
