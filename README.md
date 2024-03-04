@@ -1,6 +1,6 @@
-# sc-MAIL: single-cell Maximum-likelihood Ancestral Inference for Lineage-tracing
+# :camel: LAML: single-cell Maximum-likelihood Ancestral Inference for Lineage-tracing
 
-sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, sc-MAIL will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
+LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
 For additional information about the method, you can refer to the [website](https://raphael-group.github.io/sc-mail/).
 # Precursors (required before installation)
@@ -16,13 +16,13 @@ export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
 ```
 
 # Installation
-If you've fulfilled the required precursor steps, you can pick one of two ways to install sc-MAIL. We recommend installing using `pip`, but you can also install from source.
+If you've fulfilled the required precursor steps, you can pick one of two ways to install LAML. We recommend installing using `pip`, but you can also install from source.
 
 ### Install using pip (recommended)
 
 0. Please set up the MOSEK license. 
 
-1. sc-MAIL is available on the Python Package Index (PyPI). To install, use `pip` as follows:
+1. LAML is available on the Python Package Index (PyPI). To install, use `pip` as follows:
 ```
 pip install scmail
 ```
@@ -48,7 +48,7 @@ You can now import functions from `scmail_libs`.
 ```
 run_scmail
 ```
-to see the commandline help of sc-MAIL.
+to see the commandline help of LAML.
 
 ## Install from source
 
@@ -72,7 +72,7 @@ After installation, run:
 ```
 run_scmail -h
 ```
-to see the commandline help of sc-MAIL.
+to see the commandline help of LAML.
 
 ## (Optional) Testing
 
@@ -87,10 +87,10 @@ $ python scmail_tests.py
 ```
 from inside the `sc-mail/` directory.
 
-This will print `Running tests for sc-MAIL...` to begin, and print progress dots (one for each test passed). Please note that this suite does not by default test the multiprocessing version of sc-MAIL, since starting new processes may not be allowed on different machines.
+This will print `Running tests for LAML...` to begin, and print progress dots (one for each test passed). Please note that this suite does not by default test the multiprocessing version of LAML, since starting new processes may not be allowed on different machines.
 At the end, it should print:
 ```
-Running tests for sc-MAIL...
+Running tests for LAML...
 ....................................................................
 ----------------------------------------------------------------------
 Ran 58 tests in 13.554s
@@ -123,7 +123,7 @@ For both users, be sure to restart any applications or shells you want to use th
 
 If you downloaded using `pip` or `conda`, you should download the examples from github from [examples.zip](https://github.com/raphael-group/sc-mail/tree/master/examples.zip), unzip it, and run each command below from the directory containing this examples folder. If you downloaded from source, you can run `run_scmail` after the setup.
 
-Although there are many more options available, sc-MAIL only strictly requires three arguments, using the following command:
+Although there are many more options available, LAML only strictly requires three arguments, using the following command:
 ```
 $ run_scmail -t <topology> -c <characters> -o <output> 
 ```
