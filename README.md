@@ -9,7 +9,7 @@ We ask that users use python >= 3.6 with our code.
 
 ## MOSEK License
 1. First, we ask users to set up a MOSEK license. The preferred option is to place the license file mosek.lic in the directory mosek in the user’s home directory. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
-2. (Optional): If you decide to add the license file elsewhere, please add the license file to your path by adding an environment variable. For instance, add the following line to your `.bashrc` and load (`source ~/.bashrc` for Linux/Unix and `. ~/.bashrc` for Windows). [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
+2. If you decide to add the license file elsewhere, please add the license file to your path by adding an environment variable. For instance, add the following line to your `.bashrc` and load (`source ~/.bashrc` for Linux/Unix and `. ~/.bashrc` for Windows). [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
 
 ```
 export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
@@ -46,30 +46,6 @@ You can now import functions from `laml_libs`.
 3. You can also run the following:
 
 ```
-run_laml
-```
-to see the commandline help of LAML.
-
-## Install from source
-
-0. Set up the MOSEK license file. See above (section Precursors).
-
-1. Please clone the repository with:
-
-```
-git clone https://github.com/raphael-group/laml.git
-```
-
-2. Run the setup script from inside the `laml` directory. 
-```
-cd laml
-python setup.py install 
-```
-You can (for example, if you are running on a server and get permission denied when you try to install it in the default location), run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH (see below for help). If you have installed before, you may want to additionally add the flag `--force``. `
-
-After installation, run:
-
-```
 run_laml -h
 ```
 to see the commandline help of LAML.
@@ -79,11 +55,11 @@ to see the commandline help of LAML.
 Please run the unit tests with:
 
 ```
-$ scmail_tests.py 
+$ laml_tests.py 
 ```
 You can also run it with
 ```
-$ python scmail_tests.py 
+$ python laml_tests.py
 ```
 from inside the `laml/` directory.
 
@@ -91,11 +67,17 @@ This will print `Running tests for LAML...` to begin, and print progress dots (o
 At the end, it should print:
 ```
 Running tests for LAML...
-....................................................................
+................................................................................
 ----------------------------------------------------------------------
-Ran 58 tests in 13.554s
+Ran 80 tests in 13.486s
 
 OK
+```
+## Troubleshooting
+
+If you installed using `pip` and would like to check the version of laml you have installed:
+```
+pip show laml 
 ```
 
 ## (optional) Setting prefix in environment variable 
@@ -134,6 +116,21 @@ The output consists of three files:
 2. `<prefix>_params.txt`: this file contains the dropout rate, silencing rate, and negative log likelihood.
 3. `<prefix>_trees.nwk`: this file contains the rooted estimated tree with branch lengths.
 4. (optional) `<prefix>._ckpt.<randomnumber>.txt`: this file contains checkpoints in the topology search process.
+
+We provide a few additional flags of interest below. For full documentation, please run `run_laml -h`. 
+```
+  -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
+  --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
+  --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
+  -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
+  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale.
+  --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
+  --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
+  -v, --verbose         Show verbose messages.
+  --parallel            Turn on parallel version of topology search.
+```
+
+
 
 
 ## Examples
@@ -193,38 +190,5 @@ $ cat examples/out_example3/example3_params.txt
 or (if on Windows in Command Prompt):
 ```
 $ type example3_params.txt examples/out_example3/example3_params.txt
-```
-
-
-## Documentation
-
-```
-  -t TOPOLOGY, --topology TOPOLOGY  Binary input tree topology in newick format. Branch lengths will be ignored.
-  -c CHARACTERS, --characters CHARACTERS    The input character matrix. Must have header.
-  -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
-  --delimiter DELIMITER The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.
-  -m MASKEDCHAR, --maskedchar MASKEDCHAR    Masked character. Default: if not specified, assumes '-'.
-  -o OUTPUT, --output OUTPUT    Output prefix.
-  --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
-  --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
-  --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
-  --keep_polytomies     Keep polytomies while performing topology search. This option only works with --topology_search.
-  -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
-  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale.
-  --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
-  --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
-  -v, --verbose         Show verbose messages.
-  --nInitials NINITIALS The number of initial points. Default: 20.
-  --randseeds RANDSEEDS Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).
-  --randomreps RANDOMREPS   Number of replicates to run for the random strategy of topology search.
-  --maxIters MAXITERS   Maximum number of iterations to run topology search.
-  --parallel            Turn on parallel version of topology search.
-```
-
-## Troubleshooting
-
-If you installed using `pip` and would like to check the version of scmail you have installed:
-```
-pip show scmail
 ```
 

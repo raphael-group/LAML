@@ -29,7 +29,7 @@ param = {
         'include_package_data': True,
         'scripts': ['run_laml.py', 'laml_tests.py'],
         'zip_safe': True,
-        'install_requires': ['numpy>=1.16', 'treeswift>=1.1.37', 'scipy>=1.3.1', 'cvxpy>=1.4', 'Mosek>=10.1.16', 'cmake>=3.18.0', 'setuptools'],
+        'install_requires': ['numpy>=1.16', 'treeswift>=1.1.39', 'scipy>=1.3.1', 'cvxpy>=1.4', 'Mosek>=10.1.16', 'cmake>=3.18.0', 'setuptools', 'pybind11', 'osqp>=0.6.2'],
         'keywords': 'Phylogenetics Evolution Computational Maximum-likelihood Lineage Tracing',
         'long_description': """LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates.""",
         'classifiers': [
