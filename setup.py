@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from setuptools.command.install import install
 import sysconfig
 import os
-import scmail_libs
+import laml_libs 
 from os import walk, listdir
 from os.path import join, normpath, isfile
 
@@ -19,19 +19,19 @@ def recursive_list_dir(path):
 
 
 param = {
-        'name': scmail_libs.PROGRAM_NAME,
-        'version': scmail_libs.PROGRAM_VERSION,
-        'description': scmail_libs.PROGRAM_DESCRIPTION,
-        'author': scmail_libs.PROGRAM_AUTHOR,
-        'license': scmail_libs.PROGRAM_LICENSE,
+        'name': laml_libs.PROGRAM_NAME,
+        'version': laml_libs.PROGRAM_VERSION,
+        'description': laml_libs.PROGRAM_DESCRIPTION,
+        'author': laml_libs.PROGRAM_AUTHOR,
+        'license': laml_libs.PROGRAM_LICENSE,
         'packages': find_packages(),
-        'package_data': {'':recursive_list_dir('scmail_unit_tests')},
+        'package_data': {'':recursive_list_dir('laml_unit_tests')},
         'include_package_data': True,
-        'scripts': ['run_scmail.py', 'scmail_tests.py'],
+        'scripts': ['run_laml.py', 'laml_tests.py'],
         'zip_safe': True,
         'install_requires': ['numpy>=1.16', 'treeswift>=1.1.37', 'scipy>=1.3.1', 'cvxpy>=1.4', 'Mosek>=10.1.16', 'cmake>=3.18.0', 'setuptools'],
-        'keywords': 'Phylogenetics Evolution Computational Maximum-likelihood Single-cell Lineage Tracing',
-        'long_description': """sc-MAIL is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, sc-MAIL will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates.""",
+        'keywords': 'Phylogenetics Evolution Computational Maximum-likelihood Lineage Tracing',
+        'long_description': """LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates.""",
         'classifiers': [
             "Environment :: Console",
             "Intended Audience :: Developers",
@@ -44,7 +44,7 @@ param = {
         ],
         'entry_points': {
             'console_scripts': [
-                'run_scmail = run_scmail:main',
+                'run_laml= run_laml:main',
              ],
         },
 }

@@ -2,7 +2,7 @@ import os
 from treeswift import *
 from math import *
 import random
-from scmail_libs.sequence_lib import load_pickle
+from laml_libs.sequence_lib import load_pickle
 from random import lognormvariate, randint
 #import networkx as nx
 #import cassiopeia as cass

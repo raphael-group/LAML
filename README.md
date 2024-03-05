@@ -2,7 +2,7 @@
 
 LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
-For additional information about the method, you can refer to the [website](https://raphael-group.github.io/sc-mail/).
+For additional information about the method, you can refer to the [website](https://raphael-group.github.io/laml/).
 # Precursors (required before installation)
 
 We ask that users use python >= 3.6 with our code. 
@@ -37,16 +37,16 @@ $ python
 Python 3.9.16 (main, Sep 12 2023, 00:00:00)
 [GCC 11.3.1 20221121 (Red Hat 11.3.1-4)] on linux
 Type "help", "copyright", "credits" or "license" for more information.
->>> import scmail_libs
+>>> import laml_libs 
 >>>
 ```
 
-You can now import functions from `scmail_libs`.
+You can now import functions from `laml_libs`.
 
 3. You can also run the following:
 
 ```
-run_scmail
+run_laml
 ```
 to see the commandline help of LAML.
 
@@ -57,12 +57,12 @@ to see the commandline help of LAML.
 1. Please clone the repository with:
 
 ```
-git clone https://github.com/raphael-group/sc-mail.git
+git clone https://github.com/raphael-group/laml.git
 ```
 
-2. Run the setup script from inside the sc-mail directory. 
+2. Run the setup script from inside the `laml` directory. 
 ```
-cd sc-mail
+cd laml
 python setup.py install 
 ```
 You can (for example, if you are running on a server and get permission denied when you try to install it in the default location), run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH (see below for help). If you have installed before, you may want to additionally add the flag `--force``. `
@@ -70,7 +70,7 @@ You can (for example, if you are running on a server and get permission denied w
 After installation, run:
 
 ```
-run_scmail -h
+run_laml -h
 ```
 to see the commandline help of LAML.
 
@@ -85,7 +85,7 @@ You can also run it with
 ```
 $ python scmail_tests.py 
 ```
-from inside the `sc-mail/` directory.
+from inside the `laml/` directory.
 
 This will print `Running tests for LAML...` to begin, and print progress dots (one for each test passed). Please note that this suite does not by default test the multiprocessing version of LAML, since starting new processes may not be allowed on different machines.
 At the end, it should print:
@@ -121,11 +121,11 @@ For both users, be sure to restart any applications or shells you want to use th
 
 # Usage
 
-If you downloaded using `pip` or `conda`, you should download the examples from github from [examples.zip](https://github.com/raphael-group/sc-mail/tree/master/examples.zip), unzip it, and run each command below from the directory containing this examples folder. If you downloaded from source, you can run `run_scmail` after the setup.
+If you downloaded using `pip` or `conda`, you should download the examples from github from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip), unzip it, and run each command below from the directory containing this examples folder. If you downloaded from source, you can run `run_laml` after the setup.
 
 Although there are many more options available, LAML only strictly requires three arguments, using the following command:
 ```
-$ run_scmail -t <topology> -c <characters> -o <output> 
+$ run_laml -t <topology> -c <characters> -o <output> 
 ```
 
 The output consists of three files: 
@@ -142,9 +142,9 @@ Note that if you get an error in trying the following commands (especially use c
 
 ### Use Case 1: Infer branch lengths on a topology
 
-From the `sc-mail/` directory, please run the following code:
+From the `laml/` directory, please run the following code:
 ```
-$ run_scmail -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
+$ run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
 ```
 
 This will output three files (`example1_annotations.txt`, `example1_params.txt`, `example1_trees.nwk`). You can compare these outputs with those in `examples/out_example1/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
@@ -161,9 +161,9 @@ Note that the reported tree height in the progress logs includes the root node's
 
 ### Use Case 2: Compute the likelihood of an existing tree
 
-From the `sc-mail/` directory, please run the following code:
+From the `laml/` directory, please run the following code:
 ```
-$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
+$ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
 ```
 
 This will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
@@ -178,9 +178,9 @@ $ type example2_params.txt examples/out_example2/example2_params.txt
 
 ### Use Case 3: Infer a topology
 
-From the `sc-mail/` directory, please run the following code:
+From the `laml/` directory, please run the following code:
 ```
-$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel
+$ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel
 ```
 
 This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.

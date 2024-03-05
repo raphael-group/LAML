@@ -1,12 +1,12 @@
 #! /usr/bin/env python
 import os
 import pickle
-import scmail_libs as scmail
-from scmail_libs.sequence_lib import read_sequences, read_priors
-from scmail_libs.ML_solver import ML_solver
-from scmail_libs.EM_solver import EM_solver
-from scmail_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
-from scmail_libs.Topology_search import Topology_search as Topology_search_sequential
+import laml_libs as scmail
+from laml_libs.sequence_lib import read_sequences, read_priors
+from laml_libs.ML_solver import ML_solver
+from laml_libs.EM_solver import EM_solver
+from laml_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
+from laml_libs.Topology_search import Topology_search as Topology_search_sequential
 from math import *
 from treeswift import *
 import random
@@ -53,12 +53,14 @@ def main():
         parser.print_help()
         exit(0)
 
-    if 'MOSEKLM_LICENSE_FILE' not in os.environ:
+    lic_file = os.path.join(os.path.expanduser("~"), 'mosek/mosek.lic')
+    
+    if 'MOSEKLM_LICENSE_FILE' not in os.environ and not os.path.isfile(lic_file):
         print("MOSEK license not found in environment variables. Please set the MOSEK license!")
         exit(0)
     
     print("Launching " + scmail.PROGRAM_NAME + " version " + scmail.PROGRAM_VERSION)
-    print(scmail.PROGRAM_NAME + " was called as follow: " + " ".join(argv))
+    print(scmail.PROGRAM_NAME + " was called as follows: " + " ".join(argv))
     start_time = timeit.default_timer()
     
     args = vars(parser.parse_args())

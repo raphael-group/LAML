@@ -1,3 +1,7 @@
+* Version 1.0
+    * MOSEK license check updated
+    * Method renamed to LAML
+    * Trees are ultrametric, --timescale is expected
 * Version 0.5b
     * Slight change in branch length initialization
     * Fixed bug in the Mstep when MOSEK failed

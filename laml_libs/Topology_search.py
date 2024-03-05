@@ -1,11 +1,11 @@
 from math import log,isclose,exp
 import timeit
 from random import choice, shuffle, random
-from scmail_libs import *
+from laml_libs import *
 from treeswift import *
-from scmail_libs.EM_solver import EM_solver
+from laml_libs.EM_solver import EM_solver
 from copy import deepcopy
-from scmail_libs.lca_lib import find_LCAs
+from laml_libs.lca_lib import find_LCAs
 
 class Topology_search:
     def __init__(self,treeTopoList,solver,data={},prior={},params={},T_cooldown=20,alpha_cooldown=0.9):

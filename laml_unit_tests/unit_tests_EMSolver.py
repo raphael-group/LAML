@@ -1,11 +1,11 @@
 import unittest
-from scmail_libs.sequence_lib import read_sequences
-from scmail_libs.EM_solver import EM_solver
-from scmail_libs.ML_solver import ML_solver
+from laml_libs.sequence_lib import read_sequences
+from laml_libs.EM_solver import EM_solver
+from laml_libs.ML_solver import ML_solver
 from treeswift import *
 from math import log
 from random import random
-from scmail_libs import DEFAULT_STRATEGY
+from laml_libs import DEFAULT_STRATEGY
 from copy import deepcopy
 import pkg_resources
 
@@ -503,8 +503,8 @@ class EMTest(unittest.TestCase):
         self.__test_outllh__(T,Q,msa,phi,nu,44)
     
     def test_45(self):
-        treedata_path = pkg_resources.resource_filename('scmail_unit_tests', 'test_data/test_EM/test1.tre')
-        msa_path = pkg_resources.resource_filename('scmail_unit_tests', 'test_data/test_EM/test1_charMtrx.txt')
+        treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test1.tre')
+        msa_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test1_charMtrx.txt')
         T = read_tree_newick(treedata_path)
         phi = 0.05231954386883335
         nu = 0.15877477685098262
@@ -533,10 +533,10 @@ class EMTest(unittest.TestCase):
 
     # test optimize_one
     def test_47(self):
-        #treedata_path = pkg_resources.resource_filename('scmail', 'scmail_unit_tests/test_data/test_EM/test4.tre')
-        treedata_path = pkg_resources.resource_filename('scmail_unit_tests', 'test_data/test_EM/test4.tre')
-        msa_path = pkg_resources.resource_filename('scmail_unit_tests', 'test_data/test_EM/test4_charMtrx.txt')
-        prior_path = pkg_resources.resource_filename('scmail_unit_tests', 'test_data/test_EM/test4_prior.csv')
+        #treedata_path = pkg_resources.resource_filename('scmail', 'laml_unit_tests/test_data/test_EM/test4.tre')
+        treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4.tre')
+        msa_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_charMtrx.txt')
+        prior_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_prior.csv')
         T = read_tree_newick(treedata_path) #"test_data/test_EM/test4.tre")
         msa,_ = read_sequences(msa_path,filetype="charMtrx",delimiter=",",masked_symbol='?')
         k = len(msa[next(iter(msa.keys()))])
@@ -567,9 +567,9 @@ class EMTest(unittest.TestCase):
 
     # test score_tree
     def test_48(self):
-        treedata_path = pkg_resources.resource_filename('scmail_unit_tests', 'test_data/test_EM/test4.tre')
-        msa_path = pkg_resources.resource_filename('scmail_unit_tests', 'test_data/test_EM/test4_charMtrx.txt')
-        prior_path = pkg_resources.resource_filename('scmail_unit_tests', 'test_data/test_EM/test4_prior.csv')
+        treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4.tre')
+        msa_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_charMtrx.txt')
+        prior_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_prior.csv')
         T = read_tree_newick(treedata_path)
         msa,_ = read_sequences(msa_path,filetype="charMtrx",delimiter=",",masked_symbol='?')
         k = len(msa[next(iter(msa.keys()))])

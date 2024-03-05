@@ -1,7 +1,7 @@
-from scmail_libs.ML_solver import *
+from laml_libs.ML_solver import *
 from math import exp,log
 import cvxpy as cp
-from scmail_libs import min_llh, conv_eps, eps
+from laml_libs import min_llh, conv_eps, eps
 import numpy as np
 import time
 

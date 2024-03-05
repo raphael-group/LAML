@@ -1,9 +1,9 @@
 import os 
 import unittest
-from scmail_libs import *
-from scmail_libs.EM_solver import EM_solver
-from scmail_libs.ML_solver import ML_solver
-from scmail_libs.Topology_search import Topology_search
+from laml_libs import *
+from laml_libs.EM_solver import EM_solver
+from laml_libs.ML_solver import ML_solver
+from laml_libs.Topology_search import Topology_search
 from treeswift import *
 from copy import deepcopy
 
