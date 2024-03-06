@@ -25,9 +25,10 @@ If you've fulfilled the required precursor steps, you can pick one of two ways t
 
 1. LAML is available on the Python Package Index (PyPI). To install, use `pip` as follows:
 ```
-pip install scmail
+pip install laml 
 ```
-This will install the scmail package to your default package location. If you would like to specify a separate installation location, you can use the flag: `--prefix="<your_preferred_install_dir>`, then set this prefix in your PATH and PYTHONPATH (see below for help).
+This will install the laml package to your default package location. 
+<!--If you would like to specify a separate installation location, you can use the flag: `--prefix="<your_preferred_install_dir>`, then set this prefix in your PATH and PYTHONPATH (see below for help).-->
 
 If `pip` installs the package in a directory which is not on path, `pip` will throw a warning and ask the user to consider adding this directory to PATH. This should be heeded (see below for help).
 
@@ -51,6 +52,13 @@ run_laml -h
 ```
 to see the commandline help of LAML.
 
+### Troubleshooting
+
+If you installed using `pip` and would like to check the version of laml you have installed:
+```
+pip show laml 
+```
+
 ## (Optional) Testing
 
 Please run the unit tests with:
@@ -58,12 +66,6 @@ Please run the unit tests with:
 ```
 $ laml_tests.py 
 ```
-You can also run it with
-```
-$ python laml_tests.py
-```
-from inside the `laml/` directory.
-
 This will print `Running tests for LAML...` to begin, and print progress dots (one for each test passed). Please note that this suite does not by default test the multiprocessing version of LAML, since starting new processes may not be allowed on different machines.
 At the end, it should print:
 ```
@@ -74,37 +76,10 @@ Ran 80 tests in 13.486s
 
 OK
 ```
-## Troubleshooting
-
-If you installed using `pip` and would like to check the version of laml you have installed:
-```
-pip show laml 
-```
-
-## (optional) Setting prefix in environment variable 
-
-To set the prefix `<your_preferred_install_dir>` in your PATH and PYTHONPATH, follow these steps:
-
-(Unix/Linux users) In a Terminal:
-```
-vi ~/.bashrc
-export PATH=$PATH:<your_preferred_install_dir>"
-export PYTHONPATH=$PYTHONPATH:<your_preferred_install_dir>"
-```
-
-<!--export PATH=$PATH/pkgs/scmail-0.5-py311_0/bin:<your_preferred_install_dir>"-->
-(Windows users) In a Command Prompt or PowerShell:
-```
-setx PATH "%PATH%;C:<your_preferred_install_dir>"
-setx PYTHONPATH "%PYTHONPATH%;C:<your_preferred_install_dir>"
-```
-
-For both users, be sure to restart any applications or shells you want to use the updated PATH variable.
-
 
 # Usage
 
-If you downloaded using `pip` or `conda`, you should download the examples from github from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip), unzip it, and run each command below from the directory containing this examples folder. If you downloaded from source, you can run `run_laml` after the setup.
+If you downloaded using `pip` or `conda`, you should download the examples from github from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip), unzip it, and run each command below from the directory containing this examples folder. 
 
 Although there are many more options available, LAML only strictly requires three arguments, using the following command:
 ```
@@ -131,12 +106,9 @@ We provide a few additional flags of interest below. For full documentation, ple
   --parallel            Turn on parallel version of topology search.
 ```
 
-
-
-
 ## Examples
 
-Note that if you get an error in trying the following commands (especially use case 3), please make sure you have set up the MOSEK license file.
+<!--Note that if you get an error in trying the following commands (especially use case 3), please make sure you have set up the MOSEK license file.-->
 
 ### Use Case 1: Infer branch lengths on a topology
 
