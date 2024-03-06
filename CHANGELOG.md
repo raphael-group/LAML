@@ -1,4 +1,4 @@
-* Version 1.0
+* Version 0.1
     * MOSEK license check updated
     * Method renamed to LAML
     * Trees are ultrametric, --timescale is expected
