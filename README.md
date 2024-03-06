@@ -21,9 +21,9 @@ If you've fulfilled the required precursor steps, you can pick one of two ways t
 
 ### Install using pip (recommended)
 
-0. Please set up the MOSEK license. 
+1. Please set up the MOSEK license. 
 
-1. LAML is available on the Python Package Index (PyPI). To install, use `pip` as follows:
+2. LAML is available on the Python Package Index (PyPI). To install, use `pip` as follows:
 ```
 pip install laml 
 ```
@@ -32,7 +32,7 @@ This will install the laml package to your default package location.
 
 If `pip` installs the package in a directory which is not on path, `pip` will throw a warning and ask the user to consider adding this directory to PATH. This should be heeded (see below for help).
 
-2. If you open a python interpreter as follows:
+3. If you open a python interpreter as follows:
 
 ```
 $ python
@@ -42,40 +42,17 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> import laml_libs 
 >>>
 ```
-
 You can now import functions from `laml_libs`.
 
-3. You can also run the following:
+4. You can also run the following:
 
 ```
 run_laml -h
 ```
 to see the commandline help of LAML.
 
-### Troubleshooting
 
-If you installed using `pip` and would like to check the version of laml you have installed:
-```
-pip show laml 
-```
 
-## (Optional) Testing
-
-Please run the unit tests with:
-
-```
-$ laml_tests.py 
-```
-This will print `Running tests for LAML...` to begin, and print progress dots (one for each test passed). Please note that this suite does not by default test the multiprocessing version of LAML, since starting new processes may not be allowed on different machines.
-At the end, it should print:
-```
-Running tests for LAML...
-................................................................................
-----------------------------------------------------------------------
-Ran 80 tests in 13.486s
-
-OK
-```
 
 # Usage
 
@@ -163,5 +140,23 @@ $ cat examples/out_example3/example3_params.txt
 or (if on Windows in Command Prompt):
 ```
 $ type example3_params.txt examples/out_example3/example3_params.txt
+```
+
+## (Optional) Testing
+
+Please run the unit tests with:
+
+```
+$ laml_tests.py 
+```
+This will print `Running tests for LAML...` to begin, and print progress dots (one for each test passed). Please note that this suite does not by default test the multiprocessing version of LAML, since starting new processes may not be allowed on different machines.
+At the end, it should print:
+```
+Running tests for LAML...
+................................................................................
+----------------------------------------------------------------------
+Ran 80 tests in 13.486s
+
+OK
 ```
 
