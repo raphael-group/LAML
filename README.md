@@ -5,7 +5,8 @@ LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missin
 For additional information about the method, you can refer to the [website](https://raphael-group.github.io/laml/).
 # Precursors (required before installation)
 
-We ask that users use python >= 3.6 with our code. 
+We ask that users use python >= 3.9 with our code. 
+<!--Please note that if you're using a M1 Mac, you should use python >= 3.8.-->
 
 ## MOSEK License
 1. First, we ask users to set up a MOSEK license. The preferred option is to place the license file mosek.lic in the directory mosek in the user’s home directory. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
@@ -160,7 +161,7 @@ Note that the reported tree height in the progress logs includes the root node's
 
 From the `laml/` directory, please run the following code:
 ```
-$ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
+$ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy --timescale 10
 ```
 
 This will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
@@ -177,7 +178,7 @@ $ type example2_params.txt examples/out_example2/example2_params.txt
 
 From the `laml/` directory, please run the following code:
 ```
-$ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel
+$ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel --timescale 10
 ```
 
 This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.
