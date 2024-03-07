@@ -39,10 +39,10 @@ to see the commandline help of LAML.
 
 Unit tests are available to ensure the success of installation. We highly recommend the user performs the following step to test the installation.
 
-In your terminal, type the following:
+In your terminal, type the following to run the testing executable:
 
 ```
-$ laml_tests.py 
+laml_tests.py 
 ```
 If LAML was installed properly, you would see on the screen `Running tests for LAML...` to begin, and print progress dots (one for each test passed). 
 At the end, you should see the following message:
@@ -56,7 +56,7 @@ OK
 # Usage
 Although there are many more options available, LAML only strictly requires three arguments, using the following command:
 ```
-$ run_laml -t <topology> -c <characters> -o <output> 
+run_laml -t <topology> -c <characters> -o <output> 
 ```
 
 The output consists of three files: 
@@ -83,59 +83,59 @@ We provide a few additional flags of interest below. For full documentation, ple
 To try the following examples, first do the followings:
 1. Download the data from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip),
 2. Unzip the downloaded file. After unzipping, you should see a folder named ``examples``
-4. Change directory to the ``examples``
+4. Change directory to ``examples`` with the following command:
 ```
-  $ cd examples
+  cd examples
 ```
 ### Use Case 1: Infer branch lengths on a topology
 Run the following code:
 ```
-$ run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
+run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
 ```
 
 This will output three files (`example1_annotations.txt`, `example1_params.txt`, `example1_trees.nwk`). You can compare these outputs with those in `examples/out_example1/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
-$ cat example1_params.txt
-$ cat examples/out_example1/example1_params.txt
+cat example1_params.txt
+cat examples/out_example1/example1_params.txt
 ```
 or (if on Windows in Command Prompt):
 ```
-$ type example1_params.txt examples/out_example1/example1_params.txt
+type example1_params.txt examples/out_example1/example1_params.txt
 ```
 
 ### Use Case 2: Compute the likelihood of an existing tree
 
 Run the following code:
 ```
-$ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy --timescale 10
+run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy --timescale 10
 ```
 
 This will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
-$ cat example2_params.txt
-$ cat examples/out_example2/example2_params.txt
+cat example2_params.txt
+cat examples/out_example2/example2_params.txt
 ```
 or (if on Windows in Command Prompt):
 ```
-$ type example2_params.txt examples/out_example2/example2_params.txt
+type example2_params.txt examples/out_example2/example2_params.txt
 ```
 
 ### Use Case 3: Infer a topology
 
 Run the following code:
 ```
-$ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel --timescale 10
+run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel --timescale 10
 ```
 
 This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randomnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.
 
 You can compare these outputs with those in `examples/out_example3/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
-$ cat example3_params.txt
-$ cat examples/out_example3/example3_params.txt
+cat example3_params.txt
+cat examples/out_example3/example3_params.txt
 ```
 or (if on Windows in Command Prompt):
 ```
-$ type example3_params.txt examples/out_example3/example3_params.txt
+type example3_params.txt examples/out_example3/example3_params.txt
 
 
