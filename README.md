@@ -127,7 +127,7 @@ Run the following code:
 $ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel --timescale 10
 ```
 
-This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.
+This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randomnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.
 
 You can compare these outputs with those in `examples/out_example3/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```

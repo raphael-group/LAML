@@ -181,17 +181,19 @@ def main():
             tree = read_tree_newick(tstr)
             if not args['noSilence']:
                 # get the height of the tree
-                tree_height = tree.height(weighted=True) # includes the root's length, mutation units
+                tree_height = tree.height(weighted=True) # includes the root's length, mutation units 
                 scaling_factor = tree_height/float(args['timescale'])
                 print(f"Tree height pre-scaling: {tree_height}, input timescale: {args['timescale']}") 
                 for node in tree.traverse_preorder(): 
-                    if node.is_root():
-                        continue
                     node.edge_length = node.edge_length / scaling_factor 
-                tree_height = tree.height(weighted=True)
+                tree_height = tree.height(weighted=True) 
                 mutation_rate = scaling_factor # not divided per site
                 print(f"Tree height after scaling: {tree_height}, mutation rate: {mutation_rate}")
-            fout.write(tree.__str__() + "\n")
+            tstr = tree.__str__().split()
+            if len(tstr) > 1:
+                fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
+            else:
+                fout.write(''.join(["(", tstr[0][:-1], ");\n"]))
 
     # output annotations
     def format_posterior(p0,p_minus_1,p_alpha,alpha,q):
