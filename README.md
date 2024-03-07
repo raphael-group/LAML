@@ -4,8 +4,8 @@ LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missin
 
 For additional information about the method, you can refer to the [website](https://raphael-group.github.io/laml/).
 # Precursors (required before installation)
-
-We ask that users use python >= 3.9 with our code. 
+## Python
+The software requires python >= 3.9.
 <!--Please note that if you're using a M1 Mac, you should use python >= 3.8.-->
 
 ## MOSEK License
