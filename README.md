@@ -17,13 +17,10 @@ export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
 ```
 
 # Installation
-If you've fulfilled the required precursor steps, you can pick one of two ways to install LAML. We recommend installing using `pip`, but you can also install from source.
+LAML can be installed using pip, as follows:
+1. Set up the MOSEK license. 
 
-### Install using pip (recommended)
-
-1. Please set up the MOSEK license. 
-
-2. LAML is available on the Python Package Index (PyPI). To install, use `pip` as follows:
+2. In your terminal, type the following command:
 ```
 pip install laml 
 ```
@@ -32,32 +29,31 @@ This will install the laml package to your default package location.
 
 If `pip` installs the package in a directory which is not on path, `pip` will throw a warning and ask the user to consider adding this directory to PATH. This should be heeded (see below for help).
 
-3. If you open a python interpreter as follows:
-
-```
-$ python
-Python 3.9.16 (main, Sep 12 2023, 00:00:00)
-[GCC 11.3.1 20221121 (Red Hat 11.3.1-4)] on linux
-Type "help", "copyright", "credits" or "license" for more information.
->>> import laml_libs 
->>>
-```
-You can now import functions from `laml_libs`.
-
-4. You can also run the following:
-
+4. After installation, type the following to see the software's usage:
 ```
 run_laml -h
 ```
 to see the commandline help of LAML.
 
+## (Optional) Testing
 
+Unit tests are available to ensure the success of installation. We highly recommend the user performs the following step to test the installation.
 
+In your terminal, type the following:
+
+```
+$ laml_tests.py 
+```
+If LAML was installed properly, you would see on the screen `Running tests for LAML...` to begin, and print progress dots (one for each test passed). 
+At the end, you should see the following message:
+```
+----------------------------------------------------------------------
+Ran 80 tests in 13.486s
+
+OK
+```
 
 # Usage
-
-If you downloaded using `pip` or `conda`, you should download the examples from github from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip), unzip it, and run each command below from the directory containing this examples folder. 
-
 Although there are many more options available, LAML only strictly requires three arguments, using the following command:
 ```
 $ run_laml -t <topology> -c <characters> -o <output> 
@@ -84,12 +80,15 @@ We provide a few additional flags of interest below. For full documentation, ple
 ```
 
 ## Examples
-
-<!--Note that if you get an error in trying the following commands (especially use case 3), please make sure you have set up the MOSEK license file.-->
-
+To try the following examples, first do the followings:
+1. Download the data from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip),
+2. Unzip the downloaded file. After unzipping, you should see a folder named ``examples``
+4. Change directory to the ``examples``
+```
+  $ cd examples
+```
 ### Use Case 1: Infer branch lengths on a topology
-
-From the `laml/` directory, please run the following code:
+Run the following code:
 ```
 $ run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
 ```
@@ -104,11 +103,9 @@ or (if on Windows in Command Prompt):
 $ type example1_params.txt examples/out_example1/example1_params.txt
 ```
 
-Note that the reported tree height in the progress logs includes the root node's branch length. If you compare this distance with the one reported by `nw_distance` from `newick_utils`, you need to add this branch length. The mutation rate estimated in this example is `0.1`, since this example is drawn from our simulated data.
-
 ### Use Case 2: Compute the likelihood of an existing tree
 
-From the `laml/` directory, please run the following code:
+Run the following code:
 ```
 $ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy --timescale 10
 ```
@@ -125,7 +122,7 @@ $ type example2_params.txt examples/out_example2/example2_params.txt
 
 ### Use Case 3: Infer a topology
 
-From the `laml/` directory, please run the following code:
+Run the following code:
 ```
 $ run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel --timescale 10
 ```
@@ -140,23 +137,5 @@ $ cat examples/out_example3/example3_params.txt
 or (if on Windows in Command Prompt):
 ```
 $ type example3_params.txt examples/out_example3/example3_params.txt
-```
 
-## (Optional) Testing
-
-Please run the unit tests with:
-
-```
-$ laml_tests.py 
-```
-This will print `Running tests for LAML...` to begin, and print progress dots (one for each test passed). Please note that this suite does not by default test the multiprocessing version of LAML, since starting new processes may not be allowed on different machines.
-At the end, it should print:
-```
-Running tests for LAML...
-................................................................................
-----------------------------------------------------------------------
-Ran 80 tests in 13.486s
-
-OK
-```
 
