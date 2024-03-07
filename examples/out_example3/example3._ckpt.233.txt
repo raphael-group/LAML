@@ -1,5 +1,0 @@
-NNI Iteration: 0
-Current newick tree: {best_trees}
-Current negative-llh: {best_score}
-Current dropout rate: {best_params['phi']}
-Current silencing rate: {best_params['nu']}
