@@ -72,7 +72,7 @@ We provide a few additional flags of interest below. For full documentation, ple
   --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
   --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
   -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
-  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale.
+  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. The default is set to 1.0.
   --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
   --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
   -v, --verbose         Show verbose messages.
