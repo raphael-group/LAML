@@ -54,31 +54,17 @@ OK
 ```
 
 # Usage
-Although there are many more options available, LAML only strictly requires three arguments, using the following command:
+Although there are many more options available, LAML only strictly requires an input character matrix in ``-c``, a starting tree in ``-t``, and the output prefix in ``-o``:
 ```
-run_laml -t <topology> -c <characters> -o <output> 
+run_laml -t <topology> -c <characters> -o <output_prefix> 
 ```
 
-The output consists of three files: 
+The output consists of the following files: 
 
-1. `<prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
-2. `<prefix>_params.txt`: this file contains the dropout rate, silencing rate, and negative log likelihood.
-3. `<prefix>_trees.nwk`: this file contains the rooted estimated tree with branch lengths.
+1. `<output_prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
+2. `<output_prefix>_params.txt`: this file contains the dropout rate, silencing rate, and negative log likelihood.
+3. `<output_prefix>_trees.nwk`: this file contains the rooted estimated tree with branch lengths.
 4. (optional) `<prefix>._ckpt.<randomnumber>.txt`: this file contains checkpoints in the topology search process.
-
-We provide a few additional flags of interest below
-```
-  -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
-  --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
-  --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
-  -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
-  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. The default is set to 1.0.
-  --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
-  --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
-  -v, --verbose         Show verbose messages.
-  --parallel            Turn on parallel version of topology search.
-```
-For full documentation, please run `run_laml -h`. 
 
 ## Examples
 To try the following examples, first do the followings:
@@ -127,14 +113,14 @@ enables topology search using the flag ``--topology_search``. Running this comma
 We provide sample outputs in `examples/out_example2/` for your reference. 
 <!--When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.-->
 
-<!--You can compare these outputs with those in `examples/out_example3/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
+<!--You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
-cat example3_params.txt
-cat examples/out_example3/example3_params.txt
+cat example2_params.txt
+cat examples/out_example2/example2_params.txt
 ```
 or (if on Windows in Command Prompt):
 ```
-type example3_params.txt examples/out_example3/example3_params.txt-->
+type example2_params.txt examples/out_example2/example2_params.txt-->
 
 <!--### Use Case 2: Compute the likelihood of an existing tree
 LAML can also compute the likelihood of an existing tree with branch lengths given known dropout rate and heritable missing rate using ``-L``.
@@ -153,3 +139,17 @@ or (if on Windows in Command Prompt):
 type example2_params.txt examples/out_example2/example2_params.txt
 ```
 -->
+## More advanced options
+We provide a few additional flags of interest below
+```
+  -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
+  --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
+  --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
+  -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
+  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. The default is set to 1.0.
+  --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
+  --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
+  -v, --verbose         Show verbose messages.
+  --parallel            Turn on parallel version of topology search.
+```
+For full documentation, please run `run_laml -h`. 
