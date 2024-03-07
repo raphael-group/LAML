@@ -24,12 +24,12 @@ LAML can be installed using pip, as follows:
 ```
 pip install laml 
 ```
-This will install the laml package to your default package location. 
+The above command will install the laml package to your default package location. 
 <!--If you would like to specify a separate installation location, you can use the flag: `--prefix="<your_preferred_install_dir>`, then set this prefix in your PATH and PYTHONPATH (see below for help).-->
 
-If `pip` installs the package in a directory which is not on path, `pip` will throw a warning and ask the user to consider adding this directory to PATH. This should be heeded (see below for help).
+<!--If `pip` installs the package in a directory which is not on path, `pip` will throw a warning and ask the user to consider adding this directory to PATH. This should be heeded (see below for help).-->
 
-4. After installation, type the following to see the software's usage:
+4. After installation, type the following
 ```
 run_laml -h
 ```
@@ -66,7 +66,7 @@ The output consists of three files:
 3. `<prefix>_trees.nwk`: this file contains the rooted estimated tree with branch lengths.
 4. (optional) `<prefix>._ckpt.<randomnumber>.txt`: this file contains checkpoints in the topology search process.
 
-We provide a few additional flags of interest below. For full documentation, please run `run_laml -h`. 
+We provide a few additional flags of interest below
 ```
   -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
   --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
@@ -78,6 +78,7 @@ We provide a few additional flags of interest below. For full documentation, ple
   -v, --verbose         Show verbose messages.
   --parallel            Turn on parallel version of topology search.
 ```
+For full documentation, please run `run_laml -h`. 
 
 ## Examples
 To try the following examples, first do the followings:
@@ -87,13 +88,20 @@ To try the following examples, first do the followings:
 ```
   cd examples
 ```
-### Use Case 1: Infer branch lengths on a topology
-Run the following code:
+### Use Case 1: Infer time-resolved branch lengths and heritable missing and dropout rates on a fixed topology
+LAML can infer time-resolved branch lengths and the rates of the two missing data types for a fixed tree topology. If the time frame of the experiment is specified by ``--timescale``, the output tree will be scaled to the same height. Otherwise, the output tree will be scaled to the unit height 1.
+
+For example, the following command
 ```
 run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
 ```
+specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this command will produce three files 
+1. `example1_annotations.txt`: ???
+2. `example1_params.txt`: ???
+3. `example1_trees.nwk`: ???
 
-This will output three files (`example1_annotations.txt`, `example1_params.txt`, `example1_trees.nwk`). You can compare these outputs with those in `examples/out_example1/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
+We provide sample outputs in `examples/out_example1/` for your reference. 
+<!--In order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
 cat example1_params.txt
 cat examples/out_example1/example1_params.txt
@@ -101,16 +109,41 @@ cat examples/out_example1/example1_params.txt
 or (if on Windows in Command Prompt):
 ```
 type example1_params.txt examples/out_example1/example1_params.txt
-```
+```-->
 
-### Use Case 2: Compute the likelihood of an existing tree
+### Use Case 2: Infer tree topology, branch lengths, and missing data rates
+LAML can simultaneously infer tree topology, branch lengths, and the missing data rates using the ``--topology_search`` option.
 
-Run the following code:
+For example, the following command
 ```
-run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy --timescale 10
+run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel --timescale 10
 ```
+enables topology search using the flag ``--topology_search``. Running this command will produce four files 
+1. `example2_annotations.txt`: ???
+2. `example2_params.txt`: ???
+3. `example2_trees.nwk`: ???
+4. `example2._ckpt.<randomnumber>.txt`: ???
 
-This will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
+We provide sample outputs in `examples/out_example2/` for your reference. 
+<!--When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.-->
+
+<!--You can compare these outputs with those in `examples/out_example3/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
+```
+cat example3_params.txt
+cat examples/out_example3/example3_params.txt
+```
+or (if on Windows in Command Prompt):
+```
+type example3_params.txt examples/out_example3/example3_params.txt-->
+
+<!--### Use Case 2: Compute the likelihood of an existing tree
+LAML can also compute the likelihood of an existing tree with branch lengths given known dropout rate and heritable missing rate using ``-L``.
+
+For example, the following command
+```
+run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
+```
+will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
 cat example2_params.txt
 cat examples/out_example2/example2_params.txt
@@ -119,23 +152,4 @@ or (if on Windows in Command Prompt):
 ```
 type example2_params.txt examples/out_example2/example2_params.txt
 ```
-
-### Use Case 3: Infer a topology
-
-Run the following code:
-```
-run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel --timescale 10
-```
-
-This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randomnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.
-
-You can compare these outputs with those in `examples/out_example3/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
-```
-cat example3_params.txt
-cat examples/out_example3/example3_params.txt
-```
-or (if on Windows in Command Prompt):
-```
-type example3_params.txt examples/out_example3/example3_params.txt
-
-
+-->
