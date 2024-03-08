@@ -1,5 +1,5 @@
 Launching LAML version 0.0.2
-LAML was called as follows: run_laml.py -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
+LAML was called as follows: run_laml.py -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv --delimiter comma -o example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
 All polytomies will be resolved
 Starting topology search
 Running topology search sequentially...

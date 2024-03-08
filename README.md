@@ -102,7 +102,7 @@ LAML can simultaneously infer tree topology, branch lengths, and the missing dat
 
 For example, the following command
 ```
-run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
+run_laml -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv --delimiter comma -o example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
 ```
 enables topology search using the flag ``--topology_search``. Running this command will produce four files 
 1. `example2_annotations.txt`: (i) the newick string of the rooted tree with internal nodes labeled and branches annotated by expected number of mutations. (ii) imputed sequences for each node in the tree. for sites with multiple possible states, that site is annotated with the probability of each possible state.
