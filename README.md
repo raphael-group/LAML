@@ -55,7 +55,7 @@ If you wish to install from source, do the following steps:
 run_laml -c <character_matrix> -t <tree_topology> -o <output_prefix> 
 ```
 LAML requires the following two input files:
-1. A character matrix. <GC: ADD DESCRIPTION FOR THE REQUIRED STRUCTURE OF THIS FILE>. See [examples/character_matrix](https://github.com/raphael-group/LAML/blob/master/examples/character_matrix.csv) for an example.
+1. A sequence file in character matrix format (cells by sites, with a header for site names expected). The user should specify the (i) delimiter: tab (default), comma, whitespace are all valid, (ii) missing character: '-' if not specified. We expect a header with a list of site names. Every subsequent line should begin with the cell name. See [examples/character_matrix](https://github.com/raphael-group/LAML/blob/master/examples/character_matrix.csv) for an example.
 2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). See [examples/character_matrix](https://github.com/raphael-group/LAML/blob/master/examples/starting.tree) for an example
 
 

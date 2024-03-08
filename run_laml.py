@@ -26,7 +26,7 @@ def main():
     parser.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
     parser.add_argument("--delimiter",required=False,default="tab",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.")
     parser.add_argument("-m","--maskedchar",required=False,default="-",help="Masked character. Default: if not specified, assumes '-'.")
-    parser.add_argument("-o","--output",required=True,help="Output prefix.")
+    parser.add_argument("-o","--output",required=False,help="Output prefix. Default: LAML_output")
    
     # which problem are you solving? 
     parser.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
@@ -69,7 +69,10 @@ def main():
     delimiter = delim_map[args["delimiter"]]
     msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["maskedchar"])
     #prefix = '.'.join(args["output"].split('.')[:-1])
-    prefix = args["output"]
+    if args["output"]:
+        prefix = args["output"]
+    else:
+        prefix = "LAML_output"
 
     with open(args["topology"],'r') as f:
         input_trees = []
