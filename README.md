@@ -62,7 +62,7 @@ LAML requires the following two input files:
 There are four output files: 
 
 1. `<output_prefix>_trees.nwk`: the output tree with time-resolved branch lengths
-2. `<output_prefix>_params.txt`: this file reports the dropout rate, silencing rate, and negative log likelihood.
+2. `<output_prefix>_params.txt`: this file reports the dropout rate, silencing rate, and negative log-likelihood.
 3. `<output_prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
 4. `<output_prefix>.log`: everything LAML writes to the stdout terminal will also be automatically saved to this logfile.
 
@@ -115,7 +115,7 @@ Running this command will produce three output files
    (i) the newick string of the rooted tree with internal nodes labeled and branch lengths show the infer *number of mutations*.
    (ii) imputed sequences for each node in the tree. For sites with multiple possible states, that site is annotated with the probability of each possible state.
 
-In addition, a checkpoint file `example2._ckpt.<randomnumber>.txt` is produced, which is important for running LAML on large data. Every 50 NNI iterations, this file is updated with a checkpoint containing (i) the NNI iteration number, (ii) the current best newick tree, (iii) the current best negative LLH, (iv) the current best dropout rate, and (v) the current best silencing rate.
+In addition, a checkpoint file `example2._ckpt.<randomnumber>.txt` is produced, which is important for running LAML on large data. Every 50 NNI iterations, this file is updated with a checkpoint containing (i) the NNI iteration number, (ii) the current best newick tree, (iii) the current best negative log-likelihood, (iv) the current best dropout rate, and (v) the current best silencing rate.
 
 We provide sample outputs in `examples/out_example2/` for your reference. 
 <!--When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.-->
@@ -153,7 +153,7 @@ Below are some other important options available in LAML.
   -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
   --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
   --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
-  -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
+  -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute log-likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
   --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. The default is set to 1.0.
   --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
   --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
