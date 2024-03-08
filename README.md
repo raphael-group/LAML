@@ -26,7 +26,7 @@ run_laml -h
 ```
 to see the commandline help of LAML.
 
-## (Optional) Testing
+## [Optional] Testing
 
 Unit tests are available to ensure the success of installation. We highly recommend the user performs the following step to test the installation.
 
@@ -43,7 +43,7 @@ Ran 80 tests in 13.486s
 
 OK
 ```
-## (For developers) Install from source
+## [For developers] Install from source
 If you wish to install from source, do the following steps:
 1. Clone the LAML github to your machine
 ``git clone https://github.com/raphael-group/LAML.git``
