@@ -3,33 +3,23 @@
 LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
 For additional information about the method, you can refer to the [website](https://raphael-group.github.io/laml/).
-# Precursors (required before installation)
+# Precursors 
+The following precursors **are required** to install and run LAML
 ## Python
 The software requires python >= 3.9.
 <!--Please note that if you're using a M1 Mac, you should use python >= 3.8.-->
 
 ## MOSEK License
-1. First, we ask users to set up a MOSEK license. The preferred option is to place the license file mosek.lic in the directory mosek in the user’s home directory. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
-2. If you decide to add the license file elsewhere, please add the license file to your path by adding an environment variable. For instance, add the following line to your `.bashrc` and load (`source ~/.bashrc` for Linux/Unix and `. ~/.bashrc` for Windows). [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
-
-```
-export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
-```
+The software uses [MOSEK](https://www.mosek.com) for numerical optimization, which requires a license. 
+Visit [this page](https://www.mosek.com/products/academic-licenses/) to get a **free academic license**. 
+After you obtain the license file ``mosek.lic``, follow  [This page](https://docs.mosek.com/latest/licensing/client-setup.html) to place the license file in the correct place. 
 
 # Installation
-LAML can be installed using pip, as follows:
-1. Set up the MOSEK license. 
-
-2. In your terminal, type the following command:
+LAML can be installed from `pip`
 ```
 pip install laml 
 ```
-The above command will install the laml package to your default package location. 
-<!--If you would like to specify a separate installation location, you can use the flag: `--prefix="<your_preferred_install_dir>`, then set this prefix in your PATH and PYTHONPATH (see below for help).-->
-
-<!--If `pip` installs the package in a directory which is not on path, `pip` will throw a warning and ask the user to consider adding this directory to PATH. This should be heeded (see below for help).-->
-
-4. After installation, type the following
+After installation, type the following
 ```
 run_laml -h
 ```
@@ -52,12 +42,21 @@ Ran 80 tests in 13.486s
 
 OK
 ```
+## (For developers) Install from source
+If you wish to install from source, do the following steps:
+1. Clone the LAML github to your machine
+``git clone https://github.com/raphael-group/LAML.git``
+2. Change directory to the ``LAML`` folder. Then use ``pip`` to install from source
+``pip install .``
 
 # Usage
-Although there are many more options available, LAML only strictly requires an input character matrix in ``-c``, a starting tree in ``-t``, and the output prefix in ``-o``:
 ```
-run_laml -t <topology> -c <characters> -o <output_prefix> 
+run_laml -c <character_matrix> -t <tree_topology> -o <output_prefix> 
 ```
+LAML requires the following two input files:
+1. A character matrix. <GC: ADD DESCRIPTION FOR THE REQUIRED STRUCTURE OF THIS FILE>. See [examples/character_matrix](https://github.com/raphael-group/LAML/blob/master/examples/character_matrix.csv) for an example.
+2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). See [examples/character_matrix](https://github.com/raphael-group/LAML/blob/master/examples/starting.tree) for an example
+
 
 The output consists of the following files: 
 
@@ -68,9 +67,9 @@ The output consists of the following files:
 
 ## Examples
 To try the following examples, first do the followings:
-1. Download the data from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip),
+1. Download the data from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip)
 2. Unzip the downloaded file. After unzipping, you should see a folder named ``examples``
-4. Change directory to ``examples`` with the following command:
+4. Change directory to ``examples``
 ```
   cd examples
 ```
@@ -81,10 +80,12 @@ For example, the following command
 ```
 run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
 ```
-specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this command will produce three files 
-1. `example1_annotations.txt`: (i) the newick string of the rooted tree with internal nodes labeled and branches annotated by expected number of mutations. (ii) imputed sequences for each node in the tree. for sites with multiple possible states, that site is annotated with the probability of each possible state.
-2. `example1_params.txt`: includes the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
-3. `example1_trees.nwk`: newick string of the fixed rooted tree with inferred time-resolved branch lengths
+specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this command will produce three output files
+1. `example1_trees.nwk`: the output tree containing time-resolved branch lengths. This tree has the same topology as the starting tree, but has branch lengths in time units
+2. `example1_annotations.txt`: This file has two components
+   (i) the newick string of the rooted tree with internal nodes labeled and branch lengths show the infer *number of mutations*.
+   (ii) imputed sequences for each node in the tree. For sites with multiple possible states, that site is annotated with the probability of each possible state.
+3. `example1_params.txt`: this file reports the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
 
 We provide sample outputs in `examples/out_example1/` for your reference. 
 <!--In order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
@@ -104,11 +105,15 @@ For example, the following command
 ```
 run_laml -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv --delimiter comma -o example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
 ```
-enables topology search using the flag ``--topology_search``. Running this command will produce four files 
-1. `example2_annotations.txt`: (i) the newick string of the rooted tree with internal nodes labeled and branches annotated by expected number of mutations. (ii) imputed sequences for each node in the tree. for sites with multiple possible states, that site is annotated with the probability of each possible state.
-2. `example2_params.txt`: includes the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
-3. `example2_trees.nwk`: newick string of the fixed rooted tree with inferred time-resolved branch lengths
-4. `example2._ckpt.<randomnumber>.txt`: every 50 NNI iterations, this file is updated with the checkpoint tree containing (i) the NNI iteration number (ii) current best newick tree (iii) current best negative LLH (iv) current best dropout rate (v) current best silencing rate
+enables topology search using the flag ``--topology_search``. 
+Running this command will produce three output files 
+1. `example2_trees.nwk`: the output tree with time-resolved branch lengths. Because topology search has been performed, this tree has a different topology from the starting tree. The new topology has higher likelihood than the starting tree.
+2. `example2_annotations.txt`: This file has two components
+   (i) the newick string of the rooted tree with internal nodes labeled and branch lengths show the infer *number of mutations*.
+   (ii) imputed sequences for each node in the tree. For sites with multiple possible states, that site is annotated with the probability of each possible state.
+3. `example2_params.txt`: this file reports the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
+
+In addition, a checkpoint file `example2._ckpt.<randomnumber>.txt` is produced, which is important for running LAML on large data. Every 50 NNI iterations, this file is updated with a checkpoint containing (i) the NNI iteration number, (ii) the current best newick tree, (iii) the current best negative LLH, (iv) the current best dropout rate, and (v) the current best silencing rate.
 
 We provide sample outputs in `examples/out_example2/` for your reference. 
 <!--When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.-->
