@@ -14,7 +14,7 @@ The software requires python >= 3.9.
 ### [IMPORTANT] MOSEK License
 The software uses [MOSEK](https://www.mosek.com) for numerical optimization, which requires a license. 
 Visit [this page](https://www.mosek.com/products/academic-licenses/) to get a **free academic license**. 
-After you obtain the license file ``mosek.lic``, follow  [This page](https://docs.mosek.com/latest/licensing/client-setup.html) to place the license file in the correct place. 
+After you obtain the license file ``mosek.lic``, follow  [this page](https://docs.mosek.com/latest/licensing/client-setup.html) to place the license file in the correct place. 
 
 LAML can be installed from `pip`
 ```
