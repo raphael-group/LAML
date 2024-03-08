@@ -58,18 +58,17 @@ LAML requires the following two input files:
 2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). See [examples/character_matrix](https://github.com/raphael-group/LAML/blob/master/examples/starting.tree) for an example
 
 
-The output consists of the following files: 
+There are three output files: 
 
-1. `<output_prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
-2. `<output_prefix>_params.txt`: this file contains the dropout rate, silencing rate, and negative log likelihood.
-3. `<output_prefix>_trees.nwk`: this file contains the rooted estimated tree with branch lengths.
-4. (optional) `<prefix>._ckpt.<randomnumber>.txt`: this file contains checkpoints in the topology search process.
+1. `<output_prefix>_trees.nwk`: the output tree with time-resolved branch lengths
+2. `<output_prefix>_params.txt`: this file reports the dropout rate, silencing rate, and negative log likelihood.
+3. `<output_prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
 
 ## Examples
 To try the following examples, first do the followings:
 1. Download the data from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip)
 2. Unzip the downloaded file. After unzipping, you should see a folder named ``examples``
-4. Change directory to ``examples``
+3. Change directory to ``examples``
 ```
   cd examples
 ```
@@ -81,11 +80,12 @@ For example, the following command
 run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
 ```
 specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this command will produce three output files
-1. `example1_trees.nwk`: the output tree containing time-resolved branch lengths. This tree has the same topology as the starting tree, but has branch lengths in time units
-2. `example1_annotations.txt`: This file has two components
+1. `example1_trees.nwk`: the output tree containing time-resolved branch lengths. This tree has the same topology as the starting tree specified in `-t`, but has branch lengths in time units
+2. `example1_params.txt`: this file reports the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
+3. `example1_annotations.txt`: This file has two components
    (i) the newick string of the rooted tree with internal nodes labeled and branch lengths show the infer *number of mutations*.
    (ii) imputed sequences for each node in the tree. For sites with multiple possible states, that site is annotated with the probability of each possible state.
-3. `example1_params.txt`: this file reports the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
+
 
 We provide sample outputs in `examples/out_example1/` for your reference. 
 <!--In order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
@@ -108,10 +108,10 @@ run_laml -c examples/example2/character_matrix.csv -t examples/example2/starting
 enables topology search using the flag ``--topology_search``. 
 Running this command will produce three output files 
 1. `example2_trees.nwk`: the output tree with time-resolved branch lengths. Because topology search has been performed, this tree has a different topology from the starting tree. The new topology has higher likelihood than the starting tree.
-2. `example2_annotations.txt`: This file has two components
+2. `example2_params.txt`: this file reports the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
+3. `example2_annotations.txt`: This file has two components
    (i) the newick string of the rooted tree with internal nodes labeled and branch lengths show the infer *number of mutations*.
    (ii) imputed sequences for each node in the tree. For sites with multiple possible states, that site is annotated with the probability of each possible state.
-3. `example2_params.txt`: this file reports the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
 
 In addition, a checkpoint file `example2._ckpt.<randomnumber>.txt` is produced, which is important for running LAML on large data. Every 50 NNI iterations, this file is updated with a checkpoint containing (i) the NNI iteration number, (ii) the current best newick tree, (iii) the current best negative LLH, (iv) the current best dropout rate, and (v) the current best silencing rate.
 
