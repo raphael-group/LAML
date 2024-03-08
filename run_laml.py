@@ -37,7 +37,6 @@ def main():
 
     # problem formulation
     parser.add_argument("--timescale",required=False,default=1.0,help="Timeframe of experiment. Scales ultrametric output tree branches to this timescale. To get an accurate estimate of mutation rate, provide timeframe in number of cell generations. The default is set to 1.0.")
-    #parser.add_argument("--ultrametric",action='store_true',help="Enforce ultrametricity to the output tree.") # TODO: remove this flag
     parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing. Does not necessarily produce ultrametric trees, and cannot be time-scaled. This option has higher priority than --timescale or --ultrametric.")
     parser.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
 
@@ -172,108 +171,110 @@ def main():
             nllh = -max_score        
     
     # post-processing: analyze results and output 
-    out_tree = prefix + "_trees.nwk"
-    out_annotate = prefix + "_annotations.txt"
-    out_params = prefix + "_params.txt"
-
-    with open(out_tree,'w') as fout:
-        for tstr in opt_trees:
-            tree = read_tree_newick(tstr)
-            if not args['noSilence']:
-                # get the height of the tree
-                tree_height = tree.height(weighted=True) # includes the root's length, mutation units 
-                scaling_factor = tree_height/float(args['timescale'])
-                print(f"Tree height pre-scaling: {tree_height}, input timescale: {args['timescale']}") 
-                for node in tree.traverse_preorder(): 
-                    node.edge_length = node.edge_length / scaling_factor 
-                tree_height = tree.height(weighted=True) 
-                mutation_rate = scaling_factor # not divided per site
-                print(f"Tree height after scaling: {tree_height}, mutation rate: {mutation_rate}")
-            tstr = tree.__str__().split()
-            if len(tstr) > 1:
-                fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
-            else:
-                fout.write(''.join(["(", tstr[0][:-1], ");\n"]))
-
-    # output annotations
-    def format_posterior(p0,p_minus_1,p_alpha,alpha,q):
-        if p0 == 1:
-            return '0'
-        elif p_minus_1 == 1:
-            return '-1'
-        elif p_alpha == 1:
-            return alpha
-        else:
-            out = ''
-            if p0 > 0:
-                out += '0:' + str(p0)
-            if p_minus_1 > 0:
-                if out != '':
-                    out += '/'
-                out += '-1:' + str(p_minus_1)
-            if p_alpha > 0:
-                if out != '':
-                    out += '/'
-                if alpha == '?':
-                    out += "/".join([str(y) + ':' + str(round(p_alpha*q[y],3)) for y in q if round(p_alpha*q[y],3)>0])
-                else:
-                    out += alpha + ":" + str(p_alpha)
-            return out
-
-    my_solver = EM_solver(opt_trees,{'charMtrx':msa},{'Q':Q},{'phi':opt_params['phi'],'nu':opt_params['nu']})
-    my_solver.az_partition()
-    my_solver.Estep()
-    idx = 0
-    with open(out_annotate,'w') as fout:
-        for tree in my_solver.trees:
-            # add root
-            if len(tree.root.children) > 1:
-                root = Node()
-                root.label = 'I0'
-                k = len(tree.root.alpha)
-                root.alpha = ['z']*k
-                root.post0 = [0]*k
-                root.post1 = [-float("inf")]*k
-                idx = 1
-                root.add_child(tree.root)
-                tree.root = root
-            # branch length by expected number of mutations
-            all_labels = set()
-            for node in tree.traverse_preorder():
-                if node.is_root():
-                    continue
-                # label the node
-                if node.label is None or node.label in all_labels:
-                    node.label = 'I' + str(idx)
-                    idx += 1                    
-                all_labels.add(node.label)
-                node.edge_length = round(sum(node.S1)+sum(node.S2)+sum(node.S4),3)
-
-            fout.write(tree.newick()+"\n")    
-            
-            # ancestral labeling and imputation
-            for node in tree.traverse_preorder():
-                node.posterior = ''
-                for j in range(len(node.alpha)):
-                    if not node.is_root():
-                        if node.alpha[j] == '?' and node.parent.alpha[j] != 'z':
-                            node.alpha[j] = node.parent.alpha[j]
-                    p0 = round(exp(node.post0[j]),2)
-                    p_minus_1 = round(exp(node.post1[j]),2)
-                    p_alpha = round(1-p0-p_minus_1,2)
-                    if node.posterior != '':
-                        node.posterior += ','
-                    node.posterior += format_posterior(p0,p_minus_1,p_alpha,str(node.alpha[j]),Q[j])
-                fout.write(node.label+"," + str(node.posterior)+"\n")
     
-    with open(out_params,'w') as fout:
-        fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")
-        fout.write("Silencing rate: " + str(opt_params['nu']) + "\n") 
-        fout.write("Negative-llh: " +  str(nllh) + "\n")
-        fout.write("Mutation rate: " +  str(mutation_rate) + "\n") 
+    if not args["compute_llh"]:
+        out_tree = prefix + "_trees.nwk"
+        out_annotate = prefix + "_annotations.txt"
+        out_params = prefix + "_params.txt"
+
+        with open(out_tree,'w') as fout:
+            for tstr in opt_trees:
+                tree = read_tree_newick(tstr)
+                if not args['noSilence']:
+                    # get the height of the tree
+                    tree_height = tree.height(weighted=True) # includes the root's length, mutation units 
+                    scaling_factor = tree_height/float(args['timescale'])
+                    print(f"Tree height pre-scaling: {tree_height}, input timescale: {args['timescale']}") 
+                    for node in tree.traverse_preorder(): 
+                        node.edge_length = node.edge_length / scaling_factor 
+                    tree_height = tree.height(weighted=True) 
+                    mutation_rate = scaling_factor # not divided per site
+                    print(f"Tree height after scaling: {tree_height}, mutation rate: {mutation_rate}")
+                tstr = tree.__str__().split()
+                if len(tstr) > 1:
+                    fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
+                else:
+                    fout.write(''.join(["(", tstr[0][:-1], ");\n"]))
+
+        # output annotations
+        def format_posterior(p0,p_minus_1,p_alpha,alpha,q):
+            if p0 == 1:
+                return '0'
+            elif p_minus_1 == 1:
+                return '-1'
+            elif p_alpha == 1:
+                return alpha
+            else:
+                out = ''
+                if p0 > 0:
+                    out += '0:' + str(p0)
+                if p_minus_1 > 0:
+                    if out != '':
+                        out += '/'
+                    out += '-1:' + str(p_minus_1)
+                if p_alpha > 0:
+                    if out != '':
+                        out += '/'
+                    if alpha == '?':
+                        out += "/".join([str(y) + ':' + str(round(p_alpha*q[y],3)) for y in q if round(p_alpha*q[y],3)>0])
+                    else:
+                        out += alpha + ":" + str(p_alpha)
+                return out
+
+        my_solver = EM_solver(opt_trees,{'charMtrx':msa},{'Q':Q},{'phi':opt_params['phi'],'nu':opt_params['nu']})
+        my_solver.az_partition()
+        my_solver.Estep()
+        idx = 0
+        with open(out_annotate,'w') as fout:
+            for tree in my_solver.trees:
+                # add root
+                if len(tree.root.children) > 1:
+                    root = Node()
+                    root.label = 'I0'
+                    k = len(tree.root.alpha)
+                    root.alpha = ['z']*k
+                    root.post0 = [0]*k
+                    root.post1 = [-float("inf")]*k
+                    idx = 1
+                    root.add_child(tree.root)
+                    tree.root = root
+                # branch length by expected number of mutations
+                all_labels = set()
+                for node in tree.traverse_preorder():
+                    if node.is_root():
+                        continue
+                    # label the node
+                    if node.label is None or node.label in all_labels:
+                        node.label = 'I' + str(idx)
+                        idx += 1                    
+                    all_labels.add(node.label)
+                    node.edge_length = round(sum(node.S1)+sum(node.S2)+sum(node.S4),3)
+
+                fout.write(tree.newick()+"\n")    
                 
-    stop_time = timeit.default_timer()
-    print("Runtime (s):", stop_time - start_time)
+                # ancestral labeling and imputation
+                for node in tree.traverse_preorder():
+                    node.posterior = ''
+                    for j in range(len(node.alpha)):
+                        if not node.is_root():
+                            if node.alpha[j] == '?' and node.parent.alpha[j] != 'z':
+                                node.alpha[j] = node.parent.alpha[j]
+                        p0 = round(exp(node.post0[j]),2)
+                        p_minus_1 = round(exp(node.post1[j]),2)
+                        p_alpha = round(1-p0-p_minus_1,2)
+                        if node.posterior != '':
+                            node.posterior += ','
+                        node.posterior += format_posterior(p0,p_minus_1,p_alpha,str(node.alpha[j]),Q[j])
+                    fout.write(node.label+"," + str(node.posterior)+"\n")
+        
+        with open(out_params,'w') as fout:
+            fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")
+            fout.write("Silencing rate: " + str(opt_params['nu']) + "\n") 
+            fout.write("Negative-llh: " +  str(nllh) + "\n")
+            fout.write("Mutation rate: " +  str(mutation_rate) + "\n") 
+                    
+        stop_time = timeit.default_timer()
+        print("Runtime (s):", stop_time - start_time)
 
 if __name__ == "__main__":
     main()

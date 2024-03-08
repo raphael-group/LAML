@@ -11,4 +11,4 @@ Optimal point found for initial point 1
 Numerical optimization finished successfully
 Tree height pre-scaling: 1.0344635445530497, input timescale: 10
 Tree height after scaling: 10.0, mutation rate: 0.10344635445530496
-Runtime (s): 13.452001708
+Runtime (s): 13.385282208

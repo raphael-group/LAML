@@ -82,9 +82,9 @@ For example, the following command
 run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
 ```
 specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this command will produce three files 
-1. `example1_annotations.txt`: ???
-2. `example1_params.txt`: ???
-3. `example1_trees.nwk`: ???
+1. `example1_annotations.txt`: (i) the newick string of the rooted tree with internal nodes labeled and branches annotated by expected number of mutations. (ii) imputed sequences for each node in the tree. for sites with multiple possible states, that site is annotated with the probability of each possible state.
+2. `example1_params.txt`: includes the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
+3. `example1_trees.nwk`: newick string of the fixed rooted tree with inferred time-resolved branch lengths
 
 We provide sample outputs in `examples/out_example1/` for your reference. 
 <!--In order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
@@ -102,13 +102,13 @@ LAML can simultaneously infer tree topology, branch lengths, and the missing dat
 
 For example, the following command
 ```
-run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel --timescale 10
+run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
 ```
 enables topology search using the flag ``--topology_search``. Running this command will produce four files 
-1. `example2_annotations.txt`: ???
-2. `example2_params.txt`: ???
-3. `example2_trees.nwk`: ???
-4. `example2._ckpt.<randomnumber>.txt`: ???
+1. `example2_annotations.txt`: (i) the newick string of the rooted tree with internal nodes labeled and branches annotated by expected number of mutations. (ii) imputed sequences for each node in the tree. for sites with multiple possible states, that site is annotated with the probability of each possible state.
+2. `example2_params.txt`: includes the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
+3. `example2_trees.nwk`: newick string of the fixed rooted tree with inferred time-resolved branch lengths
+4. `example2._ckpt.<randomnumber>.txt`: every 50 NNI iterations, this file is updated with the checkpoint tree containing (i) the NNI iteration number (ii) current best newick tree (iii) current best negative LLH (iv) current best dropout rate (v) current best silencing rate
 
 We provide sample outputs in `examples/out_example2/` for your reference. 
 <!--When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.-->
