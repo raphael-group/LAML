@@ -148,6 +148,7 @@ type example2_params.txt examples/out_example2/example2_params.txt
 ## More advanced options
 Below are some other important options available in LAML.
 ```
+  -o OUTPUT, --output OUTPUT    Output prefix. Default: LAML_output
   -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
   --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
   --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
