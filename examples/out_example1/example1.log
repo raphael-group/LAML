@@ -4,11 +4,11 @@ Optimizing branch lengths, phi, and nu without topology search
 Optimization by EM algorithm
 Initial point 1. Random seed: 1984
 Numerical optimization started with ultrametric constraint (default)
-Initial phi: 0.8923440038391498. Initial nu: 0.7646368383757496. Initial nllh: 18082.204923199195
-EM finished after 41 iterations.
-Optimal phi: 0.14386100259503812. Optimal nu: 0.13334957313236961. Optimal nllh: 6987.352389115492
+Initial phi: 0.8923440038391498. Initial nu: 0.7646368383757496. Initial nllh: 20668.157487864126
+EM finished after 38 iterations.
+Optimal phi: 0.1437780391973673. Optimal nu: 0.13362144190231776. Optimal nllh: 6987.35250125346
 Optimal point found for initial point 1
 Numerical optimization finished successfully
-Tree height pre-scaling: 1.0344635445530497, input timescale: 10
-Tree height after scaling: 10.0, mutation rate: 0.10344635445530496
-Runtime (s): 13.385282208
+Tree height pre-scaling: 1.034177313062163, input timescale: 10
+Tree height after scaling: 9.999999999999998, mutation rate: 0.1034177313062163
+Runtime (s): 12.614570083

@@ -59,11 +59,12 @@ LAML requires the following two input files:
 2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). See [examples/character_matrix](https://github.com/raphael-group/LAML/blob/master/examples/starting.tree) for an example
 
 
-There are three output files: 
+There are four output files: 
 
 1. `<output_prefix>_trees.nwk`: the output tree with time-resolved branch lengths
 2. `<output_prefix>_params.txt`: this file reports the dropout rate, silencing rate, and negative log likelihood.
 3. `<output_prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
+4. `<output_prefix>.log`: everything LAML writes to the stdout terminal will also be automatically saved to this logfile.
 
 ## Examples
 To try the following examples, first do the followings:

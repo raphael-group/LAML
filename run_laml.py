@@ -13,9 +13,20 @@ import random
 import argparse
 import timeit
 from sys import argv,exit,stdout,setrecursionlimit
+import sys
 from copy import deepcopy
 
 setrecursionlimit(5000)
+
+class Logger(object):
+    def __init__(self, output_prefix):
+        self.terminal = sys.stdout
+        self.log = open(output_prefix + ".log", "a")
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+    def flush(self):
+        pass
 
 def main():
     parser = argparse.ArgumentParser()
@@ -52,8 +63,10 @@ def main():
         parser.print_help()
         exit(0)
 
+    args = vars(parser.parse_args())
+    sys.stdout = Logger(args['output'])
+
     lic_file = os.path.join(os.path.expanduser("~"), 'mosek/mosek.lic')
-    
     if 'MOSEKLM_LICENSE_FILE' not in os.environ and not os.path.isfile(lic_file):
         print("MOSEK license not found in environment variables. Please set the MOSEK license!")
         exit(0)
@@ -61,8 +74,6 @@ def main():
     print("Launching " + scmail.PROGRAM_NAME + " version " + scmail.PROGRAM_VERSION)
     print(scmail.PROGRAM_NAME + " was called as follows: " + " ".join(argv))
     start_time = timeit.default_timer()
-    
-    args = vars(parser.parse_args())
     
     # preprocessing: read and analyze input
     delim_map = {'tab':'\t','comma':',','whitespace':' '}
