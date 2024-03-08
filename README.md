@@ -146,7 +146,7 @@ type example2_params.txt examples/out_example2/example2_params.txt
 ```
 -->
 ## More advanced options
-We provide a few additional flags of interest below
+Below are some other important options available in LAML.
 ```
   -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
   --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
@@ -158,4 +158,4 @@ We provide a few additional flags of interest below
   -v, --verbose         Show verbose messages.
   --parallel            Turn on parallel version of topology search.
 ```
-For full documentation, please run `run_laml -h`. 
+For full documentation, please run `run_laml -h`.
