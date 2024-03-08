@@ -30,7 +30,7 @@ to see the commandline help of LAML.
 
 Unit tests are available to ensure the success of installation. We highly recommend the user performs the following step to test the installation.
 
-In your terminal, type the following to run the testing executable:
+In your terminal, type the following
 
 ```
 laml_tests.py 
