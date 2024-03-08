@@ -3,18 +3,19 @@
 LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
 For additional information about the method, you can refer to the [website](https://raphael-group.github.io/laml/).
-# Precursors 
+
+# Installation
+## Precursors 
 The following precursors **are required** to install and run LAML
-## Python
+### Python
 The software requires python >= 3.9.
 <!--Please note that if you're using a M1 Mac, you should use python >= 3.8.-->
 
-## MOSEK License
+### [IMPORTANT] MOSEK License
 The software uses [MOSEK](https://www.mosek.com) for numerical optimization, which requires a license. 
 Visit [this page](https://www.mosek.com/products/academic-licenses/) to get a **free academic license**. 
 After you obtain the license file ``mosek.lic``, follow  [This page](https://docs.mosek.com/latest/licensing/client-setup.html) to place the license file in the correct place. 
 
-# Installation
 LAML can be installed from `pip`
 ```
 pip install laml 
