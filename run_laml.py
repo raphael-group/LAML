@@ -54,7 +54,7 @@ def main():
     # miscellaneous
     parser.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
     parser.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
-    parser.add_argument("--randseeds",required=False,help="Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
+    parser.add_argument("--randseeds",required=False,help="Random seeds for branch length optimization. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
     parser.add_argument("--randomreps", required=False, default=1, type=int, help="Number of replicates to run for the random strategy of topology search.")
     parser.add_argument("--maxIters", required=False, default=500, type=int, help="Maximum number of iterations to run topology search.")
     parser.add_argument("--parallel", required=False,action='store_true', help="Turn on parallel version of topology search.")
