@@ -60,15 +60,42 @@ LAML requires the following two input files:
 
 See an example character matrix in [examples/example1/character_matrix.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/character_matrix.csv) and an example tree topology in [examples/example1/starting.tree](https://github.com/raphael-group/LAML/tree/laml/examples/example1/starting.tree)
 
-LAML allows some flexibility on the format of the input character matrix using `-m` and `--delimiter`. In addition, while not strictly required, mutation priors can have a large effect on the outputs. If no mutation priors are provided, LAML assumes uniform priors by default. Refer to the **Input options** section for more details about `-m`, `--delimiter`, and `-p`. 
 
 ## Output
 There are four output files: 
 
-1. `<output_prefix>_trees.nwk`: The output tree with time-resolved branch lengths
-2. `<output_prefix>_params.txt`: This file reports the dropout rate, silencing rate, and negative log-likelihood.
-3. `<output_prefix>_annotations.txt`: This file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
-4. `<output_prefix>.log`: The LAML logfile.
+1. `LAML_output_trees.nwk`: The output tree with time-resolved branch lengths
+2. `LAML_output_params.txt`: This file reports the dropout rate, silencing rate, and negative log-likelihood.
+3. `LAML_output_annotations.txt`: This file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
+4. `LAML_output.log`: The LAML logfile.
+
+## Advanced I/O options
+LAML has the following optional flags for I/O
+```
+input options:
+    --delimiter DELIMITER    The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'comma'.
+    -m MISSING_DATA, --missing_data MISSING_DATA Missing data character. Default: if not specified, assumes '?'.
+    -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
+output options:
+    -o OUTPUT, --output OUTPUT    Output prefix. Default: LAML_output
+```
+
+### Customize the format of the input character matrix 
+The software allows some flexibility on the format of the input character matrix, using `-m` and `--delimiter` options. For example, if the character matrix is in the [tab-separated values (CSV) file](https://en.wikipedia.org/wiki/Tab-separated_values) format, it will still be accepted if `--delimiter Tab` is specified. The placeholder of the missing character can also be adjusted using `-m`. For instance, if the input file has missing entries represented by "-" instead of "?", it will still be accepted if `-m -` is specified. 
+
+Note: LAML also accepts a character matrix that contains negative integers and/or non-alphanumeric values and treats them all as a placeholder for missing entries. However, for best practices, the user should explicitly specify their missing data character using `-m`.
+
+### The mutation priors
+While not strictly required, **mutation priors** can have a large effect on the outputs. If no mutation priors are provided, LAML uses uniform priors
+by default. However, if possible we highly recommend specifying mutation prior using `-p`. We accept the following two formats for mutation priors 
+
+**Recommended** A file containing the prior matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values), with three columns: site index, character state, and probability. The site index and character states must be integers, and the probability must be a float. We do *not* expect the unmutated state to appear in the alphabet. See an example input prior file in
+[examples/example1/priors.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/priors.csv).
+
+**Not recommended** We also accept [Python-pickled files](https://docs.python.org/3/library/pickle.html#data-stream-format), as this is the indel prior output format for [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/notebooks/reconstruct.html). We print a warning if the keys of the pickled prior dictionary do not match the site names in your provided character matrix file. 
+
+### The output prefix
+The user can change the output prefix using `-o`. The default prefix is `LAML_output`.
 
 ## Examples
 To try the following examples, first do the followings:
@@ -118,27 +145,6 @@ We provide sample outputs in `examples/out_example2/` for your reference.
 ## Other options
 Below are some other important options available in LAML. For full documentation, please run `run_laml -h`.
 
-### Input options
-```
-  -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
-  --delimiter DELIMITER    The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'comma'.
-  -m MISSING_DATA, --missing_data MISSING_DATA Missing data character. Default: if not specified, assumes '?'.
-```
-
-<!--[TODO for GC] Add description for the format of the prior file and link to an example. The two use cases both have --prior. Perhaps we should mention it sooner? Any thoughts? GC: I think we should mention it sooner, but keep things simple. Please see my edits. -->
-
-**Recommended** A file containing the prior matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values), with three columns: site index, character state, and probability. The site index and character states must be integers, and the probability must be a float. We do *not* expect the unmutated state to appear in the alphabet. See an example input prior file in
-[examples/example1/priors.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/priors.csv).
-
-**Not recommended** We also accept [Python-pickled files](https://docs.python.org/3/library/pickle.html#data-stream-format), as this is the indel prior output format for [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/notebooks/reconstruct.html). We print a warning if the keys of the pickled prior dictionary do not match the site names in your provided character matrix file. 
-
-Please note that LAML will accept a character matrix and treat all negative integers, non-alphanumeric values as a single character observed to be missing. However, for best practices, the user should explicitly specify their missing data character.
-
-### Output options
-```
-   -o OUTPUT, --output OUTPUT    Output prefix. Default: LAML_output
-```
-
 ### Numerical optimization
 ```
   -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute log-likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
@@ -148,7 +154,6 @@ Please note that LAML will accept a character matrix and treat all negative inte
   --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
   --nInitials NINITIALS    The number of initial points. Default: 20.
 ```
-
 ### Topology search
 ```
   --topology_search     Perform topology search using NNI operations. Always returns a fully resolved (i.e. binary) tree.
@@ -162,4 +167,3 @@ Please note that LAML will accept a character matrix and treat all negative inte
 ```
   -v, --verbose         Show verbose messages.
 ```
-
