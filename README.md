@@ -70,7 +70,7 @@ There are four output files:
 4. `LAML_output.log`: The LAML logfile.
 
 ## Examples
-We provide two examples for the two common use cases of LAML. See [Examples.md](https://github.com/raphael-group/laml/tree/master/examples.zip) for more dtails.
+We provide two examples for the two common use cases of LAML. See [Examples.md](https://github.com/raphael-group/laml/tree/master/Examples.md) for more details.
 
 ## Advanced I/O options
 LAML has the following additional options for I/O
