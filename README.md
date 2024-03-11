@@ -12,9 +12,9 @@ The software requires python >= 3.8.
 <!--Please note that if you're using a M1 Mac, you should use python >= 3.8.-->
 
 ### [IMPORTANT] MOSEK License
-The software uses [MOSEK](https://www.mosek.com) for numerical optimization, which requires a license. 
-Visit [this page](https://www.mosek.com/products/academic-licenses/) to get a **free academic license**. 
-After you obtain the license file ``mosek.lic``, follow  [this page](https://docs.mosek.com/latest/licensing/client-setup.html) to place the license file in the correct place. 
+The software uses [MOSEK](https://www.mosek.com) for numerical optimization, which requires a license. Please do the following 2 steps:
+1. Visit [this page](https://www.mosek.com/products/academic-licenses/) to get a **free academic license**. 
+2. After obtaining the license file ``mosek.lic``, follow  [this page](https://docs.mosek.com/latest/licensing/client-setup.html) to place the license file in the correct place. 
 
 ## Install from PyPI
 ```
@@ -28,7 +28,7 @@ to see the commandline help of LAML.
 
 ## [Optional] Testing
 
-Unit tests are available to ensure the success of installation. We highly recommend the user performs the following step to test the installation.
+Unit tests are available to ensure the success of installation. We highly recommend that the user performs the following step to test the installation.
 
 In your terminal, type the following
 
@@ -55,16 +55,17 @@ If you wish to install from source, do the following steps:
 run_laml -c <character_matrix> -t <tree_topology> 
 ```
 LAML requires the following two input files:
-1. A sequence file in character matrix format (cells by sites, with a header for site names expected). The user should specify the (i) delimiter: tab (default), comma, whitespace are all valid, (ii) missing character: '-' if not specified. We expect a header with a list of site names. Every subsequent line should begin with the cell name. See [examples/character_matrix](https://github.com/raphael-group/LAML/blob/master/examples/character_matrix.csv) for an example.
-2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). See [examples/character_matrix](https://github.com/raphael-group/LAML/blob/master/examples/starting.tree) for an example
+1. A file containing the character matrix, a [tab-separated values (TSV) file](https://en.wikipedia.org/wiki/Tab-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative intergers or '?', with 0 indicating the unmutated state, other intergers indicating mutated state, and '?' indicating missing data. Refer to the paper for more details. 
+2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). 
 
+See an example character matrix in [examples/example1/character_matrix.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/character_matrix.csv) and an example tree topology in [examples/example1/starting.tree](https://github.com/raphael-group/LAML/tree/laml/examples/example1/starting.tree)
 
 There are four output files: 
 
 1. `<output_prefix>_trees.nwk`: the output tree with time-resolved branch lengths
 2. `<output_prefix>_params.txt`: this file reports the dropout rate, silencing rate, and negative log-likelihood.
 3. `<output_prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
-4. `<output_prefix>.log`: everything LAML writes to the stdout terminal will also be automatically saved to this logfile.
+4. `<output_prefix>.log`: the logfile of LAML.
 
 ## Examples
 To try the following examples, first do the followings:
@@ -146,18 +147,39 @@ or (if on Windows in Command Prompt):
 type example2_params.txt examples/out_example2/example2_params.txt
 ```
 -->
-## More advanced options
-Below are some other important options available in LAML.
+## Other options
+Below are some other important options available in LAML. For full documentation, please run `run_laml -h`
+
+### Input options
 ```
-  -o OUTPUT, --output OUTPUT    Output prefix. Default: LAML_output
   -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
-  --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
-  --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
+  --delimiter DELIMITER    The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.
+  -m MASKEDCHAR, --maskedchar MASKEDCHAR    Masked character. Default: if not specified, assumes '-'.
+```
+### Output options
+```
+   -o OUTPUT, --output OUTPUT    Output prefix. Default: LAML_output
+```
+### Numerical optimization
+```
   -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute log-likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
-  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. The default is set to 1.0.
   --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
   --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
-  -v, --verbose         Show verbose messages.
-  --parallel            Turn on parallel version of topology search.
+  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. The default is set to 1.0.
+  --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
+  --nInitials NINITIALS    The number of initial points. Default: 20.
 ```
-For full documentation, please run `run_laml -h`.
+### Topology search
+```
+  --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
+  --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
+  --keep_polytomies     Keep polytomies while performing topology search. This option only works with --topology_search.
+  --parallel            Turn on parallel version of topology search.
+  --randomreps RANDOMREPS    Number of replicates to run for the random strategy of topology search.
+  --maxIters MAXITERS   Maximum number of iterations to run topology search.
+```
+### Other options
+```
+  -v, --verbose         Show verbose messages.
+```
+
