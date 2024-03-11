@@ -53,14 +53,16 @@ If you wish to install from source, do the following steps:
 ```
 run_laml -c <character_matrix> -t <tree_topology> 
 ```
+## Input
 LAML requires the following two input files:
-1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character (which should also be specified by the user explicitly using the `-m` flag). Refer to the paper for more details. 
+1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character. Refer to the paper for more details. 
 2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). 
 
 See an example character matrix in [examples/example1/character_matrix.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/character_matrix.csv) and an example tree topology in [examples/example1/starting.tree](https://github.com/raphael-group/LAML/tree/laml/examples/example1/starting.tree)
 
-While not strictly required, mutation priors can have a large effect on the outputs. If no mutation priors are provided, LAML assumes uniform priors by default. We provide details on how you can specify the mutation prior input file in the **Input options** section. 
+LAML allows some flexibility on the format of the input character matrix using `-m` and `--delimiter`. In addition, while not strictly required, mutation priors can have a large effect on the outputs. If no mutation priors are provided, LAML assumes uniform priors by default. Refer to the **Input options** section for more details about `-m`, `--delimiter`, and `-p`. 
 
+## Output
 There are four output files: 
 
 1. `<output_prefix>_trees.nwk`: The output tree with time-resolved branch lengths
@@ -92,15 +94,6 @@ specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this comman
 
 
 We provide sample outputs in `examples/out_example1/` for your reference. 
-<!--In order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
-```
-cat example1_params.txt
-cat examples/out_example1/example1_params.txt
-```
-or (if on Windows in Command Prompt):
-```
-type example1_params.txt examples/out_example1/example1_params.txt
-```-->
 
 ### Use Case 2: Infer tree topology, branch lengths, and missing data rates
 LAML can simultaneously infer tree topology, branch lengths, and the missing data rates using the ``--topology_search`` option.
@@ -121,34 +114,7 @@ Running this command will produce three output files
 In addition, a checkpoint file `example2._ckpt.<randomnumber>.txt` is produced, which is important for running LAML on large data. Every 50 NNI iterations, this file is updated with a checkpoint containing (i) the NNI iteration number, (ii) the current best newick tree, (iii) the current best negative log-likelihood, (iv) the current best dropout rate, and (v) the current best silencing rate.
 
 We provide sample outputs in `examples/out_example2/` for your reference. 
-<!--When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.-->
 
-<!--You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
-```
-cat example2_params.txt
-cat examples/out_example2/example2_params.txt
-```
-or (if on Windows in Command Prompt):
-```
-type example2_params.txt examples/out_example2/example2_params.txt-->
-
-<!--### Use Case 2: Compute the likelihood of an existing tree
-LAML can also compute the likelihood of an existing tree with branch lengths given known dropout rate and heritable missing rate using ``-L``.
-
-For example, the following command
-```
-run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
-```
-will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
-```
-cat example2_params.txt
-cat examples/out_example2/example2_params.txt
-```
-or (if on Windows in Command Prompt):
-```
-type example2_params.txt examples/out_example2/example2_params.txt
-```
--->
 ## Other options
 Below are some other important options available in LAML. For full documentation, please run `run_laml -h`.
 
