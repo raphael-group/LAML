@@ -2,7 +2,7 @@
 
 LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
-For additional information about the method, you can refer to the [website](https://raphael-group.github.io/laml/).
+For additional information about the method, you can refer to the [website](raphael-group.github.io/LAML/).
 
 # Installation
 ## Precursors 
