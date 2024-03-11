@@ -5,7 +5,7 @@ Github page for [the python code](https://github.com/raphael-group/LAML) of LAML
 Accepted to RECOMB 2024
 
 ### Datasets
-Data and some related scripts used in the paper can be found [here](https://github.com/gillichu/laml-experiments)
+Data and some related scripts used in the paper can be found [here]( https://github.com/raphael-group/laml-experiments)
 
 ### Contact
 Uyen Mai
