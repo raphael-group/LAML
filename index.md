@@ -2,7 +2,7 @@
 Github page for [the python code](https://github.com/raphael-group/LAML) of LAML.
 
 ### Publication
-Accepted to RECOMB 2024
+Will be presented at [RECOMB 2024](https://recomb.org/recomb2024/accepted_papers.html)
 
 ### Datasets
 Data and some related scripts used in the paper can be found [here]( https://github.com/raphael-group/laml-experiments)
