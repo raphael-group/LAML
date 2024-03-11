@@ -42,6 +42,8 @@ class ML_solver(Virtual_solver):
         self.dmin = 0.005
         zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx])
         totalcount = self.numsites * len(self.charMtrx)
+        if totalcount == 0:
+            print("Number of sites in input character matrix detected as 0! Check delimiter?")
         zeroprop = zerocount/totalcount
         self.dmax = -log(zeroprop) if zeroprop != 0 else 10
 

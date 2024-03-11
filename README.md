@@ -45,9 +45,9 @@ OK
 ```
 ## [For developers] Install from source
 If you wish to install from source, do the following steps:
-1. Clone the LAML github to your machine
+1. Clone the LAML github to your machine:
 ``git clone https://github.com/raphael-group/LAML.git``
-2. Change directory to the ``LAML`` folder. Then use ``pip`` to install from source
+2. Change directory to the ``LAML`` folder. Then use ``pip`` to install from source.
 ``pip install .``
 
 # Usage
@@ -80,7 +80,7 @@ To try the following examples, first do the followings:
 ### Use Case 1: Infer time-resolved branch lengths and heritable missing and dropout rates on a fixed topology
 LAML can infer time-resolved branch lengths and the rates of the two missing data types for a fixed tree topology. If the time frame of the experiment is specified by ``--timescale``, the output tree will be scaled to the same height. Otherwise, the output tree will be scaled to the unit height 1.
 
-For example, the following command
+For example, the following command:
 ```
 run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv -o example1 --nInitials 1 --timescale 10
 ```
@@ -106,11 +106,12 @@ type example1_params.txt examples/out_example1/example1_params.txt
 ### Use Case 2: Infer tree topology, branch lengths, and missing data rates
 LAML can simultaneously infer tree topology, branch lengths, and the missing data rates using the ``--topology_search`` option.
 
-For example, the following command
+For example, the following command:
 ```
 run_laml -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv -o example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
 ```
 enables topology search using the flag ``--topology_search``. 
+
 Running this command will produce three output files 
 1. `example2_trees.nwk`: the output tree with time-resolved branch lengths. Because topology search has been performed, this tree has a different topology from the starting tree. The new topology has higher likelihood than the starting tree.
 2. `example2_params.txt`: this file reports the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
@@ -150,7 +151,7 @@ type example2_params.txt examples/out_example2/example2_params.txt
 ```
 -->
 ## Other options
-Below are some other important options available in LAML. For full documentation, please run `run_laml -h`
+Below are some other important options available in LAML. For full documentation, please run `run_laml -h`.
 
 ### Input options
 ```
