@@ -1,3 +1,4 @@
+# Prerequisites
 To try the following examples, first do the followings:
 1. Download the data from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip)
 2. Unzip the downloaded file. After unzipping, you should see a folder named ``examples``
@@ -5,7 +6,7 @@ To try the following examples, first do the followings:
 ```
   cd examples
 ```
-### Use Case 1: Infer time-resolved branch lengths and heritable missing and dropout rates on a fixed topology
+# Use Case 1: Infer time-resolved branch lengths and heritable missing and dropout rates on a fixed topology
 LAML can infer time-resolved branch lengths and the rates of the two missing data types for a fixed tree topology. If the time frame of the experiment is specified by ``--timescale``, the output tree will be scaled to the same height. Otherwise, the output tree will be scaled to the unit height 1.
 
 For example, the following command:
@@ -22,7 +23,7 @@ specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this comman
 
 We provide sample outputs in `examples/out_example1/` for your reference. 
 
-### Use Case 2: Infer tree topology, branch lengths, and missing data rates
+# Use Case 2: Infer tree topology, branch lengths, and missing data rates
 LAML can simultaneously infer tree topology, branch lengths, and the missing data rates using the ``--topology_search`` option.
 
 For example, the following command:
