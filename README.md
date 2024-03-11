@@ -156,10 +156,13 @@ Below are some other important options available in LAML. For full documentation
   --delimiter DELIMITER    The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.
   -m MASKEDCHAR, --maskedchar MASKEDCHAR    Masked character. Default: if not specified, assumes '-'.
 ```
+[TODO for GC] Add description for the format of the prior file and link to an example. The two use cases both have --prior. Perhaps we should mention it sooner? Any thoughts?
+
 ### Output options
 ```
    -o OUTPUT, --output OUTPUT    Output prefix. Default: LAML_output
 ```
+
 ### Numerical optimization
 ```
   -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute log-likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
@@ -169,6 +172,7 @@ Below are some other important options available in LAML. For full documentation
   --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
   --nInitials NINITIALS    The number of initial points. Default: 20.
 ```
+
 ### Topology search
 ```
   --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
