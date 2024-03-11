@@ -70,7 +70,7 @@ There are four output files:
 4. `LAML_output.log`: The LAML logfile.
 
 ## Advanced I/O options
-LAML has the following optional flags for I/O
+LAML has the following additional options for I/O
 ```
 input options:
     --delimiter DELIMITER    The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'comma'.
