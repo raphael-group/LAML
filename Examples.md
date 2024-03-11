@@ -6,7 +6,7 @@ To try the following examples, first do the followings:
 ```
   cd examples
 ```
-# Use Case 1: Infer time-resolved branch lengths and heritable missing and dropout rates on a fixed topology
+# Use Case 1: Infer time-resolved branch lengths, heritable missing rate, and dropout rates of a fixed tree topology
 LAML can infer time-resolved branch lengths and the rates of the two missing data types for a fixed tree topology. If the time frame of the experiment is specified by ``--timescale``, the output tree will be scaled to the same height. Otherwise, the output tree will be scaled to the unit height 1.
 
 For example, the following command:
