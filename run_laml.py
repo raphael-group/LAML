@@ -30,12 +30,14 @@ class Logger(object):
 
 def main():
     parser = argparse.ArgumentParser()
-    requiredNamed = parser.add_argument_group('required named arguments')
+    otherOptions = parser._action_groups.pop()
+
+    requiredNamed = parser.add_argument_group('required arguments')
     inputOptions= parser.add_argument_group('input options')
     outputOptions = parser.add_argument_group('output options')
     numericalOptions = parser.add_argument_group('numerical optimization options')
     topologySearchOptions = parser.add_argument_group('topology search options')
-    otherOptions = parser.add_argument_group('other options')
+    parser._action_groups.append(otherOptions)
 
     # input arguments
     requiredNamed.add_argument("-t","--topology",required=True,help="[REQUIRED] Binary input tree topology in newick format. Branch lengths will be ignored.") 
@@ -74,11 +76,19 @@ def main():
         exit(0)
 
     args = vars(parser.parse_args())
-    sys.stdout = Logger(args['output'])
+    if args["output"]:
+        prefix = args["output"]
+    else:
+        prefix = "LAML_output"
+    sys.stdout = Logger(prefix)
 
     lic_file = os.path.join(os.path.expanduser("~"), 'mosek/mosek.lic')
     if 'MOSEKLM_LICENSE_FILE' not in os.environ and not os.path.isfile(lic_file):
         print("MOSEK license not found in environment variables. Please set the MOSEK license!")
+        exit(0)
+
+    if not os.path.isfile(args["characters"]) or not os.path.isfile(args["topology"]):
+        print("Input files not found.")
         exit(0)
     
     print("Launching " + scmail.PROGRAM_NAME + " version " + scmail.PROGRAM_VERSION)
@@ -90,10 +100,7 @@ def main():
     delimiter = delim_map[args["delimiter"]]
     msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["missing_data"])
     #prefix = '.'.join(args["output"].split('.')[:-1])
-    if args["output"]:
-        prefix = args["output"]
-    else:
-        prefix = "LAML_output"
+
 
     with open(args["topology"],'r') as f:
         input_trees = []
