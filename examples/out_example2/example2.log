@@ -1,0 +1,93 @@
+Launching LAML version 0.0.2
+LAML was called as follows: run_laml.py -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv -o example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
+All polytomies will be resolved
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Initial score: -1171.2492363408815
+NNI Iter: 0
+Current score: -1174.2528102987442
+Runtime (s): 2.2418250829999997
+NNI Iter: 1
+Current score: -1178.3413004220868
+Runtime (s): 0.2292021669999995
+NNI Iter: 2
+Current score: -1180.3797050606054
+Runtime (s): 0.4219970000000002
+NNI Iter: 3
+Current score: -1180.521090187614
+Runtime (s): 2.977139417
+NNI Iter: 4
+Current score: -1180.2297420465297
+Runtime (s): 2.046130958000001
+NNI Iter: 5
+Current score: -1180.3417645643335
+Runtime (s): 2.111621459
+NNI Iter: 6
+Current score: -1181.5515836019174
+Runtime (s): 1.3325868749999987
+NNI Iter: 7
+Current score: -1182.0445435624747
+Runtime (s): 0.693318166000001
+NNI Iter: 8
+Current score: -1178.1051069118098
+Runtime (s): 0.510405458000001
+NNI Iter: 9
+Current score: -1177.9196867129476
+Runtime (s): 2.308222166
+NNI Iter: 10
+Current score: -1177.9516296442623
+Runtime (s): 3.373030042
+NNI Iter: 11
+Current score: -1177.919618500695
+Runtime (s): 0.07970616600000113
+NNI Iter: 12
+Current score: -1177.8068071493751
+Runtime (s): 0.27407091599999944
+NNI Iter: 13
+Current score: -1177.910673205856
+Runtime (s): 2.1692872910000034
+NNI Iter: 14
+Current score: -1177.8708257090955
+Runtime (s): 3.003723875000002
+NNI Iter: 15
+Current score: -1177.9284944327997
+Runtime (s): 5.152478333999998
+NNI Iter: 16
+Current score: -1177.7943809369774
+Runtime (s): 4.546898833000004
+NNI Iter: 17
+Current score: -1177.7100542148542
+Runtime (s): 0.9191327499999957
+NNI Iter: 18
+Current score: -1177.7060493423578
+Runtime (s): 1.050851166000001
+NNI Iter: 19
+Current score: -1175.211191493547
+Runtime (s): 3.6540752500000053
+NNI Iter: 20
+Current score: -1173.1275130003262
+Runtime (s): 0.3888798329999972
+NNI Iter: 21
+Current score: -1172.9324928069584
+Runtime (s): 0.11432604199999474
+NNI Iter: 22
+Current score: -1170.8180202905667
+Runtime (s): 6.402374582999997
+NNI Iter: 23
+Current score: -1169.3583868949713
+Runtime (s): 12.151357040999997
+NNI Iter: 24
+Current score: -1169.3329322745933
+Runtime (s): 13.419199999999996
+NNI Iter: 25
+Current score: -1169.2331803089755
+Runtime (s): 0.26767083400000047
+NNI Iter: 26
+Best score for this search: -1169.2331803089755
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -1168.8674891872274
+Tree height pre-scaling: 1.0680753161487857, input timescale: 10
+Tree height after scaling: 10.0, mutation rate: 0.10680753161487858
+Runtime (s): 89.597355666

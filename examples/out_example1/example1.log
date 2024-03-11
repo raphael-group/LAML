@@ -1,0 +1,14 @@
+Launching LAML version 0.0.2
+LAML was called as follows: run_laml.py -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv -o example1 --nInitials 1 --timescale 10
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+Initial point 1. Random seed: 9697
+Numerical optimization started with ultrametric constraint (default)
+Initial phi: 0.6552157923672384. Initial nu: 0.5217815084485568. Initial nllh: 13275.253578186654
+EM finished after 40 iterations.
+Optimal phi: 0.14378501771164973. Optimal nu: 0.13359737967697907. Optimal nllh: 6987.352449704049
+Optimal point found for initial point 1
+Numerical optimization finished successfully
+Tree height pre-scaling: 1.034192687776938, input timescale: 10
+Tree height after scaling: 10.0, mutation rate: 0.1034192687776938
+Runtime (s): 13.292462625

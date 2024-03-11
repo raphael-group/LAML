@@ -2,229 +2,198 @@
 
 LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates. 
 
-For additional information about the method, you can refer to the [website](https://raphael-group.github.io/sc-mail/).
-# Precursors (required before installation)
-
-We ask that users use python >= 3.6 with our code. 
-
-## MOSEK License
-1. First, we ask users to set up a MOSEK license. The preferred option is to place the license file mosek.lic in the directory mosek in the user’s home directory. Please refer to the MOSEK installation page [here](https://www.mosek.com/products/academic-licenses/).
-2. (Optional): If you decide to add the license file elsewhere, please add the license file to your path by adding an environment variable. For instance, add the following line to your `.bashrc` and load (`source ~/.bashrc` for Linux/Unix and `. ~/.bashrc` for Windows). [This page](https://docs.mosek.com/latest/licensing/client-setup.html) may be useful to reference.
-
-```
-export MOSEKLM_LICENSE_FILE=<path_to_folder_containing_mosek_license>
-```
+For additional information about the method, you can refer to the [website](https://raphael-group.github.io/laml/).
 
 # Installation
-If you've fulfilled the required precursor steps, you can pick one of two ways to install LAML. We recommend installing using `pip`, but you can also install from source.
+## Precursors 
+The following precursors **are required** to install and run LAML
+### Python
+The software requires python >= 3.8.
+<!--Please note that if you're using a M1 Mac, you should use python >= 3.8.-->
 
-### Install using pip (recommended)
+### [IMPORTANT] MOSEK License
+The software uses [MOSEK](https://www.mosek.com) for numerical optimization, which requires a license. Please do the following 2 steps:
+1. Visit [this page](https://www.mosek.com/products/academic-licenses/) to get a **free academic license**. 
+2. After obtaining the license file ``mosek.lic``, follow  [this page](https://docs.mosek.com/latest/licensing/client-setup.html) to place the license file in the correct place. 
 
-0. Please set up the MOSEK license. 
-
-1. LAML is available on the Python Package Index (PyPI). To install, use `pip` as follows:
+## Install from PyPI
 ```
-pip install scmail
+pip install laml 
 ```
-This will install the scmail package to your default package location. If you would like to specify a separate installation location, you can use the flag: `--prefix="<your_preferred_install_dir>`, then set this prefix in your PATH and PYTHONPATH (see below for help).
-
-If `pip` installs the package in a directory which is not on path, `pip` will throw a warning and ask the user to consider adding this directory to PATH. This should be heeded (see below for help).
-
-2. If you open a python interpreter as follows:
-
+After installation, type the following
 ```
-$ python
-Python 3.9.16 (main, Sep 12 2023, 00:00:00)
-[GCC 11.3.1 20221121 (Red Hat 11.3.1-4)] on linux
-Type "help", "copyright", "credits" or "license" for more information.
->>> import scmail_libs
->>>
-```
-
-You can now import functions from `scmail_libs`.
-
-3. You can also run the following:
-
-```
-run_scmail
+run_laml -h
 ```
 to see the commandline help of LAML.
 
-## Install from source
+## [Optional] Testing
 
-0. Set up the MOSEK license file. See above (section Precursors).
+Unit tests are available to ensure the success of installation. We highly recommend that the user performs the following step to test the installation.
 
-1. Please clone the repository with:
-
-```
-git clone https://github.com/raphael-group/sc-mail.git
-```
-
-2. Run the setup script from inside the sc-mail directory. 
-```
-cd sc-mail
-python setup.py install 
-```
-You can (for example, if you are running on a server and get permission denied when you try to install it in the default location), run it with `--prefix=<your_preferred_install_dir>` but be sure to set this prefix to your preferred PYTHONPATH (see below for help). If you have installed before, you may want to additionally add the flag `--force``. `
-
-After installation, run:
+In your terminal, type the following
 
 ```
-run_scmail -h
+laml_tests.py 
 ```
-to see the commandline help of LAML.
-
-## (Optional) Testing
-
-Please run the unit tests with:
-
+If LAML was installed properly, you would see on the screen `Running tests for LAML...` to begin, and print progress dots (one for each test passed). 
+At the end, you should see the following message:
 ```
-$ scmail_tests.py 
-```
-You can also run it with
-```
-$ python scmail_tests.py 
-```
-from inside the `sc-mail/` directory.
-
-This will print `Running tests for LAML...` to begin, and print progress dots (one for each test passed). Please note that this suite does not by default test the multiprocessing version of LAML, since starting new processes may not be allowed on different machines.
-At the end, it should print:
-```
-Running tests for LAML...
-....................................................................
 ----------------------------------------------------------------------
-Ran 58 tests in 13.554s
+Ran 80 tests in 13.486s
 
 OK
 ```
-
-## (optional) Setting prefix in environment variable 
-
-To set the prefix `<your_preferred_install_dir>` in your PATH and PYTHONPATH, follow these steps:
-
-(Unix/Linux users) In a Terminal:
-```
-vi ~/.bashrc
-export PATH=$PATH:<your_preferred_install_dir>"
-export PYTHONPATH=$PYTHONPATH:<your_preferred_install_dir>"
-```
-
-<!--export PATH=$PATH/pkgs/scmail-0.5-py311_0/bin:<your_preferred_install_dir>"-->
-(Windows users) In a Command Prompt or PowerShell:
-```
-setx PATH "%PATH%;C:<your_preferred_install_dir>"
-setx PYTHONPATH "%PYTHONPATH%;C:<your_preferred_install_dir>"
-```
-
-For both users, be sure to restart any applications or shells you want to use the updated PATH variable.
-
+## [For developers] Install from source
+If you wish to install from source, do the following steps:
+1. Clone the LAML github to your machine
+``git clone https://github.com/raphael-group/LAML.git``
+2. Change directory to the ``LAML`` folder. Then use ``pip`` to install from source
+``pip install .``
 
 # Usage
-
-If you downloaded using `pip` or `conda`, you should download the examples from github from [examples.zip](https://github.com/raphael-group/sc-mail/tree/master/examples.zip), unzip it, and run each command below from the directory containing this examples folder. If you downloaded from source, you can run `run_scmail` after the setup.
-
-Although there are many more options available, LAML only strictly requires three arguments, using the following command:
 ```
-$ run_scmail -t <topology> -c <characters> -o <output> 
+run_laml -c <character_matrix> -t <tree_topology> 
 ```
+LAML requires the following two input files:
+1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character (which should also be specified by the user explicitly using the `-m` flag). Refer to the paper for more details. 
+2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). 
 
-The output consists of three files: 
+See an example character matrix in [examples/example1/character_matrix.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/character_matrix.csv) and an example tree topology in [examples/example1/starting.tree](https://github.com/raphael-group/LAML/tree/laml/examples/example1/starting.tree)
 
-1. `<prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
-2. `<prefix>_params.txt`: this file contains the dropout rate, silencing rate, and negative log likelihood.
-3. `<prefix>_trees.nwk`: this file contains the rooted estimated tree with branch lengths.
-4. (optional) `<prefix>._ckpt.<randomnumber>.txt`: this file contains checkpoints in the topology search process.
+While not strictly required, mutation priors can have a large effect on the outputs. If no mutation priors are provided, LAML assumes uniform priors by default. We provide details on how you can specify the mutation prior input file in the **Input options** section. 
 
+There are four output files: 
+
+1. `<output_prefix>_trees.nwk`: The output tree with time-resolved branch lengths
+2. `<output_prefix>_params.txt`: This file reports the dropout rate, silencing rate, and negative log-likelihood.
+3. `<output_prefix>_annotations.txt`: This file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
+4. `<output_prefix>.log`: The LAML logfile.
 
 ## Examples
-
-Note that if you get an error in trying the following commands (especially use case 3), please make sure you have set up the MOSEK license file.
-
-### Use Case 1: Infer branch lengths on a topology
-
-From the `sc-mail/` directory, please run the following code:
+To try the following examples, first do the followings:
+1. Download the data from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip)
+2. Unzip the downloaded file. After unzipping, you should see a folder named ``examples``
+3. Change directory to ``examples``
 ```
-$ run_scmail -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --randseeds 1984 --timescale 10
+  cd examples
 ```
+### Use Case 1: Infer time-resolved branch lengths and heritable missing and dropout rates on a fixed topology
+LAML can infer time-resolved branch lengths and the rates of the two missing data types for a fixed tree topology. If the time frame of the experiment is specified by ``--timescale``, the output tree will be scaled to the same height. Otherwise, the output tree will be scaled to the unit height 1.
 
-This will output three files (`example1_annotations.txt`, `example1_params.txt`, `example1_trees.nwk`). You can compare these outputs with those in `examples/out_example1/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
+For example, the following command
 ```
-$ cat example1_params.txt
-$ cat examples/out_example1/example1_params.txt
+run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv -o example1 --nInitials 1 --timescale 10
+```
+specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this command will produce three output files
+1. `example1_trees.nwk`: the output tree containing time-resolved branch lengths. This tree has the same topology as the starting tree specified in `-t`, but has branch lengths in time units
+2. `example1_params.txt`: this file reports the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
+3. `example1_annotations.txt`: This file has two components
+   (i) the newick string of the rooted tree with internal nodes labeled and branch lengths show the infer *number of mutations*.
+   (ii) imputed sequences for each node in the tree. If a site has multiple possible states, it is annotated with the probability of each possible state.
+
+
+We provide sample outputs in `examples/out_example1/` for your reference. 
+<!--In order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
+```
+cat example1_params.txt
+cat examples/out_example1/example1_params.txt
 ```
 or (if on Windows in Command Prompt):
 ```
-$ type example1_params.txt examples/out_example1/example1_params.txt
-```
+type example1_params.txt examples/out_example1/example1_params.txt
+```-->
 
-Note that the reported tree height in the progress logs includes the root node's branch length. If you compare this distance with the one reported by `nw_distance` from `newick_utils`, you need to add this branch length. The mutation rate estimated in this example is `0.1`, since this example is drawn from our simulated data.
+### Use Case 2: Infer tree topology, branch lengths, and missing data rates
+LAML can simultaneously infer tree topology, branch lengths, and the missing data rates using the ``--topology_search`` option.
 
-### Use Case 2: Compute the likelihood of an existing tree
+For example, the following command
+```
+run_laml -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv -o example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
+```
+enables topology search using the flag ``--topology_search``. 
+Running this command will produce three output files 
+1. `example2_trees.nwk`: the output tree with time-resolved branch lengths. Because topology search has been performed, this tree has a different topology from the starting tree. The new topology has higher likelihood than the starting tree.
+2. `example2_params.txt`: this file reports the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
+3. `example2_annotations.txt`: This file has two components
+   (i) the newick string of the rooted tree with internal nodes labeled and branch lengths show the infer *number of mutations*.
+   (ii) imputed sequences for each node in the tree. For sites with multiple possible states, that site is annotated with the probability of each possible state.
 
-From the `sc-mail/` directory, please run the following code:
-```
-$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
-```
+In addition, a checkpoint file `example2._ckpt.<randomnumber>.txt` is produced, which is important for running LAML on large data. Every 50 NNI iterations, this file is updated with a checkpoint containing (i) the NNI iteration number, (ii) the current best newick tree, (iii) the current best negative log-likelihood, (iv) the current best dropout rate, and (v) the current best silencing rate.
 
-This will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
+We provide sample outputs in `examples/out_example2/` for your reference. 
+<!--When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.-->
+
+<!--You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
-$ cat example2_params.txt
-$ cat examples/out_example2/example2_params.txt
+cat example2_params.txt
+cat examples/out_example2/example2_params.txt
 ```
 or (if on Windows in Command Prompt):
 ```
-$ type example2_params.txt examples/out_example2/example2_params.txt
-```
+type example2_params.txt examples/out_example2/example2_params.txt-->
 
-### Use Case 3: Infer a topology
+<!--### Use Case 2: Compute the likelihood of an existing tree
+LAML can also compute the likelihood of an existing tree with branch lengths given known dropout rate and heritable missing rate using ``-L``.
 
-From the `sc-mail/` directory, please run the following code:
+For example, the following command
 ```
-$ run_scmail -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example3 --nInitials 1 --randomreps 1 --topology_search -v --parallel
+run_laml -c examples/character_matrix.csv -t examples/starting.tree -p examples/priors.csv --delimiter comma -o example2 -L "0 4.879273344239771e-07" --solver Scipy
 ```
-
-This will output four files (`example3_annotations.txt`, `example3_params.txt`, `example3_trees.nwk`, `example3._ckpt.<randnumber>.txt`). When performing topology search, a checkpoint file is also generateed. Note that this command will resolve all polytomies, run in parallel, and returns an ultrametric tree.
-
-You can compare these outputs with those in `examples/out_example3/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
+will output three files (`example2_annotations.txt`, `example2_params.txt`, `example2_trees.nwk`). You can compare these outputs with those in `examples/out_example2/`. For instance, in order to compare the likelihoods, display the contents of the two files using the following (if on Linux/Unix):
 ```
-$ cat example3_params.txt
-$ cat examples/out_example3/example3_params.txt
+cat example2_params.txt
+cat examples/out_example2/example2_params.txt
 ```
 or (if on Windows in Command Prompt):
 ```
-$ type example3_params.txt examples/out_example3/example3_params.txt
+type example2_params.txt examples/out_example2/example2_params.txt
 ```
+-->
+## Other options
+Below are some other important options available in LAML. For full documentation, please run `run_laml -h`
 
-
-## Documentation
-
+### Input options
 ```
-  -t TOPOLOGY, --topology TOPOLOGY  Binary input tree topology in newick format. Branch lengths will be ignored.
-  -c CHARACTERS, --characters CHARACTERS    The input character matrix. Must have header.
   -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
-  --delimiter DELIMITER The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.
-  -m MASKEDCHAR, --maskedchar MASKEDCHAR    Masked character. Default: if not specified, assumes '-'.
-  -o OUTPUT, --output OUTPUT    Output prefix.
+  --delimiter DELIMITER    The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'comma'.
+  -m MISSING_DATA, --missing_data MISSING_DATA Missing data character. Default: if not specified, assumes '?'.
+```
+
+<!--[TODO for GC] Add description for the format of the prior file and link to an example. The two use cases both have --prior. Perhaps we should mention it sooner? Any thoughts? GC: I think we should mention it sooner, but keep things simple. Please see my edits. -->
+
+**Recommended** A file containing the prior matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values), with three columns: site index, character state, and probability. The site index and character states must be integers, and the probability must be a float. We do *not* expect the unmutated state to appear in the alphabet. See an example input prior file in
+[examples/example1/priors.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/priors.csv).
+
+**Not recommended** We also accept [Python-pickled files](https://docs.python.org/3/library/pickle.html#data-stream-format), as this is the indel prior output format for [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/notebooks/reconstruct.html). We print a warning if the keys of the pickled prior dictionary do not match the site names in your provided character matrix file. 
+
+Please note that LAML will accept a character matrix and treat all negative integers, non-alphanumeric values as a single character observed to be missing. However, for best practices, the user should explicitly specify their missing data character.
+
+### Output options
+```
+   -o OUTPUT, --output OUTPUT    Output prefix. Default: LAML_output
+```
+
+### Numerical optimization
+```
+  -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute log-likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
+  --noSilence         Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing. Does not necessarily produce ultrametric trees, and cannot be time-scaled. This option has higher priority than --timescale or --ultrametric.
+  --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
+  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. Default: 1.0.
   --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
-  --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
+  --nInitials NINITIALS    The number of initial points. Default: 20.
+```
+
+### Topology search
+```
+  --topology_search     Perform topology search using NNI operations. Always returns a fully resolved (i.e. binary) tree.
   --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
   --keep_polytomies     Keep polytomies while performing topology search. This option only works with --topology_search.
-  -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
-  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale.
-  --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
-  --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
-  -v, --verbose         Show verbose messages.
-  --nInitials NINITIALS The number of initial points. Default: 20.
-  --randseeds RANDSEEDS Random seeds. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).
-  --randomreps RANDOMREPS   Number of replicates to run for the random strategy of topology search.
-  --maxIters MAXITERS   Maximum number of iterations to run topology search.
   --parallel            Turn on parallel version of topology search.
+  --randomreps RANDOMREPS    Number of replicates to run for the random strategy of topology search.
+  --maxIters MAXITERS   Maximum number of iterations to run topology search.
 ```
-
-## Troubleshooting
-
-If you installed using `pip` and would like to check the version of scmail you have installed:
+### Other options
 ```
-pip show scmail
+  -v, --verbose         Show verbose messages.
 ```
 
