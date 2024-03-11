@@ -87,7 +87,7 @@ specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this comman
 2. `example1_params.txt`: this file reports the dropout rate, silencing rate, the negative log-likelihood of the tree topology and parameters, and the mutation rate
 3. `example1_annotations.txt`: This file has two components
    (i) the newick string of the rooted tree with internal nodes labeled and branch lengths show the infer *number of mutations*.
-   (ii) imputed sequences for each node in the tree. For sites with multiple possible states, that site is annotated with the probability of each possible state.
+   (ii) imputed sequences for each node in the tree. If a site has multiple possible states, it is annotated with the probability of each possible state.
 
 
 We provide sample outputs in `examples/out_example1/` for your reference. 
