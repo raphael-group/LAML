@@ -1,14 +1,14 @@
 Launching LAML version 0.0.2
-LAML was called as follows: /Users/gc3045/miniconda3/envs/test_laml/bin/run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --timescale 10
+LAML was called as follows: run_laml.py -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv -o example1 --nInitials 1 --timescale 10
 Optimizing branch lengths, phi, and nu without topology search
 Optimization by EM algorithm
-Initial point 1. Random seed: 437
+Initial point 1. Random seed: 9697
 Numerical optimization started with ultrametric constraint (default)
-Initial phi: 0.8189905087002062. Initial nu: 0.5553228345621773. Initial nllh: 16700.56501441201
+Initial phi: 0.6552157923672384. Initial nu: 0.5217815084485568. Initial nllh: 13275.253578186654
 EM finished after 40 iterations.
-Optimal phi: 0.1438204476340323. Optimal nu: 0.13347850000514905. Optimal nllh: 6987.352509042895
+Optimal phi: 0.14378501771164973. Optimal nu: 0.13359737967697907. Optimal nllh: 6987.352449704049
 Optimal point found for initial point 1
 Numerical optimization finished successfully
-Tree height pre-scaling: 1.0343309302655692, input timescale: 10
-Tree height after scaling: 10.0, mutation rate: 0.10343309302655693
-Runtime (s): 13.223074083
+Tree height pre-scaling: 1.034192687776938, input timescale: 10
+Tree height after scaling: 10.0, mutation rate: 0.1034192687776938
+Runtime (s): 13.292462625

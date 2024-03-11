@@ -55,17 +55,19 @@ If you wish to install from source, do the following steps:
 run_laml -c <character_matrix> -t <tree_topology> 
 ```
 LAML requires the following two input files:
-1. A file containing the character matrix, a [tab-separated values (TSV) file](https://en.wikipedia.org/wiki/Tab-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative intergers or '?', with 0 indicating the unmutated state, other intergers indicating mutated state, and '?' indicating missing data. Refer to the paper for more details. 
+1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character (which should also be specified by the user explicitly using the `-m` flag). Refer to the paper for more details. 
 2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). 
 
 See an example character matrix in [examples/example1/character_matrix.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/character_matrix.csv) and an example tree topology in [examples/example1/starting.tree](https://github.com/raphael-group/LAML/tree/laml/examples/example1/starting.tree)
 
+While not strictly required, mutation priors can have a large effect on the outputs. If no mutation priors are provided, LAML assumes uniform priors by default. We provide details on how you can specify the mutation prior input file in the **Input options** section. 
+
 There are four output files: 
 
-1. `<output_prefix>_trees.nwk`: the output tree with time-resolved branch lengths
-2. `<output_prefix>_params.txt`: this file reports the dropout rate, silencing rate, and negative log-likelihood.
-3. `<output_prefix>_annotations.txt`: this file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
-4. `<output_prefix>.log`: the logfile of LAML.
+1. `<output_prefix>_trees.nwk`: The output tree with time-resolved branch lengths
+2. `<output_prefix>_params.txt`: This file reports the dropout rate, silencing rate, and negative log-likelihood.
+3. `<output_prefix>_annotations.txt`: This file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
+4. `<output_prefix>.log`: The LAML logfile.
 
 ## Examples
 To try the following examples, first do the followings:
@@ -80,7 +82,7 @@ LAML can infer time-resolved branch lengths and the rates of the two missing dat
 
 For example, the following command
 ```
-run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv --delimiter comma -o example1 --nInitials 1 --timescale 10
+run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv -o example1 --nInitials 1 --timescale 10
 ```
 specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this command will produce three output files
 1. `example1_trees.nwk`: the output tree containing time-resolved branch lengths. This tree has the same topology as the starting tree specified in `-t`, but has branch lengths in time units
@@ -106,7 +108,7 @@ LAML can simultaneously infer tree topology, branch lengths, and the missing dat
 
 For example, the following command
 ```
-run_laml -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv --delimiter comma -o example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
+run_laml -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv -o example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
 ```
 enables topology search using the flag ``--topology_search``. 
 Running this command will produce three output files 
@@ -153,10 +155,18 @@ Below are some other important options available in LAML. For full documentation
 ### Input options
 ```
   -p PRIORS, --priors PRIORS    The input prior matrix Q. Default: if not specified, use a uniform prior.
-  --delimiter DELIMITER    The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'tab'.
-  -m MASKEDCHAR, --maskedchar MASKEDCHAR    Masked character. Default: if not specified, assumes '-'.
+  --delimiter DELIMITER    The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'comma'.
+  -m MISSING_DATA, --missing_data MISSING_DATA Missing data character. Default: if not specified, assumes '?'.
 ```
-[TODO for GC] Add description for the format of the prior file and link to an example. The two use cases both have --prior. Perhaps we should mention it sooner? Any thoughts?
+
+<!--[TODO for GC] Add description for the format of the prior file and link to an example. The two use cases both have --prior. Perhaps we should mention it sooner? Any thoughts? GC: I think we should mention it sooner, but keep things simple. Please see my edits. -->
+
+**Recommended** A file containing the prior matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values), with three columns: site index, character state, and probability. The site index and character states must be integers, and the probability must be a float. We do *not* expect the unmutated state to appear in the alphabet. See an example input prior file in
+[examples/example1/priors.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/priors.csv).
+
+**Not recommended** We also accept [Python-pickled files](https://docs.python.org/3/library/pickle.html#data-stream-format), as this is the indel prior output format for [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/notebooks/reconstruct.html). We print a warning if the keys of the pickled prior dictionary do not match the site names in your provided character matrix file. 
+
+Please note that LAML will accept a character matrix and treat all negative integers, non-alphanumeric values as a single character observed to be missing. However, for best practices, the user should explicitly specify their missing data character.
 
 ### Output options
 ```
@@ -166,16 +176,16 @@ Below are some other important options available in LAML. For full documentation
 ### Numerical optimization
 ```
   -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute log-likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
-  --noSilence           Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
+  --noSilence         Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing. Does not necessarily produce ultrametric trees, and cannot be time-scaled. This option has higher priority than --timescale or --ultrametric.
   --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
-  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. The default is set to 1.0.
+  --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. Default: 1.0.
   --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
   --nInitials NINITIALS    The number of initial points. Default: 20.
 ```
 
 ### Topology search
 ```
-  --topology_search     Perform topology search using NNI operations. Always return fully resolved (i.e. binary) tree.
+  --topology_search     Perform topology search using NNI operations. Always returns a fully resolved (i.e. binary) tree.
   --resolve_search      Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topology_search.
   --keep_polytomies     Keep polytomies while performing topology search. This option only works with --topology_search.
   --parallel            Turn on parallel version of topology search.
