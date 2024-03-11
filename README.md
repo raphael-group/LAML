@@ -9,7 +9,6 @@ For additional information about the method, you can refer to the [website](http
 The following precursors **are required** to install and run LAML
 ### Python
 The software requires python >= 3.8.
-<!--Please note that if you're using a M1 Mac, you should use python >= 3.8.-->
 
 ### [IMPORTANT] MOSEK License
 The software uses [MOSEK](https://www.mosek.com) for numerical optimization, which requires a license. Please do the following 2 steps:
