@@ -11,7 +11,7 @@ LAML can infer time-resolved branch lengths and the rates of the two missing dat
 
 For example, the following command:
 ```
-run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv -o example1 --nInitials 1 --timescale 10
+run_laml -c examples/example1/character_matrix.csv -t examples/example1/starting.tree -p examples/example1/priors.csv -o example1 --nInitials 1 --timescale 10 -v
 ```
 specifies the tree via ``-t`` and set ``--timescale`` to 10. Running this command will produce three output files
 1. `example1_trees.nwk`: the output tree containing time-resolved branch lengths. This tree has the same topology as the starting tree specified in `-t`, but has branch lengths in time units
