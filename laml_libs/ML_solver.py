@@ -4,7 +4,7 @@ from random import random, seed, choice
 from scipy import optimize
 import warnings
 import numpy as np
-from laml_libs import min_llh, eps, nni_conv_eps
+from laml_libs import min_llh, eps, nni_conv_eps, dmin, dmax
 from laml_libs.Virtual_solver import Virtual_solver
 from scipy.sparse import csr_matrix
 from copy import deepcopy
@@ -39,13 +39,14 @@ class ML_solver(Virtual_solver):
         self.params = Params(nu,phi)        
         # compute numsites, num_edges, dmin, and dmax 
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
-        self.dmin = 0.005
+        self.dmin = dmin
         zerocount = sum([self.charMtrx[e].count(0) for e in self.charMtrx])
         totalcount = self.numsites * len(self.charMtrx)
         if totalcount == 0:
             print("WARNING: Number of sites in input character matrix detected as 0! Check delimiter?")
         zeroprop = zerocount/totalcount
-        self.dmax = -log(zeroprop) if zeroprop != 0 else 10
+        #self.dmax = -log(zeroprop) if zeroprop != 0 else 10
+        self.dmax = dmax
 
     def get_tree_newick(self):
         return [tree.newick() for tree in self.trees]
