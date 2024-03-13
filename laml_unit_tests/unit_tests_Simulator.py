@@ -1,8 +1,8 @@
 from itertools import combinations
 import treeswift
 import unittest
-from scmail_libs.sim_lib import *
-from unit_tests.utils import count_all, count_missing, setup, calc_expected
+from laml_libs.sim_lib import *
+from laml_unit_tests.utils import count_all, count_missing, setup, calc_expected
 
 class SimulatorTest(unittest.TestCase):
 
@@ -13,7 +13,7 @@ class SimulatorTest(unittest.TestCase):
         nreps = 20
         m, mu, k, d = 30, 1, 500, 0.0
         
-        tree = treeswift.read_tree_newick("unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
+        tree = treeswift.read_tree_newick("laml_unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
 
         allreps = dict()
         for rep in range(nreps):
@@ -28,7 +28,7 @@ class SimulatorTest(unittest.TestCase):
         randomseed = 1984
         nreps = 50
         m, mu, k, d = 30, 1, 500, 0.01
-        tree = treeswift.read_tree_newick("unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
+        tree = treeswift.read_tree_newick("laml_unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
 
         allreps = dict()
         for rep in range(nreps):
@@ -44,7 +44,7 @@ class SimulatorTest(unittest.TestCase):
         randomseed = 1984
         nreps = 50
         m, mu, k, d = 30, 1, 500, 0.3
-        tree = treeswift.read_tree_newick("unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
+        tree = treeswift.read_tree_newick("laml_unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
 
         allreps = dict()
         for rep in range(nreps):
@@ -60,7 +60,7 @@ class SimulatorTest(unittest.TestCase):
         randomseed = 1984
         nreps = 50
         m, mu, k, d = 30, 1, 500, 0.01
-        tree = treeswift.read_tree_newick("unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
+        tree = treeswift.read_tree_newick("laml_unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
 
         allreps = dict()
         for rep in range(nreps):
@@ -76,7 +76,7 @@ class SimulatorTest(unittest.TestCase):
         randomseed = 1984
         nreps = 50
         m, mu, k, s = 30, 1, 500, 0.0
-        tree = treeswift.read_tree_newick("unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
+        tree = treeswift.read_tree_newick("laml_unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
 
         allreps = dict()
         for rep in range(nreps):
@@ -228,7 +228,7 @@ class SimulatorTest(unittest.TestCase):
         # test that different replicates give different cmtxs
         nreps = 10 
         m, mu, k = 30, 1, 500 
-        tree = treeswift.read_tree_newick("unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
+        tree = treeswift.read_tree_newick("laml_unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
 
         allreps = dict()
         for rep in range(nreps):
@@ -241,7 +241,7 @@ class SimulatorTest(unittest.TestCase):
         # write chi squared test on tree with 
         nreps = 10
         m, mu, k, s = 30, 1, 500, 0.05
-        tree = treeswift.read_tree_newick("unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
+        tree = treeswift.read_tree_newick("laml_unit_tests/test_data/test_simulator/test.tre") #set unbalanced cass tree 
         allreps = dict()
         Q = sim_Q(k, m)
         for rep in range(nreps):

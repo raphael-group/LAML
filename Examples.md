@@ -1,5 +1,5 @@
 # Prerequisites
-To try the following examples, first do the followings:
+To try the following examples, first do the following:
 1. Download the data from [examples.zip](https://github.com/raphael-group/laml/tree/master/examples.zip)
 2. Unzip the downloaded file. After unzipping, you should see a folder named ``examples``
 3. Change directory to ``examples``

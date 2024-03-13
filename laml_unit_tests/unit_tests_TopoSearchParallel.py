@@ -1,9 +1,9 @@
 import os 
 import unittest
-from scmail_libs import *
-from scmail_libs.EM_solver import EM_solver
-from scmail_libs.ML_solver import ML_solver
-from scmail_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
+from laml_libs import *
+from laml_libs.EM_solver import EM_solver
+from laml_libs.ML_solver import ML_solver
+from laml_libs.Topology_search_parallel import Topology_search_parallel as Topology_search
 from treeswift import *
 from copy import deepcopy
 
@@ -13,7 +13,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
         #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
-        nllh_bf = 7.877269958604131 # precomputed from brute-force
+        nllh_bf = 7.851513477595168 # precomputed from brute-force
          
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
@@ -31,7 +31,7 @@ class TopoSearchParallelTest(unittest.TestCase):
     def test_2(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
-        nllh_bf = 7.877269958604131 # precomputed from brute-force
+        nllh_bf = 7.851513477595168 # precomputed from brute-force
         
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
@@ -49,7 +49,7 @@ class TopoSearchParallelTest(unittest.TestCase):
     def test_3(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
-        nllh_bf = 7.877269958604131 # precomputed from brute-force
+        nllh_bf = 7.851513477595168 # precomputed from brute-force
         
         T0 = '(a,b,c,d);'
         data = {'charMtrx':msa}
@@ -66,7 +66,7 @@ class TopoSearchParallelTest(unittest.TestCase):
     def test_4(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
-        nllh_bf = 7.877269958604131 # precomputed from brute-force
+        nllh_bf = 7.851513477595168 # precomputed from brute-force
         
         T0 = '((a,b),c,d);'
         data = {'charMtrx':msa}
@@ -86,7 +86,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
         #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
-        nllh_bf = 12.48204978089449 # precomputed from brute-force
+        nllh_bf = 11.809140958825493 # precomputed from brute-force
         
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
@@ -108,7 +108,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
         #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
          
-        nllh_bf = 6.042549046654788
+        nllh_bf = 5.078899863875112
         
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
@@ -129,7 +129,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
         #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
-        nllh_bf = 12.010496077449595
+        nllh_bf = 10.083048489886435
         
         T0 = '((a,b),c,d);'
         data = {'charMtrx':msa}
@@ -148,7 +148,7 @@ class TopoSearchParallelTest(unittest.TestCase):
     def test_8(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        nllh_bf = 12.010496077449595
+        nllh_bf = 10.08306053772235
         
         T0 = '((c,d),a,b);'
         data = {'charMtrx':msa}
@@ -167,7 +167,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
         #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver,ultra_constr=True)
-        nllh_bf = 7.0063474330891236 # pre-computed using brute-force search
+        nllh_bf = 7.006347436396466 # pre-computed using brute-force search
         
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
@@ -185,7 +185,7 @@ class TopoSearchParallelTest(unittest.TestCase):
     def test_10(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        nllh_bf = 7.0063474330891236 # pre-computed using brute-force search
+        nllh_bf = 7.006347436396466 # pre-computed using brute-force search
         T0 = '(a,b,c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}

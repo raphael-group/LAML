@@ -55,7 +55,7 @@ def main():
     numericalOptions.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
     numericalOptions.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
     numericalOptions.add_argument("--timescale",required=False,default=1.0,help="Timeframe of experiment. Scales ultrametric output tree branches to this timescale. To get an accurate estimate of mutation rate, provide timeframe in number of cell generations. Default: 1.0.")
-    numericalOptions.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing. Does not necessarily produce ultrametric trees, and cannot be time-scaled. This option has higher priority than --timescale or --ultrametric.")
+    numericalOptions.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.")
     numericalOptions.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
     numericalOptions.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
     numericalOptions.add_argument("--randseeds",required=False,help="Random seeds for branch length optimization. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
@@ -124,8 +124,14 @@ def main():
         Q = []
         for i in range(k):
             M_i = set(msa[x][i] for x in msa if msa[x][i] not in [0,"?"])
-            m_i = len(M_i)
-            q = {x:1/m_i for x in M_i}
+            # TODO: check if column has only zeros and missing data
+            if len(M_i) == 0: 
+                # add pseudo mutated state
+                m_i = 1
+                q = {"1":1.0}
+            else:
+                m_i = len(M_i)
+                q = {x:1/m_i for x in M_i}
             q[0] = 0
             Q.append(q)
     else:
@@ -208,16 +214,16 @@ def main():
         with open(out_tree,'w') as fout:
             for tstr in opt_trees:
                 tree = read_tree_newick(tstr)
-                if not args['noSilence']:
-                    # get the height of the tree
-                    tree_height = tree.height(weighted=True) # includes the root's length, mutation units 
-                    scaling_factor = tree_height/float(args['timescale'])
-                    print(f"Tree height pre-scaling: {tree_height}, input timescale: {args['timescale']}") 
-                    for node in tree.traverse_preorder(): 
-                        node.edge_length = node.edge_length / scaling_factor 
-                    tree_height = tree.height(weighted=True) 
-                    mutation_rate = scaling_factor # not divided per site
-                    print(f"Tree height after scaling: {tree_height}, mutation rate: {mutation_rate}")
+                #if not args['noSilence']:
+                # get the height of the tree
+                tree_height = tree.height(weighted=True) # includes the root's length, mutation units 
+                scaling_factor = tree_height/float(args['timescale'])
+                print(f"Tree height pre-scaling: {tree_height}, input timescale: {args['timescale']}") 
+                for node in tree.traverse_preorder(): 
+                    node.edge_length = node.edge_length / scaling_factor 
+                tree_height = tree.height(weighted=True) 
+                mutation_rate = scaling_factor # not divided per site
+                print(f"Tree height after scaling: {tree_height}, mutation rate: {mutation_rate}")
                 tstr = tree.__str__().split()
                 if len(tstr) > 1:
                     fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
