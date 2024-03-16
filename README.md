@@ -107,7 +107,7 @@ Below are some other important options available in LAML. For full documentation
 ### Numerical optimization
 ```
   -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute log-likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
-  --noSilence         Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing. Does not necessarily produce ultrametric trees, and cannot be time-scaled. This option has higher priority than --timescale or --ultrametric.
+  --noSilence         Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.
   --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
   --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. Default: 1.0.
   --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
