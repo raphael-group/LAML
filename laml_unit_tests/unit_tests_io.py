@@ -1,11 +1,8 @@
 import sys
 import os 
 import unittest
-from treeswift import *
-import run_laml
 import cvxpy as cp
 import pkg_resources
-from io import StringIO
 import subprocess
 import re 
 from random import randint
@@ -28,6 +25,7 @@ class InputOutputTest(unittest.TestCase):
         msa_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_inputs/test1_charMtrx.txt')
        
         rand_file_name = os.path.join(tmp_output_dir, f'LAML_output_{randint(10**2, 10**3-1)}') 
+        # waits for the process to end
         out = subprocess.run(["run_laml", "-c", msa_path, "-t", treedata_path, "-o", rand_file_name], capture_output=True, text=True) 
         
         self.assertEqual(bool(re.search('uniform', out.stdout)), True)
