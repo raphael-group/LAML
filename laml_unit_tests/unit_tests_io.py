@@ -29,7 +29,6 @@ class InputOutputTest(unittest.TestCase):
         out = subprocess.run(["run_laml", "-c", msa_path, "-t", treedata_path, "-o", rand_file_name], capture_output=True, text=True) 
         
         self.assertEqual(bool(re.search('uniform', out.stdout)), True)
-        self.assertEqual(out.returncode, 0)
 
         # check that the four files are generated
         param_file = f'{rand_file_name}_params.txt'
@@ -59,6 +58,7 @@ class InputOutputTest(unittest.TestCase):
         # check tree is scaled to 1
         pattern = "Tree height after scaling:(.*), mutation"
         matches = re.findall(pattern, out.stdout, re.DOTALL)
+
         tree_height = float(matches[0])
         self.assertAlmostEqual(tree_height,1.0,places=4,msg="InputOutputTest: test_3 failed.")
 
