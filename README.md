@@ -16,21 +16,11 @@ The software uses [MOSEK](https://www.mosek.com) for numerical optimization, whi
 2. After obtaining the license file ``mosek.lic``, follow  [this page](https://docs.mosek.com/latest/licensing/client-setup.html) to place the license file in the correct place. 
 
 ## Install from PyPI
+The latest stable version is available on PyPI. To install, use the following command:
 ```
 pip install laml 
 ```
-After installation, type the following
-```
-run_laml -h
-```
-to see the commandline help of LAML.
-
-## [Optional] Testing
-
-Unit tests are available to ensure the success of installation. We highly recommend that the user performs the following step to test the installation.
-
-In your terminal, type the following
-
+After installation, type the following for testing
 ```
 laml_tests.py 
 ```
@@ -42,8 +32,20 @@ Ran 80 tests in 13.486s
 
 OK
 ```
-## [For developers] Install from source
-If you wish to install from source, do the following steps:
+
+Now, type
+
+```
+run_laml -h
+```
+to see the commandline help of LAML.
+
+## [For developers] Other installation options
+New releases are available on the [github releases](https://github.com/raphael-group/LAML/releases). To get a specific release version, simply download the corresponding `.whl` file and install using pip. For instance, to install [LAML version 0.0.2](https://github.com/raphael-group/LAML/releases/tag/v0.0.2), you need to download the file [LAML-0.0.2-py3-none-any.whl](https://github.com/raphael-group/LAML/releases/download/v0.0.2/LAML-0.0.2-py3-none-any.whl) and install using `pip`, as follows:
+```
+    pip install LAML-0.0.2-py3-none-any.whl
+```
+Alternatively, if you wish to install the developing version available on Github, you need to install from source. Do the following steps:
 1. Clone the LAML github to your machine:
 ``git clone https://github.com/raphael-group/LAML.git``
 2. Change directory to the ``LAML`` folder. Then use ``pip`` to install from source.
