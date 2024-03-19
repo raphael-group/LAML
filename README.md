@@ -45,7 +45,7 @@ New releases are available on the [github releases](https://github.com/raphael-g
 ```
     pip install LAML-0.0.2-py3-none-any.whl
 ```
-Alternatively, if you wish to install the developing version available on Github, you need to install from source. Do the following steps:
+Alternatively, if you wish to install the (developing) version available on Github, you need to install from source. Do the following steps:
 1. Clone the LAML github to your machine:
 ``git clone https://github.com/raphael-group/LAML.git``
 2. Change directory to the ``LAML`` folder. Then use ``pip`` to install from source.
