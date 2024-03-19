@@ -70,7 +70,7 @@ There are four output files:
 4. `LAML_output.log`: The LAML logfile.
 
 ## Examples
-We provide two examples for the two common use cases of LAML. See [Examples.md](https://github.com/raphael-group/laml/tree/master/Examples.md) for more details.
+We provide two examples for two common LAML use cases. See [Examples.md](https://github.com/raphael-group/laml/tree/master/Examples.md) for more details.
 
 ## Advanced I/O options
 LAML has the following additional options for I/O
@@ -91,7 +91,7 @@ Note: LAML also accepts a character matrix that contains negative integers and/o
 
 ### The mutation priors
 While not strictly required, **mutation priors** can have a large effect on the outputs. If no mutation priors are provided, LAML uses uniform priors
-by default. However, if possible we highly recommend specifying mutation prior using `-p`. We accept the following two formats for mutation priors 
+by default. However, if possible we highly recommend specifying mutation prior using `-p`. We accept the following two formats for mutation priors:
 
 **Recommended** A file containing the prior matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values), with three columns: site index, character state, and probability. The site index and character states must be integers, and the probability must be a float. We do *not* expect the unmutated state to appear in the alphabet. See an example input prior file in
 [examples/example1/priors.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/priors.csv).

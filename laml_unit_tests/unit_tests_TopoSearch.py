@@ -213,7 +213,6 @@ class TopoSearchTest(unittest.TestCase):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
         nllh_bf,bf_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver,ultra_constr=True)
-        
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
