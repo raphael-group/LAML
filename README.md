@@ -50,6 +50,7 @@ Alternatively, if you wish to install the (developing) version available on Gith
 ``git clone https://github.com/raphael-group/LAML.git``
 2. Change directory to the ``LAML`` folder. Then use ``pip`` to install from source.
 ``pip install .``
+3. After installation, run `laml_tests.py` as instructed above.
 
 # Usage
 ```
