@@ -58,7 +58,16 @@ run_laml -c <character_matrix> -t <tree_topology>
 ```
 ## Input
 LAML requires the following two input files:
+
+
 1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character. Refer to the paper for more details. 
+
+| cell_name  | site_1 | site_2 |
+| ------------- | ------------- | ------------- |
+| cell_1  | 1  | 2  |
+| cell_2  | 0  | 2  |
+| cell_3  | 1  | 0  |
+
 2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). 
 
 See an example character matrix in [examples/example1/character_matrix.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/character_matrix.csv) and an example tree topology in [examples/example1/starting.tree](https://github.com/raphael-group/LAML/tree/laml/examples/example1/starting.tree)
