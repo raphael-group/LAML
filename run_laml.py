@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import os
 import pickle
-import laml_libs as scmail
+import laml_libs as laml
 from laml_libs.sequence_lib import read_sequences, read_priors
 from laml_libs.ML_solver import ML_solver
 from laml_libs.EM_solver import EM_solver
@@ -54,7 +54,7 @@ def main():
     # Numerical Optimization Arguments
     numericalOptions.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
     numericalOptions.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
-    numericalOptions.add_argument("--timescale",required=False,default=1.0,help="Timeframe of experiment. Scales ultrametric output tree branches to this timescale. To get an accurate estimate of mutation rate, provide timeframe in number of cell generations. Default: 1.0.")
+    numericalOptions.add_argument("--timescale",required=False,type=float,default=1.0,help="Timeframe of experiment. The depth of all output trees will be scaled to this number. Default: 1.0.")
     numericalOptions.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in single cell sequencing.")
     numericalOptions.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
     numericalOptions.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
@@ -88,16 +88,14 @@ def main():
         print("Input files not found.")
         exit(0)
     
-    print("Launching " + scmail.PROGRAM_NAME + " version " + scmail.PROGRAM_VERSION)
-    print(scmail.PROGRAM_NAME + " was called as follows: " + " ".join(argv))
+    print("Launching " + laml.PROGRAM_NAME + " version " + laml.PROGRAM_VERSION)
+    print(laml.PROGRAM_NAME + " was called as follows: " + " ".join(argv))
     start_time = timeit.default_timer()
     
     # preprocessing: read and analyze input
     delim_map = {'tab':'\t','comma':',','whitespace':' '}
     delimiter = delim_map[args["delimiter"]]
     msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["missing_data"])
-    #prefix = '.'.join(args["output"].split('.')[:-1])
-
 
     with open(args["topology"],'r') as f:
         input_trees = []
@@ -147,7 +145,9 @@ def main():
     data = {'charMtrx':msa} 
     prior = {'Q':Q} 
     
-    params = {'nu':fixed_nu if fixed_nu is not None else scmail.eps,'phi':fixed_phi if fixed_phi is not None else scmail.eps}  
+    params = {'nu':fixed_nu if fixed_nu is not None else laml.eps,
+              'phi':fixed_phi if fixed_phi is not None else laml.eps,
+              'ld':1.0}  
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
 
@@ -164,9 +164,18 @@ def main():
         print("Tree log-likelihood: " + str(-nllh))
     else:
         # setup the strategy
-        my_strategy = deepcopy(scmail.DEFAULT_STRATEGY)
+        my_strategy = deepcopy(laml.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
-        my_strategy['ultra_constr'] = True #args["ultrametric"] # TODO: Remove this flag
+        my_strategy['ultra_constr'] = False #args["ultrametric"] # TODO: Remove this flag
+        # setup sampling times
+        smpl_times = []
+        for tree_str in input_trees:
+            T = read_tree_newick(tree_str)
+            curr_smpl_times = {}
+            for node in T.traverse_leaves():
+                curr_smpl_times[node.label] = args["timescale"]                
+            smpl_times.append(curr_smpl_times)    
+        my_strategy['sampling_times'] = smpl_times
         # resolve polytomies or not?
         resolve_polytomies = not args["keep_polytomies"]
         # only resolve polytomies or do full search?
@@ -179,7 +188,7 @@ def main():
             else:    
                 print("Optimization by generic solver (Scipy-SLSQP)")        
             mySolver = myTopoSearch.get_solver()
-            nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True) #args["ultrametric"]) # TODO: Remove this flag
+            nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=False,smpl_times=smpl_times)
             myTopoSearch.update_from_solver(mySolver)
             opt_trees = myTopoSearch.treeTopoList
             opt_params = myTopoSearch.params
@@ -205,7 +214,6 @@ def main():
             nllh = -max_score        
     
     # post-processing: analyze results and output 
-    
     if not args["compute_llh"]:
         out_tree = prefix + "_trees.nwk"
         out_annotate = prefix + "_annotations.txt"
@@ -214,17 +222,12 @@ def main():
         with open(out_tree,'w') as fout:
             for tstr in opt_trees:
                 tree = read_tree_newick(tstr)
-                #if not args['noSilence']:
                 # get the height of the tree
-                tree_height = tree.height(weighted=True) # includes the root's length, mutation units 
-                scaling_factor = tree_height/float(args['timescale'])
-                print(f"Tree height pre-scaling: {tree_height}, input timescale: {args['timescale']}") 
+                ld = opt_params['ld'] # mutation rate
                 for node in tree.traverse_preorder(): 
-                    node.edge_length = node.edge_length / scaling_factor 
-                tree_height = tree.height(weighted=True) 
-                mutation_rate = scaling_factor # not divided per site
-                print(f"Tree height after scaling: {tree_height}, mutation rate: {mutation_rate}")
-                tstr = tree.__str__().split()
+                    node.edge_length = node.edge_length / ld
+                tstr = tree.__str__().split()                
+                #fout.write(tstr)
                 if len(tstr) > 1:
                     fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
                 else:
@@ -255,7 +258,7 @@ def main():
                         out += alpha + ":" + str(p_alpha)
                 return out
 
-        my_solver = EM_solver(opt_trees,{'charMtrx':msa},{'Q':Q},{'phi':opt_params['phi'],'nu':opt_params['nu']})
+        my_solver = EM_solver(opt_trees,{'charMtrx':msa},{'Q':Q},{'phi':opt_params['phi'],'nu':opt_params['nu'],'ld':opt_params['ld']})
         my_solver.az_partition()
         my_solver.Estep()
         idx = 0
@@ -305,7 +308,7 @@ def main():
             fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")
             fout.write("Silencing rate: " + str(opt_params['nu']) + "\n") 
             fout.write("Negative-llh: " +  str(nllh) + "\n")
-            fout.write("Mutation rate: " +  str(mutation_rate) + "\n") 
+            fout.write("Mutation rate: " +  str(opt_params['ld']) + "\n") 
                     
         stop_time = timeit.default_timer()
         print("Runtime (s):", stop_time - start_time)

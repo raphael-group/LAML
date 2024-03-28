@@ -11,16 +11,18 @@ from copy import deepcopy
 from laml_libs.lca_lib import find_LCAs
 
 class Params:
-    def __init__(self,nu,phi):
+    def __init__(self,nu,phi,ld):
         self.nu = nu
         self.phi = phi
+        self.ld = ld
 
 class ML_solver(Virtual_solver):
-    def __init__(self,treeList,data,prior,params={'nu':eps,'phi':eps}):
+    def __init__(self,treeList,data,prior,params={'nu':eps,'phi':eps,'ld':1.0}):
         charMtrx = data['charMtrx']
         Q = prior['Q']
         nu = params['nu']
         phi = params['phi']
+        ld = params['ld']
         self.charMtrx = charMtrx
         self.trees = []
         self.num_edges = 0
@@ -36,7 +38,7 @@ class ML_solver(Virtual_solver):
             Q_i_norm = {x:Q_i[x]/s for x in Q_i}
             self.Q.append(Q_i_norm)        
         # setup params
-        self.params = Params(nu,phi)        
+        self.params = Params(nu,phi,ld)        
         # compute numsites, num_edges, dmin, and dmax 
         self.numsites = len(self.charMtrx[next(iter(self.charMtrx.keys()))])
         self.dmin = dmin
@@ -52,7 +54,7 @@ class ML_solver(Virtual_solver):
         return [tree.newick() for tree in self.trees]
 
     def get_params(self):
-        return {'phi':self.params.phi,'nu':self.params.nu}
+        return {'phi':self.params.phi,'nu':self.params.nu, 'ld':self.params.ld}
 
     def ultrametric_constr(self):
         N = len(self.ini_all())
@@ -69,11 +71,43 @@ class ML_solver(Virtual_solver):
                     node.constraint = c1.constraint
                 node.constraint[idx] = 1
                 idx += 1
+        # make sure all trees have the same height
         for tree in self.trees[1:]:
             m = [x-y for (x,y) in zip(self.trees[0].root.constraint,tree.root.constraint)]
             M.append(m)
         return M
 
+    def sampling_time_constr(self,smpl_times,root_time=0):
+    # smpl_times is a list of dictionaries mapping each leaf node name to a sampling time
+    # by default, the root time is set to 0. If root time is unknown, set root_time to None
+        N = len(self.ini_all())
+        M = []
+        #d = []
+        idx = 0
+        for t,tree in enumerate(self.trees): 
+            for node in tree.traverse_postorder():
+                if node.is_leaf():
+                    node.constraint = [0.]*N
+                    node.constraint[-1] = -smpl_times[t][node.label]
+                    #node.anchor_t = smpl_times[t][node.label]
+                else:
+                    c1,c2 = node.children
+                    m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]
+                    M.append(m)
+                    #d.append(c1.anchor_t-c2.anchor_t)
+                    node.constraint = c1.constraint
+                    #node.anchor_t = c1.anchor_t
+                node.constraint[idx] = 1
+                idx += 1
+        # setup the constraint on the root_time
+        if root_time is not None:        
+            for tree in self.trees:
+                m = tree.root.constraint
+                m[-1] += root_time
+                M.append(m)
+                #d.append(tree.root.anchor_t-root_time)
+        return M
+        
     def score_tree(self,strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':{}}):
         ultra_constr = strategy['ultra_constr']
         fixed_phi = strategy['fixed_phi']
@@ -171,14 +205,20 @@ class ML_solver(Virtual_solver):
     def ini_phi(self,fixed_phi=None):
         return random()*0.99 if fixed_phi is None else fixed_phi   
 
+    def ini_lambda(self):
+        return random()*10 
+
     def ini_all(self,fixed_phi=None,fixed_nu=None):
-        return self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
+        return self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi),self.ini_lambda()]
 
     def bound_nu(self,fixed_nu=None):
         return (eps,10) if fixed_nu is None else (fixed_nu-eps,fixed_nu+eps)
     
     def bound_phi(self,fixed_phi=None):
         return (eps,0.99) if fixed_phi is None else (fixed_phi-eps,fixed_phi+eps)
+
+    def bound_lambda(self):
+        return (eps,np.inf)
 
     def bound_brlen(self):        
         return [self.dmin]*self.num_edges,[self.dmax]*self.num_edges
@@ -187,7 +227,8 @@ class ML_solver(Virtual_solver):
         br_lower,br_upper = self.bound_brlen()  
         phi_lower,phi_upper = self.bound_phi(fixed_phi=fixed_phi)
         nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
-        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower],br_upper+[nu_upper,phi_upper],keep_feasible=keep_feasible)
+        ld_lower,ld_upper = self.bound_lambda()
+        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower,ld_lower],br_upper+[nu_upper,phi_upper,ld_upper],keep_feasible=keep_feasible)
         return bounds
 
     def x2brlen(self,x):
@@ -203,10 +244,14 @@ class ML_solver(Virtual_solver):
     def x2phi(self,x,fixed_phi=None):
         self.params.phi = x[self.num_edges+1] if fixed_phi is None else fixed_phi
 
+    def x2lambda(self,x):
+        self.params.ld = x[self.num_edges+2]    
+
     def x2params(self,x,fixed_nu=None,fixed_phi=None):
         self.x2brlen(x)
         self.x2nu(x,fixed_nu=fixed_nu)
         self.x2phi(x,fixed_phi=fixed_phi)
+        self.x2lambda(x)
 
     def __llh__(self):
         return self.lineage_llh()
@@ -215,7 +260,7 @@ class ML_solver(Virtual_solver):
         self.az_partition()
         return -self.__llh__()
 
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,fixed_brlen={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,fixed_brlen={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False,smpl_times=None):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
     # fixed_brlen is a dictionary that maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed.
@@ -263,7 +308,7 @@ class ML_solver(Virtual_solver):
                         u = fixed_nodes[i]
                         u.edge_length = fixed_brlen[(a,b)]
                         u.mark_fixed = True
-                nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
+                nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr,smpl_times=smpl_times)
                 
                 if nllh is not None:
                     all_failed = False
@@ -295,9 +340,10 @@ class ML_solver(Virtual_solver):
                 print("Numerical optimization finished successfully")
             return results[0][0],status
 
-    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False):
+    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False,smpl_times=None):
         # optimize using a specific initial point identified by the input randseed
         # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
+        # smpl_times is a list of dictionaries mapping each leaf node name to a sampling time
         warnings.filterwarnings("ignore")
         def nllh(x): 
             self.x2params(x,fixed_nu=fixed_nu,fixed_phi=fixed_phi)            
@@ -319,11 +365,14 @@ class ML_solver(Virtual_solver):
                     a[idx] = 1
                     A.append(a)
                     b.append(node.edge_length)
-                idx += 1   
+                idx += 1
         if len(A) > 0:     
             constraints.append(optimize.LinearConstraint(csr_matrix(A),b,b,keep_feasible=False))
         if ultra_constr:
             M = self.ultrametric_constr()
+            constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
+        if smpl_times is not None:
+            M = self.sampling_time_constr(smpl_times,root_time=0)
             constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
         disp = (verbose > 0)
         out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)

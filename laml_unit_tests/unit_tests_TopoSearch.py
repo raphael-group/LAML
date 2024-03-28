@@ -55,7 +55,6 @@ class TopoSearchTest(unittest.TestCase):
         for T in topos:
             mySolver = solver([T],{'charMtrx':msa},{'Q':Q})
             nllh,_ = mySolver.optimize(initials=initials,verbose=-1,ultra_constr=ultra_constr)
-            #print(T,nllh)
             if nllh < best_nllh:
                 best_nllh = nllh
                 best_tree = mySolver.trees[0].newick()
@@ -70,7 +69,7 @@ class TopoSearchTest(unittest.TestCase):
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         # topology search with EM_solver
         myTopoSearch_EM = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
@@ -88,7 +87,7 @@ class TopoSearchTest(unittest.TestCase):
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'nu':0,'phi':0}
+        params = {'nu':0,'ld':1.0,'phi':0}
         
         # topology search with ML_solver
         myTopoSearch_ML = Topology_search([T0],ML_solver,data=data,prior=prior,params=params)
@@ -106,7 +105,7 @@ class TopoSearchTest(unittest.TestCase):
         T0 = '(a,b,c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'nu':0,'phi':0}
+        params = {'nu':0,'ld':1.0,'phi':0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,nreps=1)
@@ -123,7 +122,7 @@ class TopoSearchTest(unittest.TestCase):
         T0 = '((a,b),c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'nu':0,'phi':0}
+        params = {'nu':0,'ld':1.0,'phi':0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
@@ -142,7 +141,7 @@ class TopoSearchTest(unittest.TestCase):
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         # topology search with EM_solver
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
@@ -161,7 +160,7 @@ class TopoSearchTest(unittest.TestCase):
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
@@ -180,7 +179,7 @@ class TopoSearchTest(unittest.TestCase):
         T0 = '((a,b),c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
@@ -199,7 +198,7 @@ class TopoSearchTest(unittest.TestCase):
         T0 = '((c,d),a,b);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
@@ -216,7 +215,7 @@ class TopoSearchTest(unittest.TestCase):
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
@@ -234,7 +233,7 @@ class TopoSearchTest(unittest.TestCase):
         T0 = '(a,b,c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
