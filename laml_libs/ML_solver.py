@@ -56,27 +56,6 @@ class ML_solver(Virtual_solver):
     def get_params(self):
         return {'phi':self.params.phi,'nu':self.params.nu, 'ld':self.params.ld}
 
-    def ultrametric_constr(self):
-        N = len(self.ini_all())
-        M = []
-        idx = 0
-        for tree in self.trees: 
-            for node in tree.traverse_postorder():
-                if node.is_leaf():
-                    node.constraint = [0.]*N
-                else:
-                    c1,c2 = node.children
-                    m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]
-                    M.append(m)
-                    node.constraint = c1.constraint
-                node.constraint[idx] = 1
-                idx += 1
-        # make sure all trees have the same height
-        for tree in self.trees[1:]:
-            m = [x-y for (x,y) in zip(self.trees[0].root.constraint,tree.root.constraint)]
-            M.append(m)
-        return M
-
     def sampling_time_constr(self,smpl_times,root_time=0):
     # smpl_times is a list of dictionaries mapping each leaf node name to a sampling time
     # by default, the root time is set to 0. If root time is unknown, set root_time to None
@@ -108,12 +87,12 @@ class ML_solver(Virtual_solver):
                 #d.append(tree.root.anchor_t-root_time)
         return M
         
-    def score_tree(self,strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':{}}):
-        ultra_constr = strategy['ultra_constr']
+    def score_tree(self,strategy={'smpl_times':None,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':{}}):
+        smpl_times = strategy['smpl_times']
         fixed_phi = strategy['fixed_phi']
         fixed_nu = strategy['fixed_nu']
         fixed_brlen = strategy['fixed_brlen']
-        nllh,status = self.optimize(initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_phi=fixed_phi,fixed_nu=fixed_nu,fixed_brlen=fixed_brlen)
+        nllh,status = self.optimize(initials=1,verbose=-1,smpl_times=smpl_times,fixed_phi=fixed_phi,fixed_nu=fixed_nu,fixed_brlen=fixed_brlen)
         score = None if nllh is None else -nllh
         #if score is None:
         #    print("Fatal error: failed to score tree " + self.get_tree_newick() + ". Optimization status: " + status)
@@ -260,7 +239,7 @@ class ML_solver(Virtual_solver):
         self.az_partition()
         return -self.__llh__()
 
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,fixed_brlen={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False,smpl_times=None):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,fixed_brlen={},verbose=1,max_trials=100,random_seeds=None,smpl_times=None):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
     # fixed_brlen is a dictionary that maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed.
@@ -295,10 +274,7 @@ class ML_solver(Virtual_solver):
                 if verbose >= 0:
                     print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
                 if verbose >= 0:
-                    if ultra_constr:
-                        print("Numerical optimization started with ultrametric constraint (default)")
-                    else:      
-                        print("Numerical optimization started without ultrametric constraint [deprecated]")
+                    print("Numerical optimization started")
                 # read in fixed_brlen and mark the tree nodes
                 for tree in self.trees:
                     for node in tree.traverse_postorder():
@@ -308,7 +284,7 @@ class ML_solver(Virtual_solver):
                         u = fixed_nodes[i]
                         u.edge_length = fixed_brlen[(a,b)]
                         u.mark_fixed = True
-                nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr,smpl_times=smpl_times)
+                nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,smpl_times=smpl_times)
                 
                 if nllh is not None:
                     all_failed = False
@@ -340,7 +316,7 @@ class ML_solver(Virtual_solver):
                 print("Numerical optimization finished successfully")
             return results[0][0],status
 
-    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False,smpl_times=None):
+    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,smpl_times=None):
         # optimize using a specific initial point identified by the input randseed
         # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         # smpl_times is a list of dictionaries mapping each leaf node name to a sampling time
@@ -368,9 +344,6 @@ class ML_solver(Virtual_solver):
                 idx += 1
         if len(A) > 0:     
             constraints.append(optimize.LinearConstraint(csr_matrix(A),b,b,keep_feasible=False))
-        if ultra_constr:
-            M = self.ultrametric_constr()
-            constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
         if smpl_times is not None:
             M = self.sampling_time_constr(smpl_times,root_time=0)
             constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))

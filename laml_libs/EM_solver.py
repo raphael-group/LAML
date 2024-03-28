@@ -47,44 +47,6 @@ class EM_solver(ML_solver):
                     node.edge_length = x[i]
                     i += 1
     
-    def ultrametric_constr(self,local_brlen_opt=True):
-        N = self.num_edges-self.num_polytomy_mark
-        if local_brlen_opt:
-            for tree in self.trees:
-                N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
-        constrs = {}        
-        idx = 0
-        for tree in self.trees: 
-            for node in tree.traverse_postorder():
-                if node.is_leaf():
-                    node.constraint = [0.]*N
-                    node.constant = node.edge_length if node.mark_fixed else 0
-                else:
-                    c1,c2 = node.children
-                    m = tuple(x-y for (x,y) in zip(c1.constraint,c2.constraint))
-                    m_compl = tuple(-x for x in m)
-                    c = c2.constant-c1.constant
-                    if sum([x!=0 for x in m]) > 0 and not (m in constrs or m_compl in constrs):
-                        constrs[m] = c
-                    node.constraint = c1.constraint
-                    if node.mark_fixed:
-                        node.constant = c1.constant + node.edge_length
-                    else:
-                        node.constant = c1.constant
-                if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
-                    node.constraint[idx] = 1
-                    idx += 1
-        for tree in self.trees[1:]:
-            m = tuple(x-y for (x,y) in zip(self.trees[0].root.constraint,tree.root.constraint))
-            c = tree.root.constant-self.trees[0].root.constant
-            constrs[m] = c
-        M = []
-        b = []
-        for m in constrs:
-            M.append(list(m))
-            b.append(constrs[m])
-        return M,b
-    
     def sampling_time_constr(self,smpl_times,root_time=0,local_brlen_opt=True):
         N = self.num_edges-self.num_polytomy_mark # number of branches to optimize
         if local_brlen_opt:
@@ -348,7 +310,7 @@ class EM_solver(ML_solver):
         self.Estep_out_llh()
         self.Estep_posterior()
 
-    def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=1,eps_nu=1e-5,eps_s=1e-6,ultra_constr_cache=None,smpl_times_cache=None,local_brlen_opt=True):
+    def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=1,eps_nu=1e-5,eps_s=1e-6,smpl_times_cache=None,local_brlen_opt=True):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes
     # output: optimize all parameters: branch lengths, phi, and nu
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
@@ -401,16 +363,13 @@ class EM_solver(ML_solver):
 
             objective = cp.Maximize(C0+C1+C2+C3+C4)
             constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax]             
-            if ultra_constr_cache is not None:
-                M,b = ultra_constr_cache
-                constraints += [np.array(M) @ var_d == np.array(b)]
             if smpl_times_cache is not None:
                 M,c,d = smpl_times_cache
                 constraints += [np.array(M) @ var_d + np.array(d)*var_ld == np.array(c)]
             prob = cp.Problem(objective,constraints)
             #prob.solve(verbose=True,solver=cp.ECOS,max_iters=100000)
             #prob.solve(verbose=False,solver=cp.MOSEK)
-            prob.solve(verbose=False,solver=cp.MOSEK)
+            prob.solve(verbose=verbose,solver=cp.MOSEK)
             d_star = var_d.value
             ld_star = var_ld.value[0] if smpl_times_cache is not None else self.params.ld
             return d_star,ld_star,prob.status
@@ -447,6 +406,7 @@ class EM_solver(ML_solver):
                 d_star,ld_star,status_d = __optimize_brlen__(nu_star,verbose=False)
             except:
                 d_star = d_ini
+                ld_star = self.params.ld 
                 status_d = "failure"
             #d_star = np.array([max(x,self.dmin) for x in d_star])     
             if status_d == "infeasible": # should only happen with local EM 
@@ -479,14 +439,10 @@ class EM_solver(ML_solver):
         if success:
             status = "optimal"
         else:
-            status = ""
-            if status_d != "optimal":
-                status += "failed_d"
-            if status_nu != "optimal":
-                status = ",failed_nu"
+            status = "d: " + status_d + ", nu: " + status_nu
         return success, status
     
-    def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,ultra_constr=False,smpl_times=None,maxIter=1000):
+    def EM_optimization(self,verbose=1,optimize_phi=True,optimize_nu=True,smpl_times=None,maxIter=1000):
         # assume that az_partition has been performed
         # optimize all parameters: branch lengths, phi, and nu
         # if optimize_phi is False, it is fixed to the original value in params.phi
@@ -498,10 +454,6 @@ class EM_solver(ML_solver):
             print("Initial phi: " + str(self.params.phi) + ". Initial nu: " + str(self.params.nu) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
         converged = False
-        if ultra_constr: # TODO: remove this option as it is a special case of smpl_times 
-            ultra_constr_cache = self.ultrametric_constr(local_brlen_opt=True) 
-        else:
-            ultra_constr_cache = None       
         if smpl_times is not None:
             smpl_times_cache = self.sampling_time_constr(smpl_times,root_time=0,local_brlen_opt=True)
         else:
@@ -518,7 +470,7 @@ class EM_solver(ML_solver):
                 print(f"Estep runtime (s): {estep_end - estep_start}")
                 print("Mstep")
             mstep_start = time.time()
-            m_success,status=self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,local_brlen_opt=True,ultra_constr_cache=ultra_constr_cache,smpl_times_cache=smpl_times_cache)
+            m_success,status=self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,local_brlen_opt=True,smpl_times_cache=smpl_times_cache)
             mstep_end = time.time()
             if verbose > 0:
                 print(f"Mstep runtime (s): {mstep_end - mstep_start}")
@@ -534,8 +486,6 @@ class EM_solver(ML_solver):
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
             if abs((curr_llh - pre_llh)/pre_llh) < conv_eps:
                 converged = True
-                # perform a final full optimization
-                #self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr,local_brlen_opt=False)
                 break
             pre_llh = curr_llh
             em_iter += 1
@@ -543,14 +493,14 @@ class EM_solver(ML_solver):
             print("Warning: exceeded maximum number of EM iterations (" + str(maxIter) + " iters)!")
         return -curr_llh, em_iter,status    
 
-    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False,smpl_times=None):
+    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,smpl_times=None):
         # optimize using a specific initial point identified by the input randseed
         # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         seed(a=randseed)
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.x2params(x0,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.az_partition()
-        nllh,em_iter,status = self.EM_optimization(verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None),ultra_constr=ultra_constr,smpl_times=smpl_times)
+        nllh,em_iter,status = self.EM_optimization(verbose=verbose,optimize_phi=(fixed_phi is None),optimize_nu=(fixed_nu is None),smpl_times=smpl_times)
         if verbose >= 0:
             print("EM finished after " + str(em_iter) + " iterations.")
             print("Optimal phi: " + str(self.params.phi) + ". Optimal nu: " + str(self.params.nu) + ". Optimal nllh: " + str(nllh))

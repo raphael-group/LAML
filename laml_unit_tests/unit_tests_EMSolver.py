@@ -558,7 +558,7 @@ class EMTest(unittest.TestCase):
 
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0,'ld':1.0})
         randseed = 1221
-        nllh,status = mySolver.optimize(initials=1,random_seeds=randseed,verbose=-1,ultra_constr=False)
+        nllh,status = mySolver.optimize(initials=1,random_seeds=randseed,verbose=-1,smpl_times=None)
         phi = mySolver.params.phi
         nu = mySolver.params.nu
         self.assertAlmostEqual(0,abs(true_nllh-nllh)/true_nllh,places=4,msg="EMTest: test_47 failed.")

@@ -48,13 +48,13 @@ class TopoSearchTest(unittest.TestCase):
         out_topos = [topo[1:-2]+";" for topo in topos]
         return out_topos    
 
-    def __brute_force_search__(self,msa,Q,L,solver=EM_solver,ultra_constr=False,initials=1):
+    def __brute_force_search__(self,msa,Q,L,solver=EM_solver,smpl_times=None,initials=1):
         topos = self.__list_topologies__(L)
         best_nllh = float("inf")
         best_tree = ""
         for T in topos:
             mySolver = solver([T],{'charMtrx':msa},{'Q':Q})
-            nllh,_ = mySolver.optimize(initials=initials,verbose=-1,ultra_constr=ultra_constr)
+            nllh,_ = mySolver.optimize(initials=initials,verbose=-1,smpl_times=smpl_times)
             if nllh < best_nllh:
                 best_nllh = nllh
                 best_tree = mySolver.trees[0].newick()
@@ -207,11 +207,12 @@ class TopoSearchTest(unittest.TestCase):
         nllh_nni = -max_score
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_8 failed.")
     
-    # enforce ultrametric
+    # enforce ultrametricity
     def test_9(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        nllh_bf,bf_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver,ultra_constr=True)
+        smpl_times = [{'a':1,'b':1,'c':1,'d':1}]
+        nllh_bf,bf_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver,smpl_times=smpl_times)
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
@@ -219,17 +220,17 @@ class TopoSearchTest(unittest.TestCase):
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
-        my_strategy['ultra_constr'] = True
+        my_strategy['smpl_times'] = smpl_times
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
         nllh_nni = -max_score
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_9 failed.")
     
-    # enforce ultrametric and starting tree is a star-tree
+    # enforce ultrametricity and starting tree is a star-tree
     def test_10(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        nllh_bf,bf_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver,ultra_constr=True)
-        #nllh_bf = 7.0063474330891236 # pre-computed using brute-force search
+        smpl_times = [{'a':1,'b':1,'c':1,'d':1}]
+        nllh_bf,bf_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver,smpl_times=smpl_times)
         T0 = '(a,b,c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
@@ -237,7 +238,7 @@ class TopoSearchTest(unittest.TestCase):
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
-        my_strategy['ultra_constr'] = True
+        my_strategy['smpl_times'] = smpl_times
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
 
         nllh_nni = -max_score
