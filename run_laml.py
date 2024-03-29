@@ -36,6 +36,7 @@ def main():
     inputOptions= parser.add_argument_group('input options')
     outputOptions = parser.add_argument_group('output options')
     numericalOptions = parser.add_argument_group('numerical optimization options')
+    timeCalibOptions = parser.add_argument_group('Time calibration options')
     topologySearchOptions = parser.add_argument_group('topology search options')
     parser._action_groups.append(otherOptions)
 
@@ -54,11 +55,14 @@ def main():
     # Numerical Optimization Arguments
     numericalOptions.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
     numericalOptions.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
-    numericalOptions.add_argument("--timescale",required=False,type=float,default=1.0,help="Timeframe of experiment. The depth of all output trees will be scaled to this number. Default: 1.0.")
     numericalOptions.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in single cell sequencing.")
     numericalOptions.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
     numericalOptions.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
     numericalOptions.add_argument("--randseeds",required=False,help="Random seeds for branch length optimization. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
+    
+# Time-calibration options
+    timeCalibOptions.add_argument("--timescale",required=False,type=float,default=1.0,help="Timeframe of experiment. The depth of all output trees will be scaled to this number. Default: 1.0.")
+    timeCalibOptions.add_argument("--sampling_times",required=False,help="Sampling times of the sampled cells. This option has higher priority than --timescale.")
 
     # Topology Search Arguments
     topologySearchOptions.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations. Always returns a fully resolved (i.e. binary) tree.")
@@ -165,16 +169,18 @@ def main():
     else:
         # setup the strategy
         my_strategy = deepcopy(laml.DEFAULT_STRATEGY)
-        # enforce ultrametric or not?
-        my_strategy['ultra_constr'] = False #args["ultrametric"] # TODO: Remove this flag
         # setup sampling times
-        smpl_times = []
-        for tree_str in input_trees:
-            T = read_tree_newick(tree_str)
-            curr_smpl_times = {}
-            for node in T.traverse_leaves():
-                curr_smpl_times[node.label] = args["timescale"]                
-            smpl_times.append(curr_smpl_times)    
+        smpl_times = [{}]*len(input_trees)
+        if args["sampling_times"] is not None:
+            with open(args["sampling_times"],'r') as fin:
+                for line in fin:
+                    t,cellName,smpl_time = line.strip().split()
+                    smpl_times[int(t)-1][cellName] = float(smpl_time)
+        else:    
+            for t,tree_str in enumerate(input_trees):
+                T = read_tree_newick(tree_str)
+                for node in T.traverse_leaves():
+                    smpl_times[t][node.label] = args["timescale"]                
         my_strategy['sampling_times'] = smpl_times
         # resolve polytomies or not?
         resolve_polytomies = not args["keep_polytomies"]
@@ -188,7 +194,7 @@ def main():
             else:    
                 print("Optimization by generic solver (Scipy-SLSQP)")        
             mySolver = myTopoSearch.get_solver()
-            nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=False,smpl_times=smpl_times)
+            nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,smpl_times=smpl_times)
             myTopoSearch.update_from_solver(mySolver)
             opt_trees = myTopoSearch.treeTopoList
             opt_params = myTopoSearch.params
@@ -227,7 +233,6 @@ def main():
                 for node in tree.traverse_preorder(): 
                     node.edge_length = node.edge_length / ld
                 tstr = tree.__str__().split()                
-                #fout.write(tstr)
                 if len(tstr) > 1:
                     fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
                 else:

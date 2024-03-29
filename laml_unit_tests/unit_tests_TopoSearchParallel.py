@@ -12,13 +12,12 @@ class TopoSearchParallelTest(unittest.TestCase):
     def test_1(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
-        #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
         nllh_bf = 7.851513477595168 # precomputed from brute-force
          
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         # topology search with EM_solver
         myTopoSearch_EM = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
@@ -36,7 +35,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'nu':0,'phi':0}
+        params = {'nu':0,'ld':1.0,'phi':0}
         
         # topology search with ML_solver
         myTopoSearch_ML = Topology_search([T0],ML_solver,data=data,prior=prior,params=params)
@@ -54,7 +53,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         T0 = '(a,b,c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'nu':0,'phi':0}
+        params = {'nu':0,'ld':1.0,'phi':0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,nreps=1)
@@ -71,7 +70,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         T0 = '((a,b),c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'nu':0,'phi':0}
+        params = {'nu':0,'ld':1.0,'phi':0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
@@ -91,7 +90,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         T0 = '((a,c),(b,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         # topology search with EM_solver
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
@@ -113,7 +112,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
@@ -134,7 +133,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         T0 = '((a,b),c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
@@ -153,7 +152,7 @@ class TopoSearchParallelTest(unittest.TestCase):
         T0 = '((c,d),a,b);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
@@ -166,17 +165,17 @@ class TopoSearchParallelTest(unittest.TestCase):
     def test_9(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
-        #best_nllh,best_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver,ultra_constr=True)
+        smpl_times = [{'a':1,'b':1,'c':1,'d':1}]
         nllh_bf = 7.006347436396466 # pre-computed using brute-force search
         
         T0 = '((a,b),(c,d));'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
-        my_strategy['ultra_constr'] = True
+        my_strategy['smpl_times'] = smpl_times
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
         nllh_nni = -max_score
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_9 failed.")
@@ -185,15 +184,16 @@ class TopoSearchParallelTest(unittest.TestCase):
     def test_10(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
+        smpl_times = [{'a':1,'b':1,'c':1,'d':1}]
         nllh_bf = 7.006347436396466 # pre-computed using brute-force search
         T0 = '(a,b,c,d);'
         data = {'charMtrx':msa}
         prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
+        params = {'phi':0,'nu':0,'ld':1.0}
         
         myTopoSearch = Topology_search([T0],EM_solver,data=data,prior=prior,params=params)
         my_strategy = deepcopy(DEFAULT_STRATEGY)
-        my_strategy['ultra_constr'] = True
+        my_strategy['smpl_times'] = smpl_times
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,strategy=my_strategy,nreps=1)
 
         nllh_nni = -max_score
