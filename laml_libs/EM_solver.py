@@ -65,7 +65,7 @@ class EM_solver(ML_solver):
                     m = tuple(x-y for (x,y) in zip(c1.constraint,c2.constraint))
                     m_compl = tuple(-x for x in m)
                     c = c2.constant-c1.constant
-                    d = c2.ld_constr-c1.ld_constr
+                    d = c1.ld_constr-c2.ld_constr
                     if sum([x!=0 for x in m]) > 0 and not (m in constrs or m_compl in constrs):
                         constrs[m] = (c,d)
                     node.constraint = c1.constraint
