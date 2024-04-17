@@ -151,7 +151,7 @@ def load_pickle(f):
             Q[i] = q
             return Q
 
-def read_priors(pfile, site_names=None):
+def read_priors(pfile, msa, site_names=None):
     file_extension = pfile.strip().split(".")[-1]
     if file_extension == "pkl" or file_extension == "pickle": #pickled file
         infile = open(pfile, "rb")
@@ -159,14 +159,73 @@ def read_priors(pfile, site_names=None):
         infile.close()
         Q = []
         priorkeys = sorted(priors.keys())
+        mapping = dict()
+        
         if site_names is not None and priorkeys != sorted([int(x[1:]) for x in site_names]):
             print("Prior keys mismatch with site names.")
             print("Prior keys:", priorkeys)
             print("Site names:", site_names)
+            print("Attempting to infer mapping between site names and prior keys...")
+
+            # check if we have the same number of keys
+            if len(site_names) == len(priorkeys):
+                for i, site_name in enumerate(site_names):
+                    mapping[site_name] = priorkeys[i]
+                print(mapping)
+            else:
+                # inferring prior and site_name mapping
+                # we should have a mapping from every site name to a prior dictionary
+
+                # compute offset 
+                site_name_digits = []
+                for site_name in site_names:
+                    digit_name = ''.join([x for x in site_name if x.isdigit()])
+                    site_name_digits.append(int(digit_name))
+           
+                # tell the difference between an offset and missing keys in the dictionary
+                all_site_names_present = True 
+                for i, site_name in enumerate(site_names):
+                    digit_name = site_name_digits[i]
+                    if digit_name not in priors.keys():
+                        all_site_names_present = False
+
+                if not all_site_names_present:
+                    print("Not all site names are present in the dictionary. Trying offset...")
+                    offset = min(site_name_digits) - min(priorkeys)
+                    print("Offset between input site names and prior keys is assumed to be", offset)
+
+                for i, site_name in enumerate(site_names):
+                    digit_name = site_name_digits[i]
+                    if not all_site_names_present:
+                        prior_name = digit_name - offset
+                    else:
+                        prior_name = digit_name
+                    mapping[site_name] = prior_name
+
+                    if prior_name in priors.keys():
+                        q = {int(x):priors[prior_name][x] for x in priors[prior_name]}
+                    else:
+                        print(f"Missing priors at site {site_name}, filling in uniform priors...")
+                        # fill in uniform priors at site i
+                        M_i = set(msa[x][i] for x in msa if msa[x][i] not in [0,"?"])
+                        if len(M_i) == 0:
+                            # add pseudo-mutated state
+                            m_i = 1
+                            q={"1":1.0}
+                        else:
+                            m_i = len(M_i)
+                            q = {x:1/m_i for x in M_i}
+                        q[0] = 0
+                    Q.append(q)
+                print(mapping)
+                return Q
+
+
         for i in sorted(priors.keys()):
             q = {int(x):priors[i][x] for x in priors[i]}
             q[0] = 0
             Q.append(q)
+
     elif file_extension == "csv":
         #k = len(site_names)
         #Q = [{0:0} for i in range(k)]

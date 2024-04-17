@@ -1,10 +1,9 @@
 # below we define the constants that are shared among all libraries
 
-
 PROGRAM_NAME = "LAML" 
 PROGRAM_AUTHOR = ["Uyen Mai","Gillian Chu","Ben Raphael"]
 PROGRAM_LICENSE = "GNU General Public License, version 3"
-PROGRAM_VERSION = "0.0.2"
+PROGRAM_VERSION = "0.0.4"
 PROGRAM_YEAR = "2023"
 PROGRAM_INSTITUTE = "Computer Science Department, Princeton University"
 PROGRAM_DESCRIPTION = "LAML: Lineage Analysis via Maximum Likelihood"

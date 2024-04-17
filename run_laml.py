@@ -135,7 +135,7 @@ def main():
             q[0] = 0
             Q.append(q)
     else:
-        Q = read_priors(args["priors"], site_names)
+        Q = read_priors(args["priors"],msa,site_names=site_names)
 
     selected_solver = EM_solver
     em_selected = True
