@@ -74,7 +74,7 @@ class ML_solver(Virtual_solver):
             M.append(m)
         return M
 
-    def score_tree(self,strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':{}}):
+    def score_tree(self,strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':None}):
         ultra_constr = strategy['ultra_constr']
         fixed_phi = strategy['fixed_phi']
         fixed_nu = strategy['fixed_nu']
@@ -162,17 +162,20 @@ class ML_solver(Virtual_solver):
             for node in tree.traverse_postorder():
                 if node.edge_length is not None:
                     x[idx] = max(2*self.dmin,node.edge_length)
-                idx += 1     
+                idx += 1 
         return x    
 
     def ini_nu(self,fixed_nu=None):
-        return random()*0.99 if fixed_nu is None else fixed_nu
+        #return random()*0.99 if fixed_nu is None else fixed_nu
+        return 0.26955655566205877
         
     def ini_phi(self,fixed_phi=None):
-        return random()*0.99 if fixed_phi is None else fixed_phi   
+        #return random()*0.99 if fixed_phi is None else fixed_phi   
+        return 0
 
     def ini_all(self,fixed_phi=None,fixed_nu=None):
-        return self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
+        x = self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
+        return x
 
     def bound_nu(self,fixed_nu=None):
         return (eps,10) if fixed_nu is None else (fixed_nu-eps,fixed_nu+eps)
@@ -199,7 +202,7 @@ class ML_solver(Virtual_solver):
 
     def x2nu(self,x,fixed_nu=None):
         self.params.nu = x[self.num_edges] if fixed_nu is None else fixed_nu
-    
+
     def x2phi(self,x,fixed_phi=None):
         self.params.phi = x[self.num_edges+1] if fixed_phi is None else fixed_phi
 
@@ -215,10 +218,10 @@ class ML_solver(Virtual_solver):
         self.az_partition()
         return -self.__llh__()
 
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,fixed_brlen={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,fixed_brlen=None,verbose=1,max_trials=100,random_seeds=None,ultra_constr=False):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
-    # fixed_brlen is a dictionary that maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed.
+    # fixed_brlen is a list of t dictionaries, where t is the number of trees in self.trees, each maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed.
         results = []
         all_failed = True
         all_trials = 0
@@ -255,13 +258,15 @@ class ML_solver(Virtual_solver):
                     else:      
                         print("Numerical optimization started without ultrametric constraint [deprecated]")
                 # read in fixed_brlen and mark the tree nodes
-                for tree in self.trees:
+                for t,tree in enumerate(self.trees):
                     for node in tree.traverse_postorder():
-                        node.mark_fixed=False        
-                    fixed_nodes = find_LCAs(tree,list(fixed_brlen.keys()))        
-                    for i,(a,b) in enumerate(fixed_brlen):
+                        node.mark_fixed=False
+                    if fixed_brlen is None:
+                        continue
+                    fixed_nodes = find_LCAs(tree,list(fixed_brlen[t].keys()))        
+                    for i,(a,b) in enumerate(fixed_brlen[t]):
                         u = fixed_nodes[i]
-                        u.edge_length = fixed_brlen[(a,b)]
+                        u.edge_length = fixed_brlen[t][(a,b)]
                         u.mark_fixed = True
                 nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
                 

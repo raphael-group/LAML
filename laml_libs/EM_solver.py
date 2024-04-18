@@ -32,6 +32,8 @@ class EM_solver(ML_solver):
                 if len(node.children) > 2:
                     self.has_polytomy = True
             tree.resolve_polytomies()
+            
+        for tree in self.trees:
             for node in tree.traverse_preorder():
                 if not hasattr(node,'polytomy_mark'):
                     node.polytomy_mark = True

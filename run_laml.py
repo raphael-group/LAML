@@ -53,7 +53,7 @@ def main():
    
     # Numerical Optimization Arguments
     numericalOptions.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
-    numericalOptions.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
+    numericalOptions.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (lambda,phi,nu). Will NOT optimize branch lengths, lambda, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
     numericalOptions.add_argument("--timescale",required=False,default=1.0,help="Timeframe of experiment. Scales ultrametric output tree branches to this timescale. To get an accurate estimate of mutation rate, provide timeframe in number of cell generations. Default: 1.0.")
     numericalOptions.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in single cell sequencing.")
     numericalOptions.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
@@ -106,10 +106,11 @@ def main():
 
     k = len(msa[next(iter(msa.keys()))])
     if args["compute_llh"]:
-        fixed_phi,fixed_nu = [float(x) for x in args["compute_llh"].strip().split()]
+        fixed_lambda,fixed_phi,fixed_nu = [float(x) for x in args["compute_llh"].strip().split()]
     else:    
         fixed_phi = 0 if args["noDropout"] else None
         fixed_nu = 0 if args["noSilence"] else None
+        fixed_lambda = 1
 
     if args["randseeds"] is None:
         random_seeds = None
@@ -155,8 +156,13 @@ def main():
 
 
     if args["compute_llh"]:
-        print("Compute likelihood of the input tree and specified parameters without any optimization")
+        print("Compute the joint likelihood of the input trees and specified parameters without any optimization")
         mySolver = myTopoSearch.get_solver()
+        # [hacking] rescale the input branch lengths by the specified lambda
+        for tree in mySolver.trees:
+            for node in tree.traverse_preorder():
+                if node.edge_length is not None:
+                    node.edge_length *= fixed_lambda
         nllh = mySolver.negative_llh()
         opt_trees = myTopoSearch.treeTopoList
         opt_params = myTopoSearch.params
@@ -189,12 +195,19 @@ def main():
                     print("WARNING: --resolve_search was specified with --keep_polytomies. Program will only optimize numerical parameters WITHOUT any topology search.")
                 else:    
                     print("Starting local topology search to resolve polytomies")
+                    if not myTopoSearch.has_polytomies:
+                        print("No polytomy detected. Program will only optimize numerical parameters WITHOUT any topology search.")
             else:
-                if not resolve_polytomies:
-                    print("Keeping all the polytomies")                 
+                if myTopoSearch.has_polytomy:
+                    print("Detected polytomies in the input trees.")
+                    if not resolve_polytomies:
+                        print("Flag --keep_polytomies is on. All polytomies will be kept.")                 
+                    else:
+                        print("Flag --keep_polytomies is off. All polytomies will be resolved.") 
                 else:
-                    print("All polytomies will be resolved")    
+                    print("No polytomy detected.")         
                 print("Starting topology search")
+
             if args["parallel"]:
                 print("Running topology search in parallel...")
             else:

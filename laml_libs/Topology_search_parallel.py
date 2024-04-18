@@ -41,7 +41,7 @@ class Topology_search_parallel(Topology_search):
                         break
                 elif not checked_all:
                     nwk_str,score_tree_strategy,(u,v,u_child,w) = subset_nni_moves[i]
-                    score_tree_strategy['fixed_brlen'] = {}
+                    score_tree_strategy['fixed_brlen'] = None
                     retry_move = (nwk_str,score_tree_strategy,(u,v,u_child,w)) 
                     retry_nni_moves.append(retry_move)
             if checked_all or took:
@@ -80,13 +80,13 @@ class Topology_search_parallel(Topology_search):
                     break                
             u_children = u.child_nodes()
             score_tree_strategy = deepcopy(strategy)
-            score_tree_strategy['fixed_brlen'] = {}
+            score_tree_strategy['fixed_brlen'] = None
             if strategy['local_brlen_opt']:
                 score_tree_strategy['fixed_nu'] = self.params['nu'] 
                 score_tree_strategy['fixed_phi'] = self.params['phi'] 
                 free_branches = set(u.child_nodes() + v.child_nodes() + [v])
-                fixed_branches_anchors = []
-                for tree in self.treeList_obj: 
+                fixed_branches_anchors = [[] for _ in range(len(self.treeList_obj))]
+                for t,tree in enumerate(self.treeList_obj): 
                     for node in tree.traverse_postorder():
                         if node.is_leaf():
                             node.anchors = (node.label,node.label)
@@ -96,14 +96,15 @@ class Topology_search_parallel(Topology_search):
                             b = C[-1].anchors[0]
                             node.anchors = (a,b)
                         if not node in free_branches:
-                            fixed_branches_anchors.append(node.anchors)
-                fixed_branches = []            
-                for treeTopo in self.treeTopoList:
+                            fixed_branches_anchors[t].append(node.anchors)
+                fixed_branches = [[] for _ in range(len(self.treeList_obj))]            
+                for t,treeTopo in enumerate(self.treeTopoList):
                     tree = read_tree_newick(treeTopo)
-                    fixed_branches += find_LCAs(tree,fixed_branches_anchors)
-                fixed_brlen = {}
-                for i,node in enumerate(fixed_branches):
-                    fixed_brlen[fixed_branches_anchors[i]] = node.edge_length
+                    fixed_branches[t] += find_LCAs(tree,fixed_branches_anchors[t])
+                fixed_brlen = [{} for _ in range(len(self.treeList_obj))]
+                for t,B in enumerate(fixed_branches):
+                    for i,node in enumerate(B):
+                        fixed_brlen[t][fixed_branches_anchors[t][i]] = node.edge_length
                 score_tree_strategy['fixed_brlen'] = fixed_brlen
             shuffle(u_children)
             for u_child in u_children:

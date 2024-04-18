@@ -592,7 +592,7 @@ class EMTest(unittest.TestCase):
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         randseed = 1221
         my_strategy = deepcopy(DEFAULT_STRATEGY) 
-        my_strategy['fixed_brlen'] = {}
+        my_strategy['fixed_brlen'] = None
         score,status = mySolver.score_tree(strategy=my_strategy)
         nllh = -score
         phi = mySolver.params.phi
