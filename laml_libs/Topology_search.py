@@ -102,7 +102,7 @@ class Topology_search:
             else:    
                 if verbose:
                     print("Perform nni moves for full topology search")
-                    if self.has_polytomy:
+                    if self.has_polytomy and resolve_polytomies:                        
                         print("Found polytomies in the input tree(s). Arbitrarily resolving them to obtain fully resolved initial tree(s).") 
                 trees,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False,checkpoint_file=checkpoint_file)
             # The final optimization of parameters

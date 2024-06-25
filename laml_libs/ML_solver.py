@@ -166,12 +166,10 @@ class ML_solver(Virtual_solver):
         return x    
 
     def ini_nu(self,fixed_nu=None):
-        #return random()*0.99 if fixed_nu is None else fixed_nu
-        return 0.26955655566205877
+        return random()*0.99 if fixed_nu is None else fixed_nu
         
     def ini_phi(self,fixed_phi=None):
-        #return random()*0.99 if fixed_phi is None else fixed_phi   
-        return 0
+        return random()*0.99 if fixed_phi is None else fixed_phi   
 
     def ini_all(self,fixed_phi=None,fixed_nu=None):
         x = self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
