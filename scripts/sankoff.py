@@ -69,8 +69,6 @@ def sankoff(T, C, msa, site):
                     nodedict[n][site] = dict()
                     nodedict[n][site][s_p] = min_val 
             print(n, nodedict)
-            
-
     return nodedict 
 
 def num_zeros(l):
