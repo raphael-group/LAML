@@ -8,7 +8,7 @@ from typing import Dict, List, Tuple
 import ngs_tools as ngs
 from pyseq_align import NeedlemanWunsch, SmithWaterman
 
-from cassiopeia.mixins import UnknownCigarStringError
+from laml_libs.mixins import UnknownCigarStringError
 
 
 def align_local(
