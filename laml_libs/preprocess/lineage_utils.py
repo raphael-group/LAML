@@ -15,7 +15,7 @@ import pandas as pd
 import pylab
 import re
 
-from cassiopeia.mixins import logger
+from laml_libs.mixins import logger
 
 sys.setrecursionlimit(10000)
 
