@@ -7,8 +7,8 @@ from typing import Dict, Set, Tuple
 
 import pandas as pd
 
-from cassiopeia.mixins import logger
-from cassiopeia.preprocess import utilities
+from laml_libs.mixins import logger
+from laml_libs.preprocess import utilities
 
 
 @utilities.log_molecule_table

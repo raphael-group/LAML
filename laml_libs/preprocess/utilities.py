@@ -18,7 +18,7 @@ import pysam
 import re
 from tqdm.auto import tqdm
 
-from cassiopeia.mixins import is_ambiguous_state, logger, PreprocessWarning
+from laml_libs.mixins import is_ambiguous_state, logger, PreprocessWarning
 
 
 def log_molecule_table(wrapped: Callable):

@@ -3,7 +3,7 @@ Main logic behind Cassiopeia-preprocess.
 
 This file stores the main entry point for Cassiopeia-preprocess, and makes
 heavy use of the high level functionality in
-cassiopeia.preprocess.pipeline. Here, we assume that the user
+laml_libs.preprocess.pipeline. Here, we assume that the user
 has already run CellRanger Count, or some equivalent, to obtain a BAM file that
 relates cell barcodes and UMIs to sequences.
 
@@ -16,8 +16,8 @@ import logging
 import pandas as pd
 from typing import Any, Dict
 
-from cassiopeia.mixins import logger, PreprocessError
-from cassiopeia.preprocess import pipeline, setup_utilities, utilities
+from laml_libs.mixins import logger, PreprocessError
+from laml_libs.preprocess import pipeline, setup_utilities, utilities
 
 STAGES = {
     "convert": pipeline.convert_fastqs_to_unmapped_bam,

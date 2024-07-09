@@ -22,8 +22,8 @@ import pysam
 from tqdm.auto import tqdm
 import warnings
 
-from cassiopeia.mixins import logger, PreprocessError, PreprocessWarning
-from cassiopeia.preprocess import constants
+from laml_libs.mixins import logger, PreprocessError, PreprocessWarning
+from laml_libs.preprocess import constants
 
 from .collapse_cython import (
     hq_mismatches_from_seed,

@@ -1,7 +1,7 @@
 """"
 A file that stores general functionality for setting up a Cassiopeia
 preprocessing instance. This file supports the command line interface entrypoint
-in cassiopeia_preprocess.py.
+in laml_libs_preprocess.py.
 """
 import os
 
@@ -10,8 +10,8 @@ import configparser
 import logging
 from typing import Any, Dict
 
-from cassiopeia.mixins import logger, UnspecifiedConfigParameterError
-from cassiopeia.preprocess import constants
+from laml_libs.mixins import logger, UnspecifiedConfigParameterError
+from laml_libs.preprocess import constants
 
 
 def setup(output_directory_location: str, verbose: bool) -> None:
