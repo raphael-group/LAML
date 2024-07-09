@@ -1,7 +1,7 @@
 """
 This file contains all high-level functionality for preprocessing sequencing
 data into character matrices ready for phylogenetic inference. This file
-is mainly invoked by cassiopeia_preprocess.py.
+is mainly invoked by laml_libs_preprocess.py.
 """
 import warnings
 
@@ -21,9 +21,9 @@ import pysam
 from tqdm.auto import tqdm
 from typing_extensions import Literal
 
-from cassiopeia.mixins import logger, PreprocessError
-from cassiopeia.mixins.warnings import PreprocessWarning
-from cassiopeia.preprocess import (
+from laml_libs.mixins import logger, PreprocessError
+from laml_libs.mixins.warnings import PreprocessWarning
+from laml_libs.preprocess import (
     alignment_utilities,
     constants,
     map_utils,
