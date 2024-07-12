@@ -40,7 +40,7 @@ def main():
     parser._action_groups.append(otherOptions)
 
     # input arguments
-    requiredNamed.add_argument("-t","--topology",required=True,help="[REQUIRED] Binary input tree topology in newick format. Branch lengths will be ignored.") 
+    requiredNamed.add_argument("-t","--topology",required=True,help="[REQUIRED] The input tree topology in newick format. Branch lengths will be ignored.") 
     requiredNamed.add_argument("-c","--characters",required=True,help="[REQUIRED] The input character matrix. Must have header.")
 
     inputOptions.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
