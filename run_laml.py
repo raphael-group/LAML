@@ -212,8 +212,7 @@ def main():
                 print("Running topology search in parallel...")
             else:
                 print("Running topology search sequentially...")
-            randval = int(random.random() * 1000)
-            checkpoint_file = f"{prefix}._ckpt.{randval}.txt"
+            checkpoint_file = f"{prefix}_ckpt.txt"
             opt_trees,max_score,opt_params = myTopoSearch.search(resolve_polytomies=resolve_polytomies,maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'],checkpoint_file=checkpoint_file) 
             nllh = -max_score        
     

@@ -17,4 +17,5 @@ conv_eps = 1e-8 # convergence threshold (to stop a search algorithm such as EM)
 nni_conv_eps = 1e-15 # additional NNI convergence threshold since conv_eps has several purposes
 dmin = 0.005
 dmax = 10
+chkpt_freq = 10
 DEFAULT_STRATEGY={'resolve_search_only':False,'only_marked':False,'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'local_brlen_opt':True}

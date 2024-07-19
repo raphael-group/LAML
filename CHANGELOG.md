@@ -1,3 +1,5 @@
+* LAML version 0.0.5
+    * better checkpoint logging
 * LAML version 0.0.4
     * add functionalities to create character matrices from fastq files (borrowed from a module of Cassiopeia) 
     * handle mismatch between character matrix and prior pickle
