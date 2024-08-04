@@ -1,8 +1,8 @@
 import os 
 import unittest
-from laml_libs.ML_solver import ML_solver
+from laml_libs.PMM_model.ML_solver import ML_solver
 from treeswift import *
-from laml_libs.sequence_lib import read_sequences
+from laml_libs.IO_handler.sequence_lib import read_sequences
 
 class MLTest(unittest.TestCase):
     def test_1(self): 

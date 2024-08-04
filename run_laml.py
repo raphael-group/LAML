@@ -2,11 +2,11 @@
 import os
 import pickle
 import laml_libs as scmail
-from laml_libs.sequence_lib import read_sequences, read_priors
-from laml_libs.ML_solver import ML_solver
-from laml_libs.EM_solver import EM_solver
-from laml_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
-from laml_libs.Topology_search import Topology_search as Topology_search_sequential
+from laml_libs.IO_handler.sequence_lib import read_sequences, read_priors
+from laml_libs.PMM_model.ML_solver import ML_solver
+from laml_libs.PMM_model.EM_solver import EM_solver
+from laml_libs.TopoSearch.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
+from laml_libs.TopoSearch.Topology_search import Topology_search as Topology_search_sequential
 from math import *
 from treeswift import *
 import random
