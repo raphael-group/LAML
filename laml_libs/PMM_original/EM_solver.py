@@ -1,7 +1,7 @@
 from .ML_solver import *
 from math import exp,log
 import cvxpy as cp
-from laml_libs import min_llh, conv_eps, eps
+from laml_libs import *
 import numpy as np
 import time
 
@@ -494,7 +494,7 @@ class EM_solver(ML_solver):
             curr_llh = self.lineage_llh()
             if verbose > 0:
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
-            if abs((curr_llh - pre_llh)/pre_llh) < conv_eps:
+            if abs((curr_llh - pre_llh)/pre_llh) < DEFAULT_conv_eps:
                 converged = True
                 # perform a final full optimization
                 #self.Mstep(optimize_phi=optimize_phi,optimize_nu=optimize_nu,verbose=verbose,ultra_constr=ultra_constr,local_brlen_opt=False)
@@ -509,8 +509,6 @@ class EM_solver(ML_solver):
         # optimize using a specific initial point identified by the input randseed
         # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
         seed(a=randseed)
-        #fixed_phi = 0.057105034062779836 
-        #fixed_nu = 0.00010767895911871561
         x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.x2params(x0,fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         self.az_partition()

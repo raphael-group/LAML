@@ -3,7 +3,7 @@ import timeit
 from random import choice, shuffle, random
 from laml_libs import *
 from treeswift import *
-from laml_libs.PMM_model.EM_solver import EM_solver
+from laml_libs.PMM_original.EM_solver import EM_solver
 from laml_libs.TopoSearch.Topology_search import Topology_search
 from copy import deepcopy
 from laml_libs.Utils.lca_lib import find_LCAs

@@ -1,7 +1,7 @@
 import os 
 import unittest
 from treeswift import *
-from laml_libs.PMM_model.EM_solver import EM_solver
+from laml_libs.PMM_original.EM_solver import EM_solver
 from laml_libs.IO_handler.sequence_lib import read_sequences
 import numpy as np
 import scipy.linalg as la

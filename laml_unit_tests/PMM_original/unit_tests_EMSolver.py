@@ -1,7 +1,7 @@
 import unittest
 from laml_libs.IO_handler.sequence_lib import read_sequences
-from laml_libs.PMM_model.EM_solver import EM_solver
-from laml_libs.PMM_model.ML_solver import ML_solver
+from laml_libs.PMM_original.EM_solver import EM_solver
+from laml_libs.PMM_original.ML_solver import ML_solver
 from treeswift import *
 from math import log
 from random import random
