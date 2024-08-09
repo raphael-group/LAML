@@ -508,7 +508,7 @@ class EMTest(unittest.TestCase):
         T = read_tree_newick(treedata_path)
         phi = 0.05231954386883335
         nu = 0.15877477685098262
-        msa,_ = read_sequences(msa_path,filetype="charMtrx",delimiter=",",masked_symbol='-',suppress_warnings=True)
+        msa,_ = read_sequences(msa_path,filetype="charMtrx",delimiter=",",masked_symbol='?',suppress_warnings=True)
         Q = []
         k = 60
         for i in range(k):
@@ -558,7 +558,7 @@ class EMTest(unittest.TestCase):
 
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         randseed = 1221
-        nllh,status = mySolver.optimize(initials=1,random_seeds=randseed,verbose=-1,ultra_constr=False)
+        nllh,status = mySolver.optimize(initials=1,random_seeds=randseed,verbose=1,ultra_constr=False)
         phi = mySolver.params.phi
         nu = mySolver.params.nu
         self.assertAlmostEqual(0,abs(true_nllh-nllh)/true_nllh,places=4,msg="EMTest: test_47 failed.")

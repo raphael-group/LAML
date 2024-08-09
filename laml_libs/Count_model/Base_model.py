@@ -203,6 +203,19 @@ class Count_base_model(Virtual_solver):
         # MUST be overrided in any derived class!
         return 1
 
+    def log_Psi_cassette(self,c_node,k,alpha,beta):
+        # compute the log-transformed transition probability of cassette k  
+        # return None if the probability is 0
+        log_trans_p = 0
+        for j in range(self.data['alleleTable'].J):
+            p = self.Psi(c_node,k,j,alpha[j],beta[j])
+            if p > 0:
+                log_trans_p += log(p) #####*****#####
+            else:    
+                log_trans_p = None
+                break
+        return log_trans_p
+
     def Gamma(self,k,x,c):
         # Layer 2 transition probabilities
         # A placeholder (i.e. non-informative model) for this function in the base class
@@ -214,12 +227,16 @@ class Count_base_model(Virtual_solver):
         K = self.data['alleleTable'].K
         allele_table = self.data['alleleTable']
         root_state = tuple([0]*self.data['alleleTable'].J)
-        total_llh = 0
         for tree in self.trees:
             for node in tree.traverse_postorder():
-                node.in_llh = [{}]*self.data['alleleTable'].K # a list of dictionaries
-                for k in range(K):
-                    allele_list = self.data['alleleTable'].alphabet.get_cassette_alphabet(k)
+                node.in_llh = [{} for _ in range(K)] # a list of dictionaries
+        
+        total_llh = 0
+        for k in range(K):
+            allele_list = self.data['alleleTable'].alphabet.get_cassette_alphabet(k)
+            for tree in self.trees:
+                for node in tree.traverse_postorder():
+                    #node.in_llh = [{} for _ in range(K)] # a list of dictionaries
                     if node.is_leaf():
                         c = allele_table.get_all_counts(node.label,k) # c is a dictionary of allele -> count
                         for alpha in allele_list: 
@@ -232,25 +249,28 @@ class Count_base_model(Virtual_solver):
                             for c_node in node.children:
                                 llh_list = []                                    
                                 for beta in c_node.in_llh[k]:
-                                    log_trans_p = 0
-                                    for j in range(self.data['alleleTable'].J):
-                                        p = self.Psi(c_node,k,j,alpha[j],beta[j])
-                                        if p > 0:
-                                            log_trans_p += log(p) #####*****#####
-                                        else:    
-                                            log_trans_p = None
-                                            break
+                                    log_trans_p = self.log_Psi_cassette(c_node,k,alpha,beta)
                                     if log_trans_p is not None:
                                         llh_list.append(log_trans_p + c_node.in_llh[k][beta])
                                 if llh_list: # if the list is not empty
                                     llh += log_sum_exp(llh_list)
                                 else:
                                     llh = None
-                                    break    
+                                    break   
                             if llh is not None:
                                 node.in_llh[k][alpha] = llh
-            total_llh += sum([tree.root.in_llh[k][root_state] for k in range(self.data['alleleTable'].K)])
+                #total_llh += sum([tree.root.in_llh[k][root_state] for k in range(self.data['alleleTable'].K)])
+                total_llh += tree.root.in_llh[k][root_state]
         return total_llh
+
+    def llh_alleleTable_edge(self,node,k,alpha):
+        # assume in_llh has been computed for every node
+        llh_list = []
+        for beta in node.in_llh[k]:
+            log_trans_p = self.log_Psi_cassette(node,k,alpha,beta)
+            if log_trans_p is not None: 
+                llh_list.append(node.in_llh[k][beta] + log_trans_p)        
+        return log_sum_exp(llh_list) if llh_list else None       
 
     def negative_llh(self):
         # compute the negative log-likelihood of all data modules
@@ -353,8 +373,48 @@ class Count_base_model(Virtual_solver):
         self.llh_alleleTable()
 
     def Estep_out_llh(self):
-        #####TODO#####
-        pass
+        K = self.data['alleleTable'].K
+        allele_table = self.data['alleleTable']
+        root_state = tuple([0]*self.data['alleleTable'].J)
+        
+        for tree in self.trees:
+            for node in tree.traverse_preorder():
+                node.out_llh = [{} for _ in range(K)] # a list of dictionaries
+
+        for k in range(K):
+            allele_list = self.data['alleleTable'].alphabet.get_cassette_alphabet(k)
+            for tree in self.trees:
+                for node in tree.traverse_preorder():
+                    #node.out_llh = [{} for _ in range(K)] # a list of dictionaries
+                    if node.is_root():
+                        node.out_llh[k][root_state] = 0
+                    elif node.parent.is_root():
+                        for alpha in allele_list:
+                            log_trans_p = self.log_Psi_cassette(node,k,root_state,alpha) 
+                            if log_trans_p is not None:
+                                node.out_llh[k][alpha] = log_trans_p
+                    else:
+                        for alpha in allele_list:
+                            llh_list = []                                    
+                            for beta in node.parent.out_llh[k]:
+                                log_trans_p = self.log_Psi_cassette(node,k,beta,alpha)
+                                if log_trans_p is None:
+                                    continue
+                                par_out_llh = node.parent.out_llh[k][beta]
+                                sum_sisters_in_llh = 0
+                                for w in node.parent.children:
+                                    if w is node:
+                                        continue
+                                    curr_llh = self.llh_alleleTable_edge(w,k,beta)    
+                                    if curr_llh is not None:
+                                        sum_sisters_in_llh += curr_llh
+                                    else:
+                                        sum_sisters_in_llh = None
+                                        break
+                                if sum_sisters_in_llh is not None:
+                                    llh_list.append(log_trans_p+par_out_llh+sum_sisters_in_llh)
+                            if llh_list: # if the list is not empty
+                                node.out_llh[k][alpha] = log_sum_exp(llh_list)
 
     def Estep_posterior(self):
         #####TODO#####    

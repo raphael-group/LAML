@@ -5,7 +5,8 @@ from treeswift import *
 from laml_libs.IO_handler.sequence_lib import read_sequences
 from random import random
 
-class PMMTest(unittest.TestCase):
+class PMMTest1(unittest.TestCase):
+    # test in_llh computation
     def __countgen(self,alphabet,chosen_state,maxcount=1000):
         M = len(alphabet)
         counts = [0]*M
@@ -35,7 +36,7 @@ class PMMTest(unittest.TestCase):
 
         myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,0,0)
         my_nllh = myModel.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest: test_1 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_1 failed.")
     
     def test_2(self): 
         Q = [[{1:1}]]
@@ -53,7 +54,7 @@ class PMMTest(unittest.TestCase):
 
         myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,0,0)
         my_nllh = myModel.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest: test_2 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_2 failed.")
    
     def test_3(self): 
         Q = [[{1:1}]]
@@ -70,7 +71,7 @@ class PMMTest(unittest.TestCase):
 
         myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,0,0)
         my_nllh = myModel.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest: test_3 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_3 failed.")
     
     def test_4(self): 
         Q = [[{1:1}]]
@@ -87,7 +88,7 @@ class PMMTest(unittest.TestCase):
 
         myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,0,0)
         my_nllh = myModel.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest: test_4 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_4 failed.")
     
     '''def test_5(self): 
         Q = [{1:1}]

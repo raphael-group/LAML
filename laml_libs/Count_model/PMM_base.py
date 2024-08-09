@@ -21,6 +21,7 @@ class PMM_model(Count_base_model):
             elif beta == -1:
                 p = 1-exp(-delta*nu)
             else:
+                #print(k,j,beta,self.Q[k][j])
                 q = self.Q[k][j][beta]
                 p = q*exp(-delta*nu)*(1-exp(-delta))   
         else:
@@ -28,6 +29,8 @@ class PMM_model(Count_base_model):
                 p = 1
             elif alpha == beta:
                 p = exp(-delta*nu)
+            elif beta == -1:
+                p = 1-exp(-delta*nu)
             else:
                 p = 0        
         return p
@@ -35,14 +38,15 @@ class PMM_model(Count_base_model):
     def Gamma(self,k,x,c):
         # Layer 2 transition probabilities  
         # override the Base_model class
+        K = self.data['alleleTable'].K
+        x_is_silenced = (x == tuple([-1]*K))
         phi = self.params.get_value('phi')
         max_count = 0
         for y in c:
             if c[y] > max_count:
                 max_count = c[y]
         if max_count == 0: # all counts in c are 0
-            p = phi
+            p = 1 if x_is_silenced else phi
         else:
-            p = 1-phi if c[x] == max_count else 0
-        #print(x,c,p)
+            p = 1-phi if (c[x] == max_count and not x_is_silenced) else 0
         return p
