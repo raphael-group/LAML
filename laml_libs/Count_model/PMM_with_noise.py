@@ -14,8 +14,8 @@ class PMMN_model(PMM_model):
     def Gamma(self,k,x,c):
         # Layer 2 transition probabilities  
         # override the PMM_base class
-        K = self.data['alleleTable'].K
-        silenced_state = tuple([-1]*K)
+        J = self.data['alleleTable'].J
+        silenced_state = tuple([-1]*J)
         x_is_silenced = (x == silenced_state)
         phi = self.params.get_value('phi')
         # overall confusion rate

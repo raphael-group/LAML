@@ -6,8 +6,8 @@ DEFAULT_max_nu = 10
 
 class PMM_model(Count_base_model):
     # PMM = probabilistic mixed-type missing
-    def __init__(self,treeList,data,prior,mu,nu,phi,eta):
-        params = Param(['mu','nu','phi','eta'],[mu,nu,phi,eta],[0,0,0,0,0],[DEFAULT_max_mu,DEFAULT_max_nu,1,1,1])
+    def __init__(self,treeList,data,prior,mu,nu,phi):
+        params = Param(['mu','nu','phi'],[mu,nu,phi],[0,0,0,0,0],[DEFAULT_max_mu,DEFAULT_max_nu,1,1,1])
         super(PMM_model,self).__init__(treeList,data,prior,params)
     
     def Psi(self,c_node,k,j,alpha,beta):
