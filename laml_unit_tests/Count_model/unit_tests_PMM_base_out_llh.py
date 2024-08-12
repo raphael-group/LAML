@@ -292,8 +292,10 @@ class PMMTest2(unittest.TestCase):
         self.__test_outllh(T,Q,charMtrx,phi,nu,44)
     
     def test_26(self):
-        treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test1.tre')
-        charMtrx_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test1_charMtrx.txt')
+        #treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test1.tre')
+        treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_Count_model/test_PMM_base/test1_n25.tre')
+        #charMtrx_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test1_charMtrx.txt')
+        charMtrx_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_Count_model/test_PMM_base/test1_charMtrx.txt')
         T = read_tree_newick(treedata_path)
         phi = 0.05231954386883335
         nu = 0.15877477685098262

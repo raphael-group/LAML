@@ -261,14 +261,83 @@ class MLTest(unittest.TestCase):
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="MLTest: test_20 failed.")
 
-    def test_21(self): 
+    def test_21(self):
+        T = "((a:1,b:1)e:1,(c:1,d:1)f:1)r:1;"
+        Q = [{1:1.0}]
+        msa = {'a':[1],'b':[1],'c':[1],'d':[1]}
+        phi = 0
+        nu = 0.5
+        
+        true_nllh = 3.656149065448911
+
+        mySolver = ML_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':phi,'nu':nu})
+        mySolver.az_partition()
+        my_nllh = mySolver.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="MLTest: test_21 failed.")    
+    
+    def test_22(self):
+        T = "((a:1,b:1)e:1,(c:1,d:1)f:1)r:1;"
+        Q = [{1:1.0}]
+        msa = {'a':[1],'b':[1],'c':[1],'d':[1]}
+        nu = 0.1
+        phi = 0
+        
+        true_nllh = 0.8561490654489112
+
+        mySolver = ML_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':phi,'nu':nu})
+        mySolver.az_partition()
+        my_nllh = mySolver.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="MLTest: test_22 failed.")    
+
+    def test_23(self):
+        T = "((a:1,b:1)e:1,(c:1,d:1)f:1)r:1;"
+        Q = [{1:1.0}]
+        msa = {'a':[0],'b':[0],'c':[0],'d':[0]}
+        nu = 0.25
+        phi = 0
+    
+        true_nllh = 8.75 
+
+        mySolver = ML_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':phi,'nu':nu})
+        mySolver.az_partition()
+        my_nllh = mySolver.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="MLTest: test_23 failed.")    
+
+    def test_24(self):
+        T = "((a:0.1,b:1)e:1,(c:0.1,d:1)f:1)r:1;"
+        Q = [{1:1.0}]
+        msa = {'a':[0],'b':[1],'c':[0],'d':[1]}
+        nu = 0.15
+        phi = 0
+        
+        true_nllh = 4.897350290774163
+
+        mySolver = ML_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':phi,'nu':nu})
+        mySolver.az_partition()
+        my_nllh = mySolver.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="MLTest: test_24 failed.")    
+    
+    def test_25(self):
+        T = "((a:0.1,b:1)e:1,(c:0.1,d:1)f:1)r:1;"
+        Q = [{1:1.0}]
+        msa = {'a':[1],'b':[0],'c':[1],'d':[0]}
+        nu = 0.1
+        phi = 0
+
+        true_nllh = 10.22433692208818
+
+        mySolver = ML_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':phi,'nu':nu})
+        mySolver.az_partition()
+        my_nllh = mySolver.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="MLTest: test_25 failed.")    
+    
+    def test_26(self): 
         Q = [{1:1}]
         T = "((a:1,b:1):0,c:1):1;"
         msa = {'a':[1],'b':[1],'c':[1]}
         true_nllh = 0.3215288449416738
 
         mySolver = ML_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
-        #mySolver.az_partition(mySolver.params)
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="MLTest: test_21 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="MLTest: test_26 failed.")    

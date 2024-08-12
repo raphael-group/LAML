@@ -5,7 +5,7 @@ from treeswift import *
 from laml_libs.IO_handler.sequence_lib import read_sequences
 from random import random
 
-class PMMTest3(unittest.TestCase):
+class PMM_with_noise_Test1(unittest.TestCase):
     # test in_llh computation
     def __countgen(self,alphabet,chosen_state,silencing=False,maxcount=1000):
         # generates the UMI counts table for a cell, providing a mapping from cassette state to count

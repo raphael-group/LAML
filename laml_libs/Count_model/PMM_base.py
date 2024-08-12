@@ -39,12 +39,9 @@ class PMM_model(Count_base_model):
     def Gamma(self,k,x,c):
         # Layer 2 transition probabilities  
         # override the Base_model class
-        #print("c:", c)
-        #print("x:", x)
-        # hidden state x is a cassette state of length J corresponding to cassette k
+        # x is a cassette state of length J corresponding to cassette k
         J = self.data['alleleTable'].J
         x_is_silenced = (x == tuple([-1]*J))
-        #print(x_is_silenced)
         phi = self.params.get_value('phi')
         max_count = 0
         for y in c:
@@ -54,7 +51,6 @@ class PMM_model(Count_base_model):
             p = 1 if x_is_silenced else phi
         else:
             p = 1-phi if (c[x] == max_count and not x_is_silenced) else 0
-        #print("gamma:", p)
         return p
 
 

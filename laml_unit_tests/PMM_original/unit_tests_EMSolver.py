@@ -93,7 +93,6 @@ class EMTest(unittest.TestCase):
         T = "((a:1,b:1):1,c:1):1;"
         msa = {'a':[0],'b':[0],'c':[0]}
         true_nllh = 5.0
-
         
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
@@ -106,7 +105,6 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':[0],'c':['?']}
         true_nllh = 6.513306124309698
 
-        
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -118,7 +116,6 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':['?'],'c':[0]}
         true_nllh = 6.513306124309698
 
-        
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -130,7 +127,6 @@ class EMTest(unittest.TestCase):
         msa = {'a':['?'],'b':[0],'c':[0]}
         true_nllh = 6.513306124309698
 
-        
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -142,7 +138,6 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':[1],'c':['?']}
         true_nllh = 5.97198126969678
 
-        
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -154,7 +149,6 @@ class EMTest(unittest.TestCase):
         msa = {'a':[0],'b':['?'],'c':[1]}
         true_nllh = 5.97198126969678
 
-        
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -166,7 +160,6 @@ class EMTest(unittest.TestCase):
         msa = {'a':['?'],'b':[0],'c':[1]}
         true_nllh = 5.97198126969678
 
-        
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -178,7 +171,6 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':['?'],'c':[0]}
         true_nllh = 4.658719582178557
 
-        
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -190,7 +182,6 @@ class EMTest(unittest.TestCase):
         msa = {'a':['?'],'b':[1],'c':[0]}
         true_nllh = 4.658719582178557
 
-        
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -202,7 +193,6 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':[1],'c':['?']}
         true_nllh = 2.5980566021648364
 
-        
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -214,7 +204,6 @@ class EMTest(unittest.TestCase):
         msa = {'a':[1],'b':['?'],'c':[1]}
         true_nllh = 2.695795750497349
 
-        
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
@@ -225,7 +214,6 @@ class EMTest(unittest.TestCase):
         T = "((a:1,b:1):1,c:1):1;"
         msa = {'a':['?'],'b':[1],'c':[1]}
         true_nllh = 2.695795750497349
-
         
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0.1,'nu':0})
         mySolver.az_partition()
@@ -237,7 +225,6 @@ class EMTest(unittest.TestCase):
         T = "((a:1,b:1):1,c:1):1;"
         msa = {'a':[1],'b':[1],'c':[1]}
         true_nllh = 1.0297894223949402
-
         
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         mySolver.az_partition()
@@ -558,7 +545,7 @@ class EMTest(unittest.TestCase):
 
         mySolver = EM_solver([T],{'charMtrx':msa},{'Q':Q},{'phi':0,'nu':0})
         randseed = 1221
-        nllh,status = mySolver.optimize(initials=1,random_seeds=randseed,verbose=1,ultra_constr=False)
+        nllh,status = mySolver.optimize(initials=1,random_seeds=randseed,verbose=-1,ultra_constr=False)
         phi = mySolver.params.phi
         nu = mySolver.params.nu
         self.assertAlmostEqual(0,abs(true_nllh-nllh)/true_nllh,places=4,msg="EMTest: test_47 failed.")
