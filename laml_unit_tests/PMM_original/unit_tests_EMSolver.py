@@ -524,7 +524,7 @@ class EMTest(unittest.TestCase):
         treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4.tre')
         msa_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_charMtrx.txt')
         prior_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_prior.csv')
-        T = read_tree_newick(treedata_path) #"test_data/test_EM/test4.tre")
+        T = read_tree_newick(treedata_path)
         msa,_ = read_sequences(msa_path,filetype="charMtrx",delimiter=",",masked_symbol='?')
         k = len(msa[next(iter(msa.keys()))])
         Q = [{0:0} for i in range(k)]

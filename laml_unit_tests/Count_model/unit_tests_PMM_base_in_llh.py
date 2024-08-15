@@ -4,44 +4,25 @@ from laml_libs.Count_model.PMM_base import *
 from treeswift import *
 from laml_libs.IO_handler.sequence_lib import read_sequences
 from random import random
+from .utils import *
+from .virtual_unit_tests import VirtualUnitTest
 
-class PMMTest1(unittest.TestCase):
+class PMMTest_in_llh(VirtualUnitTest):
     # test in_llh computation
-    def __countgen(self,alphabet,chosen_state,silencing=False,maxcount=1000):
-        # generates the UMI counts table for a cell, providing a mapping from cassette state to count
-        M = len(alphabet)
-        counts = [0]*M
-        for i in range(M):
-            counts[i] = int(random()*maxcount)
-        m = max(counts) + int(maxcount/M)
-        C = {}    
-        if silencing:
-            C[tuple([-1]*len(alphabet[0]))] = 0
-        for i,a in enumerate(alphabet):    
-            # indicates dropout
-            if chosen_state == ('?',):
-                C[a] = 0
-            else:
-                C[a] = counts[i]
-                if a == chosen_state:
-                    C[a] = m
-        return C        
-
     def test_1(self): 
         Q = [[{1:1}]]
         T = "(((a:1,b:1)ab:1,c:1)abc:1)r;"
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        #allele_table = AlleleTable(K,J,{'a':[{(0,):0,(1,):1}],'b':[{(0,):0,(1,):1}],'c':[{(0,):0,(1,):1}]},alphabet)
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
-        counts_c = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(1,))
+        counts_c = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
         true_nllh = 0.20665578828621584
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_1 failed.")
     
@@ -53,14 +34,14 @@ class PMMTest1(unittest.TestCase):
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
         #allele_table = AlleleTable(K,J,{'a':[{(0,):0,(1,):1}],'b':[{(0,):0,(1,):1}],'c':[{(0,):1,(1,):0}]},alphabet)
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
-        counts_c = self.__countgen([(0,),(1,)],(0,))        
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(1,))
+        counts_c = countgen([(0,),(1,)],(0,))        
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
         true_nllh = 2.2495946917551692 
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_2 failed.")
    
@@ -72,13 +53,13 @@ class PMMTest1(unittest.TestCase):
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
         #allele_table = AlleleTable(K,J,{'a':[{(0,):0,(1,):1}],'b':[{(0,):1,(1,):0}],'c':[{(0,):0,(1,):1}]},alphabet)
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],(0,))
-        counts_c = self.__countgen([(0,),(1,)],(1,))        
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(0,))
+        counts_c = countgen([(0,),(1,)],(1,))        
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
         true_nllh = 3.917350291274164 
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_3 failed.")
     
@@ -90,13 +71,13 @@ class PMMTest1(unittest.TestCase):
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
         #allele_table = AlleleTable(K,J,{'a':[{(0,):0,(1,):1}],'b':[{(0,):1,(1,):0}],'c':[{(0,):0,(1,):1}]},alphabet)
-        counts_a = self.__countgen([(0,),(1,)],(0,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
-        counts_c = self.__countgen([(0,),(1,)],(1,))        
+        counts_a = countgen([(0,),(1,)],(0,))
+        counts_b = countgen([(0,),(1,)],(1,))
+        counts_c = countgen([(0,),(1,)],(1,))        
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
         true_nllh = 3.917350291274164 
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_4 failed.")
     
@@ -107,13 +88,13 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],(0,))
-        counts_c = self.__countgen([(0,),(1,)],(0,))        
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(0,))
+        counts_c = countgen([(0,),(1,)],(0,))        
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
         true_nllh = 4.4586751457870815
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_5 failed.")
     
@@ -123,13 +104,13 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(0,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
-        counts_c = self.__countgen([(0,),(1,)],(0,))        
+        counts_a = countgen([(0,),(1,)],(0,))
+        counts_b = countgen([(0,),(1,)],(1,))
+        counts_c = countgen([(0,),(1,)],(0,))        
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
         true_nllh = 4.4586751457870815
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_6 failed.")
     
@@ -139,13 +120,13 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(0,))
-        counts_b = self.__countgen([(0,),(1,)],(0,))
-        counts_c = self.__countgen([(0,),(1,)],(1,))        
+        counts_a = countgen([(0,),(1,)],(0,))
+        counts_b = countgen([(0,),(1,)],(0,))
+        counts_c = countgen([(0,),(1,)],(1,))        
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
         true_nllh = 4.4586751457870815
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_7 failed.")
     
@@ -156,13 +137,13 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(0,))
-        counts_b = self.__countgen([(0,),(1,)],(0,))
-        counts_c = self.__countgen([(0,),(1,)],(0,))        
+        counts_a = countgen([(0,),(1,)],(0,))
+        counts_b = countgen([(0,),(1,)],(0,))
+        counts_c = countgen([(0,),(1,)],(0,))        
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
         true_nllh = 5.0
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_8 failed.")
     
@@ -173,13 +154,13 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(0,))
-        counts_b = self.__countgen([(0,),(1,)],(0,))
-        counts_c = self.__countgen([(0,),(1,)],('?',))
+        counts_a = countgen([(0,),(1,)],(0,))
+        counts_b = countgen([(0,),(1,)],(0,))
+        counts_c = countgen([(0,),(1,)],('?',))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
         true_nllh = 6.513306124309698
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_9 failed.")
     
@@ -189,13 +170,13 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(0,))
-        counts_b = self.__countgen([(0,),(1,)],('?',))
-        counts_c = self.__countgen([(0,),(1,)],(0,))
+        counts_a = countgen([(0,),(1,)],(0,))
+        counts_b = countgen([(0,),(1,)],('?',))
+        counts_c = countgen([(0,),(1,)],(0,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
         true_nllh = 6.513306124309698
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_10 failed.")
     
@@ -207,12 +188,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],('?',))
-        counts_b = self.__countgen([(0,),(1,)],(0,))
-        counts_c = self.__countgen([(0,),(1,)],(0,))
+        counts_a = countgen([(0,),(1,)],('?',))
+        counts_b = countgen([(0,),(1,)],(0,))
+        counts_c = countgen([(0,),(1,)],(0,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_11 failed.")
     
@@ -223,12 +204,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(0,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
-        counts_c = self.__countgen([(0,),(1,)],('?',))
+        counts_a = countgen([(0,),(1,)],(0,))
+        counts_b = countgen([(0,),(1,)],(1,))
+        counts_c = countgen([(0,),(1,)],('?',))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_12 failed.")
     
@@ -239,12 +220,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(0,))
-        counts_b = self.__countgen([(0,),(1,)],('?',))
-        counts_c = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],(0,))
+        counts_b = countgen([(0,),(1,)],('?',))
+        counts_c = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_13 failed.")
     
@@ -255,12 +236,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],('?',))
-        counts_b = self.__countgen([(0,),(1,)],(0,))
-        counts_c = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],('?',))
+        counts_b = countgen([(0,),(1,)],(0,))
+        counts_c = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_14 failed.")
     
@@ -271,12 +252,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],('?',))
-        counts_c = self.__countgen([(0,),(1,)],(0,))
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],('?',))
+        counts_c = countgen([(0,),(1,)],(0,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_15 failed.")
     
@@ -287,12 +268,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],('?',))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
-        counts_c = self.__countgen([(0,),(1,)],(0,))
+        counts_a = countgen([(0,),(1,)],('?',))
+        counts_b = countgen([(0,),(1,)],(1,))
+        counts_c = countgen([(0,),(1,)],(0,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_16 failed.")
     
@@ -303,12 +284,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
-        counts_c = self.__countgen([(0,),(1,)],('?',))
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(1,))
+        counts_c = countgen([(0,),(1,)],('?',))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_17 failed.")
     
@@ -319,12 +300,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],('?',))
-        counts_c = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],('?',))
+        counts_c = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_18 failed.")
     
@@ -335,12 +316,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],('?',))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
-        counts_c = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],('?',))
+        counts_b = countgen([(0,),(1,)],(1,))
+        counts_c = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0.1)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.1)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_19 failed.")
     
@@ -351,12 +332,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
-        counts_c = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(1,))
+        counts_c = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_20 failed.")
 
@@ -367,12 +348,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
-        counts_c = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(1,))
+        counts_c = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b],'c':[counts_c]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_21 failed.")
     
@@ -384,12 +365,12 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],(1,))
         counts_a[(0,)] = counts_a[(1,)]
-        counts_b = self.__countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=11,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_22 failed.")
     
@@ -401,11 +382,11 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1,-1]]]) # only add -1 if we have silencing rate > 0 
-        counts_a = self.__countgen([(0,),(1,)],(1,),silencing=True)
-        counts_b = self.__countgen([(0,),(1,)],(1,),silencing=True)
+        counts_a = countgen([(0,),(1,)],(1,),silencing=True)
+        counts_b = countgen([(0,),(1,)],(1,),silencing=True)
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0.05,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=11,nu=0.05,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_23 failed.")
 
@@ -417,11 +398,11 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1,-1]]]) # only add -1 if we have silencing rate > 0
-        counts_a = self.__countgen([(0,),(1,)],(1,),silencing=True)
-        counts_b = self.__countgen([(0,),(1,)],('?',),silencing=True)
+        counts_a = countgen([(0,),(1,)],(1,),silencing=True)
+        counts_b = countgen([(0,),(1,)],('?',),silencing=True)
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0.05,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=11,nu=0.05,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_24 failed.")
 
@@ -433,11 +414,11 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1,2]]])
-        counts_a = self.__countgen([(0,),(1,),(2,)],(1,))
-        counts_b = self.__countgen([(0,),(1,),(2,)],(1,))
+        counts_a = countgen([(0,),(1,),(2,)],(1,))
+        counts_b = countgen([(0,),(1,),(2,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=11,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_25 failed.")
 
@@ -449,11 +430,11 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],('?',))
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],('?',))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.05)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=11,nu=0,phi=0.05)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_26 failed.")
 
@@ -465,11 +446,11 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.05)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=11,nu=0,phi=0.05)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_27 failed.")
 
@@ -482,11 +463,11 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=11,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_28 failed.")
 
@@ -499,11 +480,11 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 2
         alphabet = Alphabet(K,J,[[[0,1],[0,1]]])
-        counts_a = self.__countgen([(0,0),(1,0),(0,1),(1,1)],(1,0))
-        counts_b = self.__countgen([(0,0),(1,0),(0,1),(1,1)],(1,0))
+        counts_a = countgen([(0,0),(1,0),(0,1),(1,1)],(1,0))
+        counts_b = countgen([(0,0),(1,0),(0,1),(1,1)],(1,0))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=11,nu=0,phi=0)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_29 failed.")
 
@@ -517,11 +498,11 @@ class PMMTest1(unittest.TestCase):
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1]]])
-        counts_a = self.__countgen([(0,),(1,)],(1,))
-        counts_b = self.__countgen([(0,),(1,)],(1,))
+        counts_a = countgen([(0,),(1,)],(1,))
+        counts_b = countgen([(0,),(1,)],(1,))
         allele_table = AlleleTable(K,J,{'a':[counts_a],'b':[counts_b]},alphabet)
 
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=0,phi=0.5)
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=11,nu=0,phi=0.5)
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMTest in llh: test_28 failed.")
     """

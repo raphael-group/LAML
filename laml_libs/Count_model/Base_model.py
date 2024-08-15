@@ -385,7 +385,6 @@ class Count_base_model(Virtual_solver):
             allele_list = self.data['alleleTable'].alphabet.get_cassette_alphabet(k)
             for tree in self.trees:
                 for node in tree.traverse_preorder():
-                    #node.out_llh = [{} for _ in range(K)] # a list of dictionaries
                     if node.is_root():
                         node.out_llh[k][root_state] = 0
                     elif node.parent.is_root():
@@ -417,13 +416,142 @@ class Count_base_model(Virtual_solver):
                                 node.out_llh[k][alpha] = log_sum_exp(llh_list)
 
     def Estep_posterior(self):
-        #####TODO#####    
-        pass
+    # compute the log-transformed of all posterior probabilities
+    # TODO: compute S0-4 as in EM_solver of PMM_original
+        K = self.data['alleleTable'].K
+        allele_table = self.data['alleleTable']
+        root_state = tuple([0]*self.data['alleleTable'].J)
+        
+        for tree in self.trees:
+            for node in tree.traverse_preorder():
+                node.log_posterior = [{} for _ in range(K)] # a list of dictionaries
+
+        for k in range(K):
+            allele_list = self.data['alleleTable'].alphabet.get_cassette_alphabet(k)
+            for tree in self.trees:
+                for node in tree.traverse_preorder():
+                    if node.is_root():
+                        node.log_posterior[k][root_state] = 1
+                    else:
+                        for alpha in allele_list:
+                            in_llh = node.in_llh[k][alpha] if alpha in node.in_llh[k] else None
+                            out_llh = node.out_llh[k][alpha] if alpha in node.out_llh[k] else None
+                            total_llh = tree.root.in_llh[k][root_state]
+                            if (in_llh is not None) and (out_llh is not None):
+                                node.log_posterior[k][alpha] = in_llh + out_llh - total_llh
 
     def Estep(self):
         self.Estep_in_llh()
         self.Estep_out_llh()
         self.Estep_posterior()
+   
+    def Closed_formed_optimal(param_name):
+        # A placeholder for this function in the base class
+        # MUST be overrided in any derived class!
+        return 0
+
+    def Mstep(self,fixed_params={},verbose=1,local_brlen_opt=True,ultra_constr_cache=None,eps_nu=1e-5,eps_s=1e-6):
+        # assume that Estep has been performed so that all nodes have S0-S4 attributes
+        # output: optimize all parameters: branch lengths, phi, and nu
+        # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
+       
+        ################## IN PROGRESS! ######################
+        raise("I AM UNDERDEVELOPMENT. PLEASE DON'T CALL ME!!!")
+
+        # optimize nu and all branch lengths
+        N = self.num_edges-self.num_polytomy_mark
+        if local_brlen_opt:
+            for tree in self.trees:
+                N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
+        S0 = np.zeros(N)
+        S1 = np.zeros(N)
+        S2 = np.zeros(N)
+        S3 = np.zeros(N)
+        S4 = np.zeros(N)
+        d_ini = np.zeros(N)
+        i = 0
+        for tree in self.trees:
+            for v in tree.traverse_postorder():
+                if not v.polytomy_mark and not (v.mark_fixed and local_brlen_opt):    
+                    s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
+                    s = [max(eps_s,x) for x in s]
+                    s = [x/sum(s)*self.numsites for x in s]
+                    S0[i],S1[i],S2[i],S3[i],S4[i] = s
+                    d_ini[i] = v.edge_length
+                    i += 1
+        
+        def __optimize_brlen(nu,verbose=False): # nu is a single number
+            var_d = cp.Variable(N,nonneg=True) # the branch length variables
+            C0 = -(nu+1)*S0.T @ var_d
+            C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d)) 
+            C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > eps_nu else 0 
+            C3 = -nu*S3.T @ var_d
+            C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu > eps_nu else 0
+
+            objective = cp.Maximize(C0+C1+C2+C3+C4)
+            constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax]             
+            if ultra_constr_cache is not None:
+                M,b = ultra_constr_cache
+                constraints += [np.array(M) @ var_d == np.array(b)]
+            prob = cp.Problem(objective,constraints)
+            prob.solve(verbose=False,solver=cp.MOSEK)
+            return var_d.value,prob.status
+       
+        def __optimize_nu(d): # d is a vector of all branch lengths
+            var_nu = cp.Variable(1,nonneg=True) # the nu variable
+            C0 = -(var_nu+1)*S0.T @ d
+            C1 = -var_nu*S1.T @ d + S1.T @ cp.log(1-cp.exp(-d))
+            C2 = S2.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S2) > 0 else 0
+            C3 = -var_nu*S3.T @ d
+            C4 = S4.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S4) > 0 else 0
+            objective = cp.Maximize(C0+C1+C2+C3+C4)
+            prob = cp.Problem(objective)
+            prob.solve(verbose=False,solver=cp.MOSEK)
+            return var_nu.value[0],prob.status
+
+        nIters = 1
+        nu_star = self.params.nu
+        for r in range(nIters):
+            if verbose > 0:
+                print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
+            try:
+                d_star,status_d = __optimize_brlen(nu_star,verbose=False)
+            except:
+                d_star = d_ini
+                status_d = "failure"
+            if status_d == "infeasible": # should only happen with local EM 
+                return False,"d_infeasible"
+            if not optimize_nu:
+                if verbose > 0:
+                    print("Fixing nu to " + str(self.params.nu))
+                nu_star = self.params.nu
+                status_nu = "optimal"    
+            else:    
+                if verbose > 0:
+                    print("Optimizing nu")
+                try:
+                    nu_star,status_nu = __optimize_nu__(d_star)                 
+                except:
+                    status_nu = "failure"
+        # place the optimal value back to params
+        self.params.phi = phi_star
+        self.params.nu = nu_star
+        i = 0
+        for tree in self.trees:
+            for node in tree.traverse_postorder():
+                if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+                    node.edge_length = d_star[i]
+                    i += 1
+        success = (status_d == "optimal" or status_d == "UNKNOWN") and (status_nu == "optimal" or status_nu == "UNKNOWN")
+        if success:
+            status = "optimal"
+        else:
+            status = ""
+            if status_d != "optimal":
+                status += "failed_d"
+            if status_nu != "optimal":
+                status = ",failed_nu"
+        return success, status
     
     def EM_optimization(self,verbose=1,fixed_params={},ultra_constr=True,EM_options=DEFAULT_EM_options):
         # IMPORTANT: this EM algorithm ONLY optimizes the likelihood of the allele table !

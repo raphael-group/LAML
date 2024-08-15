@@ -2,8 +2,9 @@ from .PMM_base import *
 
 class PMMN_model(PMM_model):
     # PMMN = PMM with noise = probabilistic mixed-type missing with noise
-    def __init__(self,treeList,data,prior,mu,nu,phi,eta):
-        params = Param(['mu','nu','phi','eta'],[mu,nu,phi,eta],[0,0,0,0],[DEFAULT_max_mu,DEFAULT_max_nu,1,1])
+    def __init__(self,treeList,data,prior,**params): 
+        # **params must have 'mu','nu','phi','eta'
+        params = Param(['mu','nu','phi','eta'],[params['mu'],params['nu'],params['phi'],params['eta']],[0,0,0,0],[DEFAULT_max_mu,DEFAULT_max_nu,1,1])
         super(PMM_model,self).__init__(treeList,data,prior,params) #####*****#####
 
     def Psi(self,c_node,k,j,alpha,beta):
