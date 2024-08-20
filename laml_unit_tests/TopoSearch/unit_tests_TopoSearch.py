@@ -55,7 +55,6 @@ class TopoSearchTest(unittest.TestCase):
         for T in topos:
             mySolver = solver([T],{'charMtrx':msa},{'Q':Q})
             nllh,_ = mySolver.optimize(initials=initials,verbose=-1,ultra_constr=ultra_constr)
-            #print(T,nllh)
             if nllh < best_nllh:
                 best_nllh = nllh
                 best_tree = mySolver.trees[0].newick()

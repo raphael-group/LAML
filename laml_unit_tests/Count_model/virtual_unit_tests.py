@@ -36,7 +36,6 @@ class VirtualUnitTest(unittest.TestCase):
         J = 1
         alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)])
         allele_table = charMtrx_2_alleleTable(charMtrx,alphabet)
-        #myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,nu=nu,test_no=phi=phi)
         myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},**params)
         if give_label:
             currIdx = 0

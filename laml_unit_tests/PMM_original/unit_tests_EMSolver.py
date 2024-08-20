@@ -518,9 +518,36 @@ class EMTest(unittest.TestCase):
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_46 failed.")
 
-    # test optimize_one
+    # test optimization
     def test_47(self):
-        #treedata_path = pkg_resources.resource_filename('scmail', 'laml_unit_tests/test_data/test_EM/test4.tre')
+        Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
+        msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
+        data = {'charMtrx':msa}
+        prior = {'Q':Q}
+         
+        tree_list = ['(((b,c),d),a);', '((b,c),(d,a));', '(d,((b,c),a));', '(d,(b,(c,a)));', '(d,(c,(b,a)));', '(((b,d),c),a);', '((b,d),(c,a));', '(c,((b,d),a));', '(c,(b,(d,a)));', '(c,(d,(b,a)));', '(((c,d),b),a);', '((c,d),(b,a));', '(b,((c,d),a));', '(b,(c,(d,a)));', '(b,(d,(c,a)));']  
+        true_nllh_list = [11.809140931727208, 11.809141253319298, 11.80914097392261, 11.809140974410134, 10.338626804278578, 11.809141098008908, 11.809140926336006, 11.809141047672332, 11.809141363494154, 10.33862520405755, 9.322029697571756, 7.851513459377366, 9.32202949252424, 11.809140996738018, 11.809140939639644]
+        
+        for T,true_nllh in zip(tree_list,true_nllh_list):
+            mySolver = EM_solver([T],data,prior)
+            test_nllh,_ = mySolver.optimize(initials=1,verbose=-1,ultra_constr=False)
+            self.assertAlmostEqual(true_nllh,test_nllh,places=4,msg="EMTest: test_47 failed.")
+    
+    def test_48(self):
+        Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
+        msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
+        data = {'charMtrx':msa}
+        prior = {'Q':Q}
+       
+        tree_list = ['(((b,c),d),a);', '((b,c),(d,a));', '(d,((b,c),a));', '(d,(b,(c,a)));', '(d,(c,(b,a)));', '(((b,d),c),a);', '((b,d),(c,a));', '(c,((b,d),a));', '(c,(b,(d,a)));', '(c,(d,(b,a)));', '(((c,d),b),a);', '((c,d),(b,a));', '(b,((c,d),a));', '(b,(c,(d,a)));', '(b,(d,(c,a)));']
+        true_nllh_list = [7.595936888280069, 5.078900745505063, 7.595936937640891, 10.0830486451717, 10.083048625619265, 10.08305235692635, 10.083048544279704, 10.083048478217442, 7.566011711889361, 10.083048503399493, 10.083048490449752, 10.083048551149702, 10.083048664742668, 7.566011487530715, 10.083048480708316]
+
+        for T,true_nllh in zip(tree_list,true_nllh_list):
+            mySolver = EM_solver([T],data,prior)
+            test_nllh,_ = mySolver.optimize(initials=1,verbose=-1,ultra_constr=False)
+            self.assertAlmostEqual(true_nllh,test_nllh,places=4,msg="EMTest: test_48 failed.")
+
+    def test_49(self):
         treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4.tre')
         msa_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_charMtrx.txt')
         prior_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_prior.csv')
@@ -548,12 +575,12 @@ class EMTest(unittest.TestCase):
         nllh,status = mySolver.optimize(initials=1,random_seeds=randseed,verbose=-1,ultra_constr=False)
         phi = mySolver.params.phi
         nu = mySolver.params.nu
-        self.assertAlmostEqual(0,abs(true_nllh-nllh)/true_nllh,places=4,msg="EMTest: test_47 failed.")
-        self.assertAlmostEqual(true_phi,phi,places=4,msg="EMTest: test_47 failed.")
-        self.assertAlmostEqual(true_nu,nu,places=4,msg="EMTest: test_47 failed.")
+        self.assertAlmostEqual(0,abs(true_nllh-nllh)/true_nllh,places=4,msg="EMTest: test_49 failed.")
+        self.assertAlmostEqual(true_phi,phi,places=4,msg="EMTest: test_49 failed.")
+        self.assertAlmostEqual(true_nu,nu,places=4,msg="EMTest: test_49 failed.")
 
     # test score_tree
-    def test_48(self):
+    def test_50(self):
         treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4.tre')
         msa_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_charMtrx.txt')
         prior_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_prior.csv')
@@ -584,6 +611,6 @@ class EMTest(unittest.TestCase):
         nllh = -score
         phi = mySolver.params.phi
         nu = mySolver.params.nu
-        self.assertAlmostEqual(abs(true_nllh-nllh)/true_nllh,0,places=4,msg="EMTest: test_48 failed.")
-        self.assertAlmostEqual(true_phi,phi,places=4,msg="EMTest: test_48 failed.")
-        self.assertAlmostEqual(true_nu,nu,places=4,msg="EMTest: test_48 failed.")
+        self.assertAlmostEqual(abs(true_nllh-nllh)/true_nllh,0,places=4,msg="EMTest: test_50 failed.")
+        self.assertAlmostEqual(true_phi,phi,places=4,msg="EMTest: test_50 failed.")
+        self.assertAlmostEqual(true_nu,nu,places=4,msg="EMTest: test_50 failed.")

@@ -9,73 +9,12 @@ from .Virtual_solver import Virtual_solver
 from scipy.sparse import csr_matrix
 from copy import deepcopy
 from laml_libs.Utils.lca_lib import find_LCAs
-
-def log_sum_exp(numlist):
-    # using log-trick to compute log(sum(exp(x) for x in numlist))
-    # mitigate the problem of underflow
-    maxx = max(numlist)
-    result = maxx + log(sum([exp(x-maxx) for x in numlist]))
-    return result
-
-def pseudo_log(x):
-    return log(x) if x>0 else min_llh
-
-class Alphabet():
-    def __init__(self,K,J,data_struct):
-        self.K = K
-        self.J = J
-        self.data_struct = data_struct # data_struct is a 3-way nested list
-    
-    def get_cassette_alphabet(self,k):
-        a_list = self.data_struct[k]   
-        def __get_alphabet(j):
-            if j == 0:
-                return [[x] for x in a_list[j]]
-            else:
-                prev = __get_alphabet(j-1)
-                curr = []
-                for x in prev:
-                    for y in a_list[j]:        
-                        curr.append(x+[y])
-                return curr
-        return [tuple(x) for x in __get_alphabet(self.J-1)]
-
-class AlleleTable():
-    def __init__(self,K,J,data_struct,alphabet):
-    # K: the number of cassettes
-    # J: the number of sites per cassette
-    # data_struct: a mapping: cell_name -> (cassette -> (cassette_state -> count))
-    # alphabet: an instance of class Alphabet; must have the same K and J
-        self.K = K
-        self.J = J
-        self.data_struct = data_struct
-        self.alphabet = alphabet
-        
-    def get(self,w,k,x):
-        # w: a cell name/label
-        # k: a cassette index
-        # x: a state of the specified cassette; must be a tuple of length J
-        assert len(x) == self.J
-        return self.data_struct[w][k][x]
-    
-    def get_all_counts(self,w,k):
-        # w: a cell name/label
-        # k: a cassette index
-        return self.data_struct[w][k]
-
-class Param():
-    def __init__(self,names,values,lower_bounds,upper_bounds):
-        self.names = names
-        self.values = values
-        self.lower_bounds = lower_bounds
-        self.upper_bounds = upper_bounds
-        self.name2bound = {n:(l,u) for (n,l,u) in zip(names,lower_bounds,upper_bounds)}
-
-    def get_value(self,pname):
-        for i,(n,v) in enumerate(zip(self.names,self.values)):
-            if n == pname:
-                return v
-        return None # only get here if pname is not found in self.names
+from .Param import Param
+from .Alphabet import Alphabet
+from .AlleleTable import AlleleTable
+from .utils import * 
+import time
+import cvxpy as cp
 
 class Count_base_model(Virtual_solver):
     def __init__(self,treeList,data,prior,params):
@@ -91,7 +30,7 @@ class Count_base_model(Virtual_solver):
         for tree in treeList:
             tree_obj = read_tree_newick(tree)
             #tree_obj.suppress_unifurcations()
-            self.num_edges += len(list(tree_obj.traverse_postorder()))
+            self.num_edges += len(list(tree_obj.traverse_postorder()))-1
             self.trees.append(tree_obj)
 
         # normalize Q
@@ -126,25 +65,43 @@ class Count_base_model(Virtual_solver):
         score = None if nllh is None else -nllh
         return score,status
     
-    def ultrametric_constr(self):
-        N = len(self.ini_all())
-        M = []
+    def ultrametric_constr(self,local_brlen_opt=True):
+        N = self.num_edges-self.num_polytomy_mark
+        if local_brlen_opt:
+            for tree in self.trees:
+                N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
+        constrs = {}        
         idx = 0
         for tree in self.trees: 
             for node in tree.traverse_postorder():
                 if node.is_leaf():
                     node.constraint = [0.]*N
+                    node.constant = node.edge_length if node.mark_fixed else 0
                 else:
                     c1,c2 = node.children
-                    m = [x-y for (x,y) in zip(c1.constraint,c2.constraint)]
-                    M.append(m)
+                    m = tuple(x-y for (x,y) in zip(c1.constraint,c2.constraint))
+                    m_compl = tuple(-x for x in m)
+                    c = c2.constant-c1.constant
+                    if sum([x!=0 for x in m]) > 0 and not (m in constrs or m_compl in constrs):
+                        constrs[m] = c
                     node.constraint = c1.constraint
-                node.constraint[idx] = 1
-                idx += 1
+                    if node.mark_fixed:
+                        node.constant = c1.constant + node.edge_length
+                    else:
+                        node.constant = c1.constant
+                if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+                    node.constraint[idx] = 1
+                    idx += 1
         for tree in self.trees[1:]:
-            m = [x-y for (x,y) in zip(self.trees[0].root.constraint,tree.root.constraint)]
-            M.append(m)
-        return M
+            m = tuple(x-y for (x,y) in zip(self.trees[0].root.constraint,tree.root.constraint))
+            c = tree.root.constant-self.trees[0].root.constant
+            constrs[m] = c
+        M = []
+        b = []
+        for m in constrs:
+            M.append(list(m))
+            b.append(constrs[m])
+        return M,b
 
     def ini_brlens(self):
         x = [random() * (self.dmax/2 - 2*self.dmin) + 2*self.dmin for i in range(self.num_edges)]        
@@ -159,15 +116,15 @@ class Count_base_model(Virtual_solver):
     def ini_one_param(self,pname):
         # here we set a simple initialization scheme for all params
         # in most cases this method should be overrided in a class that inhirits from this base class
-        lower_bound,upper_bound = self.params.name2bounds[pname]
+        lower_bound,upper_bound = self.params.get_bound(pname)
         return random()*(upper_bound-lower_bound)+lower_bound
 
     def ini_all_params(self,fixed_params={}):
         # initialize branch lengths
         x = self.ini_brlens()
         # initialize the params specified in self.params
-        for p in self.params.names:
-            x += [fixed_params[p]] if p in fixed_params else [ini_one_param]
+        for p in self.params.get_names():
+            x += [fixed_params[p]] if p in fixed_params else [self.ini_one_param(p)]
         return x    
 
     def bound_brlen(self):        
@@ -190,25 +147,27 @@ class Count_base_model(Virtual_solver):
         i = 0
         for tree in self.trees:
             for node in tree.traverse_postorder():
-                node.edge_length = x[i]
-                i += 1
+                if not node.is_root():
+                    node.edge_length = x[i]
+                    i += 1
         # other x2params                
         for j,p in enumerate(self.params.names):
+            #self.params.values[j] = fixed_params[p] if p in fixed_params else x[i]
             self.params.values[j] = fixed_params[p] if p in fixed_params else x[i]
             i += 1
     
-    def Psi(self,c_node,k,j,alpha,beta):
+    def Psi(self,c_node,k,j,x,y):
         # Layer 1 transition probabilities
         # This is a placeholder (i.e. non-informative model) for this function in the base class
         # MUST be overrided in any derived class!
         return 1
 
-    def log_Psi_cassette(self,c_node,k,alpha,beta):
+    def log_Psi_cassette(self,c_node,k,x,y):
         # compute the log-transformed transition probability of cassette k  
         # return None if the probability is 0
         log_trans_p = 0
         for j in range(self.data['alleleTable'].J):
-            p = self.Psi(c_node,k,j,alpha[j],beta[j])
+            p = self.Psi(c_node,k,j,x[j],y[j])
             if p > 0:
                 log_trans_p += log(p) #####*****#####
             else:    
@@ -239,37 +198,37 @@ class Count_base_model(Virtual_solver):
                     #node.in_llh = [{} for _ in range(K)] # a list of dictionaries
                     if node.is_leaf():
                         c = allele_table.get_all_counts(node.label,k) # c is a dictionary of allele -> count
-                        for alpha in allele_list: 
-                            trans_p = self.Gamma(k,alpha,c) # transition probability
+                        for x in allele_list: 
+                            trans_p = self.Gamma(k,x,c) # transition probability
                             if trans_p>0:
-                                node.in_llh[k][alpha] = log(trans_p)
+                                node.in_llh[k][x] = log(trans_p)
                     else:   
-                        for alpha in allele_list:
+                        for x in allele_list:
                             llh = 0
                             for c_node in node.children:
                                 llh_list = []                                    
-                                for beta in c_node.in_llh[k]:
-                                    log_trans_p = self.log_Psi_cassette(c_node,k,alpha,beta)
+                                for y in c_node.in_llh[k]:
+                                    log_trans_p = self.log_Psi_cassette(c_node,k,x,y)
                                     if log_trans_p is not None:
-                                        llh_list.append(log_trans_p + c_node.in_llh[k][beta])
+                                        llh_list.append(log_trans_p + c_node.in_llh[k][y])
                                 if llh_list: # if the list is not empty
                                     llh += log_sum_exp(llh_list)
                                 else:
                                     llh = None
                                     break   
                             if llh is not None:
-                                node.in_llh[k][alpha] = llh
+                                node.in_llh[k][x] = llh
                 #total_llh += sum([tree.root.in_llh[k][root_state] for k in range(self.data['alleleTable'].K)])
                 total_llh += tree.root.in_llh[k][root_state]
         return total_llh
 
-    def llh_alleleTable_edge(self,node,k,alpha):
+    def llh_alleleTable_edge(self,node,k,x):
         # assume in_llh has been computed for every node
         llh_list = []
-        for beta in node.in_llh[k]:
-            log_trans_p = self.log_Psi_cassette(node,k,alpha,beta)
+        for y in node.in_llh[k]:
+            log_trans_p = self.log_Psi_cassette(node,k,x,y)
             if log_trans_p is not None: 
-                llh_list.append(node.in_llh[k][beta] + log_trans_p)        
+                llh_list.append(node.in_llh[k][y] + log_trans_p)        
         return log_sum_exp(llh_list) if llh_list else None       
 
     def negative_llh(self):
@@ -281,6 +240,7 @@ class Count_base_model(Virtual_solver):
         return -self.llh_alleleTable()
 
     def optimize(self,solver,initials=20,fixed_brlen=None,fixed_params={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False,**solver_opts):
+    # solver can either be "Scipy" or "EM"
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
     # fixed_brlen is a list of t dictionaries, where t is the number of trees in self.trees, each maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed
@@ -336,8 +296,8 @@ class Count_base_model(Virtual_solver):
                     scipy_options['disp'] = (verbose>0)
                     nllh,status = self.scipy_optimization(randseed,fixed_params=fixed_params,ultra_constr=ultra_constr,scipy_options=scipy_options)
                 else:
-                    EM_options = solver_opts if solver_opts else DEFAULT_EM_opts
-                    nllh,status = self.EM_optimization(randseed,fixed_params=fixed_params,ultra_constr=ultra_constr,EM_options=EM_options)
+                    EM_options = solver_opts if solver_opts else DEFAULT_EM_options
+                    nllh,status = self.EM_optimization(randseed,verbose=verbose,fixed_params=fixed_params,ultra_constr=ultra_constr,EM_options=EM_options)
                 
                 if nllh is not None:
                     all_failed = False
@@ -388,23 +348,23 @@ class Count_base_model(Virtual_solver):
                     if node.is_root():
                         node.out_llh[k][root_state] = 0
                     elif node.parent.is_root():
-                        for alpha in allele_list:
-                            log_trans_p = self.log_Psi_cassette(node,k,root_state,alpha) 
+                        for x in allele_list:
+                            log_trans_p = self.log_Psi_cassette(node,k,root_state,x) 
                             if log_trans_p is not None:
-                                node.out_llh[k][alpha] = log_trans_p
+                                node.out_llh[k][x] = log_trans_p
                     else:
-                        for alpha in allele_list:
+                        for x in allele_list:
                             llh_list = []                                    
-                            for beta in node.parent.out_llh[k]:
-                                log_trans_p = self.log_Psi_cassette(node,k,beta,alpha)
+                            for y in node.parent.out_llh[k]:
+                                log_trans_p = self.log_Psi_cassette(node,k,y,x)
                                 if log_trans_p is None:
                                     continue
-                                par_out_llh = node.parent.out_llh[k][beta]
+                                par_out_llh = node.parent.out_llh[k][y]
                                 sum_sisters_in_llh = 0
                                 for w in node.parent.children:
                                     if w is node:
                                         continue
-                                    curr_llh = self.llh_alleleTable_edge(w,k,beta)    
+                                    curr_llh = self.llh_alleleTable_edge(w,k,y)    
                                     if curr_llh is not None:
                                         sum_sisters_in_llh += curr_llh
                                     else:
@@ -413,107 +373,126 @@ class Count_base_model(Virtual_solver):
                                 if sum_sisters_in_llh is not None:
                                     llh_list.append(log_trans_p+par_out_llh+sum_sisters_in_llh)
                             if llh_list: # if the list is not empty
-                                node.out_llh[k][alpha] = log_sum_exp(llh_list)
+                                node.out_llh[k][x] = log_sum_exp(llh_list)
 
     def Estep_posterior(self):
     # compute the log-transformed of all posterior probabilities
-    # TODO: compute S0-4 as in EM_solver of PMM_original
         K = self.data['alleleTable'].K
         allele_table = self.data['alleleTable']
         root_state = tuple([0]*self.data['alleleTable'].J)
         
         for tree in self.trees:
             for node in tree.traverse_preorder():
-                node.log_posterior = [{} for _ in range(K)] # a list of dictionaries
+                node.log_node_posterior = [{} for _ in range(K)] # a list of dictionaries
+                node.log_edge_posterior = [{} for _ in range(K)] # a list of dictionaries
 
         for k in range(K):
             allele_list = self.data['alleleTable'].alphabet.get_cassette_alphabet(k)
             for tree in self.trees:
                 for node in tree.traverse_preorder():
                     if node.is_root():
-                        node.log_posterior[k][root_state] = 1
+                        node.log_node_posterior[k][root_state] = 0
                     else:
-                        for alpha in allele_list:
-                            in_llh = node.in_llh[k][alpha] if alpha in node.in_llh[k] else None
-                            out_llh = node.out_llh[k][alpha] if alpha in node.out_llh[k] else None
+                        for x in allele_list:
+                            in_llh = node.in_llh[k][x] if x in node.in_llh[k] else None
+                            out_llh = node.out_llh[k][x] if x in node.out_llh[k] else None
                             total_llh = tree.root.in_llh[k][root_state]
                             if (in_llh is not None) and (out_llh is not None):
-                                node.log_posterior[k][alpha] = in_llh + out_llh - total_llh
+                                node.log_node_posterior[k][x] = in_llh + out_llh - total_llh
+                        for x in node.parent.log_node_posterior[k]:
+                            for y in node.in_llh[k]:
+                                log_p_trans = self.log_Psi_cassette(node,k,x,y)
+                                if log_p_trans is None:
+                                    continue
+                                log_u_post = node.parent.log_node_posterior[k][x]
+                                log_v_in = node.in_llh[k][y]
+                                log_llh_edge = self.llh_alleleTable_edge(node,k,x)
+                                node.log_edge_posterior[k][(x,y)] = log_u_post + log_v_in + log_p_trans - log_llh_edge
 
     def Estep(self):
         self.Estep_in_llh()
         self.Estep_out_llh()
         self.Estep_posterior()
    
-    def Closed_formed_optimal(param_name):
-        # A placeholder for this function in the base class
+    def set_closed_form_optimal(self,fixed_params={},verbose=1):
+        # For every param that has a closed-form M-step optimal, 
+        # if that param is in fixed_params, set it to the specified fixed value;
+        # otherwise, compute the closed-form solution and set that to the param's value
+        # IMPORTANT: this is a placeholder for this function in the base class
         # MUST be overrided in any derived class!
-        return 0
+        return False # this function should never be called, so this line should never be reached!
 
     def Mstep(self,fixed_params={},verbose=1,local_brlen_opt=True,ultra_constr_cache=None,eps_nu=1e-5,eps_s=1e-6):
         # assume that Estep has been performed so that all nodes have S0-S4 attributes
         # output: optimize all parameters: branch lengths, phi, and nu
         # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
        
-        ################## IN PROGRESS! ######################
-        raise("I AM UNDERDEVELOPMENT. PLEASE DON'T CALL ME!!!")
+        # optimize the params that have a closed-form solution
+        self.set_closed_form_optimal(fixed_params=fixed_params,verbose=verbose)
 
         # optimize nu and all branch lengths
-        N = self.num_edges-self.num_polytomy_mark
+        K = self.data['alleleTable'].K
+        N = self.num_edges
         if local_brlen_opt:
             for tree in self.trees:
                 N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
-        S0 = np.zeros(N)
-        S1 = np.zeros(N)
-        S2 = np.zeros(N)
-        S3 = np.zeros(N)
-        S4 = np.zeros(N)
+        A = np.zeros(N)
+        B = np.zeros(N)
+        C = np.zeros(N)
+        D = np.zeros(N)
         d_ini = np.zeros(N)
         i = 0
         for tree in self.trees:
             for v in tree.traverse_postorder():
-                if not v.polytomy_mark and not (v.mark_fixed and local_brlen_opt):    
-                    s = [sum(v.S0),sum(v.S1),sum(v.S2),sum(v.S3),sum(v.S4)]
-                    s = [max(eps_s,x) for x in s]
-                    s = [x/sum(s)*self.numsites for x in s]
-                    S0[i],S1[i],S2[i],S3[i],S4[i] = s
+                if not v.is_root() and not (v.mark_fixed and local_brlen_opt):   
+                    for k in range(K):    
+                        for x,y in v.log_edge_posterior[k]:
+                            w = exp(v.log_edge_posterior[k][(x,y)])
+                            for x_j,y_j in zip(x,y):
+                                z2z = (x_j == 0 and y_j == 0)
+                                z2a = (x_j == 0 and y_j != 0 and y_j != -1)
+                                a2a = (x_j == y_j and x_j != 0 and x_j != -1)
+                                za2s = (y_j == -1 and x_j != -1)
+
+                                A[i] += w*z2z
+                                B[i] += w*(z2a+a2a)
+                                C[i] += w*z2a
+                                D[i] += w*za2s
                     d_ini[i] = v.edge_length
                     i += 1
-        
+       
         def __optimize_brlen(nu,verbose=False): # nu is a single number
             var_d = cp.Variable(N,nonneg=True) # the branch length variables
-            C0 = -(nu+1)*S0.T @ var_d
-            C1 = -nu*S1.T @ var_d + S1.T @ cp.log(1-cp.exp(-var_d)) 
-            C2 = S2.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S2) > 0 and nu > eps_nu else 0 
-            C3 = -nu*S3.T @ var_d
-            C4 = S4.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(S4) > 0 and nu > eps_nu else 0
-
-            objective = cp.Maximize(C0+C1+C2+C3+C4)
+            SA = -(nu+1)*A.T @ var_d
+            SB = -nu*B.T @ var_d
+            SC = C.T @ cp.log(1-cp.exp(-var_d))
+            SD = D.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(D) > 0 and nu > eps_nu else 0
+            
+            objective = cp.Maximize(SA+SB+SC+SD)
             constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax]             
             if ultra_constr_cache is not None:
                 M,b = ultra_constr_cache
                 constraints += [np.array(M) @ var_d == np.array(b)]
             prob = cp.Problem(objective,constraints)
-            prob.solve(verbose=False,solver=cp.MOSEK)
+            prob.solve(verbose=verbose,solver=cp.MOSEK)
             return var_d.value,prob.status
        
-        def __optimize_nu(d): # d is a vector of all branch lengths
+        def __optimize_nu(d,verbose=False): # d is a vector of all branch lengths
             var_nu = cp.Variable(1,nonneg=True) # the nu variable
-            C0 = -(var_nu+1)*S0.T @ d
-            C1 = -var_nu*S1.T @ d + S1.T @ cp.log(1-cp.exp(-d))
-            C2 = S2.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S2) > 0 else 0
-            C3 = -var_nu*S3.T @ d
-            C4 = S4.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S4) > 0 else 0
-            objective = cp.Maximize(C0+C1+C2+C3+C4)
+            SA = -(var_nu+1)*A.T @ d
+            SB = -var_nu*B.T @ d
+            SD = D.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(D) > 0 else 0
+            
+            objective = cp.Maximize(SA+SB+SD)
             prob = cp.Problem(objective)
-            prob.solve(verbose=False,solver=cp.MOSEK)
+            prob.solve(verbose=verbose,solver=cp.MOSEK)
             return var_nu.value[0],prob.status
 
         nIters = 1
-        nu_star = self.params.nu
+        nu_star = self.params.get_value('nu')
         for r in range(nIters):
             if verbose > 0:
-                print("Optimizing branch lengths. Current phi: " + str(phi_star) + ". Current nu:" + str(nu_star))
+                print("Optimizing branch lengths. Current nu:" + str(nu_star))
             try:
                 d_star,status_d = __optimize_brlen(nu_star,verbose=False)
             except:
@@ -521,25 +500,25 @@ class Count_base_model(Virtual_solver):
                 status_d = "failure"
             if status_d == "infeasible": # should only happen with local EM 
                 return False,"d_infeasible"
-            if not optimize_nu:
+            if 'nu' in fixed_params:
                 if verbose > 0:
-                    print("Fixing nu to " + str(self.params.nu))
-                nu_star = self.params.nu
+                    print("Fixing nu to " + str(fixed_params['nu']))
+                nu_star = fixed_params['nu']
                 status_nu = "optimal"    
             else:    
                 if verbose > 0:
                     print("Optimizing nu")
                 try:
-                    nu_star,status_nu = __optimize_nu__(d_star)                 
+                    nu_star,status_nu = __optimize_nu(d_star,verbose=False)                 
                 except:
                     status_nu = "failure"
+        
         # place the optimal value back to params
-        self.params.phi = phi_star
-        self.params.nu = nu_star
+        self.params.set_value('nu',nu_star)
         i = 0
         for tree in self.trees:
             for node in tree.traverse_postorder():
-                if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+                if not node.is_root() and not (node.mark_fixed and local_brlen_opt):   
                     node.edge_length = d_star[i]
                     i += 1
         success = (status_d == "optimal" or status_d == "UNKNOWN") and (status_nu == "optimal" or status_nu == "UNKNOWN")
@@ -553,15 +532,15 @@ class Count_base_model(Virtual_solver):
                 status = ",failed_nu"
         return success, status
     
-    def EM_optimization(self,verbose=1,fixed_params={},ultra_constr=True,EM_options=DEFAULT_EM_options):
+    def EM_optimization(self,randseed,verbose=1,fixed_params={},ultra_constr=True,EM_options=DEFAULT_EM_options):
         # IMPORTANT: this EM algorithm ONLY optimizes the likelihood of the allele table !
-        # assume that az_partition has been performed
-        # optimize all parameters: branch lengths, phi, and nu
-        # if optimize_phi is False, it is fixed to the original value in params.phi
-        # the same for optimize_nu
-        # caution: this function will modify params in place!
+        # optimize the following parameters: branch lengths and nu
+        # caution: this function will modify params and branch lengths in place!
         # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
+        seed(a=randseed)
         maxIter = EM_options['max_iter']
+        x0 = self.ini_all_params(fixed_params=fixed_params)
+        self.x2params(x0,fixed_params=fixed_params)
         pre_llh = self.llh_alleleTable()
         if verbose >= 0:
             print("Initial nllh: " + str(pre_llh))
@@ -613,7 +592,7 @@ class Count_base_model(Virtual_solver):
             return self.negative_llh()
         
         seed(a=randseed)
-        x0 = self.ini_all(fixed_params=fixed_params)
+        x0 = self.ini_all_params(fixed_params=fixed_params)
         bounds = self.get_bound(fixed_params=fixed_params)
         constraints = []    
 
@@ -631,8 +610,9 @@ class Count_base_model(Virtual_solver):
         if len(A) > 0:     
             constraints.append(optimize.LinearConstraint(csr_matrix(A),b,b,keep_feasible=False))
         if ultra_constr:
-            M = self.ultrametric_constr()
-            constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
+            M,b = self.ultrametric_constr(local_brlen_opt=False) # temporary solution: this version only works with local_brlen_opt=False
+            #constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
+            constraints.append(optimize.LinearConstraint(csr_matrix(M),b,b,keep_feasible=False))
         out = optimize.minimize(nllh, x0, method="SLSQP", options=scipy_options, bounds=bounds,constraints=constraints)
         if out.success:
             self.x2params(out.x,fixed_params=fixed_params)
