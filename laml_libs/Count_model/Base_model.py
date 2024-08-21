@@ -16,7 +16,7 @@ from .utils import *
 import time
 import cvxpy as cp
 
-class Count_base_model(Virtual_solver):
+class Base_model(Virtual_solver):
     def __init__(self,treeList,data,prior,params):
     # params in an instance of the Param class
     # data is a dictionary of multiple data modules; it MUST have 'alleleTable'
@@ -543,7 +543,7 @@ class Count_base_model(Virtual_solver):
         self.x2params(x0,fixed_params=fixed_params)
         pre_llh = self.llh_alleleTable()
         if verbose >= 0:
-            print("Initial nllh: " + str(pre_llh))
+            print("Initial phi: " + str(self.params.get_value('phi')) + ". Initial nu: " + str(self.params.get_value('nu')) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
         converged = False
         if ultra_constr:

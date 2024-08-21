@@ -20,16 +20,21 @@ def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
             fout.write("\n")
 
 
-def read_sequences(inFile,filetype="charMtrx",delimiter=",",masked_symbol=None, suppress_warnings=False, replace_mchar='?'):
+def read_sequences(inFile,filetype="charMtrx",cassette_len=1,set_single_cassette_as_tuple=False,delimiter=",",masked_symbol=None, suppress_warnings=False, replace_mchar='?'):
     with open(inFile,'r') as fin:
         if filetype == "fasta":
             if not suppress_warnings: 
                 print("Warning: Reading " + str(inFile) + " as fasta file. Processing missing data in these files is not yet implemented.")
-            return read_fasta(fin)
+            return read_fasta(fin,cassette_len=cassette_len,set_single_cassette_as_tuple=set_single_cassette_as_tuple)
         elif filetype == "charMtrx":
-            return read_charMtrx(fin,delimiter=delimiter,masked_symbol=masked_symbol,suppress_warnings=suppress_warnings,replace_mchar=replace_mchar)
+            return read_charMtrx(fin,cassette_len=cassette_len,set_single_cassette_as_tuple=set_single_cassette_as_tuple,delimiter=delimiter,masked_symbol=masked_symbol,suppress_warnings=suppress_warnings,replace_mchar=replace_mchar)
 
-def read_fasta(fin):    
+def read_fasta(fin,cassette_len=1,set_single_cassette_as_tuple=False):    
+    if cassette_len != 1:
+        ########## TODO ##########
+        raise("FATAL error: read_fasta is not yet implemented for cassette_len != 1")
+        return None
+    # The following code only works for cassette_len = 1
     S = [] # will be a list of dictionaries
     D = {}
     for line in fin:
@@ -40,6 +45,8 @@ def read_fasta(fin):
             D = {}
         else:
             seq = [int(x) for x in line.strip().split("|")]
+            if set_single_cassette_as_tuple:
+                seq = [tuple([x]) for x in seq]
             D[name] = seq       
     return S
 
@@ -57,9 +64,14 @@ def check_missing(seen_missing, x):
         except:
             return False
 
-def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False,replace_mchar='?',convert_to_int=True,stop_key=None):
+def read_charMtrx(fin,cassette_len=1,set_single_cassette_as_tuple=False,delimiter=",",masked_symbol=None,suppress_warnings=False,replace_mchar='?',convert_to_int=True,stop_key=None):
+    if cassette_len != 1:
+        ########## TODO ##########
+        raise("FATAL error: read_charMtrx is not yet implemented for cassette_len != 1")
+        return None
+    
+    # The following code only works for cassette_len = 1
     D = {}
-
     site_names = fin.readline().strip().split(delimiter)
     if site_names[0] == 'cell_name' or "cell" in site_names[0]:
         site_names = site_names[1:]
@@ -80,14 +92,21 @@ def read_charMtrx(fin,delimiter=",",masked_symbol=None,suppress_warnings=False,r
             if check_missing(seen_missing, x):
                 seen_missing.add(x)                
                 if replace_mchar is not None:
-                    seq.append(replace_mchar)
+                    #seq.append(replace_mchar)
+                    c = replace_mchar
                 else:
-                    seq.append(x)    
+                    #seq.append(x)   
+                    c = x
             else:
                 if convert_to_int:
-                    seq.append(int(x))
+                    #seq.append(int(x))
+                    c = int(x)
                 else:    
-                    seq.append(x)
+                    #seq.append(x)
+                    c = x
+            if set_single_cassette_as_tuple:
+                c = tuple([c])
+            seq.append(c)            
         D[name] = seq
     #if len(seen_missing) > 1 and not suppress_warnings:
     #    print("Warning: Found " + str(seen_missing) + " characters and treated them as missing.")

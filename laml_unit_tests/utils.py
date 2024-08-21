@@ -68,6 +68,3 @@ def calc_expected(node_label, d, k, c, Q, allreps, s):
         return False
     else:
         return True
-
-
-

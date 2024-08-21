@@ -1,14 +1,19 @@
-from .Base_model import *
+from .Base_model import Base_model
+from .AlleleTable import AlleleTable
+from .Param import Param
 from math import *
 
 DEFAULT_max_mu = 10
 DEFAULT_max_nu = 10
 
-class PMM_model(Count_base_model):
+class PMM_model(Base_model):
     # PMM = probabilistic mixed-type missing
-    def __init__(self,treeList,data,prior,**params):
+    def __init__(self,treeList,data,prior,**kw_params):
     # NOTE: **params must have 'mu', 'nu', 'phi'
-        params = Param(['mu','nu','phi'],[params['mu'],params['nu'],params['phi']],[0,0,0],[DEFAULT_max_mu,DEFAULT_max_nu,1])
+        mu = kw_params['mu'] if 'mu' in kw_params else 1 # arbitrarily chose to set as a default value
+        nu = kw_params['nu'] if 'nu' in kw_params else 0 # arbitrarily chose to set as a default value
+        phi = kw_params['phi'] if 'phi' in kw_params else 0.1 # arbitrarily chose to set as a default value
+        params = Param(['mu','nu','phi'],[mu,nu,phi],[0,0,0],[DEFAULT_max_mu,DEFAULT_max_nu,1])
         super(PMM_model,self).__init__(treeList,data,prior,params)
     
     def Psi(self,c_node,k,j,alpha,beta):

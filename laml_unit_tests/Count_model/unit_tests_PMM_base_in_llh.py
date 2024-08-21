@@ -4,7 +4,7 @@ from laml_libs.Count_model.PMM_base import *
 from treeswift import *
 from laml_libs.IO_handler.sequence_lib import read_sequences
 from random import random
-from .utils import *
+from laml_libs.Count_model.utils import *
 from .virtual_unit_tests import VirtualUnitTest
 
 class PMMTest_in_llh(VirtualUnitTest):

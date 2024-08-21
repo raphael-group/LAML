@@ -6,6 +6,8 @@ from laml_unit_tests.Count_model.unit_tests_PMM_base_scipy_opt import *
 from laml_unit_tests.Count_model.unit_tests_PMM_base_EM_opt import *
 from laml_unit_tests.Count_model.unit_tests_PMM_with_noise_in_llh import *
 from laml_unit_tests.Count_model.unit_tests_PMM_with_noise_out_llh import *
+from laml_unit_tests.Count_model.unit_tests_PMM_charMtrx_in_llh import *
+from laml_unit_tests.Count_model.unit_tests_PMM_charMtrx_out_llh import *
 import sys
 import os
 

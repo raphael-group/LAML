@@ -1,6 +1,6 @@
 import unittest
 from laml_libs.IO_handler.sequence_lib import read_sequences
-from laml_libs.Count_model.PMM_with_noise import PMMN_model
+from laml_libs.Count_model.PMM_charMtrx import PMM_charMtrx
 from laml_libs.Count_model.Alphabet import Alphabet
 from laml_libs.Count_model.AlleleTable import AlleleTable
 from treeswift import *
@@ -9,13 +9,12 @@ from random import random
 from laml_libs import DEFAULT_STRATEGY
 from copy import deepcopy
 import pkg_resources
-from laml_libs.Count_model.utils import *
+from .utils import *
 from .virtual_unit_tests import VirtualUnitTest
 
-class PMMNTest_out_llh(VirtualUnitTest):
-    # test Estep_out_llh
-    def check_outllh(self,T,Q,charMtrx,mu,phi,nu,eta,test_no=0,give_label=False):
-        super(PMMNTest_out_llh,self).check_outllh(T,Q,charMtrx,PMMN_model,"PMMNTest out llh",True,test_no=test_no,give_label=give_label,mu=mu,phi=phi,nu=nu,eta=eta)
+class PMMCharMtrxTest_out_llh(VirtualUnitTest):
+    def check_outllh(self,T,Q,charMtrx,mu,phi,nu,test_no=0,give_label=False):
+        super(PMMCharMtrxTest_out_llh,self).check_outllh(T,Q,charMtrx,PMM_charMtrx,"PMMCharMTrxTest out llh",False,test_no=test_no,give_label=give_label,mu=mu,phi=phi,nu=nu)
     
     def test_1(self):
         T = "(((a:1,b:1)e:1,(c:1,d:1)f:1)g:1)r;"
@@ -23,8 +22,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':[1],'b':[1],'c':[1],'d':[1]}
         phi = 0
         nu = 0.5
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=1)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=1)
    
     def test_2(self):
         T = "(((a:1,b:1)e:1,(c:1,d:1)f:1)g:1)r;"
@@ -32,8 +30,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':[1],'b':[1],'c':[1],'d':[1]}
         nu = 0.1
         phi = 0
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=2)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=2)
     
     def test_3(self):
         T = "(((a:1,b:1)e:1,(c:1,d:1)f:1)g:1)r;"
@@ -41,8 +38,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':[0],'b':[0],'c':[0],'d':[0]}
         nu = 0.25
         phi = 0
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=3)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=1)
     
     def test_4(self):
         T = "(((a:0.1,b:1)e:1,(c:0.1,d:1)f:1)g:1)r;"
@@ -50,8 +46,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':[0],'b':[1],'c':[0],'d':[1]}
         nu = 0.15
         phi = 0
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=4)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=4)
     
     def test_5(self):
         T = "(((a:0.1,b:1)e:1,(c:0.1,d:1)f:1)g:1)r;"
@@ -59,8 +54,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':[1],'b':[0],'c':[1],'d':[0]}
         nu = 0.1
         phi = 0
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=5)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=5)
         
     def test_6(self):
         T = "(((a:0.1,b:1)e:1,(c:0.1,d:1)f:0.7)g:0.3)r;"
@@ -68,8 +62,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':[1],'b':[0],'c':[1],'d':[0]}
         nu = 0.19
         phi = 0
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=6)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=6)
     
     def test_7(self):
         T = "(((a:0.1,b:1)e:1,(c:0.1,d:1)f:0.7)g:0.3)r;"
@@ -77,8 +70,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':[0],'c':[1],'d':[0]}
         nu = 0.39
         phi = 0
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=7)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=7)
     
     def test_8(self):
         T = "(((a:0.1,b:1)e:1,(c:0.1,d:1)f:0.7)g:0.3)r;"
@@ -86,8 +78,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':[0],'c':[1],'d':['?']}
         nu = 0.39
         phi = 0
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=8)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=8)
     
     def test_9(self):
         T = "(((a:0.1,b:1)e:1,(c:0.1,d:1)f:0.7)g:0.3)r;"
@@ -95,8 +86,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':[2],'c':[1],'d':['?']}
         nu = 0.3
         phi = 0
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=9)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=9)
     
     def test_10(self):
         T = "(((a:0.47,b:1.3)e:1.1,(c:0.14,d:1.1)f:0.72)g:0.39)r;"
@@ -104,8 +94,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':[2],'c':[1],'d':['?']}
         nu = 0.22
         phi = 0.3
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=10)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=10)
     
     def test_11(self):
         T = "((((a:0.47,b:1.3)e:1.1,c:0.14)f:0.8,d:1.1)g:0.2)r;"
@@ -113,8 +102,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':[1],'b':[1],'c':[1],'d':[1]}
         nu = 0.22
         phi = 0.01
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=11)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=11)
 
     def test_12(self):
         T = "((((a:0.47,b:1.3)e:1.1,c:0.14)f:0.8,d:1.1)g:0.2)r;"
@@ -122,8 +110,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':['?'],'c':[1],'d':[0]}
         nu = 0.22
         phi = 0.2
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=12)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=12)
     
     def test_13(self):
         T = "((((a:0.47,b:1.3)e:1.1,c:0.14)f:0.8,d:1.1)g:0.2)r;"
@@ -131,8 +118,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':['?'],'c':['?'],'d':[0]}
         nu = 0.22
         phi = 0.5
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=13)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=13)
     
     def test_14(self):
         T = "((((a:0.47,b:1.3)e:1.1,c:0.14)f:0.8,d:1.1)g:0.2)r;"
@@ -140,8 +126,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':['?'],'c':['?'],'d':[1]}
         nu = 0.22
         phi = 0.01
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=14)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=14)
     
     def test_15(self):
         T = "((((a:0.47,b:1.3)e:1.1,c:0.14)f:0.8,d:1.1)g:0.2)r;"
@@ -149,8 +134,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':['?'],'c':['?'],'d':['?']}
         nu = 0.22
         phi = 0.9
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=15)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=15)
     
     def test_16(self):
         T = "((((a:0.47,b:1.3)e:1.1,c:0.14)f:0.8,d:1.1)g:0.2)r;"
@@ -158,8 +142,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':[1],'b':[2],'c':[3],'d':['?']}
         nu = 0.22
         phi = 0.03
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=16)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=16)
     
     def test_17(self):
         T = "((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,(d:1.1,e:0.2)h:0.2)g:0.01)r;"
@@ -167,8 +150,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':[1],'b':[2],'c':[3],'d':['?'],'e':['?']}
         nu = 0.22
         phi = 0.5
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=17)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=17)
     
     def test_18(self):
         T = "((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,(d:1.1,e:0.2)h:0.2)g:0.01)r;"
@@ -176,8 +158,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':['?'],'c':['?'],'d':['?'],'e':['?']}
         nu = 0.26
         phi = 0.7
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=18)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=18)
     
     def test_19(self):
         T = "((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,(d:1.1,e:0.2)h:0.2)g:0.01)r;"
@@ -185,8 +166,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':['?'],'c':['?'],'d':[2],'e':[2]}
         nu = 0.26
         phi = 0.1
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=19)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=19)
     
     def test_20(self):
         T = "((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,(d:1.1,e:0.2)h:0.2)g:0.01)r;"
@@ -194,8 +174,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':['?'],'c':[2],'d':[2],'e':[2]}
         nu = 0.52
         phi = 0.8
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=20)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=20)
     
     def test_21(self):
         T = "((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,(d:1.1,e:0.2)h:0.2)g:0.01)r;"
@@ -203,8 +182,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':['?'],'c':[2],'d':[1],'e':[2]}
         nu = 0.52
         phi = 0.001
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=21)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=21)
     
     def test_22(self):
         T = "(((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,d:1.1)h:0.2,e:0.2)g:0.2)r;"
@@ -212,8 +190,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':['?'],'c':[2],'d':['?'],'e':[2]}
         nu = 0.2
         phi = 0.82
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=22)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=22)
     
     def test_23(self):
         T = "(((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,d:1.1)h:0.2,e:0.2)g:0.2)r;"
@@ -221,8 +198,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':['?'],'c':[2],'d':['?'],'e':[0]}
         nu = 0.2
         phi = 0.1
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=23)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=23)
     
     def test_24(self):
         T = "(((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,d:1.1)h:0.2,e:0.2)g:0.2)r;"
@@ -230,8 +206,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':[0],'c':[2],'d':['?'],'e':[0]}
         nu = 0.2
         phi = 0.3
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=24)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=24)
     
     def test_25(self):
         T = "(((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,d:1.1)h:0.2,e:0.2)g:0.2)r;"
@@ -239,8 +214,7 @@ class PMMNTest_out_llh(VirtualUnitTest):
         charMtrx = {'a':['?'],'b':[0],'c':[2],'d':['?'],'e':[1]}
         nu = 0.2
         phi = 0.3
-        eta = 0
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=25)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=25)
     
     def test_26(self):
         treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_Count_model/test_PMM_base/test1_n25.tre')
@@ -248,7 +222,6 @@ class PMMNTest_out_llh(VirtualUnitTest):
         T = read_tree_newick(treedata_path)
         phi = 0.05231954386883335
         nu = 0.15877477685098262
-        eta = 0
         charMtrx,_ = read_sequences(charMtrx_path,filetype="charMtrx",delimiter=",",masked_symbol='?',suppress_warnings=True)
         k = 60
         Q = [[] for _ in range(k)]
@@ -257,4 +230,4 @@ class PMMNTest_out_llh(VirtualUnitTest):
             m_i = len(M_i)
             q = {x:1/m_i for x in M_i}
             Q[i].append(q)
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,eta=eta,test_no=26,give_label=True)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,test_no=26,give_label=True)

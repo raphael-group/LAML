@@ -1,5 +1,7 @@
 from random import random
-from laml_libs.Count_model.PMM_base import PMM_model, Alphabet,AlleleTable
+from laml_libs.Count_model.PMM_base import PMM_model
+from laml_libs.Count_model.Alphabet import Alphabet 
+from laml_libs.Count_model.AlleleTable import AlleleTable
 
 def countgen(alphabet,chosen_state,silencing=False,maxcount=1000):
     # generates the UMI counts table for a cell, providing a mapping from cassette state to count

@@ -1,6 +1,8 @@
 import unittest
 from laml_libs.IO_handler.sequence_lib import read_sequences
-from laml_libs.Count_model.PMM_base import PMM_model, Alphabet,AlleleTable
+from laml_libs.Count_model.PMM_base import PMM_model
+from laml_libs.Count_model.Alphabet import Alphabet
+from laml_libs.Count_model.AlleleTable import AlleleTable
 from treeswift import *
 from math import log
 from random import random
@@ -10,7 +12,10 @@ import pkg_resources
 from .utils import *
 from .virtual_unit_tests import VirtualUnitTest
 
-class PMM_Test_out_llh(VirtualUnitTest):
+class PMMTest_out_llh(VirtualUnitTest):
+    def check_outllh(self,T,Q,charMtrx,mu,phi,nu,test_no=0,give_label=False):
+        super(PMMTest_out_llh,self).check_outllh(T,Q,charMtrx,PMM_model,"PMMTest out llh",True,test_no=test_no,give_label=give_label,mu=mu,phi=phi,nu=nu)
+
     def test_1(self):
         T = "(((a:1,b:1)e:1,(c:1,d:1)f:1)g:1)r;"
         Q = [[{1:1.0}]]

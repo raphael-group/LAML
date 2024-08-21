@@ -1,6 +1,9 @@
 import unittest
 from laml_libs.IO_handler.sequence_lib import read_sequences
-from laml_libs.Count_model.PMM_base import PMM_model, Alphabet,AlleleTable
+from laml_libs.Count_model.PMM_base import PMM_model
+from laml_libs.Count_model.Alphabet import Alphabet
+from laml_libs.Count_model.AlleleTable import AlleleTable
+from laml_libs.Count_model.CharMtrx import CharMtrx
 from treeswift import *
 from math import log
 from random import random
@@ -30,13 +33,19 @@ class VirtualUnitTest(unittest.TestCase):
         return tree_reduced    
 
     # computing the outside likelihood
-    def check_outllh(self,T,Q,charMtrx,test_no=0,give_label=False,**params):
+    def check_outllh(self,T,Q,charMtrx,test_model,test_msg,convert_to_counts,test_no=0,give_label=False,**params):
         # generic function to test the computed out0 and out1 after calling Estep_out_llh
         K = len(list(charMtrx.values())[0])
         J = 1
         alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)])
-        allele_table = charMtrx_2_alleleTable(charMtrx,alphabet)
-        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},**params)
+        
+        if convert_to_counts:
+            allele_table = charMtrx_2_alleleTable(charMtrx,alphabet)
+            data = {'alleleTable':allele_table}
+        else:
+            data = {'charMtrx':CharMtrx(charMtrx,alphabet)}    
+        #myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},**params)
+        myModel = test_model([T],data,{'Q':Q},**params)
         if give_label:
             currIdx = 0
             for node in myModel.trees[0].traverse_preorder():
@@ -52,11 +61,16 @@ class VirtualUnitTest(unittest.TestCase):
         for x in tree_reduced:    
             charMtrx0 = {y:charMtrx[y] for y in charMtrx}
             charMtrx0[x]= [0]*K
-            allele_table0 = charMtrx_2_alleleTable(charMtrx0,alphabet)
+            if convert_to_counts:
+                allele_table0 = charMtrx_2_alleleTable(charMtrx0,alphabet)
+                data0 = {'alleleTable':allele_table0}
+            else:    
+                data0 = {'charMtrx':CharMtrx(charMtrx0,alphabet)}    
             tree_str = tree_reduced[x]
-            myModel0 = PMM_model([tree_str],{'alleleTable':allele_table0},{'Q':Q},**params)
+            #myModel0 = test_model([tree_str],{'alleleTable':allele_table0},{'Q':Q},**params)
+            myModel0 = test_model([tree_str],data0,{'Q':Q},**params)
             myModel0.Estep_in_llh()
             for k in range(K):
                 true = myModel0.trees[0].root.in_llh[k][tuple([0])]
                 est = out_llh[x][k][tuple([0])]
-                self.assertAlmostEqual(true,est+log(1-params['phi']),places=5,msg="PMMTest out llh: test_" + str(test_no) + " failed.")                
+                self.assertAlmostEqual(true,est+log(1-params['phi']),places=5,msg=test_msg+": test_" + str(test_no) + " failed.")                

@@ -4,11 +4,12 @@ from laml_libs.Count_model.PMM_base import *
 from treeswift import *
 from laml_libs.IO_handler.sequence_lib import read_sequences
 from random import random
-from .utils import *
+#from .utils import *
+from laml_libs.Count_model.utils import *
 from .virtual_unit_tests import VirtualUnitTest
 from math import *
 
-class PMM_Test_posterior(VirtualUnitTest):
+class PMMTest_posterior(VirtualUnitTest):
     # test in_llh computation
     def test_1(self): 
         Q = [[{1:1}]]

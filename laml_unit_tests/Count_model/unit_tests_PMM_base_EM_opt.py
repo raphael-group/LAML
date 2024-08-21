@@ -4,8 +4,10 @@ from laml_libs.Count_model.PMM_base import *
 from treeswift import *
 from laml_libs.IO_handler.sequence_lib import read_sequences
 from random import random
+#from laml_libs.Count_model.utils import *
 from .utils import *
 from .virtual_unit_tests import VirtualUnitTest
+import pkg_resources
 
 class PMMTest_EM_opt(VirtualUnitTest):
     # test optimization using scipy 
@@ -42,3 +44,47 @@ class PMMTest_EM_opt(VirtualUnitTest):
             myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},mu=1,phi=0,nu=0)
             test_nllh,_ = myModel.optimize('EM',initials=1,verbose=-1,ultra_constr=False)
             self.assertAlmostEqual(true_nllh,test_nllh,places=4,msg="PMMTest EM-opt: test_2 failed.")
+    
+    def test_3(self):
+        treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4.tre')
+        charMtrx_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_charMtrx.txt')
+        prior_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_EM/test4_prior.csv')
+        
+        T = read_tree_newick(treedata_path)
+        charMtrx,_ = read_sequences(charMtrx_path,filetype="charMtrx",delimiter=",",masked_symbol='?')
+        
+        K = len(charMtrx[next(iter(charMtrx.keys()))])
+        J = 1
+        
+        Q = []
+        for k in range(K):
+            Q_k = [{}]
+            Q.append(Q_k)
+        seen_cassette = set()
+        
+        with open(prior_path,'r') as fin:
+            lines = fin.readlines()
+            for line in lines:
+                cassette_idx,char_state,prob = line.strip().split(',')
+                cassette_idx = int(cassette_idx)
+                if cassette_idx not in seen_cassette:
+                    seen_cassette.add(cassette_idx)
+                char_state = int(char_state)
+                prob = float(prob)
+                Q[len(seen_cassette) - 1][0][char_state] = prob
+        
+        alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)])
+        allele_table = charMtrx_2_alleleTable(charMtrx,alphabet)
+
+        true_nllh = 1007.009158767873 
+        true_phi = 0
+        true_nu = 0
+
+        myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q})
+        randseed = 1221
+        nllh,status = myModel.optimize('EM',initials=1,random_seeds=randseed,verbose=-1,ultra_constr=False)
+        phi = myModel.params.get_value('phi')
+        nu = myModel.params.get_value('nu')
+        self.assertAlmostEqual(0,abs(true_nllh-nllh)/true_nllh,places=4,msg="PMMTest EM-opt: test_3 failed.")
+        self.assertAlmostEqual(true_phi,phi,places=4,msg="PMMTest EM-opt: test_3 failed.")
+        self.assertAlmostEqual(true_nu,nu,places=4,msg="PMMTest EM-opt: test_3 failed.")

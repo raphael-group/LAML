@@ -1,4 +1,4 @@
-class AlleleTable():
+class AlleleTable:
     def __init__(self,K,J,data_struct,alphabet):
     # K: the number of cassettes
     # J: the number of sites per cassette
