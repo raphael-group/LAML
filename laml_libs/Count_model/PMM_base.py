@@ -9,7 +9,6 @@ DEFAULT_max_nu = 10
 class PMM_model(Base_model):
     # PMM = probabilistic mixed-type missing
     def __init__(self,treeList,data,prior,**kw_params):
-    # NOTE: **params must have 'mu', 'nu', 'phi'
         mu = kw_params['mu'] if 'mu' in kw_params else 1 # arbitrarily chose to set as a default value
         nu = kw_params['nu'] if 'nu' in kw_params else 0 # arbitrarily chose to set as a default value
         phi = kw_params['phi'] if 'phi' in kw_params else 0.1 # arbitrarily chose to set as a default value

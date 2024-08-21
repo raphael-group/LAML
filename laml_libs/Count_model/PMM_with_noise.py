@@ -2,10 +2,14 @@ from .PMM_base import *
 
 class PMMN_model(PMM_model):
     # PMMN = PMM with noise = probabilistic mixed-type missing with noise
-    def __init__(self,treeList,data,prior,**params): 
+    def __init__(self,treeList,data,prior,**kw_params): 
         # **params must have 'mu','nu','phi','eta'
-        params = Param(['mu','nu','phi','eta'],[params['mu'],params['nu'],params['phi'],params['eta']],[0,0,0,0],[DEFAULT_max_mu,DEFAULT_max_nu,1,1])
-        super(PMM_model,self).__init__(treeList,data,prior,params) #####*****#####
+        mu = kw_params['mu'] if 'mu' in kw_params else 1 # arbitrarily chose to set as a default value
+        nu = kw_params['nu'] if 'nu' in kw_params else 0 # arbitrarily chose to set as a default value
+        phi = kw_params['phi'] if 'phi' in kw_params else 0.1 # arbitrarily chose to set as a default value
+        eta = kw_params['eta'] if 'eta' in kw_params else 0 # arbitrarily chose to set as a default value
+        params = Param(['mu','nu','phi','eta'],[mu,nu,phi,eta],[0,0,0,0],[DEFAULT_max_mu,DEFAULT_max_nu,1,1])
+        super(PMM_model,self).__init__(treeList,data,prior,params) 
 
     def Psi(self,c_node,k,j,alpha,beta):
         #return self.Psi(c_node,k,j,alpha,beta) # simply inherit from PMM_base class

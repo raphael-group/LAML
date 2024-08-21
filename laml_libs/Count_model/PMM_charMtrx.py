@@ -14,7 +14,6 @@ class PMM_charMtrx(PMM_model):
         charMtrx = data['charMtrx'] # this is an instance of class CharMtrx
         K = charMtrx.K
         J = charMtrx.J
-        #alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)])
         allele_table = charMtrx_2_alleleTable(charMtrx)#,alphabet)
         data['alleleTable'] = allele_table
 
