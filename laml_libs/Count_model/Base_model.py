@@ -19,17 +19,21 @@ import cvxpy as cp
 class Base_model(Virtual_solver):
     def __init__(self,treeList,data,prior,params):
     # params in an instance of the Param class
-    # data is a dictionary of multiple data modules; it MUST have 'alleleTable'
-    # this base class only uses allele_table, but any derived class can add more attributes for joint likelihood computation
+    # data is a dictionary of multiple data modules; it MUST have 'DLT_data'
+    # this base class only uses DLT_data, but any derived class can add more attributes for joint likelihood computation
         self.data = data
-        self.num_cassettes = data['alleleTable'].K
-        self.site_per_cassette = data['alleleTable'].J
+        self.num_cassettes = data['DLT_data'].K
+        self.site_per_cassette = data['DLT_data'].J
         self.params = params
         self.trees = []
         self.num_edges = 0
         for tree in treeList:
             tree_obj = read_tree_newick(tree)
             #tree_obj.suppress_unifurcations()
+            if len(tree_obj.root.children) > 1:
+                new_root = Node()
+                new_root.add_child(tree_obj.root)
+                tree_obj.root = new_root
             self.num_edges += len(list(tree_obj.traverse_postorder()))-1
             self.trees.append(tree_obj)
 
@@ -54,42 +58,47 @@ class Base_model(Virtual_solver):
 
     def get_params(self):
     # override Virtual solver
-        return self.params
+        #return self.params
+        return self.params.get_name2value_dict()
 
     def score_tree(self,strategy={'ultra_constr':False,'fixed_params':None,'fixed_brlen':None}):
     # override Virtual solver
         ultra_constr = strategy['ultra_constr']
         fixed_params = strategy['fixed_params']
         fixed_brlen = strategy['fixed_brlen']
-        nllh,status = self.optimize(initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_params=fixed_params,fixed_brlen=fixed_brlen)
+        nllh,status = self.optimize('EM',initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_params=fixed_params,fixed_brlen=fixed_brlen)
         score = None if nllh is None else -nllh
         return score,status
     
     def ultrametric_constr(self,local_brlen_opt=True):
-        N = self.num_edges-self.num_polytomy_mark
+        N = self.num_edges#-self.num_polytomy_mark
         if local_brlen_opt:
             for tree in self.trees:
                 N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
         constrs = {}        
         idx = 0
-        for tree in self.trees: 
+        for tree in self.trees:
             for node in tree.traverse_postorder():
                 if node.is_leaf():
                     node.constraint = [0.]*N
                     node.constant = node.edge_length if node.mark_fixed else 0
-                else:
-                    c1,c2 = node.children
-                    m = tuple(x-y for (x,y) in zip(c1.constraint,c2.constraint))
-                    m_compl = tuple(-x for x in m)
-                    c = c2.constant-c1.constant
-                    if sum([x!=0 for x in m]) > 0 and not (m in constrs or m_compl in constrs):
-                        constrs[m] = c
+                elif not node.is_root(): #####HACKING#####
+                    if len(node.children) == 2: #####HACKING#####
+                        c1,c2 = node.children
+                        m = tuple(x-y for (x,y) in zip(c1.constraint,c2.constraint))
+                        m_compl = tuple(-x for x in m)
+                        c = c2.constant-c1.constant
+                        if sum([x!=0 for x in m]) > 0 and not (m in constrs or m_compl in constrs):
+                            constrs[m] = c
+                    else: #####HACKING#####
+                        c1 = node.children[0]
                     node.constraint = c1.constraint
                     if node.mark_fixed:
                         node.constant = c1.constant + node.edge_length
                     else:
                         node.constant = c1.constant
-                if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+                #if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
+                if not node.is_root() and not (node.mark_fixed and local_brlen_opt): #####HACKING#####
                     node.constraint[idx] = 1
                     idx += 1
         for tree in self.trees[1:]:
@@ -166,7 +175,7 @@ class Base_model(Virtual_solver):
         # compute the log-transformed transition probability of cassette k  
         # return None if the probability is 0
         log_trans_p = 0
-        for j in range(self.data['alleleTable'].J):
+        for j in range(self.data['DLT_data'].J):
             p = self.Psi(c_node,k,j,x[j],y[j])
             if p > 0:
                 log_trans_p += log(p) #####*****#####
@@ -181,23 +190,22 @@ class Base_model(Virtual_solver):
         # MUST be overrided in any derived class!
         return 1
 
-    def llh_alleleTable(self):
+    def llh_DLT_data(self):
         # compute the log-likelihood of the allele table
-        K = self.data['alleleTable'].K
-        allele_table = self.data['alleleTable']
-        root_state = tuple([0]*self.data['alleleTable'].J)
+        K = self.data['DLT_data'].K
+        DLT_data = self.data['DLT_data']
+        root_state = tuple([0]*self.data['DLT_data'].J)
         for tree in self.trees:
             for node in tree.traverse_postorder():
                 node.in_llh = [{} for _ in range(K)] # a list of dictionaries
         
         total_llh = 0
         for k in range(K):
-            allele_list = self.data['alleleTable'].alphabet.get_cassette_alphabet(k)
+            allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
             for tree in self.trees:
                 for node in tree.traverse_postorder():
-                    #node.in_llh = [{} for _ in range(K)] # a list of dictionaries
                     if node.is_leaf():
-                        c = allele_table.get_all_counts(node.label,k) # c is a dictionary of allele -> count
+                        c = DLT_data.get(node.label,k)
                         for x in allele_list: 
                             trans_p = self.Gamma(k,x,c) # transition probability
                             if trans_p>0:
@@ -218,11 +226,10 @@ class Base_model(Virtual_solver):
                                     break   
                             if llh is not None:
                                 node.in_llh[k][x] = llh
-                #total_llh += sum([tree.root.in_llh[k][root_state] for k in range(self.data['alleleTable'].K)])
                 total_llh += tree.root.in_llh[k][root_state]
         return total_llh
 
-    def llh_alleleTable_edge(self,node,k,x):
+    def llh_DLT_data_edge(self,node,k,x):
         # assume in_llh has been computed for every node
         llh_list = []
         for y in node.in_llh[k]:
@@ -237,7 +244,7 @@ class Base_model(Virtual_solver):
         # if a derived class has data modules other than the allele table, 
         # this function MUST be overrided to compute the joint-llh 
         # of all available data modules
-        return -self.llh_alleleTable()
+        return -self.llh_DLT_data()
 
     def optimize(self,solver,initials=20,fixed_brlen=None,fixed_params={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False,**solver_opts):
     # solver can either be "Scipy" or "EM"
@@ -330,19 +337,20 @@ class Base_model(Virtual_solver):
             return results[0][0],status
 
     def Estep_in_llh(self):
-        self.llh_alleleTable()
+        self.llh_DLT_data()
 
     def Estep_out_llh(self):
-        K = self.data['alleleTable'].K
-        allele_table = self.data['alleleTable']
-        root_state = tuple([0]*self.data['alleleTable'].J)
+        K = self.data['DLT_data'].K
+        DLT_data = self.data['DLT_data']
+        root_state = tuple([0]*self.data['DLT_data'].J)
         
         for tree in self.trees:
             for node in tree.traverse_preorder():
                 node.out_llh = [{} for _ in range(K)] # a list of dictionaries
+                node.in_llh_edge = [{} for _ in range(K)] # a list of dictionaries
 
         for k in range(K):
-            allele_list = self.data['alleleTable'].alphabet.get_cassette_alphabet(k)
+            allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
             for tree in self.trees:
                 for node in tree.traverse_preorder():
                     if node.is_root():
@@ -355,7 +363,13 @@ class Base_model(Virtual_solver):
                     else:
                         for x in allele_list:
                             llh_list = []                                    
-                            for y in node.parent.out_llh[k]:
+                            #for y in node.parent.out_llh[k]:
+                            candidate_par_states = join_lists([set([0,x_i]) for x_i in x])
+                            
+                            #for y in [(0,),x]:
+                            for y in candidate_par_states:
+                                if y not in node.parent.out_llh[k]:
+                                    continue
                                 log_trans_p = self.log_Psi_cassette(node,k,y,x)
                                 if log_trans_p is None:
                                     continue
@@ -364,7 +378,12 @@ class Base_model(Virtual_solver):
                                 for w in node.parent.children:
                                     if w is node:
                                         continue
-                                    curr_llh = self.llh_alleleTable_edge(w,k,y)    
+                                    if y not in w.in_llh_edge[k]:
+                                        curr_llh = self.llh_DLT_data_edge(w,k,y)    
+                                        w.in_llh_edge[k][y] = curr_llh
+                                    else:
+                                        curr_llh = w.in_llh_edge[k][y]    
+                                    #curr_llh = self.llh_DLT_data_edge(w,k,y)
                                     if curr_llh is not None:
                                         sum_sisters_in_llh += curr_llh
                                     else:
@@ -377,9 +396,9 @@ class Base_model(Virtual_solver):
 
     def Estep_posterior(self):
     # compute the log-transformed of all posterior probabilities
-        K = self.data['alleleTable'].K
-        allele_table = self.data['alleleTable']
-        root_state = tuple([0]*self.data['alleleTable'].J)
+        K = self.data['DLT_data'].K
+        DLT_data = self.data['DLT_data']
+        root_state = tuple([0]*self.data['DLT_data'].J)
         
         for tree in self.trees:
             for node in tree.traverse_preorder():
@@ -387,7 +406,7 @@ class Base_model(Virtual_solver):
                 node.log_edge_posterior = [{} for _ in range(K)] # a list of dictionaries
 
         for k in range(K):
-            allele_list = self.data['alleleTable'].alphabet.get_cassette_alphabet(k)
+            allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
             for tree in self.trees:
                 for node in tree.traverse_preorder():
                     if node.is_root():
@@ -406,14 +425,25 @@ class Base_model(Virtual_solver):
                                     continue
                                 log_u_post = node.parent.log_node_posterior[k][x]
                                 log_v_in = node.in_llh[k][y]
-                                log_llh_edge = self.llh_alleleTable_edge(node,k,x)
+                                log_llh_edge = self.llh_DLT_data_edge(node,k,x)
                                 node.log_edge_posterior[k][(x,y)] = log_u_post + log_v_in + log_p_trans - log_llh_edge
 
     def Estep(self):
+        #start = time.time()
         self.Estep_in_llh()
+        #end = time.time()
+        #print("Estep in-llh:",end-start)
+
+        #start = time.time()
         self.Estep_out_llh()
+        #end = time.time()
+        #print("Estep out-llh:",end-start)
+        
+        #start = time.time()
         self.Estep_posterior()
-   
+        #end = time.time()
+        #print("Estep posterior:",end-start)
+
     def set_closed_form_optimal(self,fixed_params={},verbose=1):
         # For every param that has a closed-form M-step optimal, 
         # if that param is in fixed_params, set it to the specified fixed value;
@@ -431,7 +461,7 @@ class Base_model(Virtual_solver):
         self.set_closed_form_optimal(fixed_params=fixed_params,verbose=verbose)
 
         # optimize nu and all branch lengths
-        K = self.data['alleleTable'].K
+        K = self.data['DLT_data'].K
         N = self.num_edges
         if local_brlen_opt:
             for tree in self.trees:
@@ -541,7 +571,7 @@ class Base_model(Virtual_solver):
         maxIter = EM_options['max_iter']
         x0 = self.ini_all_params(fixed_params=fixed_params)
         self.x2params(x0,fixed_params=fixed_params)
-        pre_llh = self.llh_alleleTable()
+        pre_llh = self.llh_DLT_data()
         if verbose >= 0:
             print("Initial phi: " + str(self.params.get_value('phi')) + ". Initial nu: " + str(self.params.get_value('nu')) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
@@ -569,10 +599,10 @@ class Base_model(Virtual_solver):
                 if status == "d_infeasible": # should only happen with local EM
                     if verbose >= 0:
                         print("Warning: EM failed to optimize parameters in one Mstep due to infeasible constraints") 
-                    return -pre_llh, em_iter,status
+                    return -pre_llh,status
                 elif verbose >= 0:    
                     print("Warning: EM failed to optimize parameters in one Mstep.")                
-            curr_llh = self.llh_alleleTable()
+            curr_llh = self.llh_DLT_data()
             if verbose > 0:
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
             if abs((curr_llh - pre_llh)/pre_llh) < DEFAULT_conv_eps:

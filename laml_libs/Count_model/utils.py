@@ -3,6 +3,19 @@ from .Alphabet import Alphabet
 from .AlleleTable import AlleleTable
 from random import random
 
+def join_lists(list_of_lists):
+    def __get_alphabet(j):
+        if j == 0:
+            return [[x] for x in list_of_lists[j]]
+        else:
+            prev = __get_alphabet(j-1)
+            curr = []
+            for x in prev:
+                for y in list_of_lists[j]:        
+                    curr.append(x+[y])
+            return curr
+    return [tuple(x) for x in __get_alphabet(len(list_of_lists)-1)]
+
 def log_sum_exp(numlist):
     # using log-trick to compute log(sum(exp(x) for x in numlist))
     # mitigate the problem of underflow

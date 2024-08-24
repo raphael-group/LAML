@@ -41,11 +41,10 @@ class VirtualUnitTest(unittest.TestCase):
         
         if convert_to_counts:
             allele_table = charMtrx_2_alleleTable(charMtrx,alphabet)
-            data = {'alleleTable':allele_table}
+            data = {'DLT_data':allele_table}
         else:
-            data = {'charMtrx':CharMtrx(charMtrx,alphabet)}    
-        #myModel = PMM_model([T],{'alleleTable':allele_table},{'Q':Q},**params)
-        myModel = test_model([T],data,{'Q':Q},**params)
+            data = {'DLT_data':CharMtrx(charMtrx,alphabet)}    
+        myModel = test_model([T],data,{'Q':Q},params)
         if give_label:
             currIdx = 0
             for node in myModel.trees[0].traverse_preorder():
@@ -63,12 +62,11 @@ class VirtualUnitTest(unittest.TestCase):
             charMtrx0[x]= [0]*K
             if convert_to_counts:
                 allele_table0 = charMtrx_2_alleleTable(charMtrx0,alphabet)
-                data0 = {'alleleTable':allele_table0}
+                data0 = {'DLT_data':allele_table0}
             else:    
-                data0 = {'charMtrx':CharMtrx(charMtrx0,alphabet)}    
+                data0 = {'DLT_data':CharMtrx(charMtrx0,alphabet)}    
             tree_str = tree_reduced[x]
-            #myModel0 = test_model([tree_str],{'alleleTable':allele_table0},{'Q':Q},**params)
-            myModel0 = test_model([tree_str],data0,{'Q':Q},**params)
+            myModel0 = test_model([tree_str],data0,{'Q':Q},params)
             myModel0.Estep_in_llh()
             for k in range(K):
                 true = myModel0.trees[0].root.in_llh[k][tuple([0])]

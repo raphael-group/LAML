@@ -9,14 +9,14 @@ class AlleleTable:
         self.data_struct = data_struct
         self.alphabet = alphabet
         
-    def get(self,w,k,x):
+    def get_one_count(self,w,k,x):
         # w: a cell name/label
         # k: a cassette index
         # x: a state of the specified cassette; must be a tuple of length J
         assert len(x) == self.J
         return self.data_struct[w][k][x]
     
-    def get_all_counts(self,w,k):
+    def get(self,w,k): # get all counts
         # w: a cell name/label
         # k: a cassette index
         return self.data_struct[w][k]

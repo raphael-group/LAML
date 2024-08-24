@@ -68,10 +68,11 @@ class ML_solver(Virtual_solver):
             M.append(m)
         return M
 
-    def score_tree(self,strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':None}):
+    #def score_tree(self,strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':None}):
+    def score_tree(self,strategy={'ultra_constr':False,'fixed_params':{},'fixed_brlen':None}):
         ultra_constr = strategy['ultra_constr']
-        fixed_phi = strategy['fixed_phi']
-        fixed_nu = strategy['fixed_nu']
+        fixed_phi = strategy['fixed_params']['phi'] if 'phi' in strategy['fixed_params'] else None
+        fixed_nu = strategy['fixed_params']['nu'] if 'nu' in strategy['fixed_params'] else None
         fixed_brlen = strategy['fixed_brlen']
         nllh,status = self.optimize(initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_phi=fixed_phi,fixed_nu=fixed_nu,fixed_brlen=fixed_brlen)
         score = None if nllh is None else -nllh

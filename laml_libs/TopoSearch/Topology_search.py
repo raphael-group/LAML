@@ -14,7 +14,7 @@ class Topology_search:
         self.params = params   
         self.data = data
         self.prior = prior        
-        self.__renew_treeList_obj__()
+        self.__renew_treeList_obj()
         # identify polytomies
         self.has_polytomy = False
         for tree in self.treeList_obj:
@@ -30,7 +30,7 @@ class Topology_search:
         self.b = 1/(1-1/self.alpha_cooldown**self.T_cooldown)
         self.a = -self.b/self.alpha_cooldown**self.T_cooldown
 
-    def __renew_treeList_obj__(self):
+    def __renew_treeList_obj(self):
         self.treeList_obj = []
         for treeTopo in self.treeTopoList:
             tree = read_tree_newick(treeTopo)
@@ -44,7 +44,7 @@ class Topology_search:
         self.treeTopoList = mySolver.get_tree_newick()
         self.params = mySolver.get_params()
 
-    def __mark_polytomies__(self,eps_len=1e-3):
+    def __mark_polytomies(self,eps_len=1e-3):
         # mark and resolve all polytomies in self.treeList_obj
         self.has_polytomy = False
         for tree in self.treeList_obj:
@@ -61,7 +61,7 @@ class Topology_search:
                     node.edge_length = eps_len  
         self.treeTopoList = [tree.newick() for tree in self.treeList_obj]
 
-    def __accept_proposal__(self,curr_score,new_score,t):
+    def accept_proposal(self,curr_score,new_score,t):
         if new_score > curr_score:
             return True
         T = max(1e-12,self.a*self.alpha_cooldown**t + self.b)
@@ -70,8 +70,6 @@ class Topology_search:
 
     def search(self,resolve_polytomies=True,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY,checkpoint_file=None):
         original_topos = self.treeTopoList
-        original_params = self.params
-        #nni_replicates = [(None,None)]*nreps
         best_trees = None
         best_score = -float("inf")
         best_params = None
@@ -80,15 +78,14 @@ class Topology_search:
             if verbose:
                 print("Performing nni-search " + str(i+1))
             self.treeTopoList = original_topos
-            self.params = original_params
-            self.__renew_treeList_obj__()
+            self.__renew_treeList_obj()
             if resolve_polytomies:
-                self.__mark_polytomies__()
+                self.__mark_polytomies()
             if strategy['resolve_search_only']:
                 if verbose:
                     print("Only perform local nni moves to resolve polytomies")
                 if self.has_polytomy:
-                    trees,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True,checkpoint_file=checkpoint_file)
+                    trees,score,params = self.__search_one(strategy,maxiter=maxiter,verbose=verbose,only_marked=True,checkpoint_file=checkpoint_file)
                 else: # score this tree topology (optimize all numerical params)
                     if verbose:
                         print("Found no polytomy to resolve. Optimizing numerical parameters without further topology search")
@@ -104,13 +101,13 @@ class Topology_search:
                     print("Perform nni moves for full topology search")
                     if self.has_polytomy and resolve_polytomies:                        
                         print("Found polytomies in the input tree(s). Arbitrarily resolving them to obtain fully resolved initial tree(s).") 
-                trees,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False,checkpoint_file=checkpoint_file)
+                trees,score,params = self.__search_one(strategy,maxiter=maxiter,verbose=verbose,only_marked=False,checkpoint_file=checkpoint_file)
             # The final optimization of parameters
             if verbose:
                 print("Optimal topology found. Re-optimizing other parameters ...")
             self.treeTopoList = trees
             self.params = params
-            self.__renew_treeList_obj__()
+            self.__renew_treeList_obj()
             mySolver = self.get_solver()
             score_tree_strategy = deepcopy(strategy)
             score_tree_strategy['fixed_brlen'] = None
@@ -132,7 +129,7 @@ class Topology_search:
         
         return best_trees,best_score,best_params
     
-    def __search_one__(self,strategy,maxiter=100,verbose=False,only_marked=False, checkpoint_file=None):
+    def __search_one(self,strategy,maxiter=100,verbose=False,only_marked=False, checkpoint_file=None):
         # optimize branch lengths and other parameters for the starting tree
         mySolver = self.get_solver()
         score_tree_strategy = deepcopy(strategy)
@@ -169,8 +166,9 @@ class Topology_search:
                     fout.write(f"NNI Iteration: {nni_iter}\n")
                     fout.write(f"Current newick tree: {best_trees}\n")
                     fout.write(f"Current negative-llh: {best_score}\n")
-                    fout.write(f"Current dropout rate: {best_params['phi']}\n")
-                    fout.write(f"Current silencing rate: {best_params['nu']}\n")
+                    fout.write(f"Current params: {best_params}\n")
+                    #fout.write(f"Current dropout rate: {best_params['phi']}\n")
+                    #fout.write(f"Current silencing rate: {best_params['nu']}\n")
         if verbose:
             print("Best score for this search: " + str(best_score))
         return best_trees,best_score,best_params 
@@ -209,8 +207,10 @@ class Topology_search:
         score_tree_strategy['fixed_brlen'] = None
 
         if strategy['local_brlen_opt']:
-            score_tree_strategy['fixed_nu'] = self.params['nu'] 
-            score_tree_strategy['fixed_phi'] = self.params['phi'] 
+            #score_tree_strategy['fixed_nu'] = self.params['nu'] 
+            #score_tree_strategy['fixed_phi'] = self.params['phi'] 
+            for pname in self.params:
+                score_tree_strategy['fixed_params'][pname] = self.params[pname]
             free_branches = set(u.child_nodes() + v.child_nodes() + [v])
             fixed_branches_anchors = [[] for _ in range(len(self.treeList_obj))]
             for t,tree in enumerate(self.treeList_obj):
@@ -245,11 +245,13 @@ class Topology_search:
 
             mySolver = self.solver([tree.newick() for tree in self.treeList_obj],self.data,self.prior,self.params)            
             new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
-            if status != "optimal" and strategy['local_brlen_opt']:
-                score_tree_strategy['fixed_brlen'] = None
+            
+            if status != "optimal" and strategy['local_brlen_opt']: # couldn't optimize, probably due 'local_brlen_opt'
+                score_tree_strategy['fixed_brlen'] = None # remove 'local_brlen_opt' and try again
                 mySolver = self.solver([tree.newick() for tree in self.treeList_obj],self.data,self.prior,self.params)            
                 new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
-            if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params                
+            
+            if self.accept_proposal(curr_score,new_score,nni_iter): # accept the new tree and params                
                 self.update_from_solver(mySolver)
                 return True,new_score
             

@@ -27,7 +27,7 @@ class Topology_search_parallel(Topology_search):
             for i,nni_result in enumerate(nni_results):
                 if nni_result['status'] == "optimal":
                     new_score = nni_result['score']
-                    if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params               
+                    if self.accept_proposal(curr_score,new_score,nni_iter): # accept the new tree and params               
                         u,v,u_child,w = nni_result['cache']
                         u_child.set_parent(v)
                         u.remove_child(u_child)

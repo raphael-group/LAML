@@ -1,9 +1,18 @@
+from math import *
+
 class Alphabet():
     def __init__(self,K,J,data_struct):
         self.K = K
         self.J = J
+        self.M = [] # store the length of all cassette's alphabets
+        for k in range(K):
+            M_k = prod([len(A) for A in data_struct[k]])
+            self.M.append(M_k)
         self.data_struct = data_struct # data_struct is a 3-way nested list
-    
+
+    def get_M(self,k): # get the length of the alphabet of cassette k
+        return self.M[k]
+
     def get_cassette_alphabet(self,k):
         a_list = self.data_struct[k]   
         def __get_alphabet(j):

@@ -299,9 +299,20 @@ class EM_solver(ML_solver):
                         v.S3[site] = 1.0-v.S0[site]-v.S1[site]-exp(v.post1[site])
 
     def Estep(self):
+        #start = time.time()
         self.Estep_in_llh()
+        #end = time.time()
+        #print("Estep in_llh:",end-start)
+
+        #start = time.time()
         self.Estep_out_llh()
+        #end = time.time()
+        #print("Estep out_llh:",end-start)
+        
+        #start = time.time()
         self.Estep_posterior()
+        #end = time.time()
+        #print("Estep posterior:",end-start)
 
     def Mstep(self,optimize_phi=True,optimize_nu=True,verbose=1,eps_nu=1e-5,eps_s=1e-6,ultra_constr_cache=None,local_brlen_opt=True):
     # assume that Estep have been performed so that all nodes have S0-S4 attributes

@@ -6,7 +6,7 @@ from .AlleleTable import AlleleTable
 from .CharMtrx import CharMtrx
 
 class PMM_charMtrx(PMM_model):
-    def __init__(self,treeList,data,prior,**kw_params):
+    def __init__(self,treeList,data,prior,kw_params):
     # data is a dictionary mapping a data module's name to values
     # data must have 'charMtrx'; data['charMtrx'] must be an instance of class CharMtrx
     # kw_params: a dictionary mapping param's name to value. Here it should inclue 'mu', 'nu', 'phi'
@@ -15,6 +15,6 @@ class PMM_charMtrx(PMM_model):
         K = charMtrx.K
         J = charMtrx.J
         allele_table = charMtrx_2_alleleTable(charMtrx)#,alphabet)
-        data['alleleTable'] = allele_table
+        data['DLT_data'] = allele_table
 
-        super(PMM_charMtrx,self).__init__(treeList,data,prior,**kw_params)
+        super(PMM_charMtrx,self).__init__(treeList,data,prior,kw_params)

@@ -4,12 +4,15 @@ from laml_unit_tests.Count_model.unit_tests_PMM_base_out_llh import *
 from laml_unit_tests.Count_model.unit_tests_PMM_base_posterior import *
 from laml_unit_tests.Count_model.unit_tests_PMM_base_scipy_opt import *
 from laml_unit_tests.Count_model.unit_tests_PMM_base_EM_opt import *
-from laml_unit_tests.Count_model.unit_tests_PMM_with_noise_in_llh import *
-from laml_unit_tests.Count_model.unit_tests_PMM_with_noise_out_llh import *
-from laml_unit_tests.Count_model.unit_tests_PMM_charMtrx_in_llh import *
-from laml_unit_tests.Count_model.unit_tests_PMM_charMtrx_out_llh import *
-from laml_unit_tests.Count_model.unit_tests_PMMN_charMtrx_in_llh import *
-from laml_unit_tests.Count_model.unit_tests_PMMN_charMtrx_out_llh import *
+
+from laml_unit_tests.Count_model.unit_tests_PMMN_in_llh import *
+from laml_unit_tests.Count_model.unit_tests_PMMN_out_llh import *
+from laml_unit_tests.Count_model.unit_tests_PMMN_posterior import *
+from laml_unit_tests.Count_model.unit_tests_PMMN_scipy_opt import *
+from laml_unit_tests.Count_model.unit_tests_PMMN_EM_opt import *
+from laml_unit_tests.Count_model.unit_tests_PMM_base_TopoSearch import *
+from laml_unit_tests.Count_model.unit_tests_PMMN_TopoSearch import *
+
 import sys
 import os
 

@@ -12,6 +12,9 @@ class Param():
     def get_bound(self,pname):
         return self.name2bound[pname]    
 
+    def get_name2value_dict(self):
+        return {n:v for n,v in zip(self.names,self.values)}
+
     def get_value(self,pname):
         for i,(n,v) in enumerate(zip(self.names,self.values)):
             if n == pname:
