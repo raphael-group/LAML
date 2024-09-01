@@ -1,0 +1,13 @@
+abc post_node_z -1.5016140490560352
+abc post_edge_zz -1.5016140490560352
+abc post_edge_za -0.2520193579008661
+c post_edge_za -1.5016140490560352
+c post_edge_aa -0.2520193579008661
+ab post_node_z -3.16936964867503
+ab post_edge_zz -3.16936964867503
+ab post_edge_za -1.710694503287948
+ab post_edge_aa -0.2520193579008661
+b post_edge_za -3.16936964867503
+b post_edge_aa -0.04293890366895339
+a post_edge_za -3.16936964867503
+a post_edge_aa -0.04293890366895339

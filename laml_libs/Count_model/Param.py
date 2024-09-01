@@ -20,7 +20,13 @@ class Param():
             if n == pname:
                 return v
         return None # only get here if pname is not found in self.names    
-    
+
+    def show_values(self):
+        out_str = ""
+        for n,v in zip(self.names,self.values):
+            out_str += str(n) + "=" + str(v) + " "
+        return out_str    
+
     def set_value(self,pname,value):
         for i,n in enumerate(self.names):
             if n == pname:

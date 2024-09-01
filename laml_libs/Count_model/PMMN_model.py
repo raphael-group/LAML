@@ -4,7 +4,8 @@ from .Param import Param
 from math import *
 
 DEFAULT_max_mu = 10
-DEFAULT_max_nu = 10
+DEFAULT_max_nu = 1
+DEFAULT_min_rho = 0.5
 
 class PMMN_model(Base_model):
     # PMMN = probabilistic mixed-type missing with noise
@@ -20,7 +21,7 @@ class PMMN_model(Base_model):
         else:  
             self.emission_mtrx = None  
             rho = kw_params['rho'] if 'rho' in kw_params else 1 # arbitrarily chose to set as a default value
-            params = Param(['mu','nu','phi','rho'],[mu,nu,phi,rho],[0,0,0,0],[DEFAULT_max_mu,DEFAULT_max_nu,1,1])
+            params = Param(['mu','nu','phi','rho'],[mu,nu,phi,rho],[0,0,0,DEFAULT_min_rho],[DEFAULT_max_mu,DEFAULT_max_nu,1,1])
         super(PMMN_model,self).__init__(treeList,data,prior,params)
     
     def Psi(self,c_node,k,j,alpha,brho):
@@ -77,25 +78,69 @@ class PMMN_model(Base_model):
         # otherwise, compute the closed-form solution and set that to the param's value
         # Override the Base_model class. 
         # This class (i.e. the PMM model) only has one param with closed-form M-step, which is phi
+        '''R = 0
+        R_tilde = 0
+        K = self.data['DLT_data'].K
+        J = self.data['DLT_data'].J
+        silenced_state = tuple([-1]*J)
+
+        for tree in self.trees:
+            for v in tree.traverse_leaves():
+                for k in range(K):
+                    if not self.data['DLT_data'].is_missing(v.label,k):
+                        R += 1
+                    #if self.data['DLT_data'].is_missing(v.label,k):
+                    else:
+                        R_tilde += 1
+                        if silenced_state in v.log_node_posterior[k]: 
+                            R_tilde -= exp(v.log_node_posterior[k][silenced_state]) '''
+       
+        A = 0
+        B = 0 
+        C = 0
+        
+        K = self.data['DLT_data'].K
+        J = self.data['DLT_data'].J
+        silenced_state = tuple([-1]*J)
+        missing_state = tuple(['?']*J)
+
+        for tree in self.trees:
+            for v in tree.traverse_leaves():
+                for k in range(K):
+                    observed_state = self.data['DLT_data'].get(v.label,k) 
+                    if observed_state == missing_state: # p_A = p_B = 0
+                        p_A = p_B = 0
+                        if silenced_state in v.log_node_posterior[k]:
+                            p_C = 1-exp(v.log_node_posterior[k][silenced_state])
+                        else:
+                            p_C = 1    
+                    else: # p_C = 0; p_A + p_B = 1
+                        p_A = exp(v.log_node_posterior[k][observed_state])
+                        p_B = 1-p_A
+                        p_C = 0    
+                    A += p_A
+                    B += p_B
+                    C += p_C
+
         if 'phi' in fixed_params:
             phi_star = fixed_params['phi']
             if verbose > 0:
-                print("Fixing phi to " + str(phi_star))
+                print("Fixed phi to " + str(phi_star))
         else:
+            #phi_star = R_tilde/(R+R_tilde)
+            phi_star = C/(A+B+C)
             if verbose > 0:
-                print("Optimizing phi")
-            R = []
-            R_tilde = []
-            K = self.data['DLT_data'].K
-            J = self.data['DLT_data'].J
-            silenced_state = tuple([-1]*J)
-
-            for tree in self.trees:
-                for v in tree.traverse_leaves():
-                    R.append(sum([not self.data['DLT_data'].is_missing(v.label,k) for k in range(K)]))
-                    R_tilde.append(sum([1-exp(v.log_node_posterior[silenced_state]) for k in range(K) if self.data['DLT_data'].is_missing(v.label,k)])) 
-            phi_star = sum(R_tilde)/(sum(R)+sum(R_tilde))
-            if verbose > 0:
-                print("Current phi: " + str(phi_star))
+                print("Current optimal phi: " + str(phi_star))
         # set the value of phi to phi_star
         self.params.set_value('phi',phi_star)
+        
+        if 'rho' in fixed_params:
+            rho_star = fixed_params['rho']
+            if verbose > 0:
+                print("Fixed rho to " + str(rho_star))
+        else:
+            rho_star = A/(A+B)
+            if verbose > 0:
+                print("Current optimal rho: " + str(rho_star))
+        # set the value of rho to rho_star
+        self.params.set_value('rho',rho_star)

@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 import os
 import pickle
-import laml_libs as scmail
+import laml_libs as laml
 from laml_libs.IO_handler.sequence_lib import read_sequences, read_priors
-from laml_libs.PMM_original.ML_solver import ML_solver
-from laml_libs.PMM_original.EM_solver import EM_solver
+from laml_libs.Count_model.Alphabet import Alphabet
+from laml_libs.Count_model.PMMN_model import PMMN_model
+from laml_libs.Count_model.CharMtrx import CharMtrx
+from laml_libs.TopoSearch.Topology_search import Topology_search
 from laml_libs.TopoSearch.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
 from laml_libs.TopoSearch.Topology_search import Topology_search as Topology_search_sequential
 from math import *
@@ -53,10 +55,12 @@ def main():
    
     # Numerical Optimization Arguments
     numericalOptions.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
-    numericalOptions.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (lambda,phi,nu). Will NOT optimize branch lengths, lambda, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
-    numericalOptions.add_argument("--timescale",required=False,default=1.0,help="Timeframe of experiment. Scales ultrametric output tree branches to this timescale. To get an accurate estimate of mutation rate, provide timeframe in number of cell generations. Default: 1.0.")
+    numericalOptions.add_argument("-L","--compute_llh",action='store_true',help="Compute log-likelihood of the input tree(s) in -t and the input params in -P (lambda,phi,nu,rho). Will NOT optimize branch lengths, lambda, phi, nu, or rho. The input tree(s) in -t MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
+    numericalOptions.add_argument("--timescale",required=False,default=1.0,help="Experiment time. Scales the output tree height to this value. Default: 1.0.")
     numericalOptions.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in single cell sequencing.")
     numericalOptions.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
+    numericalOptions.add_argument("--noError",action='store_true',help="Assume there is no error in the input character matrix.")
+    numericalOptions.add_argument("-P","--fixedParams",required=False,help="Fixed the params (lambda,phi,nu,rho) to the specified values. This option has higher priority than --noSilence, --noDropout, --noError, and --timescale. To use with -L, ALL of the four params (lambda,phi,nu,rho) must be specified")
     numericalOptions.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
     numericalOptions.add_argument("--randseeds",required=False,help="Random seeds for branch length optimization. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
 
@@ -88,14 +92,14 @@ def main():
         print("Input files not found.")
         exit(0)
     
-    print("Launching " + scmail.PROGRAM_NAME + " version " + scmail.PROGRAM_VERSION)
-    print(scmail.PROGRAM_NAME + " was called as follows: " + " ".join(argv))
+    print("Launching " + laml.PROGRAM_NAME + " version " + laml.PROGRAM_VERSION)
+    print(laml.PROGRAM_NAME + " was called as follows: " + " ".join(argv))
     start_time = timeit.default_timer()
     
     # preprocessing: read and analyze input
     delim_map = {'tab':'\t','comma':',','whitespace':' '}
     delimiter = delim_map[args["delimiter"]]
-    msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["missing_data"])
+    charMtrx, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["missing_data"])
     #prefix = '.'.join(args["output"].split('.')[:-1])
 
 
@@ -104,13 +108,22 @@ def main():
         for line in f:
             input_trees.append(line.strip())
 
-    k = len(msa[next(iter(msa.keys()))])
-    if args["compute_llh"]:
-        fixed_lambda,fixed_phi,fixed_nu = [float(x) for x in args["compute_llh"].strip().split()]
-    else:    
-        fixed_phi = 0 if args["noDropout"] else None
-        fixed_nu = 0 if args["noSilence"] else None
-        fixed_lambda = 1
+    k = len(charMtrx[next(iter(charMtrx.keys()))])
+    #if args["compute_llh"]:
+    fixed_params = {}
+    if args["noDropout"]:
+        fixed_params['phi'] = 0
+    if args["noSilence"]:
+        fixed_params['nu'] = 0
+    if args["noError"]:
+        fixed_params['rho'] = 1
+    
+    if args["fixedParams"]: # will override "noDropout", "noSilence", "noError" if 'phi', 'nu', or 'rho' presents in fixedParams`
+        tokens = args["fixedParams"].strip().split()
+        for token in tokens:
+            key,value = token.strip().split("=")
+            fixed_params[key] = float(value)
+        #fixed_lambda,fixed_phi,fixed_nu,fixed_rho = [float(x) for x in args["fixedParams"].split() if x else None]
 
     if args["randseeds"] is None:
         random_seeds = None
@@ -124,7 +137,7 @@ def main():
         # use the uniform Q matrix
         Q = []
         for i in range(k):
-            M_i = set(msa[x][i] for x in msa if msa[x][i] not in [0,"?"])
+            M_i = set(charMtrx[x][i] for x in charMtrx if charMtrx[x][i] not in [0,"?"])
             # TODO: check if column has only zeros and missing data
             if len(M_i) == 0: 
                 # add pseudo mutated state
@@ -136,29 +149,32 @@ def main():
             q[0] = 0
             Q.append(q)
     else:
-        Q = read_priors(args["priors"],msa,site_names=site_names)
+        Q = read_priors(args["priors"],charMtrx,site_names=site_names)
+    
+    Q = [[Q_k] for Q_k in Q] #### temporary solution ####
+    K = len(charMtrx[next(iter(charMtrx.keys()))])
+    J = 1 ##### temporary hard code #####
+    alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)])
+    charMtrx = CharMtrx(charMtrx,alphabet)
 
-    selected_solver = EM_solver
-    em_selected = True
-    if args["solver"].lower() != "em": 
-        selected_solver = ML_solver   
-        em_selected = False
+    selected_model = PMMN_model
 
     # main tasks        
-    data = {'charMtrx':msa} 
-    prior = {'Q':Q} 
-    
-    params = {'nu':fixed_nu if fixed_nu is not None else scmail.eps,'phi':fixed_phi if fixed_phi is not None else scmail.eps}  
+    data = {'DLT_data':charMtrx} 
+    prior = {'Q':Q}  
+    #ini_phi = 0 if fixed_phi is None else fixed_phi
+    #ini_nu = 0 if fixed_nu is None else fixed_nu
+    #ini_params = {'phi':0.1,'nu':0,'mu':1,'rho':1}
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
-
-
-    myTopoSearch = Topology_search(input_trees, selected_solver, data=data, prior=prior, params=params)
+    #myTopoSearch = Topology_search(input_trees, selected_model, data=data, prior=prior, params=ini_params)
+    myTopoSearch = Topology_search(input_trees, selected_model, data=data, prior=prior, params=fixed_params)
 
 
     if args["compute_llh"]:
-        print("Compute the joint likelihood of the input trees and specified parameters without any optimization")
+        print("Computing the joint likelihood of the input trees and specified parameters without any optimization")
         mySolver = myTopoSearch.get_solver()
         # [hacking] rescale the input branch lengths by the specified lambda
+        fixed_lambda = fixed_params['lambda'] if 'lambda' in fixed_params else 1
         for tree in mySolver.trees:
             for node in tree.traverse_preorder():
                 if node.edge_length is not None:
@@ -170,26 +186,21 @@ def main():
         print("Tree log-likelihood: " + str(-nllh))
     else:
         # setup the strategy
-        my_strategy = deepcopy(scmail.DEFAULT_STRATEGY)
+        my_strategy = deepcopy(laml.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
-        my_strategy['ultra_constr'] = True #args["ultrametric"] # TODO: Remove this flag
+        my_strategy['ultra_constr'] = True
         # resolve polytomies or not?
         resolve_polytomies = not args["keep_polytomies"]
         # only resolve polytomies or do full search?
         my_strategy['resolve_search_only'] = args["resolve_search"]
-        # setup fixed_phi and fixed_nu
-        my_strategy['fixed_params']['phi'] = fixed_phi
-        my_strategy['fixed_params']['nu'] = fixed_nu
+        # fixed params
+        my_strategy['fixed_params'] = deepcopy(fixed_params)
 
         # full search or local search to only resolve polytomies? 
         if not args["resolve_search"] and not args["topology_search"]:
             print("Optimizing branch lengths, phi, and nu without topology search")
-            if em_selected:
-                print("Optimization by EM algorithm") 
-            else:    
-                print("Optimization by generic solver (Scipy-SLSQP)")        
             mySolver = myTopoSearch.get_solver()
-            nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True) #args["ultrametric"]) # TODO: Remove this flag
+            nllh = mySolver.optimize('EM',initials=args["nInitials"],fixed_params=fixed_params,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True)
             myTopoSearch.update_from_solver(mySolver)
             opt_trees = myTopoSearch.treeTopoList
             opt_params = myTopoSearch.params
@@ -221,107 +232,39 @@ def main():
             nllh = -max_score        
     
     # post-processing: analyze results and output 
-    
     if not args["compute_llh"]:
         out_tree = prefix + "_trees.nwk"
-        out_annotate = prefix + "_annotations.txt"
         out_params = prefix + "_params.txt"
-
+        
         with open(out_tree,'w') as fout:
             for tstr in opt_trees:
                 tree = read_tree_newick(tstr)
-                #if not args['noSilence']:
                 # get the height of the tree
-                tree_height = tree.height(weighted=True) # includes the root's length, mutation units 
-                scaling_factor = tree_height/float(args['timescale'])
-                print(f"Tree height pre-scaling: {tree_height}, input timescale: {args['timescale']}") 
+                tree_height = tree.height(weighted=True) # includes the root's length, edit units 
+                # get the edit rate
+                if 'lambda' in fixed_params:
+                    edit_rate = fixed_params['lambda']
+                    print(f"Tree height pre-scaling: {tree_height}, input edit rate: {edit_rate}") 
+                else:    
+                    edit_rate = tree_height/float(args['timescale'])
+                    print(f"Tree height pre-scaling: {tree_height}, input timescale: {args['timescale']}") 
                 for node in tree.traverse_preorder(): 
-                    node.edge_length = node.edge_length / scaling_factor 
+                    if node.edge_length:
+                        node.edge_length = node.edge_length / edit_rate
                 tree_height = tree.height(weighted=True) 
-                mutation_rate = scaling_factor # not divided per site
-                print(f"Tree height after scaling: {tree_height}, mutation rate: {mutation_rate}")
-                tstr = tree.__str__().split()
-                if len(tstr) > 1:
-                    fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
-                else:
-                    fout.write(''.join(["(", tstr[0][:-1], ");\n"]))
-
-        # output annotations
-        def format_posterior(p0,p_minus_1,p_alpha,alpha,q):
-            if p0 == 1:
-                return '0'
-            elif p_minus_1 == 1:
-                return '-1'
-            elif p_alpha == 1:
-                return alpha
-            else:
-                out = ''
-                if p0 > 0:
-                    out += '0:' + str(p0)
-                if p_minus_1 > 0:
-                    if out != '':
-                        out += '/'
-                    out += '-1:' + str(p_minus_1)
-                if p_alpha > 0:
-                    if out != '':
-                        out += '/'
-                    if alpha == '?':
-                        out += "/".join([str(y) + ':' + str(round(p_alpha*q[y],3)) for y in q if round(p_alpha*q[y],3)>0])
-                    else:
-                        out += alpha + ":" + str(p_alpha)
-                return out
-
-        my_solver = EM_solver(opt_trees,{'charMtrx':msa},{'Q':Q},{'phi':opt_params['phi'],'nu':opt_params['nu']})
-        my_solver.az_partition()
-        my_solver.Estep()
-        idx = 0
-        with open(out_annotate,'w') as fout:
-            for tree in my_solver.trees:
-                # add root
+                print(f"Tree height after scaling: {tree_height}")
                 if len(tree.root.children) > 1:
-                    root = Node()
-                    root.label = 'I0'
-                    k = len(tree.root.alpha)
-                    root.alpha = ['z']*k
-                    root.post0 = [0]*k
-                    root.post1 = [-float("inf")]*k
-                    idx = 1
-                    root.add_child(tree.root)
-                    tree.root = root
-                # branch length by expected number of mutations
-                all_labels = set()
-                for node in tree.traverse_preorder():
-                    if node.is_root():
-                        continue
-                    # label the node
-                    if node.label is None or node.label in all_labels:
-                        node.label = 'I' + str(idx)
-                        idx += 1                    
-                    all_labels.add(node.label)
-                    node.edge_length = round(sum(node.S1)+sum(node.S2)+sum(node.S4),3)
-
-                fout.write(tree.newick()+"\n")    
-                
-                # ancestral labeling and imputation
-                for node in tree.traverse_preorder():
-                    node.posterior = ''
-                    for j in range(len(node.alpha)):
-                        if not node.is_root():
-                            if node.alpha[j] == '?' and node.parent.alpha[j] != 'z':
-                                node.alpha[j] = node.parent.alpha[j]
-                        p0 = round(exp(node.post0[j]),2)
-                        p_minus_1 = round(exp(node.post1[j]),2)
-                        p_alpha = round(1-p0-p_minus_1,2)
-                        if node.posterior != '':
-                            node.posterior += ','
-                        node.posterior += format_posterior(p0,p_minus_1,p_alpha,str(node.alpha[j]),Q[j])
-                    fout.write(node.label+"," + str(node.posterior)+"\n")
+                    new_root = Node()
+                    new_root.add_child(tree.root)
+                    tree.root = new_root
+                fout.write(tree.newick() + "\n")
         
         with open(out_params,'w') as fout:
-            fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")
-            fout.write("Silencing rate: " + str(opt_params['nu']) + "\n") 
+            fout.write("Dropout probability: phi=" + str(opt_params['phi']) + "\n")
+            fout.write("Silencing rate: nu=" + str(opt_params['nu']) + "\n") 
+            fout.write("Sequencing accuracy: rho=" + str(opt_params['rho']) + "\n") 
+            fout.write("Mutation rate: lambda=" +  str(edit_rate) + "\n") 
             fout.write("Negative-llh: " +  str(nllh) + "\n")
-            fout.write("Mutation rate: " +  str(mutation_rate) + "\n") 
                     
         stop_time = timeit.default_timer()
         print("Runtime (s):", stop_time - start_time)

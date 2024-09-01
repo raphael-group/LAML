@@ -1,5 +1,4 @@
 from random import random
-from laml_libs.Count_model.PMM_base import PMM_model
 from laml_libs.Count_model.Alphabet import Alphabet 
 from laml_libs.Count_model.AlleleTable import AlleleTable
 

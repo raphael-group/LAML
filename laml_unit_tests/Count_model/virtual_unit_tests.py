@@ -1,6 +1,5 @@
 import unittest
 from laml_libs.IO_handler.sequence_lib import read_sequences
-from laml_libs.Count_model.PMM_base import PMM_model
 from laml_libs.Count_model.Alphabet import Alphabet
 from laml_libs.Count_model.AlleleTable import AlleleTable
 from laml_libs.Count_model.CharMtrx import CharMtrx

@@ -282,11 +282,6 @@ class Base_model(Virtual_solver):
                 randseed = rseeds[rep] + all_trials
                 if verbose >= 0:
                     print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
-                if verbose >= 0:
-                    if ultra_constr:
-                        print("Numerical optimization started with ultrametric constraint (default)")
-                    else:      
-                        print("Numerical optimization started without ultrametric constraint [deprecated]")
                 # read in fixed_brlen and mark the tree nodes
                 for t,tree in enumerate(self.trees):
                     for node in tree.traverse_postorder():
@@ -303,14 +298,18 @@ class Base_model(Virtual_solver):
                     scipy_options['disp'] = (verbose>0)
                     nllh,status = self.scipy_optimization(randseed,fixed_params=fixed_params,ultra_constr=ultra_constr,scipy_options=scipy_options)
                 else:
-                    EM_options = solver_opts if solver_opts else DEFAULT_EM_options
+                    #EM_options = solver_opts if solver_opts else DEFAULT_EM_options
+                    EM_options = {}
+                    for opts in DEFAULT_EM_options:
+                        EM_options[opts] = DEFAULT_EM_options[opts]
+                    for opts in solver_opts:
+                        EM_options[opts] = solver_opts[opts]    
                     nllh,status = self.EM_optimization(randseed,verbose=verbose,fixed_params=fixed_params,ultra_constr=ultra_constr,EM_options=EM_options)
                 
                 if nllh is not None:
                     all_failed = False
                     if verbose >= 0:
                         print("Optimal point found for initial point " + str(rep+1))
-                        #self.show_params()
                     # remove zero-length branches
                     processed_trees = []
                     for tree in self.trees:
@@ -363,11 +362,16 @@ class Base_model(Virtual_solver):
                     else:
                         for x in allele_list:
                             llh_list = []                                    
-                            #for y in node.parent.out_llh[k]:
-                            candidate_par_states = join_lists([set([0,x_i]) for x_i in x])
-                            
-                            #for y in [(0,),x]:
+                            par_state_lists = []
+                            for j,x_j in enumerate(x):
+                                if x_j == -1:
+                                    L = self.data['DLT_data'].alphabet.get_site_alphabet(k,j)
+                                else:
+                                    L = set([0,x_j])
+                                par_state_lists.append(L)
+                            candidate_par_states = join_lists(par_state_lists)
                             for y in candidate_par_states:
+                            #for y in node.parent.out_llh[k]:
                                 if y not in node.parent.out_llh[k]:
                                     continue
                                 log_trans_p = self.log_Psi_cassette(node,k,y,x)
@@ -428,12 +432,12 @@ class Base_model(Virtual_solver):
                                 log_llh_edge = self.llh_DLT_data_edge(node,k,x)
                                 node.log_edge_posterior[k][(x,y)] = log_u_post + log_v_in + log_p_trans - log_llh_edge
 
-    def Estep(self):
-        #start = time.time()
-        self.Estep_in_llh()
-        #end = time.time()
-        #print("Estep in-llh:",end-start)
-
+    def Estep(self,run_in_llh=True):
+        if run_in_llh:
+            #start = time.time()
+            self.Estep_in_llh()
+            #end = time.time()
+            #print("Estep in-llh:",end-start)
         #start = time.time()
         self.Estep_out_llh()
         #end = time.time()
@@ -532,7 +536,7 @@ class Base_model(Virtual_solver):
                 return False,"d_infeasible"
             if 'nu' in fixed_params:
                 if verbose > 0:
-                    print("Fixing nu to " + str(fixed_params['nu']))
+                    print("Fixed nu to " + str(fixed_params['nu']))
                 nu_star = fixed_params['nu']
                 status_nu = "optimal"    
             else:    
@@ -573,7 +577,8 @@ class Base_model(Virtual_solver):
         self.x2params(x0,fixed_params=fixed_params)
         pre_llh = self.llh_DLT_data()
         if verbose >= 0:
-            print("Initial phi: " + str(self.params.get_value('phi')) + ". Initial nu: " + str(self.params.get_value('nu')) + ". Initial nllh: " + str(-pre_llh))
+            print("Initial parameter values: " + self.params.show_values())
+            print("Initial nllh: " + str(-pre_llh))
         em_iter = 1
         converged = False
         if ultra_constr:
@@ -585,7 +590,7 @@ class Base_model(Virtual_solver):
                 print("Starting EM iter: " + str(em_iter))
                 print("Estep")
             estep_start = time.time()
-            self.Estep() #####*****#####
+            self.Estep(run_in_llh=False) #####*****#####
             estep_end = time.time()
             if verbose > 0:
                 print(f"Estep runtime (s): {estep_end - estep_start}")

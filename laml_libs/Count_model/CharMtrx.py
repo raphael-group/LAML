@@ -35,6 +35,6 @@ class CharMtrx:
         # check if cassette k of cell w is missing
         x = self.get(w,k)
         for x_j in x:
-            if x_j != '?':
+            if x_j != missing_symbol:
                 return False
         return True        

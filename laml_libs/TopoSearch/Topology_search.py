@@ -150,25 +150,27 @@ class Topology_search:
                 print("NNI Iter:", nni_iter)
                 start_time = timeit.default_timer()
             new_score,n_attempts,success = self.single_nni(curr_score,nni_iter,strategy,only_marked=only_marked)
+            if verbose:
+                print("Number of trees checked " + str(n_attempts))
+                stop_time = timeit.default_timer()
+                print("Runtime (s):", stop_time - start_time)
             if not success:
+                if verbose:
+                    print("None of the NNI neighbor trees was accepted. Stop NNI search")
                 break
             curr_score = new_score
+            if verbose:
+                print("Current score: " + str(curr_score))
             if curr_score > best_score:
                 best_score = curr_score
                 best_trees = self.treeTopoList
                 best_params = self.params
-            if verbose:
-                print("Current score: " + str(curr_score))
-                stop_time = timeit.default_timer()
-                print("Runtime (s):", stop_time - start_time)
             if nni_iter % chkpt_freq == 0 and checkpoint_file is not None:
                 with open(checkpoint_file, "a") as fout:
                     fout.write(f"NNI Iteration: {nni_iter}\n")
                     fout.write(f"Current newick tree: {best_trees}\n")
                     fout.write(f"Current negative-llh: {best_score}\n")
                     fout.write(f"Current params: {best_params}\n")
-                    #fout.write(f"Current dropout rate: {best_params['phi']}\n")
-                    #fout.write(f"Current silencing rate: {best_params['nu']}\n")
         if verbose:
             print("Best score for this search: " + str(best_score))
         return best_trees,best_score,best_params 
@@ -207,8 +209,6 @@ class Topology_search:
         score_tree_strategy['fixed_brlen'] = None
 
         if strategy['local_brlen_opt']:
-            #score_tree_strategy['fixed_nu'] = self.params['nu'] 
-            #score_tree_strategy['fixed_phi'] = self.params['phi'] 
             for pname in self.params:
                 score_tree_strategy['fixed_params'][pname] = self.params[pname]
             free_branches = set(u.child_nodes() + v.child_nodes() + [v])
@@ -246,7 +246,7 @@ class Topology_search:
             mySolver = self.solver([tree.newick() for tree in self.treeList_obj],self.data,self.prior,self.params)            
             new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
             
-            if status != "optimal" and strategy['local_brlen_opt']: # couldn't optimize, probably due 'local_brlen_opt'
+            if status != "optimal" and strategy['local_brlen_opt']: # couldn't optimize, probably due to 'local_brlen_opt'
                 score_tree_strategy['fixed_brlen'] = None # remove 'local_brlen_opt' and try again
                 mySolver = self.solver([tree.newick() for tree in self.treeList_obj],self.data,self.prior,self.params)            
                 new_score,status = mySolver.score_tree(strategy=score_tree_strategy)

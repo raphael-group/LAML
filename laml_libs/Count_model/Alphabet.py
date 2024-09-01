@@ -10,6 +10,9 @@ class Alphabet():
             self.M.append(M_k)
         self.data_struct = data_struct # data_struct is a 3-way nested list
 
+    def get_site_alphabet(self,k,j): # get the alphabet of site j of cassette k
+        return set([x for x in self.data_struct[k][j]])
+
     def get_M(self,k): # get the length of the alphabet of cassette k
         return self.M[k]
 
