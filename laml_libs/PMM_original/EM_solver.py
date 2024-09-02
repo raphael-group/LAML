@@ -45,7 +45,7 @@ class EM_solver(ML_solver):
         i = 0
         for tree in self.trees:        
             for node in tree.traverse_postorder():
-                if not node.polytomy_mark:
+                if not node.polytomy_mark and not node.mark_fixed:
                     node.edge_length = x[i]
                     i += 1
     

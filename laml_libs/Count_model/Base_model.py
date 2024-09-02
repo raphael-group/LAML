@@ -118,7 +118,7 @@ class Base_model(Virtual_solver):
         for tree in self.trees:
             for node in tree.traverse_postorder():
                 if node.edge_length is not None:
-                    x[idx] = max(2*self.dmin,node.edge_length)
+                    x[idx] = node.edge_length if node.mark_fixed else max(2*self.dmin,node.edge_length)
                 idx += 1 
         return x
 
@@ -156,12 +156,11 @@ class Base_model(Virtual_solver):
         i = 0
         for tree in self.trees:
             for node in tree.traverse_postorder():
-                if not node.is_root():
+                if not node.is_root(): #and not node.mark_fixed:
                     node.edge_length = x[i]
                     i += 1
         # other x2params                
         for j,p in enumerate(self.params.names):
-            #self.params.values[j] = fixed_params[p] if p in fixed_params else x[i]
             self.params.values[j] = fixed_params[p] if p in fixed_params else x[i]
             i += 1
     

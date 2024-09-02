@@ -156,7 +156,7 @@ class ML_solver(Virtual_solver):
         for tree in self.trees:
             for node in tree.traverse_postorder():
                 if node.edge_length is not None:
-                    x[idx] = max(2*self.dmin,node.edge_length)
+                    x[idx] = node.edge_length if node.mark_fixed else max(2*self.dmin,node.edge_length)
                 idx += 1 
         return x    
 
@@ -190,7 +190,8 @@ class ML_solver(Virtual_solver):
         i = 0
         for tree in self.trees:
             for node in tree.traverse_postorder():
-                node.edge_length = x[i]
+                if not node.mark_fixed:
+                    node.edge_length = x[i]
                 i += 1
 
     def x2nu(self,x,fixed_nu=None):
