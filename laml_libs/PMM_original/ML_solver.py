@@ -28,6 +28,8 @@ class ML_solver(Virtual_solver):
             tree_obj = read_tree_newick(tree)
             tree_obj.suppress_unifurcations()
             self.num_edges += len(list(tree_obj.traverse_postorder()))
+            for node in tree_obj.traverse_postorder():
+                node.mark_recompute = True
             self.trees.append(tree_obj)
         # normalize Q
         self.Q = []
@@ -42,10 +44,16 @@ class ML_solver(Virtual_solver):
         self.dmin = DEFAULT_dmin
         self.dmax = DEFAULT_dmax
 
+    def get_compute_cache(self):
+    # override virtual_solver
+        return [{} for tree in self.trees]
+    
     def get_tree_newick(self):
+    # override virtual_solver
         return [tree.newick() for tree in self.trees]
 
     def get_params(self):
+    # override virtual_solver
         return {'phi':self.params.phi,'nu':self.params.nu}
 
     def ultrametric_constr(self):
@@ -68,13 +76,14 @@ class ML_solver(Virtual_solver):
             M.append(m)
         return M
 
-    #def score_tree(self,strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':None}):
-    def score_tree(self,strategy={'ultra_constr':False,'fixed_params':{},'fixed_brlen':None}):
+    def score_tree(self,strategy={'ultra_constr':False,'fixed_params':{},'fixed_brlen':None,'compute_cache':None}):
         ultra_constr = strategy['ultra_constr']
         fixed_phi = strategy['fixed_params']['phi'] if 'phi' in strategy['fixed_params'] else None
         fixed_nu = strategy['fixed_params']['nu'] if 'nu' in strategy['fixed_params'] else None
         fixed_brlen = strategy['fixed_brlen']
-        nllh,status = self.optimize(initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_phi=fixed_phi,fixed_nu=fixed_nu,fixed_brlen=fixed_brlen)
+        compute_cache = strategy['compute_cache']
+        nllh,status = self.optimize(initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_phi=fixed_phi,
+                                    fixed_nu=fixed_nu,fixed_brlen=fixed_brlen,compute_cache=compute_cache)
         score = None if nllh is None else -nllh
         #if score is None:
         #    print("Fatal error: failed to score tree " + self.get_tree_newick() + ". Optimization status: " + status)
@@ -212,7 +221,7 @@ class ML_solver(Virtual_solver):
         self.az_partition()
         return -self.__llh__()
 
-    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,fixed_brlen=None,verbose=1,max_trials=100,random_seeds=None,ultra_constr=False):
+    def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,fixed_brlen=None,compute_cache=None,verbose=1,max_trials=100,random_seeds=None,ultra_constr=False):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
     # fixed_brlen is a list of t dictionaries, where t is the number of trees in self.trees, each maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed.
@@ -251,17 +260,30 @@ class ML_solver(Virtual_solver):
                         print("Numerical optimization started with ultrametric constraint (default)")
                     else:      
                         print("Numerical optimization started without ultrametric constraint [deprecated]")
+                # read in compute_cache
+                if compute_cache is not None:
+                    for t,tree in enumerate(self.trees):
+                        cache_nodes = find_LCAs(tree,list(compute_cache[t].keys()))
+                        for i,(a,b) in enumerate(compute_cache[t]):
+                            u = cache_nodes[i]
+                            for attr in compute_cache[t][(a,b)]:
+                                setattr(u, attr, compute_cache[t][(a,b)][attr])
+
                 # read in fixed_brlen and mark the tree nodes
                 for t,tree in enumerate(self.trees):
                     for node in tree.traverse_postorder():
                         node.mark_fixed=False
-                    if fixed_brlen is None:
-                        continue
-                    fixed_nodes = find_LCAs(tree,list(fixed_brlen[t].keys()))        
-                    for i,(a,b) in enumerate(fixed_brlen[t]):
-                        u = fixed_nodes[i]
-                        u.edge_length = fixed_brlen[t][(a,b)]
-                        u.mark_fixed = True
+                    if fixed_brlen is not None:
+                        fixed_nodes = find_LCAs(tree,list(fixed_brlen[t].keys()))        
+                        for i,(a,b) in enumerate(fixed_brlen[t]):
+                            u = fixed_nodes[i]
+                            u.edge_length = fixed_brlen[t][(a,b)]
+                            u.mark_fixed = True
+                    # mark the nodes that will need to be recomputed
+                    for node in tree.traverse_postorder():
+                        node.mark_recompute = compute_cache is None or not node.mark_fixed
+                        for c_node in node.children:
+                            node.mark_recompute = node.mark_recompute or c_node.mark_recompute
                 nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
                 
                 if nllh is not None:

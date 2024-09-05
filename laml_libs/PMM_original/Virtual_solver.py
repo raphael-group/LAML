@@ -9,6 +9,9 @@ class Virtual_solver:
     def get_tree_newick(self):
     # virtual method. Should never be called!
         pass    
+    def get_compute_cache(self):
+    # virtual method. Should never be called!
+        pass
     def get_params(self):
     # virtual method, should be overried in most cases
         return dict()   

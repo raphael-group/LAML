@@ -125,7 +125,7 @@ def main():
         Q = []
         for i in range(k):
             M_i = set(msa[x][i] for x in msa if msa[x][i] not in [0,"?"])
-            # TODO: check if column has only zeros and missing data
+            #check if column has only zeros and missing data
             if len(M_i) == 0: 
                 # add pseudo mutated state
                 m_i = 1

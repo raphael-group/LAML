@@ -40,16 +40,46 @@ class EM_solver(ML_solver):
                     self.num_polytomy_mark += 1
                     node.edge_length = eps_len  
                     self.has_polytomy = True              
-    
+   
     def x2brlen(self,x):
+    # override ML_solver
         i = 0
         for tree in self.trees:        
             for node in tree.traverse_postorder():
                 if not node.polytomy_mark and not node.mark_fixed:
                     node.edge_length = x[i]
                     i += 1
-    
+   
+    def get_compute_cache(self):
+    # override ML_solver
+        # run Estep with all node recomputed to make sure all values are up-to-date 
+        for tree in self.trees:
+            for node in tree.traverse_postorder():
+                node.mark_recompute = True
+        self.az_partition()
+        self.Estep()
+        # pull values to cache
+        cache_attrs = ['L0','L1','out0','out1','post0','post1','S0','S1','S2','S3','S4']
+        full_cache = []
+        for tree in self.trees:
+            this_cache = {}
+            for node in tree.traverse_postorder():
+                if node.is_leaf():
+                    node.anchors = (node.label,node.label)
+                else:
+                    C = node.child_nodes()
+                    a = C[0].anchors[0]
+                    b = C[-1].anchors[0]
+                    node.anchors = (a,b)
+                this_cache[node.anchors] = {}    
+                for attr in cache_attrs:    
+                    if attr in node.__dict__:
+                        this_cache[node.anchors][attr] = node.__dict__[attr]
+            full_cache.append(this_cache)
+        return full_cache        
+
     def ultrametric_constr(self,local_brlen_opt=True):
+    # override ML_solver
         N = self.num_edges-self.num_polytomy_mark
         if local_brlen_opt:
             for tree in self.trees:
@@ -94,6 +124,8 @@ class EM_solver(ML_solver):
         nu = self.params.nu
         for tree in self.trees:
             for node in tree.traverse_postorder():
+                if not node.mark_recompute: # skip the nodes that have been assigned attributes from the compute_cache
+                    continue
                 p = exp(-node.edge_length)
                 node.L0 = [0]*self.numsites # L0 and L1 are stored in log-scale
                 node.L1 = [0]*self.numsites
@@ -147,6 +179,8 @@ class EM_solver(ML_solver):
         # where v.out0 = P(~D_v,v=0) and v.out1 = P(~D_v,v=-1) 
         for tree in self.trees:
             for v in tree.traverse_preorder():
+                if not v.mark_recompute: # skip the nodes that have been assigned attributes from the compute_cache
+                    continue
                 if v.is_root(): # base case
                     # Auxiliary components
                     v.A = [0]*self.numsites
@@ -252,6 +286,8 @@ class EM_solver(ML_solver):
         for tree in self.trees:
             full_llh = tree.root.L0
             for v in tree.traverse_preorder():
+                if not v.mark_recompute: # skip the nodes that have been assigned attributes from the compute_cache
+                    continue
                 v.post0 = [None]*self.numsites
                 v.post1 = [None]*self.numsites
                 v.S0 = [None]*self.numsites

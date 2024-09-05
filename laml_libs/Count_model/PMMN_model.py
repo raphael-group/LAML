@@ -24,25 +24,25 @@ class PMMN_model(Base_model):
             params = Param(['mu','nu','phi','rho'],[mu,nu,phi,rho],[0,0,0,DEFAULT_min_rho],[DEFAULT_max_mu,DEFAULT_max_nu,1,1])
         super(PMMN_model,self).__init__(treeList,data,prior,params)
     
-    def Psi(self,c_node,k,j,alpha,brho):
+    def Psi(self,c_node,k,j,alpha,beta):
         # Layer 1: transition probabilities  
         # override the Base_model class
         delta = c_node.edge_length
         nu = self.params.get_value('nu')
         if alpha == 0:
-            if brho == 0:
+            if beta == 0:
                 p = exp(-delta*(1+nu))
-            elif brho == -1:
+            elif beta == -1:
                 p = 1-exp(-delta*nu)
             else:
-                q = self.Q[k][j][brho]
+                q = self.Q[k][j][beta]
                 p = q*exp(-delta*nu)*(1-exp(-delta))   
         else:
-            if alpha == -1 and brho == -1:
+            if alpha == -1 and beta == -1:
                 p = 1
-            elif alpha == brho:
+            elif alpha == beta:
                 p = exp(-delta*nu)
-            elif brho == -1:
+            elif beta == -1:
                 p = 1-exp(-delta*nu)
             else:
                 p = 0        
@@ -77,24 +77,7 @@ class PMMN_model(Base_model):
         # if that param is in fixed_params, set it to the specified fixed value;
         # otherwise, compute the closed-form solution and set that to the param's value
         # Override the Base_model class. 
-        # This class (i.e. the PMM model) only has one param with closed-form M-step, which is phi
-        '''R = 0
-        R_tilde = 0
-        K = self.data['DLT_data'].K
-        J = self.data['DLT_data'].J
-        silenced_state = tuple([-1]*J)
-
-        for tree in self.trees:
-            for v in tree.traverse_leaves():
-                for k in range(K):
-                    if not self.data['DLT_data'].is_missing(v.label,k):
-                        R += 1
-                    #if self.data['DLT_data'].is_missing(v.label,k):
-                    else:
-                        R_tilde += 1
-                        if silenced_state in v.log_node_posterior[k]: 
-                            R_tilde -= exp(v.log_node_posterior[k][silenced_state]) '''
-       
+        # This class (i.e. the PMMN model) has two params with closed-form M-step, which are phi and rho
         A = 0
         B = 0 
         C = 0
@@ -115,6 +98,7 @@ class PMMN_model(Base_model):
                         else:
                             p_C = 1    
                     else: # p_C = 0; p_A + p_B = 1
+                        #print(v.label,k,v.mark_recompute,v.log_node_posterior[k],observed_state)
                         p_A = exp(v.log_node_posterior[k][observed_state])
                         p_B = 1-p_A
                         p_C = 0    

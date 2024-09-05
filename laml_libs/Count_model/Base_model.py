@@ -35,6 +35,8 @@ class Base_model(Virtual_solver):
                 new_root.add_child(tree_obj.root)
                 tree_obj.root = new_root
             self.num_edges += len(list(tree_obj.traverse_postorder()))-1
+            for node in tree_obj.traverse_postorder():
+                node.mark_recompute = True
             self.trees.append(tree_obj)
 
         # normalize Q
@@ -58,17 +60,53 @@ class Base_model(Virtual_solver):
 
     def get_params(self):
     # override Virtual solver
-        #return self.params
         return self.params.get_name2value_dict()
 
-    def score_tree(self,strategy={'ultra_constr':False,'fixed_params':None,'fixed_brlen':None}):
+    def score_tree(self,strategy={'ultra_constr':False,'fixed_params':None,'fixed_brlen':None,'compute_cache':None}):
     # override Virtual solver
         ultra_constr = strategy['ultra_constr']
         fixed_params = strategy['fixed_params']
         fixed_brlen = strategy['fixed_brlen']
-        nllh,status = self.optimize('EM',initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_params=fixed_params,fixed_brlen=fixed_brlen)
+        compute_cache = strategy['compute_cache']
+        nllh,status = self.optimize('EM',initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_params=fixed_params,
+                                        fixed_brlen=fixed_brlen,compute_cache=compute_cache)
         score = None if nllh is None else -nllh
         return score,status
+    
+    def get_compute_cache(self):
+    # override Virtual solver
+        # run Estep with all node recomputed to make sure all values are up-to-date 
+        for tree in self.trees:
+            for node in tree.traverse_postorder():
+                node.mark_recompute = True
+        self.Estep()
+        # pull values to cache
+        cache_attrs = ['in_llh','out_llh','in_llh_edge','log_node_posterior','log_edge_posterior']
+        #cache_attrs = ['log_node_posterior']
+        full_cache = []
+        for tree in self.trees:
+            this_cache = {}
+            for node in tree.traverse_postorder():
+                if node.is_root():
+                    continue
+                if node.is_leaf():
+                    node.anchors = (node.label,node.label)
+                else:
+                    C = node.child_nodes()
+                    a = C[0].anchors[0]
+                    b = C[-1].anchors[0]
+                    node.anchors = (a,b)
+                this_cache[node.anchors] = {}    
+                node_dict = node.__dict__
+                for attr in cache_attrs:  
+                    if attr in node_dict:
+                        this_cache[node.anchors][attr] = deepcopy(node_dict[attr])
+                        #for x in node_dict[attr]:
+                        #    this_cache[node.anchors][attr].append(deepcopy(x))
+            full_cache.append(this_cache)
+        #for x in 'a','b','c','d':
+        #    print('send',x,full_cache[0][(x,x)]['log_node_posterior'])
+        return full_cache        
     
     def ultrametric_constr(self,local_brlen_opt=True):
         N = self.num_edges#-self.num_polytomy_mark
@@ -196,13 +234,16 @@ class Base_model(Virtual_solver):
         root_state = tuple([0]*self.data['DLT_data'].J)
         for tree in self.trees:
             for node in tree.traverse_postorder():
-                node.in_llh = [{} for _ in range(K)] # a list of dictionaries
+                if node.mark_recompute:
+                    node.in_llh = [{} for _ in range(K)] # a list of dictionaries
         
         total_llh = 0
         for k in range(K):
             allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
             for tree in self.trees:
                 for node in tree.traverse_postorder():
+                    if not node.mark_recompute:
+                        continue
                     if node.is_leaf():
                         c = DLT_data.get(node.label,k)
                         for x in allele_list: 
@@ -245,7 +286,7 @@ class Base_model(Virtual_solver):
         # of all available data modules
         return -self.llh_DLT_data()
 
-    def optimize(self,solver,initials=20,fixed_brlen=None,fixed_params={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False,**solver_opts):
+    def optimize(self,solver,initials=20,fixed_brlen=None,compute_cache=None,fixed_params={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False,**solver_opts):
     # solver can either be "Scipy" or "EM"
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
@@ -281,8 +322,20 @@ class Base_model(Virtual_solver):
                 randseed = rseeds[rep] + all_trials
                 if verbose >= 0:
                     print("Initial point " + str(rep+1) + ". Random seed: " + str(randseed))
+
+                # read in compute_cache
+                if compute_cache is not None:
+                    #for x in 'a','b','c','d':
+                    #    print('received',x,compute_cache[0][(x,x)]['log_node_posterior'])
+                    for t,tree in enumerate(self.trees):
+                        cache_nodes = find_LCAs(tree,list(compute_cache[t].keys()))
+                        for i,(a,b) in enumerate(compute_cache[t]):
+                            u = cache_nodes[i]
+                            for attr in compute_cache[t][(a,b)]:
+                                setattr(u, attr, compute_cache[t][(a,b)][attr])
+                
                 # read in fixed_brlen and mark the tree nodes
-                for t,tree in enumerate(self.trees):
+                '''for t,tree in enumerate(self.trees):
                     for node in tree.traverse_postorder():
                         node.mark_fixed=False
                     if fixed_brlen is None:
@@ -291,7 +344,24 @@ class Base_model(Virtual_solver):
                     for i,(a,b) in enumerate(fixed_brlen[t]):
                         u = fixed_nodes[i]
                         u.edge_length = fixed_brlen[t][(a,b)]
-                        u.mark_fixed = True
+                        u.mark_fixed = True'''
+                #if compute_cache is not None:
+                #    print('compute_cache',compute_cache[0][('b','b')])
+                for t,tree in enumerate(self.trees):
+                    for node in tree.traverse_postorder():
+                        node.mark_fixed=False
+                    if fixed_brlen is not None:
+                        fixed_nodes = find_LCAs(tree,list(fixed_brlen[t].keys()))        
+                        for i,(a,b) in enumerate(fixed_brlen[t]):
+                            u = fixed_nodes[i]
+                            u.edge_length = fixed_brlen[t][(a,b)]
+                            u.mark_fixed = True
+                    # mark the nodes that will need to be recomputed
+                    for node in tree.traverse_postorder():
+                        node.mark_recompute = (not node.mark_fixed) or (compute_cache is None)
+                        for c_node in node.children:
+                            node.mark_recompute = node.mark_recompute or c_node.mark_recompute
+                
                 if solver == 'Scipy':
                     scipy_options = solver_opts if solver_opts else DEFAULT_scipy_options
                     scipy_options['disp'] = (verbose>0)
@@ -344,13 +414,16 @@ class Base_model(Virtual_solver):
         
         for tree in self.trees:
             for node in tree.traverse_preorder():
-                node.out_llh = [{} for _ in range(K)] # a list of dictionaries
-                node.in_llh_edge = [{} for _ in range(K)] # a list of dictionaries
+                if node.mark_recompute:
+                    node.out_llh = [{} for _ in range(K)] # a list of dictionaries
+                    node.in_llh_edge = [{} for _ in range(K)] # a list of dictionaries
 
         for k in range(K):
             allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
             for tree in self.trees:
                 for node in tree.traverse_preorder():
+                    if not node.mark_recompute:
+                        continue
                     if node.is_root():
                         node.out_llh[k][root_state] = 0
                     elif node.parent.is_root():
@@ -405,13 +478,16 @@ class Base_model(Virtual_solver):
         
         for tree in self.trees:
             for node in tree.traverse_preorder():
-                node.log_node_posterior = [{} for _ in range(K)] # a list of dictionaries
-                node.log_edge_posterior = [{} for _ in range(K)] # a list of dictionaries
+                if node.mark_recompute:
+                    node.log_node_posterior = [{} for _ in range(K)] # a list of dictionaries
+                    node.log_edge_posterior = [{} for _ in range(K)] # a list of dictionaries
 
         for k in range(K):
             allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
             for tree in self.trees:
                 for node in tree.traverse_preorder():
+                    if not node.mark_recompute:
+                        continue
                     if node.is_root():
                         node.log_node_posterior[k][root_state] = 0
                     else:

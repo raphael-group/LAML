@@ -9,11 +9,13 @@ from laml_libs.Utils.lca_lib import find_LCAs
 
 class Topology_search:
     def __init__(self,treeTopoList,solver,data={},prior={},params={},T_cooldown=20,alpha_cooldown=0.9):
-        self.treeTopoList = treeTopoList # treeTopoList is a newick string
+        self.treeTopoList = treeTopoList # treeTopoList is a list of newick strings
         self.solver = solver     # solver is a solver definition
         self.params = params   
         self.data = data
-        self.prior = prior        
+        self.prior = prior
+        #self.compute_cache = [{} for _ in range(len(self.treeTopoList))]
+        self.compute_cache = None
         self.__renew_treeList_obj()
         # identify polytomies
         self.has_polytomy = False
@@ -40,9 +42,14 @@ class Topology_search:
     def get_solver(self):
         return self.solver(self.treeTopoList,self.data,self.prior,self.params)
                 
-    def update_from_solver(self,mySolver):
+    def update_from_solver(self,mySolver,collect_cache=True):
         self.treeTopoList = mySolver.get_tree_newick()
         self.params = mySolver.get_params()
+        if collect_cache:
+            self.compute_cache = mySolver.get_compute_cache()
+        else:    
+            self.compute_cache = None
+            #self.compute_cache = [{} for _ in range(len(self.treeTopoList))]
 
     def __mark_polytomies(self,eps_len=1e-3):
         # mark and resolve all polytomies in self.treeList_obj
@@ -93,7 +100,7 @@ class Topology_search:
                     score_tree_strategy = deepcopy(strategy)
                     score_tree_strategy['fixed_brlen'] = None
                     score,status = mySolver.score_tree(strategy=score_tree_strategy)
-                    self.update_from_solver(mySolver)
+                    self.update_from_solver(mySolver,collect_cache=True)
                     trees = self.treeTopoList
                     params = self.params
             else:    
@@ -112,7 +119,7 @@ class Topology_search:
             score_tree_strategy = deepcopy(strategy)
             score_tree_strategy['fixed_brlen'] = None
             score,status = mySolver.score_tree(strategy=score_tree_strategy)
-            self.update_from_solver(mySolver)
+            self.update_from_solver(mySolver,collect_cache=True)
             trees = self.treeTopoList
             params = self.params
             if verbose:
@@ -140,7 +147,7 @@ class Topology_search:
                 print("Initial score (polytomies were arbitrarily resolved): " + str(curr_score))
             else:
                 print("Initial score: " + str(curr_score))
-        self.update_from_solver(mySolver)
+        self.update_from_solver(mySolver,collect_cache=True)
         best_score = curr_score
         best_trees = self.treeTopoList
         best_params = self.params 
@@ -233,6 +240,7 @@ class Topology_search:
                 for i,node in enumerate(B):
                     fixed_brlen[t][fixed_branches_anchors[t][i]] = node.edge_length
             score_tree_strategy['fixed_brlen'] = fixed_brlen
+            score_tree_strategy['compute_cache'] = self.compute_cache
 
         for u_child in u_children:
             u_child.set_parent(v)
@@ -247,12 +255,13 @@ class Topology_search:
             new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
             
             if status != "optimal" and strategy['local_brlen_opt']: # couldn't optimize, probably due to 'local_brlen_opt'
+                print("couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...")
                 score_tree_strategy['fixed_brlen'] = None # remove 'local_brlen_opt' and try again
                 mySolver = self.solver([tree.newick() for tree in self.treeList_obj],self.data,self.prior,self.params)            
                 new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
             
             if self.accept_proposal(curr_score,new_score,nni_iter): # accept the new tree and params                
-                self.update_from_solver(mySolver)
+                self.update_from_solver(mySolver,collect_cache=True)
                 return True,new_score
             
             # Score doesn't improve --> reverse to the previous state

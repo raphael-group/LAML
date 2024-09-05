@@ -35,7 +35,7 @@ class Topology_search_parallel(Topology_search):
                         w.set_parent(u)
                         v.remove_child(w)
                         u.add_child(w)
-                        self.update_from_solver(nni_result['mySolver'])
+                        self.update_from_solver(nni_result['mySolver'],collect_cache=False)
                         self.treeList_obj = nni_result['treeList_obj']
                         took = True
                         break

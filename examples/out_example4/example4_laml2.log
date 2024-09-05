@@ -1,0 +1,438 @@
+Launching LAML version 0.0.4
+LAML was called as follows: run_laml2.py -c examples/example4/c30_noise0.12_rep9.msa.txt -t examples/example4/c30_noise0.12_rep9.nj_tree.nwk -p examples/example4/c30_noise0.12_rep9.prior.csv -v --nInitials 1 -o example4_laml2 --noSilence --topology_search
+No polytomy detected.
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Initial score: -3461.169116350081
+NNI Iter: 0
+Number of trees checked 2
+Runtime (s): 5.444961582999994
+Current score: -3459.754697231513
+NNI Iter: 1
+Number of trees checked 4
+Runtime (s): 8.390023416000005
+Current score: -3460.2672150442977
+NNI Iter: 2
+Number of trees checked 6
+Runtime (s): 11.426671917000007
+Current score: -3460.3005688392514
+NNI Iter: 3
+Number of trees checked 2
+Runtime (s): 5.47256433299998
+Current score: -3460.287238385791
+NNI Iter: 4
+Number of trees checked 6
+Runtime (s): 12.043384542000013
+Current score: -3460.2637238628618
+NNI Iter: 5
+Number of trees checked 8
+Runtime (s): 16.430811583999997
+Current score: -3460.3451307663927
+NNI Iter: 6
+Number of trees checked 4
+Runtime (s): 9.85176395900001
+Current score: -3460.2714674223794
+NNI Iter: 7
+Number of trees checked 2
+Runtime (s): 6.253351582999983
+Current score: -3460.3163151322924
+NNI Iter: 8
+Number of trees checked 2
+Runtime (s): 6.543808250000012
+Current score: -3460.3398294866215
+NNI Iter: 9
+Number of trees checked 2
+Runtime (s): 5.886448707999989
+Current score: -3460.3261138055996
+NNI Iter: 10
+Number of trees checked 2
+Runtime (s): 6.731730249999998
+Current score: -3460.3286321587298
+NNI Iter: 11
+Number of trees checked 2
+Runtime (s): 5.349323499999997
+Current score: -3457.5962158228344
+NNI Iter: 12
+Number of trees checked 2
+Runtime (s): 5.121149750000001
+Current score: -3457.5583818844275
+NNI Iter: 13
+Number of trees checked 2
+Runtime (s): 5.314283541999998
+Current score: -3457.5632958800547
+NNI Iter: 14
+Number of trees checked 8
+Runtime (s): 13.536475292000006
+Current score: -3457.53379891141
+NNI Iter: 15
+Number of trees checked 6
+Runtime (s): 13.974623792000017
+Current score: -3457.5469558550067
+NNI Iter: 16
+Number of trees checked 2
+Runtime (s): 9.462954541999977
+Current score: -3455.6194188202626
+NNI Iter: 17
+Number of trees checked 4
+Runtime (s): 6.986360999999988
+Current score: -3455.6489205940306
+NNI Iter: 18
+Number of trees checked 8
+Runtime (s): 13.821862082999985
+Current score: -3455.6944073070727
+NNI Iter: 19
+Number of trees checked 8
+Runtime (s): 12.44233187499998
+Current score: -3455.7128817491857
+NNI Iter: 20
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 28
+Runtime (s): 697.879633708
+Current score: -3455.60591766667
+NNI Iter: 21
+Number of trees checked 4
+Runtime (s): 7.47978312500004
+Current score: -3455.603510735051
+NNI Iter: 22
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 4
+Runtime (s): 174.04799125
+Current score: -3454.993815181094
+NNI Iter: 23
+Number of trees checked 10
+Runtime (s): 18.30357162500013
+Current score: -3454.4714049483027
+NNI Iter: 24
+Number of trees checked 6
+Runtime (s): 11.126763374999882
+Current score: -3454.4419031743237
+NNI Iter: 25
+Number of trees checked 4
+Runtime (s): 7.170701750000035
+Current score: -3454.423428715489
+NNI Iter: 26
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 4
+Runtime (s): 83.88762945799999
+Current score: -3453.624232690867
+NNI Iter: 27
+Number of trees checked 4
+Runtime (s): 8.117733042000054
+Current score: -3452.293560692588
+NNI Iter: 28
+Number of trees checked 2
+Runtime (s): 5.501013917000137
+Current score: -3450.1613306175864
+NNI Iter: 29
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 6
+Runtime (s): 91.19695454200019
+Current score: -3450.0959222734814
+NNI Iter: 30
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 6
+Runtime (s): 195.48301199999992
+Current score: -3449.1943748492185
+NNI Iter: 31
+Number of trees checked 12
+Runtime (s): 17.627213166000047
+Current score: -3444.0979323908737
+NNI Iter: 32
+Number of trees checked 2
+Runtime (s): 5.766160500000069
+Current score: -3444.076037074535
+NNI Iter: 33
+Number of trees checked 4
+Runtime (s): 10.160130790999801
+Current score: -3444.0671986260204
+NNI Iter: 34
+Number of trees checked 20
+Runtime (s): 39.03791100000012
+Current score: -3443.828181096681
+NNI Iter: 35
+Number of trees checked 18
+Runtime (s): 23.054911665999953
+Current score: -3443.82531180655
+NNI Iter: 36
+Number of trees checked 2
+Runtime (s): 5.392876500000057
+Current score: -3443.7859401765454
+NNI Iter: 37
+Number of trees checked 10
+Runtime (s): 18.543042209000077
+Current score: -3443.7736226213046
+NNI Iter: 38
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 8
+Runtime (s): 199.19640416700008
+Current score: -3441.693015586641
+NNI Iter: 39
+Number of trees checked 2
+Runtime (s): 5.938832957999921
+Current score: -3441.646612466206
+NNI Iter: 40
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 8
+Runtime (s): 85.185490459
+Current score: -3441.499858248046
+NNI Iter: 41
+Number of trees checked 2
+Runtime (s): 5.336995791999925
+Current score: -3441.378885712353
+NNI Iter: 42
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 18
+Runtime (s): 182.26104420800016
+Current score: -3441.357895158348
+NNI Iter: 43
+Number of trees checked 2
+Runtime (s): 5.269184332999885
+Current score: -3441.3220793042788
+NNI Iter: 44
+Number of trees checked 16
+Runtime (s): 27.27383033299975
+Current score: -3439.2981113488618
+NNI Iter: 45
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 16
+Runtime (s): 91.54801837500008
+Current score: -3439.2967103354454
+NNI Iter: 46
+Number of trees checked 18
+Runtime (s): 31.151274666999598
+Current score: -3439.273141740501
+NNI Iter: 47
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 16
+Runtime (s): 348.36866933400006
+Current score: -3437.706254657578
+NNI Iter: 48
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 14
+Runtime (s): 187.3674639589999
+Current score: -3434.3306445741205
+NNI Iter: 49
+Number of trees checked 36
+Runtime (s): 55.75854462500001
+Current score: -3434.1057765068185
+NNI Iter: 50
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 6
+Runtime (s): 196.76095850000002
+Current score: -3434.0459822405733
+NNI Iter: 51
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 34
+Runtime (s): 357.2999696249999
+Current score: -3434.0420093367443
+NNI Iter: 52
+Number of trees checked 4
+Runtime (s): 10.527733333000015
+Current score: -3433.9404159236988
+NNI Iter: 53
+Number of trees checked 8
+Runtime (s): 10.883562124999571
+Current score: -3433.907777107331
+NNI Iter: 54
+Number of trees checked 32
+Runtime (s): 38.16647479199992
+Current score: -3433.817429438198
+NNI Iter: 55
+Number of trees checked 20
+Runtime (s): 23.246082957999988
+Current score: -3433.7979800114163
+NNI Iter: 56
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 8
+Runtime (s): 209.62690808299976
+Current score: -3429.5722650251823
+NNI Iter: 57
+Number of trees checked 18
+Runtime (s): 27.94313125000008
+Current score: -3429.5324673985288
+NNI Iter: 58
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 40
+Runtime (s): 285.06288266699994
+Current score: -3428.8631226544244
+NNI Iter: 59
+Number of trees checked 18
+Runtime (s): 27.315506082999946
+Current score: -3428.84681765344
+NNI Iter: 60
+Number of trees checked 6
+Runtime (s): 10.485691709000093
+Current score: -3428.836868407527
+NNI Iter: 61
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 16
+Runtime (s): 199.46202166700004
+Current score: -3428.803875506903
+NNI Iter: 62
+Number of trees checked 26
+Runtime (s): 48.91610308300005
+Current score: -3428.6799321747385
+NNI Iter: 63
+Number of trees checked 2
+Runtime (s): 9.230718333999903
+Current score: -3428.679836975986
+NNI Iter: 64
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 26
+Runtime (s): 223.27852529099982
+Current score: -3425.470952181268
+NNI Iter: 65
+Number of trees checked 8
+Runtime (s): 11.637285750000046
+Current score: -3425.397465406644
+NNI Iter: 66
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 44
+Runtime (s): 235.71542000000045
+Current score: -3425.3581984824505
+NNI Iter: 67
+Number of trees checked 16
+Runtime (s): 30.99183350000021
+Current score: -3425.323329409094
+NNI Iter: 68
+Number of trees checked 20
+Runtime (s): 25.2952196669994
+Current score: -3425.307559545388
+NNI Iter: 69
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 82
+Runtime (s): 278.55362816700017
+Current score: -3425.287952207938
+NNI Iter: 70
+Number of trees checked 14
+Runtime (s): 22.10487191700031
+Current score: -3425.266972053756
+NNI Iter: 71
+Number of trees checked 2
+Runtime (s): 6.3518739170003755
+Current score: -3424.9905379982274
+NNI Iter: 72
+Number of trees checked 4
+Runtime (s): 9.567843916999664
+Current score: -3424.9383026849473
+NNI Iter: 73
+Number of trees checked 4
+Runtime (s): 10.022402667000279
+Current score: -3424.9079746860652
+NNI Iter: 74
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 30
+Runtime (s): 225.86360816599972
+Current score: -3424.6755794466903
+NNI Iter: 75
+Number of trees checked 12
+Runtime (s): 22.359267333999924
+Current score: -3424.6294637787682
+NNI Iter: 76
+Number of trees checked 28
+Runtime (s): 42.07644424999944
+Current score: -3424.6144482295404
+NNI Iter: 77
+Number of trees checked 24
+Runtime (s): 36.59882899999957
+Current score: -3424.5735913902286
+NNI Iter: 78
+Number of trees checked 2
+Runtime (s): 5.354341834000479
+Current score: -3424.559248602329
+NNI Iter: 79
+Number of trees checked 10
+Runtime (s): 16.163675916000102
+Current score: -3424.524457194091
+NNI Iter: 80
+Number of trees checked 2
+Runtime (s): 6.930845417000455
+Current score: -3420.4049072755424
+NNI Iter: 81
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 22
+Runtime (s): 212.146106917
+Current score: -3420.2064123551
+NNI Iter: 82
+Number of trees checked 8
+Runtime (s): 16.074529833999804
+Current score: -3420.165046848089
+NNI Iter: 83
+Number of trees checked 18
+Runtime (s): 37.29613833300027
+Current score: -3419.943742280784
+NNI Iter: 84
+Number of trees checked 2
+Runtime (s): 9.377495167000234
+Current score: -3419.469162223123
+NNI Iter: 85
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 50
+Runtime (s): 395.35042562499984
+Current score: -3419.456988037839
+NNI Iter: 86
+Number of trees checked 10
+Runtime (s): 22.356098875000498
+Current score: -3419.370163793957
+NNI Iter: 87
+Number of trees checked 10
+Runtime (s): 13.845595583000431
+Current score: -3412.2525267378423
+NNI Iter: 88
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 46
+Runtime (s): 212.98836833399946
+Current score: -3412.247053088413
+NNI Iter: 89
+Number of trees checked 10
+Runtime (s): 15.760176791000049
+Current score: -3412.2337929478276
+NNI Iter: 90
+Number of trees checked 24
+Runtime (s): 44.47788475000016
+Current score: -3412.2149328725914
+NNI Iter: 91
+Number of trees checked 36
+Runtime (s): 62.71446520799964
+Current score: -3412.1958111818367
+NNI Iter: 92
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 124
+Runtime (s): 504.38036012500015
+Current score: -3412.1822719128527
+NNI Iter: 93
+Number of trees checked 42
+Runtime (s): 70.87796666600025
+Current score: -3412.1756476156243
+NNI Iter: 94
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 56
+Runtime (s): 247.94508487500025
+Current score: -3412.159328599192
+NNI Iter: 95
+Number of trees checked 28
+Runtime (s): 51.27847683299933
+Current score: -3412.1582940035896
+NNI Iter: 96
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 196
+Runtime (s): 999.6928560420001
+None of the NNI neighbor trees was accepted. Stop NNI search
+Best score for this search: -3412.1582940035896
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -3411.9456430811656
+Tree height pre-scaling: 1.1372270279424783, input timescale: 1.0
+Tree height after scaling: 0.9999999999999998
+Runtime (s): 8577.367947125
