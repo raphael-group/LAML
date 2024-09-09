@@ -6,7 +6,9 @@ class CharMtrx:
     # alphabet: an instance of class Alphabet; must have the same K and J
         self.K = alphabet.K
         self.J = alphabet.J
-        if self.J == 1:
+        self.alphabet = alphabet
+        
+        if self.J == 1: # may need to correct the cassette states to be tuples, not single values
             data_struct_corrected = {}
             for c in data_struct:
                 seq = []
@@ -19,7 +21,6 @@ class CharMtrx:
             self.data_struct = data_struct_corrected
         else:
             self.data_struct = data_struct    
-        self.alphabet = alphabet
        
     def get_cell_names(self):
         return self.data_struct.keys()   

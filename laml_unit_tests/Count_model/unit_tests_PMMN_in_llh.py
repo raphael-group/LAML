@@ -411,7 +411,7 @@ class PMMNTest_in_llh(VirtualUnitTest):
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_26 failed.")
     
     def test_27(self): 
-        # Testing with phi and missing data.
+        # Testing with phi and no missing data.
         charMtrx = {'a':[(1,)],'b':[(1,)]}
         Q = [[{1:1}]]
         T = "((a:1,b:1)ab:1)r;"

@@ -2,7 +2,7 @@ from random import random
 from laml_libs.Count_model.Alphabet import Alphabet 
 from laml_libs.Count_model.AlleleTable import AlleleTable
 
-def countgen(alphabet,chosen_state,silencing=False,maxcount=1000):
+def countgen_random(alphabet,chosen_state,silencing=False,maxcount=1000):
     # generates the UMI counts table for a cell, providing a mapping from cassette state to count
     M = len(alphabet)
     counts = [0]*M
@@ -22,6 +22,20 @@ def countgen(alphabet,chosen_state,silencing=False,maxcount=1000):
                 C[a] = m
     return C       
 
+def countgen_1(alphabet,chosen_state):
+    # generates the UMI counts table for a cell, providing a mapping from cassette state to count
+    M = len(alphabet)
+    C = {}    
+    for i,a in enumerate(alphabet):    
+        # indicates dropout
+        if chosen_state == ('?',):
+            C[a] = 0
+        elif a == chosen_state:
+            C[a] = 1
+        #else:
+        #    C[a] = 0    
+    return C       
+
 def charMtrx_2_alleleTable(charMtrx,alphabet):
     K = alphabet.K
     J = alphabet.J
@@ -29,7 +43,7 @@ def charMtrx_2_alleleTable(charMtrx,alphabet):
     for cell_name in charMtrx:
         counts = [{}]*K
         for k in range(K):
-            counts[k] = countgen(alphabet.get_cassette_alphabet(k),tuple([charMtrx[cell_name][k]]))
+            counts[k] = countgen_1(alphabet.get_cassette_alphabet(k),tuple([charMtrx[cell_name][k]]))
         data_struct[cell_name] = counts
-    allele_table = AlleleTable(K,J,data_struct,alphabet)
+    allele_table = AlleleTable(data_struct,alphabet)
     return allele_table
