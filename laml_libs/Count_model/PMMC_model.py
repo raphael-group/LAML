@@ -1,4 +1,4 @@
-from .Base_model import Base_model
+from .PMM_base_model import PMM_base_model
 from .AlleleTable import AlleleTable
 from .Param import Param
 from math import *
@@ -9,7 +9,7 @@ DEFAULT_max_mu = 10
 DEFAULT_max_nu = 1
 DEFAULT_min_rho = 0.5
 
-class PMMC_model(Base_model):
+class PMMC_model(PMM_base_model):
     # PMMC = probabilistic mixed-type missing with counts
     def __init__(self,treeList,data,prior,kw_params={}):
     # data is a dictionary; must have 'DLT_data' and data['DLT_data'] must be an instance of the AlleleTable class
@@ -20,30 +20,6 @@ class PMMC_model(Base_model):
         params = Param(['mu','nu','phi','rho'],[mu,nu,phi,rho],[0,0,0,DEFAULT_min_rho],[DEFAULT_max_mu,DEFAULT_max_nu,1,1])
         super(PMMC_model,self).__init__(treeList,data,prior,params)
     
-    def Psi(self,c_node,k,j,alpha,beta):
-        # Layer 1: transition probabilities  
-        # override the Base_model class
-        delta = c_node.edge_length
-        nu = self.params.get_value('nu')
-        if alpha == 0:
-            if beta == 0:
-                p = exp(-delta*(1+nu))
-            elif beta == -1:
-                p = 1-exp(-delta*nu)
-            else:
-                q = self.Q[k][j][beta]
-                p = q*exp(-delta*nu)*(1-exp(-delta))   
-        else:
-            if alpha == -1 and beta == -1:
-                p = 1
-            elif alpha == beta:
-                p = exp(-delta*nu)
-            elif beta == -1:
-                p = 1-exp(-delta*nu)
-            else:
-                p = 0        
-        return p
-
     def Gamma(self,k,x,c):
         # Layer 2: emission probabilities  
         # override the Base_model class

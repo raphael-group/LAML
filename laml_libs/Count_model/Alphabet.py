@@ -1,14 +1,19 @@
 from math import *
 
 class Alphabet():
-    def __init__(self,K,J,data_struct):
+    def __init__(self,K,J,data_struct,silence_mechanism='convolve'):
         self.K = K
         self.J = J
+        self.data_struct = data_struct
+        if silence_mechanism == 'separated':
+            self.J += 1
+            for DS in self.data_struct:
+                DS.append([0,-1]) # add one site to represent the silencing flag
+
         self.M = [] # store the length of all cassette's alphabets
         for k in range(K):
             M_k = prod([len(A) for A in data_struct[k]])
             self.M.append(M_k)
-        self.data_struct = data_struct # data_struct is a 3-way nested list
 
     def get_site_alphabet(self,k,j): # get the alphabet of site j of cassette k
         return set([x for x in self.data_struct[k][j]])

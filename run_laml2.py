@@ -29,6 +29,12 @@ class Logger(object):
         self.log.write(message)
     def flush(self):
         pass
+        
+def scale_trees_by_lambda(solver,Lambda): 
+    for tree in solver.trees:
+        for node in tree.traverse_preorder():
+            if node.edge_length is not None:
+                node.edge_length *= Lambda
 
 def main():
     parser = argparse.ArgumentParser()
@@ -57,6 +63,7 @@ def main():
     numericalOptions.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
     numericalOptions.add_argument("-L","--compute_llh",action='store_true',help="Compute log-likelihood of the input tree(s) in -t and the input params in -P (lambda,phi,nu,rho). Will NOT optimize branch lengths, lambda, phi, nu, or rho. The input tree(s) in -t MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
     numericalOptions.add_argument("--timescale",required=False,default=1.0,help="Experiment time. Scales the output tree height to this value. Default: 1.0.")
+    numericalOptions.add_argument("--fixedBrlens",action='store_true',help="Keep the branch lengths of the input trees (specified in -t) fixed and optimize other numerical parameters. Preferably the genome edit rate (lambda) should be specified via -P; if lambda is not given, assume lambda=1. This option does NOT work with --topology_search.")
     numericalOptions.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in single cell sequencing.")
     numericalOptions.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
     numericalOptions.add_argument("--noError",action='store_true',help="Assume there is no error in the input character matrix.")
@@ -117,13 +124,14 @@ def main():
         fixed_params['nu'] = 0
     if args["noError"]:
         fixed_params['rho'] = 1
-    
+    if args["fixedBrlens"]:
+        fixed_params["lambda"] = 1 # default value; will be overrided by args["fixedParams"] if lambda is specified there
+
     if args["fixedParams"]: # will override "noDropout", "noSilence", "noError" if 'phi', 'nu', or 'rho' presents in fixedParams`
         tokens = args["fixedParams"].strip().split()
         for token in tokens:
             key,value = token.strip().split("=")
             fixed_params[key] = float(value)
-        #fixed_lambda,fixed_phi,fixed_nu,fixed_rho = [float(x) for x in args["fixedParams"].split() if x else None]
 
     if args["randseeds"] is None:
         random_seeds = None
@@ -169,19 +177,19 @@ def main():
     #myTopoSearch = Topology_search(input_trees, selected_model, data=data, prior=prior, params=ini_params)
     myTopoSearch = Topology_search(input_trees, selected_model, data=data, prior=prior, params=fixed_params)
 
-
     if args["compute_llh"]:
         print("Computing the joint likelihood of the input trees and specified parameters without any optimization")
         mySolver = myTopoSearch.get_solver()
         # [hacking] rescale the input branch lengths by the specified lambda
-        fixed_lambda = fixed_params['lambda'] if 'lambda' in fixed_params else 1
-        for tree in mySolver.trees:
-            for node in tree.traverse_preorder():
-                if node.edge_length is not None:
-                    node.edge_length *= fixed_lambda
+        fixed_lambda = fixed_params['lambda'] #if 'lambda' in fixed_params else 1
+        scale_trees_by_lambda(mySolver,fixed_lambda) 
+        #for tree in mySolver.trees:
+        #    for node in tree.traverse_preorder():
+        #        if node.edge_length is not None:
+        #            node.edge_length *= fixed_lambda
         nllh = mySolver.negative_llh()
-        opt_trees = myTopoSearch.treeTopoList
-        opt_params = myTopoSearch.params
+        #opt_trees = myTopoSearch.treeTopoList
+        #opt_params = myTopoSearch.params
         print("Tree negative log-likelihood: " + str(nllh))
         print("Tree log-likelihood: " + str(-nllh))
     else:
@@ -198,9 +206,16 @@ def main():
 
         # full search or local search to only resolve polytomies? 
         if not args["resolve_search"] and not args["topology_search"]:
-            print("Optimizing branch lengths, phi, and nu without topology search")
             mySolver = myTopoSearch.get_solver()
-            nllh = mySolver.optimize('EM',initials=args["nInitials"],fixed_params=fixed_params,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True)
+            fixed_brlen = "All" if args["fixedBrlens"] else None
+            if args["fixedBrlens"]:
+                print("Fixing branch lengths to the given values and optimizing other numerical parameters without topology search")
+                # [hacking] rescale the input branch lengths by the specified lambda
+                fixed_lambda = fixed_params['lambda'] #if 'lambda' in fixed_params else 1
+                scale_trees_by_lambda(mySolver,fixed_lambda) 
+            else:    
+                print("Optimizing branch lengths and other numerical parameters without topology search")
+            nllh = mySolver.optimize('EM',initials=args["nInitials"],fixed_params=fixed_params,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True,fixed_brlen=fixed_brlen)
             myTopoSearch.update_from_solver(mySolver)
             opt_trees = myTopoSearch.treeTopoList
             opt_params = myTopoSearch.params

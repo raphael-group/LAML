@@ -6,6 +6,7 @@ import warnings
 import numpy as np
 from laml_libs import *
 from .Virtual_solver import Virtual_solver
+from .Mstep_solver import *
 from scipy.sparse import csr_matrix
 from copy import deepcopy
 from laml_libs.Utils.lca_lib import find_LCAs
@@ -18,9 +19,11 @@ import cvxpy as cp
 
 class Base_model(Virtual_solver):
     def __init__(self,treeList,data,prior,params):
-    # params in an instance of the Param class
-    # data is a dictionary of multiple data modules; it MUST have 'DLT_data'
-    # this base class only uses DLT_data, but any derived class can add more attributes for joint likelihood computation
+    # `params` is an instance of the Param class
+    # `data` is a dictionary of multiple data modules; it MUST have 'DLT_data'
+    # this base class only uses `DLT_data` of `data`, but a derived class can use more attributes for joint likelihood computation
+    # `prior` contains hyper-parameters and information about model variations (e.g. silencing mechanism)
+    # this base class uses `Q` and `silence_mechanism` of `prior`, but a derived class can use more depending on the model
         self.data = data
         self.num_cassettes = data['DLT_data'].K
         self.site_per_cassette = data['DLT_data'].J
@@ -38,6 +41,11 @@ class Base_model(Virtual_solver):
             for node in tree_obj.traverse_postorder():
                 node.mark_recompute = True
             self.trees.append(tree_obj)
+
+        # get silence_mechanism; default to 'convolve'
+        self.silence_mechanism = 'convolve'
+        if 'silence_mechanism' in prior:
+            self.silence_mechanism = prior['silence_mechanism'] # should be one of {'convolve','separated'}
 
         # normalize Q
         Q = prior['Q']
@@ -228,7 +236,7 @@ class Base_model(Virtual_solver):
         return 1
 
     def llh_DLT_data(self):
-        # compute the log-likelihood of the allele table
+        # compute the log-likelihood of the dynamic lineage tracing (DLT) data (e.g. character matrix, allele table)
         K = self.data['DLT_data'].K
         DLT_data = self.data['DLT_data']
         root_state = tuple([0]*self.data['DLT_data'].J)
@@ -290,7 +298,10 @@ class Base_model(Virtual_solver):
     # solver can either be "Scipy" or "EM"
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
     # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
-    # fixed_brlen is a list of t dictionaries, where t is the number of trees in self.trees, each maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed
+    # fixed_brlen can be one of the followings:
+        # 1. None: don't fix any branch length
+        # 2. (str) "All": fix all branch lengths to the current value. Assume without checking that solver.trees have (valid) branch lengths
+        # 3. a list of t dictionaries where t is the number of trees in self.trees. Each dictionay fixed_brlen[t] maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed
     # fixed_params is a dictionary mapping a param's name to the value we wish to fix it to
         results = []
         all_failed = True
@@ -325,8 +336,6 @@ class Base_model(Virtual_solver):
 
                 # read in compute_cache
                 if compute_cache is not None:
-                    #for x in 'a','b','c','d':
-                    #    print('received',x,compute_cache[0][(x,x)]['log_node_posterior'])
                     for t,tree in enumerate(self.trees):
                         cache_nodes = find_LCAs(tree,list(compute_cache[t].keys()))
                         for i,(a,b) in enumerate(compute_cache[t]):
@@ -335,21 +344,12 @@ class Base_model(Virtual_solver):
                                 setattr(u, attr, compute_cache[t][(a,b)][attr])
                 
                 # read in fixed_brlen and mark the tree nodes
-                '''for t,tree in enumerate(self.trees):
-                    for node in tree.traverse_postorder():
-                        node.mark_fixed=False
-                    if fixed_brlen is None:
-                        continue
-                    fixed_nodes = find_LCAs(tree,list(fixed_brlen[t].keys()))        
-                    for i,(a,b) in enumerate(fixed_brlen[t]):
-                        u = fixed_nodes[i]
-                        u.edge_length = fixed_brlen[t][(a,b)]
-                        u.mark_fixed = True'''
-                #if compute_cache is not None:
-                #    print('compute_cache',compute_cache[0][('b','b')])
                 for t,tree in enumerate(self.trees):
+                    # initialization
                     for node in tree.traverse_postorder():
-                        node.mark_fixed=False
+                        node.mark_fixed = (fixed_brlen == 'All' and not node.is_root())
+                    if fixed_brlen == 'All': # the above piece of code should have set all mark_fixed flags to True
+                        continue    
                     if fixed_brlen is not None:
                         fixed_nodes = find_LCAs(tree,list(fixed_brlen[t].keys()))        
                         for i,(a,b) in enumerate(fixed_brlen[t]):
@@ -361,13 +361,14 @@ class Base_model(Virtual_solver):
                         node.mark_recompute = (not node.mark_fixed) or (compute_cache is None)
                         for c_node in node.children:
                             node.mark_recompute = node.mark_recompute or c_node.mark_recompute
-                
+               
+                # NOTE: the solvers will use the flags "mark_fixed" and "mark_recompute" decorated on the tree nodes
+                # Be careful: don't modify these flags while doing the computation/optimization inside the solver!
                 if solver == 'Scipy':
                     scipy_options = solver_opts if solver_opts else DEFAULT_scipy_options
                     scipy_options['disp'] = (verbose>0)
                     nllh,status = self.scipy_optimization(randseed,fixed_params=fixed_params,ultra_constr=ultra_constr,scipy_options=scipy_options)
                 else:
-                    #EM_options = solver_opts if solver_opts else DEFAULT_EM_options
                     EM_options = {}
                     for opts in DEFAULT_EM_options:
                         EM_options[opts] = DEFAULT_EM_options[opts]
@@ -383,7 +384,7 @@ class Base_model(Virtual_solver):
                     processed_trees = []
                     for tree in self.trees:
                         tree_copy = read_tree_newick(tree.newick())
-                        tree_copy.collapse_short_branches(self.dmin*0.01)
+                        tree_copy.collapse_short_branches(self.dmin*0.01) ##### HACKING: using a hard-code for now #####
                         processed_trees.append(tree_copy.newick())
                     results.append((nllh,rep,deepcopy(self.params),processed_trees,status))
                 elif verbose >= 0:
@@ -531,7 +532,38 @@ class Base_model(Virtual_solver):
         # MUST be overrided in any derived class!
         return False # this function should never be called, so this line should never be reached!
 
-    def Mstep(self,fixed_params={},verbose=1,local_brlen_opt=True,ultra_constr_cache=None,eps_nu=1e-5,eps_s=1e-6):
+    def Mstep(self,fixed_params={},verbose=1,local_brlen_opt=True,ultra_constr_cache=None):
+        # assume that Estep has been performed so that all nodes have S0-S4 attributes
+        # output: optimize all parameters: branch lengths, phi, and nu
+        # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
+        
+        # setup and call a Mstep_solver
+        selected_solver = Mstep_PMMconv if self.silence_mechanism == "convolve" else Mstep_PMMsep
+        my_Mstep_solver = selected_solver(self,ultra_constr_cache=ultra_constr_cache,local_brlen_opt=local_brlen_opt,nIters=1)
+        d_star,status_d,nu_star,status_nu = my_Mstep_solver.solve(fixed_params=fixed_params,verbose=verbose)
+
+        # place the optimal value back to params
+        if status_nu in ["optimal","UNKNOWN"]:
+            self.params.set_value('nu',nu_star)
+        if status_d in ["optimal","UNKNOWN","fixed"]:
+            i = 0
+            for tree in self.trees:
+                for node in tree.traverse_postorder():
+                    if not node.is_root() and not (node.mark_fixed and local_brlen_opt):   
+                        node.edge_length = d_star[i]
+                        i += 1
+        success = (status_d in ["fixed","optimal","UNKNOWN"] and status_nu in ["optimal","UNKNOWN"])
+        if success:
+            status = "optimal"
+        else:
+            status = ""
+            if status_d != "optimal":
+                status += "failed_d"
+            if status_nu != "optimal":
+                status = ",failed_nu"
+        return success, status
+
+    def Mstep_old(self,fixed_params={},verbose=1,local_brlen_opt=True,ultra_constr_cache=None,eps_nu=1e-5,eps_s=1e-6):
         # assume that Estep has been performed so that all nodes have S0-S4 attributes
         # output: optimize all parameters: branch lengths, phi, and nu
         # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
@@ -545,10 +577,11 @@ class Base_model(Virtual_solver):
         if local_brlen_opt:
             for tree in self.trees:
                 N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
-        A = np.zeros(N)
-        B = np.zeros(N)
-        C = np.zeros(N)
-        D = np.zeros(N)
+        C_z2z = np.zeros(N)
+        C_z2a = np.zeros(N)
+        C_a2a = np.zeros(N)
+        C_za2s = np.zeros(N)
+        
         d_ini = np.zeros(N)
         i = 0
         for tree in self.trees:
@@ -558,24 +591,18 @@ class Base_model(Virtual_solver):
                         for x,y in v.log_edge_posterior[k]:
                             w = exp(v.log_edge_posterior[k][(x,y)])
                             for x_j,y_j in zip(x,y):
-                                z2z = (x_j == 0 and y_j == 0)
-                                z2a = (x_j == 0 and y_j != 0 and y_j != -1)
-                                a2a = (x_j == y_j and x_j != 0 and x_j != -1)
-                                za2s = (y_j == -1 and x_j != -1)
-
-                                A[i] += w*z2z
-                                B[i] += w*(z2a+a2a)
-                                C[i] += w*z2a
-                                D[i] += w*za2s
+                                C_z2z[i] += w*(x_j == 0 and y_j == 0)
+                                C_z2a[i] += w*(x_j == 0 and y_j != 0 and y_j != -1)
+                                C_a2a[i] += w*(x_j == y_j and x_j != 0 and x_j != -1)
+                                C_za2s[i] += w*(y_j == -1 and x_j != -1)
                     d_ini[i] = v.edge_length
                     i += 1
-       
         def __optimize_brlen(nu,verbose=False): # nu is a single number
             var_d = cp.Variable(N,nonneg=True) # the branch length variables
-            SA = -(nu+1)*A.T @ var_d
-            SB = -nu*B.T @ var_d
-            SC = C.T @ cp.log(1-cp.exp(-var_d))
-            SD = D.T @ cp.log(1-cp.exp(-nu*var_d)) if sum(D) > 0 and nu > eps_nu else 0
+            SA = -(nu+1)*C_z2z.T @ var_d
+            SB = -nu*(C_z2a+C_a2a).T @ var_d
+            SC = (C_z2a).T @ cp.log(1-cp.exp(-var_d))
+            SD = (C_za2s).T @ cp.log(1-cp.exp(-nu*var_d)) if sum(C_za2s) > 0 and nu > eps_nu else 0
             
             objective = cp.Maximize(SA+SB+SC+SD)
             constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax]             
@@ -588,9 +615,9 @@ class Base_model(Virtual_solver):
        
         def __optimize_nu(d,verbose=False): # d is a vector of all branch lengths
             var_nu = cp.Variable(1,nonneg=True) # the nu variable
-            SA = -(var_nu+1)*A.T @ d
-            SB = -var_nu*B.T @ d
-            SD = D.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(D) > 0 else 0
+            SA = -(var_nu+1)*(C_z2z).T @ d
+            SB = -var_nu*(C_z2a+C_a2a).T @ d
+            SD = C_za2s.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(C_za2s) > 0 else 0
             
             objective = cp.Maximize(SA+SB+SD)
             prob = cp.Problem(objective)
