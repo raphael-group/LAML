@@ -229,7 +229,7 @@ class Base_model(Virtual_solver):
                 break
         return log_trans_p
 
-    def Gamma(self,k,x,c):
+    def Gamma(self,k,x,c,node_name):
         # Layer 2 transition probabilities
         # A placeholder (i.e. non-informative model) for this function in the base class
         # MUST be overrided in any derived class!
@@ -255,7 +255,7 @@ class Base_model(Virtual_solver):
                     if node.is_leaf():
                         c = DLT_data.get(node.label,k)
                         for x in allele_list: 
-                            trans_p = self.Gamma(k,x,c) # transition probability
+                            trans_p = self.Gamma(k,x,c,node.label) # transition probability
                             if trans_p>0:
                                 node.in_llh[k][x] = log(trans_p)
                     else:   

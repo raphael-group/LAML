@@ -5,7 +5,9 @@ import laml_libs as laml
 from laml_libs.IO_handler.sequence_lib import read_sequences, read_priors
 from laml_libs.Count_model.Alphabet import Alphabet
 from laml_libs.Count_model.PMMN_model import PMMN_model
+from laml_libs.Count_model.PMMC_model import PMMC_model
 from laml_libs.Count_model.CharMtrx import CharMtrx
+from laml_libs.Count_model.AlleleTable import AlleleTable
 from laml_libs.TopoSearch.Topology_search import Topology_search
 from laml_libs.TopoSearch.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
 from laml_libs.TopoSearch.Topology_search import Topology_search as Topology_search_sequential
@@ -50,10 +52,11 @@ def main():
     # input arguments
     requiredNamed.add_argument("-t","--topology",required=True,help="[REQUIRED] The input tree topology in newick format. Branch lengths will be ignored.") 
     requiredNamed.add_argument("-c","--characters",required=True,help="[REQUIRED] The input character matrix. Must have header.")
-
     inputOptions.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
     inputOptions.add_argument("--delimiter",required=False,default="comma",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'comma'.")
     inputOptions.add_argument("-m","--missing_data",required=False,default="?",help="Missing data character. Default: if not specified, assumes '?'.")
+    inputOptions.add_argument("-y","--input_type",required=False,default="character_matrix",help="Input type. Default: if not specified, assumes 'character_matrix'.")
+    inputOptions.add_argument("-M","--model",required=False,default="PMMN",help="Statistical model. Default: if not specified, assumes 'PMMN'.")
     
     # output arguments
     outputOptions.add_argument("-o","--output",required=False,help="Output prefix. Default: LAML_output")
@@ -106,7 +109,21 @@ def main():
     # preprocessing: read and analyze input
     delim_map = {'tab':'\t','comma':',','whitespace':' '}
     delimiter = delim_map[args["delimiter"]]
-    charMtrx, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["missing_data"])
+
+    if args["input_type"] == "character_matrix":
+        charMtrx, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["missing_data"])
+        K = len(charMtrx[next(iter(charMtrx.keys()))])
+    elif args["input_type"] == "allele_counts":
+        alleleTable_data_struct, alphabet_data_struct = read_sequences(args["characters"],filetype="alleleTab",delimiter=delimiter,masked_symbol=args["missing_data"])
+        # this is the number of cassettes
+        K = len(alphabet_data_struct)
+    elif args["input_type"] == "observed_features":
+        charMtrx_data_struct, alphabet_data_struct = read_sequences(args["characters"],filetype="obsFeatures",delimiter=delimiter,masked_symbol=args["missing_data"])
+        K = len(alphabet_data_struct)
+    else:
+        print("Input type not understood.")
+        exit(0)
+
     #prefix = '.'.join(args["output"].split('.')[:-1])
 
 
@@ -115,7 +132,8 @@ def main():
         for line in f:
             input_trees.append(line.strip())
 
-    k = len(charMtrx[next(iter(charMtrx.keys()))])
+    #k = len(charMtrx[next(iter(charMtrx.keys()))])
+    #k = len(site_names)
     #if args["compute_llh"]:
     fixed_params = {}
     if args["noDropout"]:
@@ -140,36 +158,81 @@ def main():
         if args["nInitials"] != 1 and len(random_seeds) == 1:
             random_seeds = random_seeds[0]
 
+    #K = len(site_names) 
+    if args['input_type'] == "character_matrix":
+        J = 1
+        alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)])
+        charMtrx = CharMtrx(charMtrx,alphabet)
+        data = {'DLT_data':charMtrx} 
+    elif args['input_type'] == "allele_counts":
+        J = len(alphabet_data_struct[0])
+        alphabet = Alphabet(K,J,alphabet_data_struct)
+        DLT_data = AlleleTable(alleleTable_data_struct,alphabet)
+        data = {'DLT_data': DLT_data} 
+        # from json construct the AlleleTable object
+    elif args['input_type'] == "observed_features":
+        J = len(alphabet_data_struct[0])
+        alphabet = Alphabet(K,J,alphabet_data_struct)
+        DLT_data = CharMtrx(charMtrx_data_struct,alphabet)
+        data = {'DLT_data': DLT_data} 
+    
     if args["priors"] == "uniform":
         print("No prior file detected, using uniform prior probabilities for each alphabet on each site.")
-        # use the uniform Q matrix
-        Q = []
-        for i in range(k):
-            M_i = set(charMtrx[x][i] for x in charMtrx if charMtrx[x][i] not in [0,"?"])
-            # TODO: check if column has only zeros and missing data
-            if len(M_i) == 0: 
-                # add pseudo mutated state
-                m_i = 1
-                q = {"1":1.0}
-            else:
-                m_i = len(M_i)
-                q = {x:1/m_i for x in M_i}
-            q[0] = 0
-            Q.append(q)
+        if args['input_type'] == "character_matrix":
+            # use the uniform Q matrix
+            Q = []
+            for i in range(K):
+                M_i = set(charMtrx[x][i] for x in charMtrx if charMtrx[x][i] not in [0,"?"])
+                # TODO: check if column has only zeros and missing data
+                if len(M_i) == 0: 
+                    # add pseudo mutated state
+                    m_i = 1
+                    q = {"1":1.0}
+                else:
+                    m_i = len(M_i)
+                    q = {x:1/m_i for x in M_i}
+                q[0] = 0
+                Q.append(q)
+        else:
+            # use the uniform Q matrix
+            Q = []
+            for k in range(K):
+                Q_i = []
+                for j in range(J):
+                    M_i = alphabet.get_site_alphabet(k, j)
+                    if len(M_i) == 0: 
+                        # add pseudo mutated state
+                        m_i = 1
+                        q = {"1":1.0}
+                    else:
+                        m_i = len(M_i)
+                        q = {x:1/m_i for x in M_i}
+                    q[0] = 0
+                    Q_i.append(q)
+                Q.append(Q_i)
+                    
     else:
-        Q = read_priors(args["priors"],charMtrx,site_names=site_names)
-    
-    Q = [[Q_k] for Q_k in Q] #### temporary solution ####
-    K = len(charMtrx[next(iter(charMtrx.keys()))])
-    J = 1 ##### temporary hard code #####
-    alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)])
-    charMtrx = CharMtrx(charMtrx,alphabet)
+        if args['input_type'] == "character_matrix":
+            Q = read_priors(args["priors"],charMtrx,site_names=site_names)
+        else:
+            Q = read_priors(args["priors"],DLT_data) #,site_names=site_names)
 
-    selected_model = PMMN_model
+    #print("Q type", type(Q[0]))
+    #Q = [[Q_k] for Q_k in Q] #### temporary solution ####
+        
+    prior = {'Q':Q}  
+    #K = len(charMtrx[next(iter(charMtrx.keys()))])
+    #J = 1 ##### temporary hard code #####
+
+    if args['model'] == "PMMN":
+        selected_model = PMMN_model
+    elif args['model'] == "PMMC":
+        selected_model = PMMC_model
+    else:
+        print("Selected model not recognized.")
+        exit(0)
 
     # main tasks        
-    data = {'DLT_data':charMtrx} 
-    prior = {'Q':Q}  
     #ini_phi = 0 if fixed_phi is None else fixed_phi
     #ini_nu = 0 if fixed_nu is None else fixed_nu
     #ini_params = {'phi':0.1,'nu':0,'mu':1,'rho':1}
