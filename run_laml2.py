@@ -2,7 +2,7 @@
 import os
 import pickle
 import laml_libs as laml
-from laml_libs.IO_handler.sequence_lib import read_sequences, read_priors
+from laml_libs.IO_handler.sequence_lib import read_sequences, read_priors, read_emission
 from laml_libs.Count_model.Alphabet import Alphabet
 from laml_libs.Count_model.PMMN_model import PMMN_model
 from laml_libs.Count_model.PMMC_model import PMMC_model
@@ -53,6 +53,7 @@ def main():
     requiredNamed.add_argument("-t","--topology",required=True,help="[REQUIRED] The input tree topology in newick format. Branch lengths will be ignored.") 
     requiredNamed.add_argument("-c","--characters",required=True,help="[REQUIRED] The input character matrix. Must have header.")
     inputOptions.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
+    inputOptions.add_argument("-e","--emission",required=False, default="None", help="The input emission matrix Q. Default: if not specified, assume a single emission parameter 1-rho.")
     inputOptions.add_argument("--delimiter",required=False,default="comma",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'comma'.")
     inputOptions.add_argument("-m","--missing_data",required=False,default="?",help="Missing data character. Default: if not specified, assumes '?'.")
     inputOptions.add_argument("-y","--input_type",required=False,default="character_matrix",help="Input type. Default: if not specified, assumes 'character_matrix'.")
@@ -118,14 +119,16 @@ def main():
         # this is the number of cassettes
         K = len(alphabet_data_struct)
     elif args["input_type"] == "observed_features":
-        charMtrx_data_struct, alphabet_data_struct = read_sequences(args["characters"],filetype="obsFeatures",delimiter=delimiter,masked_symbol=args["missing_data"])
+        charMtrx_data_struct, alphabet_data_struct, emission_dict = read_sequences(args["characters"],filetype="obsFeatures",delimiter=delimiter,masked_symbol=args["missing_data"])
         K = len(alphabet_data_struct)
     else:
         print("Input type not understood.")
         exit(0)
 
-    #prefix = '.'.join(args["output"].split('.')[:-1])
+    if args["emission"]:
+        emission_dict = read_emission(args["emission"]) 
 
+    #prefix = '.'.join(args["output"].split('.')[:-1])
 
     with open(args["topology"],'r') as f:
         input_trees = []
@@ -158,23 +161,7 @@ def main():
         if args["nInitials"] != 1 and len(random_seeds) == 1:
             random_seeds = random_seeds[0]
 
-    #K = len(site_names) 
-    if args['input_type'] == "character_matrix":
-        J = 1
-        alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)])
-        charMtrx = CharMtrx(charMtrx,alphabet)
-        data = {'DLT_data':charMtrx} 
-    elif args['input_type'] == "allele_counts":
-        J = len(alphabet_data_struct[0])
-        alphabet = Alphabet(K,J,alphabet_data_struct)
-        DLT_data = AlleleTable(alleleTable_data_struct,alphabet)
-        data = {'DLT_data': DLT_data} 
-        # from json construct the AlleleTable object
-    elif args['input_type'] == "observed_features":
-        J = len(alphabet_data_struct[0])
-        alphabet = Alphabet(K,J,alphabet_data_struct)
-        DLT_data = CharMtrx(charMtrx_data_struct,alphabet)
-        data = {'DLT_data': DLT_data} 
+
     
     if args["priors"] == "uniform":
         print("No prior file detected, using uniform prior probabilities for each alphabet on each site.")
@@ -192,7 +179,7 @@ def main():
                     m_i = len(M_i)
                     q = {x:1/m_i for x in M_i}
                 q[0] = 0
-                Q.append(q)
+                Q.append([q])
         else:
             # use the uniform Q matrix
             Q = []
@@ -217,10 +204,32 @@ def main():
         else:
             Q = read_priors(args["priors"],DLT_data) #,site_names=site_names)
 
+    #K = len(site_names) 
+    if args['input_type'] == "character_matrix":
+        J = 1
+        alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)])
+        charMtrx = CharMtrx(charMtrx,alphabet)
+        data = {'DLT_data':charMtrx} 
+    elif args['input_type'] == "allele_counts":
+        J = len(alphabet_data_struct[0])
+        alphabet = Alphabet(K,J,alphabet_data_struct)
+        DLT_data = AlleleTable(alleleTable_data_struct,alphabet)
+        data = {'DLT_data': DLT_data} 
+        # from json construct the AlleleTable object
+    elif args['input_type'] == "observed_features":
+        J = len(alphabet_data_struct[0])
+        alphabet = Alphabet(K,J,alphabet_data_struct)
+        DLT_data = CharMtrx(charMtrx_data_struct,alphabet)
+        data = {'DLT_data': DLT_data} 
     #print("Q type", type(Q[0]))
     #Q = [[Q_k] for Q_k in Q] #### temporary solution ####
-        
+       
     prior = {'Q':Q}  
+    if args['input_type'] == "observed_features":
+        prior['emission_matrix'] = emission_dict
+    elif args['input_type'] == "character_matrix" and args['emission']:
+        prior['emission_matrix'] = emission_dict
+
     #K = len(charMtrx[next(iter(charMtrx.keys()))])
     #J = 1 ##### temporary hard code #####
 

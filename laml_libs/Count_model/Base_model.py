@@ -485,20 +485,25 @@ class Base_model(Virtual_solver):
 
         for k in range(K):
             allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
+            #print("allele list length:", len(allele_list))
             for tree in self.trees:
                 for node in tree.traverse_preorder():
+                    #print("node:", node.label)
                     if not node.mark_recompute:
                         continue
                     if node.is_root():
                         node.log_node_posterior[k][root_state] = 0
                     else:
-                        for x in allele_list:
+                        for idx, x in enumerate(allele_list):
+                            #print("node:", node.label, "idx", idx / len(allele_list))
                             in_llh = node.in_llh[k][x] if x in node.in_llh[k] else None
                             out_llh = node.out_llh[k][x] if x in node.out_llh[k] else None
                             total_llh = tree.root.in_llh[k][root_state]
                             if (in_llh is not None) and (out_llh is not None):
                                 node.log_node_posterior[k][x] = in_llh + out_llh - total_llh
+                        #print("node.parent.log_node_posterior[k]", len(node.parent.log_node_posterior[k]))
                         for x in node.parent.log_node_posterior[k]:
+                            #print("node.in_llh[k]", len(node.in_llh[k]))
                             for y in node.in_llh[k]:
                                 log_p_trans = self.log_Psi_cassette(node,k,x,y)
                                 if log_p_trans is None:
@@ -510,19 +515,19 @@ class Base_model(Virtual_solver):
 
     def Estep(self,run_in_llh=True):
         if run_in_llh:
-            #start = time.time()
+            start = time.time()
             self.Estep_in_llh()
-            #end = time.time()
-            #print("Estep in-llh:",end-start)
-        #start = time.time()
+            end = time.time()
+            print("Estep in-llh:",end-start)
+        start = time.time()
         self.Estep_out_llh()
-        #end = time.time()
-        #print("Estep out-llh:",end-start)
+        end = time.time()
+        print("Estep out-llh:",end-start)
         
-        #start = time.time()
+        start = time.time()
         self.Estep_posterior()
-        #end = time.time()
-        #print("Estep posterior:",end-start)
+        end = time.time()
+        print("Estep posterior:",end-start)
 
     def set_closed_form_optimal(self,fixed_params={},verbose=1):
         # For every param that has a closed-form M-step optimal, 

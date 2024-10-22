@@ -43,10 +43,17 @@ class PMMN_model(PMM_base_model):
                 p = phi
             else:
                 if self.emission_mtrx is not None:
-                    p = self.emission_mtrx[x][c]
+                    # take product over all target sites generative probability
+                    p = self.emission_mtrx[node_label][k][x]
+                    #p = 1
+                    #for a, xx in enumerate(x):
+                    #    cc = c[a]
+                    #    p *= self.emission_mtrx[node_label][k][a][cc][xx]
+                    #p = self.emission_mtrx[node_label][k][xx][cc]
                     # add node_label, etc..
                 else:
                     p = (1-phi)*rho if c==x else (1-phi)*(1-rho)/(M-2) 
+        #print("Gamma:", p)
         return p
 
     def set_closed_form_optimal(self,fixed_params={},verbose=1):

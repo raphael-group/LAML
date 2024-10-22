@@ -2,6 +2,8 @@
 from statistics import mean
 import pickle
 import json
+import pandas as pd
+import ast
 
 recognized_missing = set(['-', '?', '-1'])
 
@@ -45,6 +47,7 @@ def read_sequences(inFile,filetype="charMtrx",cassette_len=1,set_single_cassette
             pass
 
 def read_obsFeatures(fin, missing_char):
+    print("Reading observed features...")
     # data_struct: a mapping: cell_name -> (cassette -> cassette_state)
     data = json.load(fin)
     # ASSUMES the target site keys start with 'site_'
@@ -52,6 +55,7 @@ def read_obsFeatures(fin, missing_char):
     #print(type(data))
     charMtrx_data_struct = {}
     alphabet_dict = dict()
+    emission_dict = dict()
 
     K = len([x['cassette_id'] for x in data['cell_data'][0]['cassettes']])
     J = len([key for key in data['cell_data'][0]['cassettes'][0]['count_data'][0].keys() if key.startswith('site_')])
@@ -61,13 +65,16 @@ def read_obsFeatures(fin, missing_char):
         cell_name = cell_data['cell_name']
         # save into data_struct
         charMtrx_data_struct[cell_name] = [0] * K #np.zeros(K, dtype=list)
+        emission_dict[cell_name] = dict()
 
         for cassette_data in cell_data['cassettes']:
             cassette_id = int(cassette_data['cassette_id']) - 1
+            emission_dict[cell_name][cassette_id] = dict()
 
             # assert(len(cassette_data['count_data']) <= 1)
             if len(cassette_data['count_data']) == 1:
                 cassette_state = cassette_data['count_data'][0]['allele']
+                print("cassette_id", cassette_id)
                 charMtrx_data_struct[cell_name][cassette_id] = cassette_state
 
                 # each cassette, each site has an alphabet
@@ -79,6 +86,18 @@ def read_obsFeatures(fin, missing_char):
                         if key not in alphabet_dict[cassette_id]:
                             alphabet_dict[cassette_id][key] = {0, missing_char}
                         alphabet_dict[cassette_id][key].add(state)
+
+                        
+                        # each site in allele
+                        site_idx = int(key[5:])
+                        cassette_emission_dict = cassette_data['count_data'][0]['emissions_' + key]
+                        emission_dict[cell_name][cassette_id][site_idx] = dict()
+                        obs_state = state
+                        for k, v in cassette_emission_dict.items():
+                            true_state = int(key.split('_')[-1]) # probGen_KDE_true_state_0
+                            emission_dict[cell_name][cassette_id][site_idx][obs_state] = dict()
+                            emission_dict[cell_name][cassette_id][site_idx][obs_state][true_state] = v
+                    
             elif len(cassette_data['count_data']) == 0:
                 charMtrx_data_struct[cell_name][cassette_id] = []
 
@@ -90,7 +109,10 @@ def read_obsFeatures(fin, missing_char):
             new_cassette_list.append(new_target_site_list)
         alphabet_data_struct.append(new_cassette_list)
 
-    return charMtrx_data_struct, alphabet_data_struct
+    if emission_dict:
+        print("Detected emission priors.")
+
+    return charMtrx_data_struct, alphabet_data_struct, emission_dict
 
 
 def read_alleleTab(fin, missing_char):
@@ -102,15 +124,15 @@ def read_alleleTab(fin, missing_char):
     alphabet_dict = dict()
     #print(data[0])
 
-    K = len([x['cassette_id'] for x in data[0]['cassettes']])
-    J = len([key for key in data[0]['cassettes'][0]['count_data'][0].keys() if key.startswith('site_')])
+    K = len([x['cassette_id'] for x in data['cell_data'][0]['cassettes']])
+    J = len([key for key in data['cell_data'][0]['cassettes'][0]['count_data'][0].keys() if key.startswith('site_')])
     print("K:", K, "J:", J)
     
     if J == 0:
         raise("FATAL error: read_alleleTab could not find any target sites because no keys starting with 'site_' were detected.")
         return None
 
-    for cell_data in data:
+    for cell_data in data['cell_data']:
         cell_name = cell_data['cell_name']
         # save into data_struct
         data_struct[cell_name] = []
@@ -292,6 +314,22 @@ def load_pickle(f):
 
             Q[i] = q
             return Q
+
+def read_emission(efile):
+    tmp_df = pd.read_csv(efile)
+    emission_dict = dict()
+    for _, row in tmp_df.iterrows():
+        cell_name = row.iloc[0]
+        emission_dict[cell_name] = [] # list of dictionaries per site
+
+        # Extract all columns after the first one
+        other_columns = row.iloc[1:].to_dict()
+
+        for column, value in other_columns.items():
+            parsed_value = ast.literal_eval(value)
+            emission_dict[cell_name].append(parsed_value)
+    return emission_dict
+
 
 def read_priors(pfile, msa, site_names=None):
     file_extension = pfile.strip().split(".")[-1]
