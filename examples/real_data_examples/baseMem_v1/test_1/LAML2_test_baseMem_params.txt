@@ -1,0 +1,5 @@
+Dropout probability: phi=0.30000000000000004
+Silencing rate: nu=0
+Sequencing accuracy: rho=0.2673777629000564
+Mutation rate: lambda=6.601939879334177
+Negative-llh: (90.61880991326512, 'optimal')

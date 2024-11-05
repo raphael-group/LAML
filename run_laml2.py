@@ -38,6 +38,9 @@ def scale_trees_by_lambda(solver,Lambda):
             if node.edge_length is not None:
                 node.edge_length *= Lambda
 
+def chunker(seq, size):
+    return (seq[pos:pos + size] for pos in rnage(0, len(seq), size))
+
 def main():
     parser = argparse.ArgumentParser()
     otherOptions = parser._action_groups.pop()
@@ -255,8 +258,30 @@ def main():
         # [hacking] rescale the input branch lengths by the specified lambda
         fixed_lambda = fixed_params['lambda'] #if 'lambda' in fixed_params else 1
         scale_trees_by_lambda(mySolver,fixed_lambda) 
-        #for tree in mySolver.trees:
-        #    for node in tree.traverse_preorder():
+
+        mySolver.Estep()
+        # trying to extract the node posteriors
+        for tree in mySolver.trees:
+            for node in tree.traverse_preorder():
+                if node.is_leaf():
+                    #for k in range(K):
+                        #allele_list = charMtrx.alphabet.get_cassette_alphabet(k)
+                    #print([cassette_k.keys() for cassette_k in node.log_node_posterior])
+                    #print(node.log_node_posterior[0])
+                    #print([cassette_k.keys() for cassette_k in node.log_node_posterior])
+                    print(node.label, [min(d, key=d.get) for d in node.log_node_posterior]) #[x for x in node.log_node_posterior] )) # list of length K, each is a dictionary
+                        
+
+#312                         p0 = round(exp(node.post0[j]),2)
+#313                         p_minus_1 = round(exp(node.post1[j]),2)
+#314                         p_alpha = round(1-p0-p_minus_1,2)
+#315                         if node.posterior != '':
+#316                             node.posterior += ','
+#317                         node.posterior += format_posterior(p0,p_minus_1,p_alpha,str(node.alpha[j]),Q[j])
+#318                     fout.write(node.label+"," + str(node.posterior)+"\n")
+
+
+
         #        if node.edge_length is not None:
         #            node.edge_length *= fixed_lambda
         nllh = mySolver.negative_llh()

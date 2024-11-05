@@ -1,0 +1,1279 @@
+{
+    "cell_data": [
+        {
+            "cell_name": "CTCATTACACGTCTCT-1",
+            "cassettes": [
+                {
+                    "cassette_id": 0,
+                    "count_data": [
+                        {
+                            "allele": [
+                                19,
+                                84,
+                                0
+                            ],
+                            "site_0": 19,
+                            "site_1": 84,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                31,
+                                13,
+                                0
+                            ],
+                            "site_0": 31,
+                            "site_1": 13,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                1,
+                                84,
+                                0
+                            ],
+                            "site_0": 1,
+                            "site_1": 84,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                98,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 98,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                84,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 84,
+                            "site_2": 0,
+                            "umi_count": 231
+                        },
+                        {
+                            "allele": [
+                                0,
+                                99,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 99,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                85,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 85,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 1,
+                    "count_data": [
+                        {
+                            "allele": [
+                                63,
+                                37,
+                                0
+                            ],
+                            "site_0": 63,
+                            "site_1": 37,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 2,
+                    "count_data": [
+                        {
+                            "allele": [
+                                9,
+                                9,
+                                0
+                            ],
+                            "site_0": 9,
+                            "site_1": 9,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                9,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 9,
+                            "site_2": 0,
+                            "umi_count": 185
+                        },
+                        {
+                            "allele": [
+                                0,
+                                32,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 32,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                3,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 3,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 3,
+                    "count_data": [
+                        {
+                            "allele": [
+                                2,
+                                105,
+                                17
+                            ],
+                            "site_0": 2,
+                            "site_1": 105,
+                            "site_2": 17,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                5,
+                                98,
+                                0
+                            ],
+                            "site_0": 5,
+                            "site_1": 98,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                2,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 2,
+                            "site_2": 0,
+                            "umi_count": 2
+                        },
+                        {
+                            "allele": [
+                                0,
+                                98,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 98,
+                            "site_2": 0,
+                            "umi_count": 419
+                        },
+                        {
+                            "allele": [
+                                0,
+                                97,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 97,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 4
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 4,
+                    "count_data": [
+                        {
+                            "allele": [
+                                60,
+                                17,
+                                0
+                            ],
+                            "site_0": 60,
+                            "site_1": 17,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                57,
+                                17,
+                                0
+                            ],
+                            "site_0": 57,
+                            "site_1": 17,
+                            "site_2": 0,
+                            "umi_count": 160
+                        },
+                        {
+                            "allele": [
+                                65,
+                                17,
+                                0
+                            ],
+                            "site_0": 65,
+                            "site_1": 17,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                66,
+                                17,
+                                0
+                            ],
+                            "site_0": 66,
+                            "site_1": 17,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                67,
+                                86,
+                                0
+                            ],
+                            "site_0": 67,
+                            "site_1": 86,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                58,
+                                17,
+                                0
+                            ],
+                            "site_0": 58,
+                            "site_1": 17,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 5,
+                    "count_data": [
+                        {
+                            "allele": [
+                                8,
+                                7,
+                                0
+                            ],
+                            "site_0": 8,
+                            "site_1": 7,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                5,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 5,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                122,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 122,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "AAGAACAAGCCATCCG-1",
+            "cassettes": [
+                {
+                    "cassette_id": 0,
+                    "count_data": [
+                        {
+                            "allele": [
+                                7,
+                                13,
+                                0
+                            ],
+                            "site_0": 7,
+                            "site_1": 13,
+                            "site_2": 0,
+                            "umi_count": 108
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 4
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 1,
+                    "count_data": [
+                        {
+                            "allele": [
+                                7,
+                                9,
+                                0
+                            ],
+                            "site_0": 7,
+                            "site_1": 9,
+                            "site_2": 0,
+                            "umi_count": 77
+                        },
+                        {
+                            "allele": [
+                                8,
+                                10,
+                                0
+                            ],
+                            "site_0": 8,
+                            "site_1": 10,
+                            "site_2": 0,
+                            "umi_count": 2
+                        },
+                        {
+                            "allele": [
+                                0,
+                                11,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 11,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                12,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 12,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 2,
+                    "count_data": [
+                        {
+                            "allele": [
+                                5,
+                                9,
+                                0
+                            ],
+                            "site_0": 5,
+                            "site_1": 9,
+                            "site_2": 0,
+                            "umi_count": 92
+                        },
+                        {
+                            "allele": [
+                                5,
+                                6,
+                                0
+                            ],
+                            "site_0": 5,
+                            "site_1": 6,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                6,
+                                9,
+                                0
+                            ],
+                            "site_0": 6,
+                            "site_1": 9,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                2,
+                                9,
+                                0
+                            ],
+                            "site_0": 2,
+                            "site_1": 9,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 3,
+                    "count_data": [
+                        {
+                            "allele": [
+                                7,
+                                13,
+                                0
+                            ],
+                            "site_0": 7,
+                            "site_1": 13,
+                            "site_2": 0,
+                            "umi_count": 127
+                        },
+                        {
+                            "allele": [
+                                7,
+                                14,
+                                0
+                            ],
+                            "site_0": 7,
+                            "site_1": 14,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                8,
+                                15,
+                                0
+                            ],
+                            "site_0": 8,
+                            "site_1": 15,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 2
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 4,
+                    "count_data": [
+                        {
+                            "allele": [
+                                11,
+                                4,
+                                0
+                            ],
+                            "site_0": 11,
+                            "site_1": 4,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                7,
+                                4,
+                                0
+                            ],
+                            "site_0": 7,
+                            "site_1": 4,
+                            "site_2": 0,
+                            "umi_count": 85
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 5,
+                    "count_data": [
+                        {
+                            "allele": [
+                                8,
+                                10,
+                                0
+                            ],
+                            "site_0": 8,
+                            "site_1": 10,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                8,
+                                11,
+                                0
+                            ],
+                            "site_0": 8,
+                            "site_1": 11,
+                            "site_2": 0,
+                            "umi_count": 117
+                        },
+                        {
+                            "allele": [
+                                0,
+                                12,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 12,
+                            "site_2": 0,
+                            "umi_count": 2
+                        },
+                        {
+                            "allele": [
+                                0,
+                                13,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 13,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "GTCATGAAGCAGATAT-1",
+            "cassettes": [
+                {
+                    "cassette_id": 0,
+                    "count_data": [
+                        {
+                            "allele": [
+                                35,
+                                48,
+                                0
+                            ],
+                            "site_0": 35,
+                            "site_1": 48,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                3,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 3,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                4,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 4,
+                            "site_2": 0,
+                            "umi_count": 106
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 1,
+                    "count_data": [
+                        {
+                            "allele": [
+                                10,
+                                128,
+                                0
+                            ],
+                            "site_0": 10,
+                            "site_1": 128,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                129,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 129,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                4,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 4,
+                            "site_2": 0,
+                            "umi_count": 80
+                        },
+                        {
+                            "allele": [
+                                0,
+                                130,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 130,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                131,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 131,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                132,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 132,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                133,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 133,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 2,
+                    "count_data": [
+                        {
+                            "allele": [
+                                7,
+                                6,
+                                0
+                            ],
+                            "site_0": 7,
+                            "site_1": 6,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                3,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 3,
+                            "site_2": 0,
+                            "umi_count": 69
+                        },
+                        {
+                            "allele": [
+                                0,
+                                71,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 71,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                145,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 145,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 3,
+                    "count_data": [
+                        {
+                            "allele": [
+                                7,
+                                171,
+                                0
+                            ],
+                            "site_0": 7,
+                            "site_1": 171,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                5,
+                                2,
+                                0
+                            ],
+                            "site_0": 5,
+                            "site_1": 2,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                4,
+                                1
+                            ],
+                            "site_0": 0,
+                            "site_1": 4,
+                            "site_2": 1,
+                            "umi_count": 141
+                        },
+                        {
+                            "allele": [
+                                0,
+                                172,
+                                1
+                            ],
+                            "site_0": 0,
+                            "site_1": 172,
+                            "site_2": 1,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 4,
+                    "count_data": [
+                        {
+                            "allele": [
+                                4,
+                                4,
+                                0
+                            ],
+                            "site_0": 4,
+                            "site_1": 4,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                4,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 4,
+                            "site_2": 0,
+                            "umi_count": 93
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 5,
+                    "count_data": [
+                        {
+                            "allele": [
+                                1,
+                                0,
+                                0
+                            ],
+                            "site_0": 1,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "CCACAAACAGGCTTGC-1",
+            "cassettes": [
+                {
+                    "cassette_id": 0,
+                    "count_data": [
+                        {
+                            "allele": [
+                                50,
+                                76,
+                                0
+                            ],
+                            "site_0": 50,
+                            "site_1": 76,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                32,
+                                42,
+                                0
+                            ],
+                            "site_0": 32,
+                            "site_1": 42,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                48,
+                                72,
+                                0
+                            ],
+                            "site_0": 48,
+                            "site_1": 72,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                77,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 77,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                78,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 78,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 152
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 1,
+                    "count_data": [
+                        {
+                            "allele": [
+                                10,
+                                0,
+                                0
+                            ],
+                            "site_0": 10,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                3,
+                                37,
+                                0
+                            ],
+                            "site_0": 3,
+                            "site_1": 37,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                37,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 37,
+                            "site_2": 0,
+                            "umi_count": 127
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 2,
+                    "count_data": [
+                        {
+                            "allele": [
+                                0,
+                                77,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 77,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 129
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 3,
+                    "count_data": [
+                        {
+                            "allele": [
+                                58,
+                                85,
+                                0
+                            ],
+                            "site_0": 58,
+                            "site_1": 85,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                4,
+                                0,
+                                0
+                            ],
+                            "site_0": 4,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 185
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 4,
+                    "count_data": [
+                        {
+                            "allele": [
+                                4,
+                                0,
+                                0
+                            ],
+                            "site_0": 4,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 104
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 5,
+                    "count_data": [
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "TCACACCGTCTAACGT-1",
+            "cassettes": [
+                {
+                    "cassette_id": 0,
+                    "count_data": [
+                        {
+                            "allele": [
+                                91,
+                                36,
+                                0
+                            ],
+                            "site_0": 91,
+                            "site_1": 36,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 144
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 1,
+                    "count_data": [
+                        {
+                            "allele": [
+                                0,
+                                37,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 37,
+                            "site_2": 0,
+                            "umi_count": 71
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 2,
+                    "count_data": [
+                        {
+                            "allele": [
+                                57,
+                                86,
+                                15
+                            ],
+                            "site_0": 57,
+                            "site_1": 86,
+                            "site_2": 15,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 146
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 3,
+                    "count_data": [
+                        {
+                            "allele": [
+                                51,
+                                77,
+                                0
+                            ],
+                            "site_0": 51,
+                            "site_1": 77,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                116,
+                                124,
+                                0
+                            ],
+                            "site_0": 116,
+                            "site_1": 124,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 148
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 4,
+                    "count_data": [
+                        {
+                            "allele": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 0,
+                            "site_2": 0,
+                            "umi_count": 51
+                        }
+                    ]
+                },
+                {
+                    "cassette_id": 5,
+                    "count_data": [
+                        {
+                            "allele": [
+                                0,
+                                4,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 4,
+                            "site_2": 0,
+                            "umi_count": 1
+                        },
+                        {
+                            "allele": [
+                                0,
+                                5,
+                                0
+                            ],
+                            "site_0": 0,
+                            "site_1": 5,
+                            "site_2": 0,
+                            "umi_count": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

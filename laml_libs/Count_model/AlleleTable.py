@@ -44,6 +44,6 @@ class AlleleTable:
         # check if cassette k of cell w is missing (i.e. has no UMI count)
         c = self.data_struct[w][k]
         for x in c:
-            if c[x] != 0:
+            if c[x] != 0 and c[x] is not None:
                 return False
         return True        

@@ -272,6 +272,8 @@ class Base_model(Virtual_solver):
                                 else:
                                     llh = None
                                     break   
+                            if node == tree.root and x == root_state:
+                                print(llh)
                             if llh is not None:
                                 node.in_llh[k][x] = llh
                 total_llh += tree.root.in_llh[k][root_state]
@@ -494,8 +496,10 @@ class Base_model(Virtual_solver):
                     if node.is_root():
                         node.log_node_posterior[k][root_state] = 0
                     else:
-                        for idx, x in enumerate(allele_list):
+                        #for idx, x in enumerate(allele_list):
+                        for x in allele_list:
                             #print("node:", node.label, "idx", idx / len(allele_list))
+
                             in_llh = node.in_llh[k][x] if x in node.in_llh[k] else None
                             out_llh = node.out_llh[k][x] if x in node.out_llh[k] else None
                             total_llh = tree.root.in_llh[k][root_state]
@@ -518,16 +522,16 @@ class Base_model(Virtual_solver):
             start = time.time()
             self.Estep_in_llh()
             end = time.time()
-            print("Estep in-llh:",end-start)
+            #print("Estep in-llh:",end-start)
         start = time.time()
         self.Estep_out_llh()
         end = time.time()
-        print("Estep out-llh:",end-start)
+        #print("Estep out-llh:",end-start)
         
         start = time.time()
         self.Estep_posterior()
         end = time.time()
-        print("Estep posterior:",end-start)
+        #print("Estep posterior:",end-start)
 
     def set_closed_form_optimal(self,fixed_params={},verbose=1):
         # For every param that has a closed-form M-step optimal, 

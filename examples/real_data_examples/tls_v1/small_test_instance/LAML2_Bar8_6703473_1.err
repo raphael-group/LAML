@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Genomics/chanlab/richard/running_LAML2/LAML2/run_laml2.py", line 367, in <module>
+    main()
+  File "/Genomics/chanlab/richard/running_LAML2/LAML2/run_laml2.py", line 297, in main
+    nllh = mySolver.optimize('EM',initials=args["nInitials"],fixed_params=fixed_params,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True,fixed_brlen=fixed_brlen)
+  File "/Genomics/chanlab/richard/running_LAML2/LAML2/laml_libs/Count_model/Base_model.py", line 379, in optimize
+    nllh,status = self.EM_optimization(randseed,verbose=verbose,fixed_params=fixed_params,ultra_constr=ultra_constr,EM_options=EM_options)
+  File "/Genomics/chanlab/richard/running_LAML2/LAML2/laml_libs/Count_model/Base_model.py", line 682, in EM_optimization
+    pre_llh = self.llh_DLT_data()
+  File "/Genomics/chanlab/richard/running_LAML2/LAML2/laml_libs/Count_model/Base_model.py", line 279, in llh_DLT_data
+    total_llh += tree.root.in_llh[k][root_state]
+KeyError: (0, 0, 0)
