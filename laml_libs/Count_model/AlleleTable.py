@@ -1,5 +1,7 @@
+import heapq
+
 class AlleleTable:
-    def __init__(self,data_struct,alphabet):
+    def __init__(self,data_struct,alphabet,max_allele_per_cassette=None):
     # K: the number of cassettes
     # J: the number of sites per cassette
     # data_struct: a mapping: cell_name -> (cassette -> (cassette_state -> count))
@@ -25,6 +27,17 @@ class AlleleTable:
             self.data_struct = data_struct_corrected
         else:
             self.data_struct = data_struct    
+
+        if max_allele_per_cassette is None:
+            self.cassette_state_lists = []
+            for k in range(self.K):
+                self.cassette_state_lists.append(self.alphabet.get_cassette_alphabet(k))
+        else:
+            self.cassette_state_lists = [set([]) for _ in range(self.K)]
+            for k in range(self.K):                        
+                for cell in self.data_struct:
+                    top_alleles = set(heapq.nlargest(max_allele_per_cassete,self.data_struct[cell][k], key=self.data_struct[cell][k].get))
+                    self.cassette_state_lists[k] = self.cassette_state_lists[k].union(top_alleles)                
 
     def get_one_count(self,w,k,x):
     # w: a cell name/label

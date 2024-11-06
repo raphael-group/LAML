@@ -21,6 +21,10 @@ class CharMtrx:
             self.data_struct = data_struct_corrected
         else:
             self.data_struct = data_struct    
+        
+        self.cassette_state_lists = []
+        for k in range(self.K):
+            self.cassette_state_lists.append(self.alphabet.get_cassette_alphabet(k))
        
     def get_cell_names(self):
         return self.data_struct.keys()   

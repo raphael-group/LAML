@@ -27,6 +27,7 @@ class Base_model(Virtual_solver):
         self.data = data
         self.num_cassettes = data['DLT_data'].K
         self.site_per_cassette = data['DLT_data'].J
+
         self.params = params
         self.trees = []
         self.num_edges = 0
@@ -247,7 +248,8 @@ class Base_model(Virtual_solver):
         
         total_llh = 0
         for k in range(K):
-            allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
+            #allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
+            allele_list = self.data['DLT_data'].cassette_state_lists[k]
             for tree in self.trees:
                 for node in tree.traverse_postorder():
                     if not node.mark_recompute:
@@ -420,7 +422,8 @@ class Base_model(Virtual_solver):
                     node.in_llh_edge = [{} for _ in range(K)] # a list of dictionaries
 
         for k in range(K):
-            allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
+            #allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
+            allele_list = self.data['DLT_data'].cassette_state_lists[k]
             for tree in self.trees:
                 for node in tree.traverse_preorder():
                     if not node.mark_recompute:
@@ -484,7 +487,8 @@ class Base_model(Virtual_solver):
                     node.log_edge_posterior = [{} for _ in range(K)] # a list of dictionaries
 
         for k in range(K):
-            allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
+            #allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
+            allele_list = self.data['DLT_data'].cassette_state_lists[k]
             for tree in self.trees:
                 for node in tree.traverse_preorder():
                     if not node.mark_recompute:
