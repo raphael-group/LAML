@@ -1,8 +1,76 @@
 #! /usr/bin/env python
 from statistics import mean
 import pickle
+import json
 
 recognized_missing = set(['-', '?', '-1'])
+
+def data_to_CharMtrx_struct(data):
+    charmat_ds = {}
+    #alphabet_ds = {}
+
+    for cell_json in data:
+        cell_name = cell_json["cell_name"]
+        cassettes = cell_json["cassettes"]
+        charmat_ds[cell_name] = {}
+
+        for cassette_data in cassettes:
+            cassette_idx = cassette_data["cassette_idx"]
+            cassette_state = cassette_data["cassette_state"]
+            charmat_ds[cell_name][cassette_idx] = tuple(cassette_state)
+
+    return charmat_ds #, alphabet_ds 
+
+def data_to_AlleleTable_struct(data):
+    alleletable_ds = {}
+    #alphabet_ds = {}
+
+    for cell_json in data:
+        cell_name = cell_json["cell_name"]
+        cassettes = cell_json["cassettes"]
+        alleletable_ds[cell_name] = {}
+
+        for cassette_data in cassettes:
+            cassette_idx = cassette_data["cassette_idx"]
+            cassette_states = cassette_data["cassette_state"]
+            alleletable_ds[cell_name][cassette_idx] = {}
+
+            for state_data  in cassette_states: 
+                state = tuple(state_data["state"])
+                observation = state_data["observation"]
+                alleletable_ds[cell_name][cassette_idx][state] = observation
+
+    return alleletable_ds #, alphabet_ds 
+
+def charMtrx_to_json(charMtrx,delimiter,missing_char):
+    result_json = {"dataType": "charMtrx", "cell_data": []}
+    for cell_name in charMtrx:
+        cell_data = charMtrx[cell_name]
+        cell_json = {"cell_name": cell_name, "cassettes": []}
+        for cassette_idx, cassette_state in enumerate(cell_data):
+            if cassette_state != missing_char:
+                cassette_json = {"cassette_idx": cassette_idx,
+                                 "cassette_state": (cassette_state,)
+                                 }
+            else:
+                cassette_json = {"cassette_idx": cassette_idx,
+                                 "cassette_state": ()
+                                 }
+            cell_json["cassettes"].append(cassette_json)
+        result_json["cell_data"].append(cell_json)
+    return result_json
+   
+def write_json(json_data,outfile):
+    json_string = json.dumps(json_data, indent=4)
+    with open(outfile, "w") as f:
+        f.write(json_string)
+
+def read_json(datafile):
+    with open(datafile, "r") as f:
+        data = json.load(f)
+    return data
+
+
 
 def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
     with open(outFile,'w') as fout:
@@ -148,6 +216,98 @@ def alphabet_size(mtx):
     #unique_series = df.nunique()
     #return max(unique_series), min(unique_series), mean(unique_series)
 
+def generate_q(M_i, unedited_state):
+    if len(M_i) == 0:
+        # add pseudo-mutated state
+        m_i = 1
+        q = {"1":1.0}
+    else:
+        m_i = len(M_i)
+        q = {x:1/m_i for x in M_i}
+    q[unedited_state] = 0
+    return q
+
+def uniform_priors(alphabet, dt, K, J, unedited_state, missing_state):
+    Q = []
+    if dt == "charMtrx":
+        # list of possible site alphabets
+        for k in range(K):
+            M_i = set([x for x in alphabet.get_cassette_alphabet(k) if x not in [unedited_state, missing_state]])
+            q = generate_q(M_i, unedited_state)
+            Q.append(q)
+    else:
+        # a list of cassettes, where each cassette is a list of site alphabets
+        for k in range(K):
+            cassette_q = []
+            for j in range(J):
+                M_i = set([x for x in alphabet.get_site_alphabet(k,j) if x not in [unedited_state, missing_state]])
+                q = generate_q(M_i, unedited_state)
+                cassette_q.append(q)
+            Q.append(cassette_q)
+
+    return Q
+
+def get_alphabet_prior(Q, J):
+    final_alphabet_ds = []
+    for idx, q_dict in enumerate(Q):
+        if idx % J == 0:
+            cassette_dictionary = []
+        cassette_dictionary.append(q_dict)
+        if idx % J == J-1:
+            final_alphabet_ds.append(cassette_dictionary)
+    return final_alphabet_ds
+
+def get_alphabet_ds(ds, dt, missing_state):
+    # Note, does not include missing states
+    alphabet_ds = {}
+    final_alphabet_ds = []
+
+    if dt == "charMtrx":
+        for cell_name in ds:
+            cell_data = ds[cell_name]
+
+            for cassette_idx in cell_data.keys():
+                cassette_data = cell_data[cassette_idx]
+                cassette_state = ds[cell_name][cassette_idx]
+
+                if cassette_idx not in alphabet_ds.keys():
+                    alphabet_ds[cassette_idx] = set() # set of possible cassette_states
+                if cassette_state != missing_state:
+                    alphabet_ds[cassette_idx].add(cassette_state)
+
+        # order the indices of the cassette idx
+        sorted_cassette_keys = [key for key in sorted(alphabet_ds.keys())]
+        for cassette_idx in sorted_cassette_keys:
+            final_alphabet_ds.append(sorted(list(alphabet_ds[cassette_idx])))
+
+    else:
+        for cell_name in ds:
+            cell_data = ds[cell_name]
+
+            for cassette_idx in cell_data.keys():
+                cassette_data = cell_data[cassette_idx]
+                cassette_states = ds[cell_name][cassette_idx]
+
+                if cassette_idx not in alphabet_ds.keys():
+                    alphabet_ds[cassette_idx] = {} # set of possible cassette_states
+
+                for cassette_state in cassette_states:
+                    for site_idx, site_state in enumerate(cassette_state):
+                        if site_idx not in alphabet_ds[cassette_idx].keys():
+                            alphabet_ds[cassette_idx][site_idx] = set()
+                        if site_state != missing_state:
+                            alphabet_ds[cassette_idx][site_idx].add(site_state)
+
+        # order the indices of the cassette idx
+        sorted_cassette_keys = [key for key in sorted(alphabet_ds.keys())]
+        for cassette_idx in sorted_cassette_keys:
+            # to produce the cassette_list, sort the site indices, and sort the alphabet for each site index
+            cassette_list = [sorted(list(alphabet_ds[cassette_idx][key])) for key in sorted(alphabet_ds[cassette_idx].keys())]
+            final_alphabet_ds.append(cassette_list)
+
+    return final_alphabet_ds
+
+
 # adapted from /n/fs/ragr-research/projects/scmail_experiments/Real_biodata/test_kptracer/proc_scripts
 def load_pickle(f):
 # returns dictionary for use with Cassiopeia
@@ -167,7 +327,7 @@ def load_pickle(f):
             Q[i] = q
             return Q
 
-def read_priors(pfile, msa, site_names=None):
+def read_priors(pfile, msa=None, site_names=None):
     file_extension = pfile.strip().split(".")[-1]
     if file_extension == "pkl" or file_extension == "pickle": #pickled file
         infile = open(pfile, "rb")
@@ -220,7 +380,7 @@ def read_priors(pfile, msa, site_names=None):
 
                     if prior_name in priors.keys():
                         q = {int(x):priors[prior_name][x] for x in priors[prior_name]}
-                    else:
+                    elif msa is not None:
                         print(f"Missing priors at site {site_name}, filling in uniform priors...")
                         # fill in uniform priors at site i
                         M_i = set(msa[x][i] for x in msa if msa[x][i] not in [0,"?"])
@@ -232,6 +392,8 @@ def read_priors(pfile, msa, site_names=None):
                             m_i = len(M_i)
                             q = {x:1/m_i for x in M_i}
                         q[0] = 0
+                    else:
+                        raise(f"Missing priors at site {site_name}, pass in MSA as input to fill in uniform priors.")
                     Q.append(q)
                 print(mapping)
                 return Q
