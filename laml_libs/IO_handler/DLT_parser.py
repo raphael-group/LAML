@@ -29,10 +29,9 @@ class DLT_parser: # DLT: dynamic lineage tracing
 
     def parse_prior(self,priorFile):
     # parse a prior file and return Q and alphabet
-    # similar to the read_Q function in sequence_lib.py will be helpful, but 
-    # returns alphabet in addition to Q
         # TODO: @Gillian 
         alphabet = Alphabet(...) # TODO
+        Q = ... # TODO; Q will be a list of (list of dictionaries)
         return Q,alphabet 
 
     def get_from_path(self,dataFile,priorFile=None):  
