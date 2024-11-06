@@ -230,7 +230,7 @@ class Base_model(Virtual_solver):
         return log_trans_p
 
     def Gamma(self,k,x,c):
-        # Layer 2 transition probabilities
+        # Layer 2 transition probabilities (i.e. emission probabilities)
         # A placeholder (i.e. non-informative model) for this function in the base class
         # MUST be overrided in any derived class!
         return 1

@@ -125,10 +125,7 @@ def read_Q(inFile,has_head=True):
             Q[int(char)][int(state)] = float(prob)
     return Q
 
-#from treeswift import *
-
 def extract_brlens(tfile, ofile):
-
     t = read_newick_tree(tfile)
     t.root.h = 1
 
