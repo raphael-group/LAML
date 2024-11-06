@@ -27,8 +27,9 @@ class DLT_parser: # DLT: dynamic lineage tracing
             # TODO: @Gillian
         return data_struct, dataType
 
-    def parse_prior(self,priorFile):
+    def parse_prior(self,priorFile,sites_per_cassette):
     # parse a prior file and return Q and alphabet
+    # sites_per_cassette will be J in the constructed alphabet
         # TODO: @Gillian 
         alphabet = Alphabet(...) # TODO
         Q = ... # TODO; Q will be a list of (list of dictionaries)
