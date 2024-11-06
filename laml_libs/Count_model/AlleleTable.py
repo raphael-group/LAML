@@ -36,7 +36,7 @@ class AlleleTable:
             self.cassette_state_lists = [set([]) for _ in range(self.K)]
             for k in range(self.K):                        
                 for cell in self.data_struct:
-                    top_alleles = set(heapq.nlargest(max_allele_per_cassete,self.data_struct[cell][k], key=self.data_struct[cell][k].get))
+                    top_alleles = set(heapq.nlargest(max_allele_per_cassette,self.data_struct[cell][k], key=self.data_struct[cell][k].get))
                     self.cassette_state_lists[k] = self.cassette_state_lists[k].union(top_alleles)                
 
     def get_one_count(self,w,k,x):
