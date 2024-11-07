@@ -14,7 +14,7 @@ def join_lists(list_of_lists):
                 for y in list_of_lists[j]:        
                     curr.append(x+[y])
             return curr
-    return [tuple(x) for x in __get_alphabet(len(list_of_lists)-1)]
+    return set([tuple(x) for x in __get_alphabet(len(list_of_lists)-1)])
 
 def log_sum_exp(numlist):
     # using log-trick to compute log(sum(exp(x) for x in numlist))

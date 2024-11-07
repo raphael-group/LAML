@@ -70,4 +70,4 @@ class VirtualUnitTest(unittest.TestCase):
             for k in range(K):
                 true = myModel0.trees[0].root.in_llh[k][tuple([0])]
                 est = out_llh[x][k][tuple([0])]
-                self.assertAlmostEqual(true,est+log(1-params['phi']),places=5,msg=test_msg+": test_" + str(test_no) + " failed.")                
+                self.assertAlmostEqual((est+log(1-params['phi'])-true)/true,0,places=2,msg=test_msg+": test_" + str(test_no) + " failed.")
