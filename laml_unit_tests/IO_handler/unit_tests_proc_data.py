@@ -5,7 +5,7 @@ import cvxpy as cp
 import pkg_resources
 import subprocess
 import re 
-from random import randint
+from random import randint 
 from laml_libs.IO_handler.DLT_parser import *
 import shutil
 from math import *
