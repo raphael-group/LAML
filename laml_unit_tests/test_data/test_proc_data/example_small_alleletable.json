@@ -1,0 +1,137 @@
+{
+    "dataType": "alleleTable",
+    "cell_data": [
+        {
+            "cell_name": "a",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                0,
+                                1,
+                                1 
+                            ],
+                            "observation": 120
+                        },
+                        {
+                            "state": [
+                                1,
+                                0,
+                                0
+                            ],
+                            "observation": 5
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                2,
+                                1,
+                                2 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "c",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                2,
+                                0,
+                                2 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                1,
+                                1,
+                                0 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "b",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                1,
+                                0,
+                                0 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                0,
+                                1,
+                                0 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "d",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                3,
+                                0,
+                                2 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                0,
+                                1,
+                                1 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

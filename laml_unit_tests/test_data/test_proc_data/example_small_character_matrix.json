@@ -1,0 +1,169 @@
+{
+    "dataType": "charMtrx",
+    "cell_data": [
+        {
+            "cell_name": "a",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        0
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        1
+                    ]
+                },
+                {
+                    "cassette_idx": 2,
+                    "cassette_state": [
+                        1
+                    ]
+                },
+                {
+                    "cassette_idx": 3,
+                    "cassette_state": [
+                        2
+                    ]
+                },
+                {
+                    "cassette_idx": 4,
+                    "cassette_state": [
+                        1
+                    ]
+                },
+                {
+                    "cassette_idx": 5,
+                    "cassette_state": [
+                        2
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "b",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        1
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        0
+                    ]
+                },
+                {
+                    "cassette_idx": 2,
+                    "cassette_state": [
+                        0
+                    ]
+                },
+                {
+                    "cassette_idx": 3,
+                    "cassette_state": [
+                        0
+                    ]
+                },
+                {
+                    "cassette_idx": 4,
+                    "cassette_state": [
+                        1
+                    ]
+                },
+                {
+                    "cassette_idx": 5,
+                    "cassette_state": [
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "c",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        2
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        0
+                    ]
+                },
+                {
+                    "cassette_idx": 2,
+                    "cassette_state": [
+                        2
+                    ]
+                },
+                {
+                    "cassette_idx": 3,
+                    "cassette_state": [
+                        1
+                    ]
+                },
+                {
+                    "cassette_idx": 4,
+                    "cassette_state": [
+                        1
+                    ]
+                },
+                {
+                    "cassette_idx": 5,
+                    "cassette_state": [
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "d",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        3
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        0
+                    ]
+                },
+                {
+                    "cassette_idx": 2,
+                    "cassette_state": [
+                        2
+                    ]
+                },
+                {
+                    "cassette_idx": 3,
+                    "cassette_state": [
+                        0
+                    ]
+                },
+                {
+                    "cassette_idx": 4,
+                    "cassette_state": [
+                        1
+                    ]
+                },
+                {
+                    "cassette_idx": 5,
+                    "cassette_state": [
+                        1
+                    ]
+                }
+            ]
+        }
+    ]
+}
