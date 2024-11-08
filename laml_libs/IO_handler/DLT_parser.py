@@ -5,7 +5,6 @@ import json
 recognized_missing = set(['-', '?', '-1'])
 
 class DLT_parser: # DLT: dynamic lineage tracing
-   
     def process_datafile(self, datafile, delimiter, missing_state, outputfile):
         file_extension = datafile.strip().split(".")[-1]
         if file_extension == "csv" or file_extension == "txt":

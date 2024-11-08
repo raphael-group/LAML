@@ -276,6 +276,8 @@ class Base_model(Virtual_solver):
                                     break   
                             if llh is not None:
                                 node.in_llh[k][x] = llh
+                if root_state not in tree.root.in_llh[k]:
+                    tree.root.in_llh[k][root_state] = -float("inf")
                 total_llh += tree.root.in_llh[k][root_state]
         return total_llh
 

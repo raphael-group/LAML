@@ -41,6 +41,8 @@ class PMMC_model(PMM_base_model):
         else:
             if c_is_missing:
                 p_ans = phi
+            elif phi == 1:
+                p_ans = 0
             else:
                 #start = time.time()
                 P = [rho]
