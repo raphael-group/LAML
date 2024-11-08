@@ -11,13 +11,15 @@ class DLT_parser: # DLT: dynamic lineage tracing
             self.datafile_to_json(datafile, delimiter, missing_state, outputfile)
         self.parse_json(self.datafile)
     
-    def __init__(self, datafile=None, priorfile=None, unedited_state=0, missing_state="?", delimiter=",", outputfile=None):
+    def __init__(self, datafile=None, priorfile=None, unedited_state=0, missing_state="?", delimiter=",", outputfile=None, max_allele_per_cassette=None):
+        # intended user facing
         self.datafile = datafile
         self.priorfile = priorfile 
         self.unedited_state = unedited_state
         self.missing_state = missing_state 
         self.delimiter = delimiter
         self.outputfile = outputfile
+        self.max_allele_per_cassette = max_allele_per_cassette
 
         self.datatype = None
         self.K = None
@@ -82,10 +84,14 @@ class DLT_parser: # DLT: dynamic lineage tracing
             self.J = len(self.data[0]["cassettes"][0]["cassette_state"][0]["state"])
         self.num_cells = len(self.data)
 
-    def parse_json(self, datafile):
+    def parse_json(self, datafile, max_allele_per_cassette=None):
+        # intended user facing
         # dataFile is a json file that contains either a character matrix a an allele table 
         # dataFile must have a field named "dataType", whose value is either "charMtrx" or "alleleTable"
         self.datafile = datafile
+        if self.max_allele_per_cassette is None: 
+            self.max_allele_per_cassette = max_allele_per_cassette
+
         data_obj = self.read_json(self.datafile)
         self.set_json_obj(data_obj)
 
@@ -108,7 +114,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
         alphabet_ds = self.get_alphabet_prior(Q,sites_per_cassette,self.datatype)
         if self.K:
             if len(alphabet_ds) != self.K:
-                print("alphabet_ds", len(alphabet_ds), "K", self.K)
+                #print("alphabet_ds", len(alphabet_ds), "K", self.K)
                 raise(f"Prior file K={len(alphabet_ds)}, which does not match K={self.K} from previously provided data.")
         else:
             self.K = len(alphabet_ds)
@@ -116,9 +122,12 @@ class DLT_parser: # DLT: dynamic lineage tracing
         self.alphabet = alphabet
         return alphabet_ds,alphabet 
 
-    def get_from_path(self, datafile, delimiter=None, missing_state=None, outputfile=None, priorfile=None):  
+    def get_from_path(self, datafile, delimiter=None, missing_state=None, outputfile=None, priorfile=None, max_allele_per_cassette=None):  
+        # intended user facing
         self.datafile = datafile 
         self.priorfile = priorfile 
+        if self.max_allele_per_cassette is None:
+            self.max_allele_per_cassette = max_allele_per_cassette
 
         self.process_datafile(datafile, delimiter, missing_state, outputfile)
         data_struct = self.parse_json(self.datafile)
