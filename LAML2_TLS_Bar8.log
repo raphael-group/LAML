@@ -1,0 +1,29 @@
+(base) gc3045@COS-T0264KMR6R LAML % python LAML2_TLS_Bar8.py
+Performing nni-search 1
+Perform nni moves for full topology search
+Found polytomies in the input tree(s). Arbitrarily resolving them to obtain fully resolved initial tree(s).
+Traceback (most recent call last):
+  File "/Users/gc3045/scmail_v1/LAML/LAML2_TLS_Bar8.py", line 37, in <module>
+    opt_trees,max_score,opt_params = myTopoSearch.search(resolve_polytomies=resolve_polytomies,maxiter=500,verbose=True, strategy=my_strategy, nreps=1,checkpoint_file=f"{prefix}_ckpt.txt")
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/TopoSearch/Topology_search.py", line 111, in search
+    trees,score,params = self.__search_one(strategy,maxiter=maxiter,verbose=verbose,only_marked=False,checkpoint_file=checkpoint_file)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/TopoSearch/Topology_search.py", line 144, in __search_one
+    curr_score,status = mySolver.score_tree(strategy=score_tree_strategy)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Base_model.py", line 80, in score_tree
+    nllh,status = self.optimize('EM',initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_params=fixed_params,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Base_model.py", line 381, in optimize
+    nllh,status = self.EM_optimization(randseed,verbose=verbose,fixed_params=fixed_params,ultra_constr=ultra_constr,EM_options=EM_options)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Base_model.py", line 686, in EM_optimization
+    pre_llh = self.llh_DLT_data()
+              ^^^^^^^^^^^^^^^^^^^
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Base_model.py", line 260, in llh_DLT_data
+    trans_p = self.Gamma(k,x,c) # transition probability
+              ^^^^^^^^^^^^^^^^^
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/PMMC_model.py", line 58, in Gamma
+    N += c[y]
+TypeError: unsupported operand type(s) for +=: 'int' and 'NoneType'
