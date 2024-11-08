@@ -1,16 +1,12 @@
 from laml_libs.Count_model.AlleleTable import AlleleTable
+from laml_libs.Count_model.CharMtrx import CharMtrx
 from laml_libs.Count_model.Alphabet import Alphabet
 import json
 
 recognized_missing = set(['-', '?', '-1'])
 
 class DLT_parser: # DLT: dynamic lineage tracing
-    def process_datafile(self, datafile, delimiter, missing_state, outputfile):
-        file_extension = datafile.strip().split(".")[-1]
-        if file_extension == "csv" or file_extension == "txt":
-            self.datafile_to_json(datafile, delimiter, missing_state, outputfile)
-        self.parse_json(self.datafile)
-    
+
     def __init__(self, datafile=None, priorfile=None, unedited_state=0, missing_state="?", delimiter=",", outputfile=None, max_allele_per_cassette=None):
         # intended user facing
         self.datafile = datafile
@@ -22,6 +18,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
         self.max_allele_per_cassette = max_allele_per_cassette
 
         self.datatype = None
+        self.DLT_data = None
         self.K = None
         self.J = None
         self.alphabet = None
@@ -29,11 +26,20 @@ class DLT_parser: # DLT: dynamic lineage tracing
         self.priors = None
 
         if datafile is not None: 
-            self.process_datafile(self.datafile, self.delimiter, self.missing_state, self.outputfile)
+            self.get_from_path(self.datafile, self.delimiter, self.missing_state, self.outputfile, self.priorfile, self.max_allele_per_cassette)
+    
+    def process_datafile(self, datafile, delimiter, missing_state, outputfile, max_allele_per_cassette):
+        file_extension = datafile.strip().split(".")[-1]
+        if file_extension == "csv" or file_extension == "txt":
+            # overwrites the datafile to be the json file
+            self.datafile_to_json(datafile, delimiter, missing_state, outputfile)
+        # reads in the json datafile
+        self.parse_json(self.datafile, max_allele_per_cassette)
+        
 
     def set_alphabet(self):
         if self.data_struct is None:
-            self.parse_json(self.datafile)
+            self.parse_json(self.datafile, self.max_allele_per_cassette)
             if self.data_struct is None:
                 raise(f"self.data_struct has not yet been set.")
 
@@ -89,8 +95,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
         # dataFile is a json file that contains either a character matrix a an allele table 
         # dataFile must have a field named "dataType", whose value is either "charMtrx" or "alleleTable"
         self.datafile = datafile
-        if self.max_allele_per_cassette is None: 
-            self.max_allele_per_cassette = max_allele_per_cassette
+        self.max_allele_per_cassette = max_allele_per_cassette # will overwrite previous value for max_allele_per_cassette
 
         data_obj = self.read_json(self.datafile)
         self.set_json_obj(data_obj)
@@ -126,11 +131,9 @@ class DLT_parser: # DLT: dynamic lineage tracing
         # intended user facing
         self.datafile = datafile 
         self.priorfile = priorfile 
-        if self.max_allele_per_cassette is None:
-            self.max_allele_per_cassette = max_allele_per_cassette
 
-        self.process_datafile(datafile, delimiter, missing_state, outputfile)
-        data_struct = self.parse_json(self.datafile)
+        self.process_datafile(datafile, delimiter, missing_state, outputfile, max_allele_per_cassette)
+        data_struct = self.parse_json(self.datafile, max_allele_per_cassette)
 
         # dataFile is in json format
         if priorfile is not None:
@@ -146,6 +149,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
 
         self.DLT_data = DLT_data
         self.priors = Q
+        self.max_allele_per_cassette = max_allele_per_cassette # will overwrite previous value for max_allele_per_cassette
         return DLT_data,Q  
 
     def get_alphabet_ds(self, ds, dt, missing_state):

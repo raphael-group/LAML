@@ -1,4 +1,5 @@
 from statistics import mean
+import matplotlib
 import matplotlib.pyplot as plt
 import argparse
 import pandas as pd
