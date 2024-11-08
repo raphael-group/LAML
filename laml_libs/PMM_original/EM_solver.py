@@ -16,7 +16,18 @@ def pseudo_log(x):
     return log(x) if x>0 else min_llh
 
 class EM_solver(ML_solver):
+    """EM_solver class."""
     def __init__(self,treeList,data,prior,params={'nu':0,'phi':0,'sigma':0}):
+        """
+        Initializes the EM_solver.
+
+        :param kind: Required treeList
+        :param data: Required data
+        :param prior: Required prior
+        :param params: Required list of parameters
+        :type params: dict() or None
+        :return None
+        """
         super(EM_solver,self).__init__(treeList,data,prior,params)
         self.has_polytomy = False
         self.__mark_polytomies__(eps_len=self.dmin*0.01)
