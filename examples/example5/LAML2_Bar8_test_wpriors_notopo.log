@@ -1,0 +1,29 @@
+Traceback (most recent call last):
+  File "/Users/gc3045/scmail_v1/LAML/examples/example5/../../run_laml2.py", line 267, in <module>
+    main()
+  File "/Users/gc3045/scmail_v1/LAML/examples/example5/../../run_laml2.py", line 197, in main
+    nllh = mySolver.optimize('EM',initials=args["nInitials"],fixed_params=fixed_params,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True,fixed_brlen=fixed_brlen)
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Base_model.py", line 381, in optimize
+    nllh,status = self.EM_optimization(randseed,verbose=verbose,fixed_params=fixed_params,ultra_constr=ultra_constr,EM_options=EM_options)
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Base_model.py", line 707, in EM_optimization
+    m_success,status=self.Mstep(fixed_params=fixed_params,verbose=verbose,local_brlen_opt=True,ultra_constr_cache=ultra_constr_cache)
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Base_model.py", line 549, in Mstep
+    d_star,status_d,nu_star,status_nu = my_Mstep_solver.solve(fixed_params=fixed_params,verbose=verbose)
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Mstep_solver.py", line 64, in solve
+    self.model_obj.set_closed_form_optimal(fixed_params=fixed_params,verbose=verbose)
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/PMMC_model.py", line 113, in set_closed_form_optimal
+    p_A = w*c[x]
+KeyError: (8, 8, 0)
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
+Setup finished. Beginning computation...
+Optimizing branch lengths and other numerical parameters without topology search
+Optimization start with 20 initials
+Initial point 1. Random seed: 2499
+Initial parameter values: mu=8.669482394301887 nu=0.24364556177640517 phi=0.04613392862352794 rho=0.5462441575206107 
+Initial nllh: inf
+Starting EM iter: 1
+Estep
+Estep runtime (s): 2.899435043334961
+Mstep
+[Gamma] v: TCCCATGCATTGAAAG-1, k: 0, w: 1.9559297623357418e-06, c: {(0, 40, 0): 1, (0, 41, 0): 1, (0, 19, 0): 1, (0, 0, 0): 1}, x: (8, 8, 0)

@@ -15,7 +15,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
         self.missing_state = missing_state 
         self.delimiter = delimiter
         self.outputfile = outputfile
-        self.max_allele_per_cassette = max_allele_per_cassette
+        self.max_allele_per_cassette = int(max_allele_per_cassette)
 
         self.datatype = None
         self.DLT_data = None
@@ -35,7 +35,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
             # overwrites the datafile to be the json file
             self.datafile_to_json(datafile, delimiter, missing_state, outputfile)
         # reads in the json datafile
-        self.parse_json(self.datafile, max_allele_per_cassette)
+        self.parse_json(self.datafile, int(max_allele_per_cassette))
         
 
     def set_alphabet(self):
@@ -100,7 +100,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
         # dataFile is a json file that contains either a character matrix a an allele table 
         # dataFile must have a field named "dataType", whose value is either "charMtrx" or "alleleTable"
         self.datafile = datafile
-        self.max_allele_per_cassette = max_allele_per_cassette # will overwrite previous value for max_allele_per_cassette
+        self.max_allele_per_cassette = int(max_allele_per_cassette) # will overwrite previous value for max_allele_per_cassette
 
         data_obj = self.read_json(self.datafile)
         self.set_json_obj(data_obj)
@@ -159,14 +159,15 @@ class DLT_parser: # DLT: dynamic lineage tracing
 
         self.priors = Q
 
+        self.max_allele_per_cassette = int(max_allele_per_cassette) # will overwrite previous value for max_allele_per_cassette
         if self.datatype == "charMtrx":
             #print("[get_from_path]", self.alphabet.M)
-            DLT_data = CharMtrx(self.data_struct,self.alphabet) #self.alphabet)
+            DLT_data = CharMtrx(self.data_struct,self.alphabet,self.max_allele_per_cassette) #self.alphabet)
         else:     
-            DLT_data = AlleleTable(self.data_struct,self.alphabet)
+            DLT_data = AlleleTable(self.data_struct,self.alphabet,self.max_allele_per_cassette)
 
         self.DLT_data = DLT_data
-        self.max_allele_per_cassette = max_allele_per_cassette # will overwrite previous value for max_allele_per_cassette
+
         return self.DLT_data, self.priors
 
     def get_alphabet_ds(self, ds, dt, missing_state):

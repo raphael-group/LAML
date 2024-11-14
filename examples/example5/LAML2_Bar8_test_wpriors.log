@@ -1,0 +1,91 @@
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3 --topology_search
+Setup finished. Beginning computation...
+Detected polytomies in the input trees.
+Flag --keep_polytomies is off. All polytomies will be resolved.
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Found polytomies in the input tree(s). Arbitrarily resolving them to obtain fully resolved initial tree(s).
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3 --topology_search
+Setup finished. Beginning computation...
+Detected polytomies in the input trees.
+Flag --keep_polytomies is off. All polytomies will be resolved.
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Found polytomies in the input tree(s). Arbitrarily resolving them to obtain fully resolved initial tree(s).
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
+Setup finished. Beginning computation...
+Optimizing branch lengths and other numerical parameters without topology search
+Optimization start with 20 initials
+Initial point 1. Random seed: 1302
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
+Setup finished. Beginning computation...
+Optimizing branch lengths and other numerical parameters without topology search
+Optimization start with 20 initials
+Initial point 1. Random seed: 7785
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
+Setup finished. Beginning computation...
+Optimizing branch lengths and other numerical parameters without topology search
+Optimization start with 20 initials
+Initial point 1. Random seed: 9401
+Initial parameter values: mu=3.273781387056621 nu=0.5461175596968781 phi=0.5435237210539493 rho=0.9387427131097736 
+Initial nllh: inf
+Starting EM iter: 1
+Estep
+Estep runtime (s): 2.855833053588867
+Mstep
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
+Setup finished. Beginning computation...
+Optimizing branch lengths and other numerical parameters without topology search
+Optimization start with 20 initials
+Initial point 1. Random seed: 6193
+Initial parameter values: mu=7.91976785741822 nu=0.903764627712673 phi=0.15916813279068587 rho=0.9130161873009168 
+Initial nllh: inf
+Starting EM iter: 1
+Estep
+Estep runtime (s): 2.8027679920196533
+Mstep
+[Gamma] w: 1.6312156814068338e-08, c: {(0, 40, 0): 1, (0, 41, 0): 1, (0, 19, 0): 1, (0, 0, 0): 1}, x: (8, 8, 0)
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
+Setup finished. Beginning computation...
+Optimizing branch lengths and other numerical parameters without topology search
+Optimization start with 20 initials
+Initial point 1. Random seed: 8447
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
+Setup finished. Beginning computation...
+Optimizing branch lengths and other numerical parameters without topology search
+Optimization start with 20 initials
+Initial point 1. Random seed: 7229
+Initial parameter values: mu=1.7772976472833157 nu=0.1792508451273963 phi=0.5334238954331564 rho=0.527997829750839 
+Initial nllh: inf
+Starting EM iter: 1
+Estep
+Estep runtime (s): 2.783874988555908
+Mstep
+[Gamma] w: 1.072803652477515e-05, c: {(0, 40, 0): 1, (0, 41, 0): 1, (0, 19, 0): 1, (0, 0, 0): 1}, x: (8, 8, 0)
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
+Setup finished. Beginning computation...
+Optimizing branch lengths and other numerical parameters without topology search
+Optimization start with 20 initials
+Initial point 1. Random seed: 2499
+Initial parameter values: mu=8.669482394301887 nu=0.24364556177640517 phi=0.04613392862352794 rho=0.5462441575206107 
+Initial nllh: inf
+Starting EM iter: 1
+Estep
+Estep runtime (s): 2.899435043334961
+Mstep
+[Gamma] v: TCCCATGCATTGAAAG-1, k: 0, w: 1.9559297623357418e-06, c: {(0, 40, 0): 1, (0, 41, 0): 1, (0, 19, 0): 1, (0, 0, 0): 1}, x: (8, 8, 0)
