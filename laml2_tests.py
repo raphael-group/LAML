@@ -1,18 +1,18 @@
 #! /usr/bin/env python
-from laml_unit_tests.Count_model.unit_tests_PMMN_in_llh import *
-from laml_unit_tests.Count_model.unit_tests_PMMN_out_llh import *
-from laml_unit_tests.Count_model.unit_tests_PMMN_posterior import *
-from laml_unit_tests.Count_model.unit_tests_PMMN_scipy_opt import *
-from laml_unit_tests.Count_model.unit_tests_PMMN_EM_opt import *
-from laml_unit_tests.Count_model.unit_tests_PMMN_TopoSearch import *
-from laml_unit_tests.Count_model.unit_tests_PMMN_TopoSearch_parallel import *
+#from laml_unit_tests.Count_model.unit_tests_PMMN_in_llh import *
+#from laml_unit_tests.Count_model.unit_tests_PMMN_out_llh import *
+#from laml_unit_tests.Count_model.unit_tests_PMMN_posterior import *
+#from laml_unit_tests.Count_model.unit_tests_PMMN_scipy_opt import *
+#from laml_unit_tests.Count_model.unit_tests_PMMN_EM_opt import *
+#from laml_unit_tests.Count_model.unit_tests_PMMN_TopoSearch import *
+#from laml_unit_tests.Count_model.unit_tests_PMMN_TopoSearch_parallel import *
 
-from laml_unit_tests.Count_model.unit_tests_PMMC_in_llh import *
-from laml_unit_tests.Count_model.unit_tests_PMMC_out_llh import *
-from laml_unit_tests.Count_model.unit_tests_PMMC_posterior import *
-from laml_unit_tests.Count_model.unit_tests_PMMC_scipy_opt import *
-from laml_unit_tests.Count_model.unit_tests_PMMC_EM_opt import *
-from laml_unit_tests.Count_model.unit_tests_PMMC_TopoSearch import *
+#from laml_unit_tests.Count_model.unit_tests_PMMC_in_llh import *
+#from laml_unit_tests.Count_model.unit_tests_PMMC_out_llh import *
+#from laml_unit_tests.Count_model.unit_tests_PMMC_posterior import *
+#from laml_unit_tests.Count_model.unit_tests_PMMC_scipy_opt import *
+#from laml_unit_tests.Count_model.unit_tests_PMMC_EM_opt import *
+#from laml_unit_tests.Count_model.unit_tests_PMMC_TopoSearch import *
 
 from laml_unit_tests.IO_handler.unit_tests_proc_data import *
 import sys

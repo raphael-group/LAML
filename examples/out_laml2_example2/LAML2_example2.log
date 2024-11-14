@@ -1,0 +1,114 @@
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c character_matrix.csv -t starting.tree -p priors.csv -o LAML2_example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10 --readout_model PMMN
+No polytomy detected.
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Initial score: -1171.2494678097555
+NNI Iter: 0
+Number of trees checked 14
+Runtime (s): 14.956240249999993
+Current score: -1171.3415440247047
+NNI Iter: 1
+Number of trees checked 10
+Runtime (s): 13.12615187499999
+Current score: -1174.6479550796855
+NNI Iter: 2
+Number of trees checked 30
+Runtime (s): 28.14771779200001
+Current score: -1171.3415441093314
+NNI Iter: 3
+Number of trees checked 10
+Runtime (s): 11.857617125000004
+Current score: -1171.4271919152493
+NNI Iter: 4
+Number of trees checked 8
+Runtime (s): 9.951373958000005
+Current score: -1171.2592168892334
+NNI Iter: 5
+Number of trees checked 6
+Runtime (s): 9.473258541000007
+Current score: -1172.08570944704
+NNI Iter: 6
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 8
+Runtime (s): 35.78302529199999
+Current score: -1172.6883916206266
+NNI Iter: 7
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 8
+Runtime (s): 34.658587874999995
+Current score: -1172.7266271692256
+NNI Iter: 8
+Number of trees checked 32
+Runtime (s): 30.53768450000001
+Current score: -1172.5963143547756
+NNI Iter: 9
+Number of trees checked 14
+Runtime (s): 17.385470166999966
+Current score: -1172.5963144376792
+NNI Iter: 10
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 32
+Runtime (s): 61.96421854199997
+Current score: -1173.1553054124975
+NNI Iter: 11
+Number of trees checked 38
+Runtime (s): 40.86103641699998
+Current score: -1172.3288250249277
+NNI Iter: 12
+Number of trees checked 64
+Runtime (s): 60.256119790999946
+Current score: -1172.2966809522852
+NNI Iter: 13
+Number of trees checked 10
+Runtime (s): 11.96209516700003
+Current score: -1172.2110330078142
+NNI Iter: 14
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 30
+Runtime (s): 59.937972375000015
+Current score: -1172.2811483540038
+NNI Iter: 15
+Number of trees checked 28
+Runtime (s): 34.61030279200003
+Current score: -1171.7106324275258
+NNI Iter: 16
+Number of trees checked 22
+Runtime (s): 23.831764874999976
+Current score: -1171.7525404850742
+NNI Iter: 17
+Number of trees checked 40
+Runtime (s): 41.73317195799996
+Current score: -1171.7746106452146
+NNI Iter: 18
+Number of trees checked 6
+Runtime (s): 7.871692916000029
+Current score: -1171.7525404886542
+NNI Iter: 19
+Number of trees checked 12
+Runtime (s): 14.33541220799998
+Current score: -1171.1516323165579
+NNI Iter: 20
+Number of trees checked 10
+Runtime (s): 11.55634016700003
+Current score: -1171.1491753251496
+NNI Iter: 21
+Number of trees checked 76
+Runtime (s): 73.75767129099995
+Current score: -1171.0790598106503
+NNI Iter: 22
+Number of trees checked 16
+Runtime (s): 19.47425470799999
+Current score: -1168.87742577223
+NNI Iter: 23
+Number of trees checked 124
+Runtime (s): 114.54825429100003
+None of the NNI neighbor trees was accepted. Stop NNI search
+Best score for this search: -1168.87742577223
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -1168.8676554288
+Tree height pre-scaling: 1.0680450125587158, input timescale: 10
+Tree height after scaling: 10.000000000000004
+Runtime (s): 899.227025416

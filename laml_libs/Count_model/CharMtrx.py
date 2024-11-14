@@ -7,7 +7,6 @@ class CharMtrx:
         self.K = alphabet.K
         self.J = alphabet.J
         self.alphabet = alphabet
-        
         if self.J == 1: # may need to correct the cassette states to be tuples, not single values
             data_struct_corrected = {}
             for c in data_struct:

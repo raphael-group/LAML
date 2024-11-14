@@ -21,9 +21,10 @@ class DLT_parser: # DLT: dynamic lineage tracing
         self.DLT_data = None
         self.K = None
         self.J = None
-        self.alphabet = None
+        #self.alphabet = None
         self.num_cells = None
         self.priors = None
+        self.alphabet = None
 
         if datafile is not None: 
             self.get_from_path(self.datafile, self.delimiter, self.missing_state, self.outputfile, self.priorfile, self.max_allele_per_cassette)
@@ -41,12 +42,15 @@ class DLT_parser: # DLT: dynamic lineage tracing
         if self.data_struct is None:
             self.parse_json(self.datafile, self.max_allele_per_cassette)
             if self.data_struct is None:
-                raise(f"self.data_struct has not yet been set.")
+                raise(f"self.data_struct has not yet been set because the provided {self.datafile} cannot be parsed.")
 
         ### assumes self.data_struct has been set
+        #print("[set_alphabet] self.data_struct", self.data_struct)
         alphabet_ds = self.get_alphabet_ds(self.data_struct, self.datatype, self.missing_state)
-        self.alphabet = Alphabet(K=self.K, J=self.J, data_struct=alphabet_ds, silence_mechanism='convolve')
-        return alphabet_ds
+        #print("[set_alphabet] alphabet_ds", alphabet_ds)
+        alphabet = Alphabet(K=self.K, J=self.J, data_struct=alphabet_ds, silence_mechanism='convolve')
+        self.alphabet = alphabet
+        return alphabet_ds, alphabet
 
     def datafile_to_json(self, datafile, delimiter, missing_state, outputfile): #,datafile,delimiter,missing_state,outputfile): 
         # convert a charMtrxFile to json format
@@ -70,7 +74,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
             json_data = self.charMtrx_to_json(charMtrx, self.delimiter, self.missing_state)
             # step 3: write the json_instance to the outputFile
             self.write_json(json_data,self.outputfile)
-            self.set_json_obj(json_data)
+            #self.set_json_obj(json_data)
 
             # save json output as this object's datafile
             self.datafile = self.outputfile
@@ -83,9 +87,11 @@ class DLT_parser: # DLT: dynamic lineage tracing
     def set_json_obj(self, json_data):
         self.data = json_data["cell_data"]
         self.datatype = json_data["dataType"]
-        self.K = len([x["cassette_idx"] for x in self.data[0]["cassettes"]])
+        self.K = max([len(self.data[i]["cassettes"]) for i in range(len(self.data))])
+        #print("[set_json_obj]", "K", self.K)
         if self.datatype == "charMtrx":
             self.J = len(self.data[0]["cassettes"][0]["cassette_state"])
+            #print("[set_json_obj]", "J", self.J)
         else:
             self.J = len(self.data[0]["cassettes"][0]["cassette_state"][0]["state"])
         self.num_cells = len(self.data)
@@ -94,6 +100,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
         # intended user facing
         # dataFile is a json file that contains either a character matrix a an allele table 
         # dataFile must have a field named "dataType", whose value is either "charMtrx" or "alleleTable"
+        #print("[parse_json]")
         self.datafile = datafile
         self.max_allele_per_cassette = max_allele_per_cassette # will overwrite previous value for max_allele_per_cassette
 
@@ -116,16 +123,22 @@ class DLT_parser: # DLT: dynamic lineage tracing
         # Note: read_priors currently does NOT fill in the unedited cassette state!
         Q = self.read_priors(priorFile) 
         # Q will be processed into a list of (list of dictionaries)
-        alphabet_ds = self.get_alphabet_prior(Q,sites_per_cassette,self.datatype)
-        if self.K:
-            if len(alphabet_ds) != self.K:
-                #print("alphabet_ds", len(alphabet_ds), "K", self.K)
-                raise(f"Prior file K={len(alphabet_ds)}, which does not match K={self.K} from previously provided data.")
+        # Q is a cassette list of site lists with dictionaries for each site
+        Q = self.get_alphabet_prior(Q,sites_per_cassette,self.datatype)
+
+        if sites_per_cassette == 1:
+            alphabet_ds = [[list(set([0,-1]+list(k[0].keys())))] for k in Q]
         else:
-            self.K = len(alphabet_ds)
+            alphabet_ds = [[list(set([0,-1]+list(s.keys()))) for s in k] for k in Q]
+        if len(alphabet_ds) != self.K:
+            #print("alphabet_ds", len(alphabet_ds), "K", self.K)
+            raise(f"Prior file K={len(alphabet_ds)}, which does not match K={self.K} from previously provided data.")
+        #else:
+
+        self.K = len(alphabet_ds)
         alphabet = Alphabet(self.K, sites_per_cassette, alphabet_ds) 
         self.alphabet = alphabet
-        return alphabet_ds,alphabet 
+        return Q #, alphabet_ds #alphabet 
 
     def get_from_path(self, datafile, delimiter=None, missing_state=None, outputfile=None, priorfile=None, max_allele_per_cassette=None):  
         # intended user facing
@@ -133,47 +146,54 @@ class DLT_parser: # DLT: dynamic lineage tracing
         self.priorfile = priorfile 
 
         self.process_datafile(datafile, delimiter, missing_state, outputfile, max_allele_per_cassette)
-        data_struct = self.parse_json(self.datafile, max_allele_per_cassette)
+        #data_struct = self.parse_json(self.datafile, max_allele_per_cassette)
 
+        alphabet_ds, charMtrx_alphabet = self.set_alphabet()
         # dataFile is in json format
         if priorfile is not None:
-            Q, alphabet = self.parse_prior(priorfile, sites_per_cassette=self.J)
+            # resets self.alphabet according to the priorfile
+            Q = self.parse_prior(priorfile, sites_per_cassette=self.J)
         else:
-            self.set_alphabet()
+            # uses the self.alphabet according to the datafile
             Q = self.uniform_priors(self.alphabet, self.datatype, self.K, self.J, self.unedited_state, self.missing_state) 
 
+        self.priors = Q
+
         if self.datatype == "charMtrx":
-            DLT_data = CharMtrx(self.data_struct,self.alphabet)
+            #print("[get_from_path]", self.alphabet.M)
+            DLT_data = CharMtrx(self.data_struct,self.alphabet) #self.alphabet)
         else:     
             DLT_data = AlleleTable(self.data_struct,self.alphabet)
 
         self.DLT_data = DLT_data
-        self.priors = Q
         self.max_allele_per_cassette = max_allele_per_cassette # will overwrite previous value for max_allele_per_cassette
-        return DLT_data,Q  
+        return self.DLT_data, self.priors
 
     def get_alphabet_ds(self, ds, dt, missing_state):
         # Note, does not include missing states
         alphabet_ds = {}
         final_alphabet_ds = []
+        #print("[get_alphabet_ds] datatype", dt)
         
         if dt == "charMtrx":
             for cell_name in ds:
                 cell_data = ds[cell_name]
 
-                for cassette_idx in cell_data.keys():
-                    cassette_data = cell_data[cassette_idx]
-                    cassette_state = ds[cell_name][cassette_idx]
 
-                    if cassette_idx not in alphabet_ds.keys():
-                        alphabet_ds[cassette_idx] = {(0,)} # set of possible cassette_states
+                #cassette_alphabet_ds = {0,-1} # add a list for every cassette_idx
+
+                for cassette_idx, cassette_state in enumerate(cell_data):
+                    #print(cassette_idx, len(final_alphabet_ds))
+                    if len(final_alphabet_ds) <= cassette_idx:
+                        final_alphabet_ds.append({0, -1})
+                    #print(cassette_idx, len(final_alphabet_ds))
+                    #print(final_alphabet_ds)
+
                     if cassette_state != missing_state:
-                        alphabet_ds[cassette_idx].add(cassette_state)
+                        final_alphabet_ds[cassette_idx].add(cassette_state)
 
-            # order the indices of the cassette idx
-            sorted_cassette_keys = [key for key in sorted(alphabet_ds.keys())]
-            for cassette_idx in sorted_cassette_keys:
-                final_alphabet_ds.append([sorted(list(alphabet_ds[cassette_idx]))])
+                #final_alphabet_ds.append([list(cassette_alphabet_ds)])
+            final_alphabet_ds = [[list(x)] for x in final_alphabet_ds]
 
         else:
             for cell_name in ds:
@@ -189,7 +209,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
                     for cassette_state in cassette_states:
                         for site_idx, site_state in enumerate(cassette_state):
                             if site_idx not in alphabet_ds[cassette_idx].keys():
-                                alphabet_ds[cassette_idx][site_idx] = {0}
+                                alphabet_ds[cassette_idx][site_idx] = {0,-1}
                             if site_state != missing_state:
                                 alphabet_ds[cassette_idx][site_idx].add(site_state)
 
@@ -200,6 +220,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
                 cassette_list = [sorted(list(alphabet_ds[cassette_idx][key])) for key in sorted(alphabet_ds[cassette_idx].keys())]
                 final_alphabet_ds.append(cassette_list)
 
+        #print("final_alphabet_ds", final_alphabet_ds)
         return final_alphabet_ds
 
     def charMtrx_to_json(self,charMtrx,delimiter,missing_char):
@@ -238,12 +259,22 @@ class DLT_parser: # DLT: dynamic lineage tracing
         for cell_json in data:
             cell_name = cell_json["cell_name"]
             cassettes = cell_json["cassettes"]
-            charmat_ds[cell_name] = {}
+            charmat_ds[cell_name] = []
 
             for cassette_data in cassettes:
                 cassette_idx = cassette_data["cassette_idx"]
                 cassette_state = cassette_data["cassette_state"]
-                charmat_ds[cell_name][cassette_idx] = tuple(cassette_state)
+                #print("cassette_state before cast", cassette_state)
+                #charmat_ds[cell_name][cassette_idx] = cassette_state
+                #if type(cassette_state) != tuple:
+                #    cassette_state = tuple(cassette_state)
+                #print("cassette_state after cast", cassette_state)
+
+                #charmat_ds[cell_name][cassette_idx] = cassette_state
+                if cassette_state != []:
+                    charmat_ds[cell_name].append(cassette_state[0])
+                else:
+                    charmat_ds[cell_name].append("?")
 
         return charmat_ds #, alphabet_ds 
 
@@ -274,20 +305,23 @@ class DLT_parser: # DLT: dynamic lineage tracing
             for key in d:
                 new_d[(key,)] = d[key]
             return new_d
-        final_alphabet_ds = []
+        alphabet_from_priordict = []
         for idx, q_dict in enumerate(Q):
-            if dt == "charMtrx":
-                new_q_dict = convert_keys_to_tuples(q_dict)
-                new_q_dict[(0,)] = 0
-                q_dict = new_q_dict
-            else:
-                q_dict[0] = 0
+            #if dt == "charMtrx":
+                #new_q_dict = convert_keys_to_tuples(q_dict)
+                #new_q_dict[(0,)] = 0
+            #    new_q_dict = q_dict
+            #    new_q_dict[0] = 0
+            #    q_dict = new_q_dict
+            #else:
+            q_dict = q_dict[0]
+            q_dict[0] = 0
             if idx % J == 0:
                 cassette_dictionary = []
             cassette_dictionary.append(q_dict)
             if idx % J == J-1:
-                final_alphabet_ds.append(cassette_dictionary)
-        return final_alphabet_ds
+                alphabet_from_priordict.append(cassette_dictionary)
+        return alphabet_from_priordict 
 
     def uniform_priors(self,alphabet, dt, K, J, unedited_state, missing_state):
         def generate_q(M_i, unedited_state):
@@ -304,7 +338,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
         if dt == "charMtrx":
             # list of possible site alphabets
             for k in range(K):
-                M_i = set([x for x in alphabet.get_cassette_alphabet(k) if x not in [unedited_state, missing_state]])
+                M_i = set([x for x in alphabet.get_cassette_alphabet(k) if x not in [unedited_state, missing_state, -1, "-1", "?"]])
                 q = generate_q(M_i, unedited_state)
                 Q.append(q)
         else:
@@ -312,7 +346,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
             for k in range(K):
                 cassette_q = []
                 for j in range(J):
-                    M_i = set([x for x in alphabet.get_site_alphabet(k,j) if x not in [unedited_state, missing_state]])
+                    M_i = set([x for x in alphabet.get_site_alphabet(k,j) if x not in [unedited_state, missing_state, -1, "-1", "?"]])
                     q = generate_q(M_i, unedited_state)
                     cassette_q.append(q)
                 Q.append(cassette_q)
@@ -512,6 +546,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
                         site_idx = int(site_idx)
                     if site_idx not in seen_sites:
                         if len(seen_sites) > 0:
+                            Qi = [Qi]
                             Q.append(Qi)
                             Qi = {}
                         seen_sites.add(site_idx)
@@ -519,6 +554,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
                     prob = float(prob)
                     #Q[len(seen_sites) - 1][char_state] = prob
                     Qi[char_state] = prob
+                Qi = [Qi]
                 Q.append(Qi)
         #else:
         #    Q = [{0:0} for i in range(k)]
@@ -527,4 +563,5 @@ class DLT_parser: # DLT: dynamic lineage tracing
         #            site_idx, char_state, prob = line.strip().split()
         #            site_idx, char_state, prob = int(site_idx), int(char_state), float(prob)
         #            Q[site_idx][char_state] = prob '''
+        #print("Q:", Q)
         return Q

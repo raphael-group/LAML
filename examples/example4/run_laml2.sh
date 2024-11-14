@@ -1,0 +1,1 @@
+python ./../../run_laml2.py -c c30_noise0.12_rep9.msa.txt -t c30_noise0.12_rep9.nj_tree.nwk -p c30_noise0.12_rep9.prior.csv -v --nInitials 1 -o example4_laml2 --noSilence --topology_search --readout_model "PMMN"

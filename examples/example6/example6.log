@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Alphabet.py", line 30, in __get_alphabet
+    prev = __get_alphabet(j-1)
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Alphabet.py", line 30, in __get_alphabet
+    prev = __get_alphabet(j-1)
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Alphabet.py", line 30, in __get_alphabet
+    prev = __get_alphabet(j-1)
+  [Previous line repeated 996 more times]
+  File "/Users/gc3045/scmail_v1/LAML/laml_libs/Count_model/Alphabet.py", line 27, in __get_alphabet
+    if j == 0:
+RecursionError: maximum recursion depth exceeded in comparison
+Launching LAML version 2.0.0
+LAML was called as follows: ./../../run_laml2.py -c baseMemoir.p2.msa.txt -t baseMemoir.p2.starting_tree.nwk -p uniform -v --nInitials 1 -o example6 --noSilence --topology_search --readout_model PMMN
