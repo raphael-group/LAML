@@ -155,7 +155,7 @@ class ProcData(unittest.TestCase):
 
         # check that the alphabet is read correctly
         alphabet_ds = tmp.set_alphabet()
-        self.assertEqual(tmp.alphabet.M, [prod([5, 3, 4]), prod([4, 3, 4])])
+        self.assertEqual(tmp.alphabet.M, [prod([5, 3, 4]), prod([4, 3, 3])])
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {-1, 0, 1, 2, 3})
         self.assertEqual(tmp.alphabet.get_site_alphabet(1,1), {-1, 0, 1})  
         
@@ -244,7 +244,7 @@ class ProcData(unittest.TestCase):
         ### Uniform priors should drop the -1
         
         # I introduced a new state in the prior file at site index 3 that isn't observed in the json, should be in the alphabet
-        self.assertEqual(tmp.alphabet.M, [60, 48]) # the extra entry at site index 3 is not there in the uniform priors
+        self.assertEqual(tmp.alphabet.M, [60, 36]) # the extra entry at site index 3 is not there in the uniform priors
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {-1, 0, 1, 2, 3})
         self.assertEqual(tmp.alphabet.get_site_alphabet(1,1), {-1, 0, 1})
 

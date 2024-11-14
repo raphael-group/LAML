@@ -121,14 +121,7 @@
                 {
                     "cassette_idx": 1,
                     "cassette_state": [
-                        {
-                            "state": [
-                                0,
-                                1,
-                                1 
-                            ],
-                            "observation": 10
-                        }
+                        {}
                     ]
                 }
             ]

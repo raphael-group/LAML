@@ -153,9 +153,7 @@
                 },
                 {
                     "cassette_idx": 4,
-                    "cassette_state": [
-                        1
-                    ]
+                    "cassette_state": []
                 },
                 {
                     "cassette_idx": 5,
