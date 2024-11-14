@@ -247,6 +247,8 @@ class DLT_parser: # DLT: dynamic lineage tracing
 
 
     def data_to_CharMtrx_struct(self,data):
+        # Dictionary of lists
+
         charmat_ds = {}
         #alphabet_ds = {}
 
@@ -267,6 +269,8 @@ class DLT_parser: # DLT: dynamic lineage tracing
         return charmat_ds #, alphabet_ds 
 
     def data_to_AlleleTable_struct(self, data):
+        # Dictionary of lists of dictionaries
+        # missing data should still have a cassette, but cassette_states can be 
         alleletable_ds = {}
         #alphabet_ds = {}
 

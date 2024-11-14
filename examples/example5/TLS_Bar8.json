@@ -1239,15 +1239,6 @@
                     "cassette_idx": 0,
                     "cassette_state": [
                         {
-                            "state": [
-                                -1,
-                                -1,
-                                -1
-                            ],
-                            "site_0": -1,
-                            "site_1": -1,
-                            "site_2": -1,
-                            "observation": null
                         }
                     ]
                 },
@@ -1255,15 +1246,6 @@
                     "cassette_idx": 1,
                     "cassette_state": [
                         {
-                            "state": [
-                                -1,
-                                -1,
-                                -1
-                            ],
-                            "site_0": -1,
-                            "site_1": -1,
-                            "site_2": -1,
-                            "observation": null
                         }
                     ]
                 },
@@ -1907,15 +1889,6 @@
                     "cassette_idx": 1,
                     "cassette_state": [
                         {
-                            "state": [
-                                -1,
-                                -1,
-                                -1
-                            ],
-                            "site_0": -1,
-                            "site_1": -1,
-                            "site_2": -1,
-                            "observation": null
                         }
                     ]
                 },
@@ -3562,15 +3535,6 @@
                     "cassette_idx": 3,
                     "cassette_state": [
                         {
-                            "state": [
-                                -1,
-                                -1,
-                                -1
-                            ],
-                            "site_0": -1,
-                            "site_1": -1,
-                            "site_2": -1,
-                            "observation": null
                         }
                     ]
                 },
@@ -7241,15 +7205,6 @@
                     "cassette_idx": 1,
                     "cassette_state": [
                         {
-                            "state": [
-                                -1,
-                                -1,
-                                -1
-                            ],
-                            "site_0": -1,
-                            "site_1": -1,
-                            "site_2": -1,
-                            "observation": null
                         }
                     ]
                 },
