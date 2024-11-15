@@ -1,91 +1,249 @@
 Launching LAML version 2.0.0
-LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3 --topology_search
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled_resolved.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 2 --nInitials 1 -P rho=0.9 --topology_search
 Setup finished. Beginning computation...
-Detected polytomies in the input trees.
-Flag --keep_polytomies is off. All polytomies will be resolved.
+No polytomy detected.
 Starting topology search
 Running topology search sequentially...
 Performing nni-search 1
 Perform nni moves for full topology search
-Found polytomies in the input tree(s). Arbitrarily resolving them to obtain fully resolved initial tree(s).
-Launching LAML version 2.0.0
-LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3 --topology_search
-Setup finished. Beginning computation...
-Detected polytomies in the input trees.
-Flag --keep_polytomies is off. All polytomies will be resolved.
-Starting topology search
-Running topology search sequentially...
-Performing nni-search 1
-Perform nni moves for full topology search
-Found polytomies in the input tree(s). Arbitrarily resolving them to obtain fully resolved initial tree(s).
-Launching LAML version 2.0.0
-LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
-Setup finished. Beginning computation...
-Optimizing branch lengths and other numerical parameters without topology search
-Optimization start with 20 initials
-Initial point 1. Random seed: 1302
-Launching LAML version 2.0.0
-LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
-Setup finished. Beginning computation...
-Optimizing branch lengths and other numerical parameters without topology search
-Optimization start with 20 initials
-Initial point 1. Random seed: 7785
-Launching LAML version 2.0.0
-LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
-Launching LAML version 2.0.0
-LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
-Setup finished. Beginning computation...
-Optimizing branch lengths and other numerical parameters without topology search
-Optimization start with 20 initials
-Initial point 1. Random seed: 9401
-Initial parameter values: mu=3.273781387056621 nu=0.5461175596968781 phi=0.5435237210539493 rho=0.9387427131097736 
-Initial nllh: inf
-Starting EM iter: 1
-Estep
-Estep runtime (s): 2.855833053588867
-Mstep
-Launching LAML version 2.0.0
-LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
-Setup finished. Beginning computation...
-Optimizing branch lengths and other numerical parameters without topology search
-Optimization start with 20 initials
-Initial point 1. Random seed: 6193
-Initial parameter values: mu=7.91976785741822 nu=0.903764627712673 phi=0.15916813279068587 rho=0.9130161873009168 
-Initial nllh: inf
-Starting EM iter: 1
-Estep
-Estep runtime (s): 2.8027679920196533
-Mstep
-[Gamma] w: 1.6312156814068338e-08, c: {(0, 40, 0): 1, (0, 41, 0): 1, (0, 19, 0): 1, (0, 0, 0): 1}, x: (8, 8, 0)
-Launching LAML version 2.0.0
-LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
-Setup finished. Beginning computation...
-Optimizing branch lengths and other numerical parameters without topology search
-Optimization start with 20 initials
-Initial point 1. Random seed: 8447
-Launching LAML version 2.0.0
-LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
-Setup finished. Beginning computation...
-Optimizing branch lengths and other numerical parameters without topology search
-Optimization start with 20 initials
-Initial point 1. Random seed: 7229
-Initial parameter values: mu=1.7772976472833157 nu=0.1792508451273963 phi=0.5334238954331564 rho=0.527997829750839 
-Initial nllh: inf
-Starting EM iter: 1
-Estep
-Estep runtime (s): 2.783874988555908
-Mstep
-[Gamma] w: 1.072803652477515e-05, c: {(0, 40, 0): 1, (0, 41, 0): 1, (0, 19, 0): 1, (0, 0, 0): 1}, x: (8, 8, 0)
-Launching LAML version 2.0.0
-LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o LAML2_Bar8_test_wpriors -v -s 3
-Setup finished. Beginning computation...
-Optimizing branch lengths and other numerical parameters without topology search
-Optimization start with 20 initials
-Initial point 1. Random seed: 2499
-Initial parameter values: mu=8.669482394301887 nu=0.24364556177640517 phi=0.04613392862352794 rho=0.5462441575206107 
-Initial nllh: inf
-Starting EM iter: 1
-Estep
-Estep runtime (s): 2.899435043334961
-Mstep
-[Gamma] v: TCCCATGCATTGAAAG-1, k: 0, w: 1.9559297623357418e-06, c: {(0, 40, 0): 1, (0, 41, 0): 1, (0, 19, 0): 1, (0, 0, 0): 1}, x: (8, 8, 0)
+Initial score: -10900.363658760936
+NNI Iter: 0
+Number of trees checked 2
+Runtime (s): 94.808779625
+Current score: -10901.053110824421
+NNI Iter: 1
+Number of trees checked 2
+Runtime (s): 58.252024000000006
+Current score: -10901.12921457534
+NNI Iter: 2
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 4
+Runtime (s): 353.292586875
+Current score: -10901.17458417673
+NNI Iter: 3
+Number of trees checked 2
+Runtime (s): 86.07444800099995
+Current score: -10901.169768414158
+NNI Iter: 4
+Number of trees checked 2
+Runtime (s): 60.44091145799996
+Current score: -10901.320249559318
+NNI Iter: 5
+Number of trees checked 6
+Runtime (s): 105.88955266699986
+Current score: -10901.334555967655
+NNI Iter: 6
+Number of trees checked 2
+Runtime (s): 58.986931124999956
+Current score: -10901.256185900946
+NNI Iter: 7
+Number of trees checked 4
+Runtime (s): 115.52777812499994
+Current score: -10901.105704667134
+NNI Iter: 8
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 10
+Runtime (s): 727.0895874170001
+Current score: -10901.20027583376
+NNI Iter: 9
+Number of trees checked 2
+Runtime (s): 64.07705029199974
+Current score: -10901.205091592235
+NNI Iter: 10
+Number of trees checked 4
+Runtime (s): 102.625677042
+Current score: -10901.1432957307
+NNI Iter: 11
+Number of trees checked 4
+Runtime (s): 76.72432216600009
+Current score: -10901.303066938082
+NNI Iter: 12
+Number of trees checked 2
+Runtime (s): 55.206883041999845
+Current score: -10901.267004492962
+NNI Iter: 13
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 6
+Runtime (s): 462.22985458400035
+Current score: -10900.85672690395
+NNI Iter: 14
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 2
+Runtime (s): 327.649377708
+Current score: -10900.76338584865
+NNI Iter: 15
+Number of trees checked 4
+Runtime (s): 67.16877841700034
+Current score: -10900.733404568718
+NNI Iter: 16
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 4
+Runtime (s): 549.88029125
+Current score: -10900.77527920799
+NNI Iter: 17
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 4
+Runtime (s): 493.3732337079996
+Current score: -10900.739727611766
+NNI Iter: 18
+Number of trees checked 2
+Runtime (s): 57.376763582999956
+Current score: -10900.307749443811
+NNI Iter: 19
+Number of trees checked 2
+Runtime (s): 38.56465299999945
+Current score: -10900.185346119299
+NNI Iter: 20
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 2
+Runtime (s): 300.9706545000008
+Current score: -10899.91405295846
+NNI Iter: 21
+Number of trees checked 6
+Runtime (s): 96.04504045800059
+Current score: -10899.909636763186
+NNI Iter: 22
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 20
+Runtime (s): 1226.9566084999997
+Current score: -10899.834798486718
+NNI Iter: 23
+Number of trees checked 4
+Runtime (s): 57.50176499999998
+Current score: -10899.733981934085
+NNI Iter: 24
+Number of trees checked 4
+Runtime (s): 67.71198987499974
+Current score: -10899.620649355698
+NNI Iter: 25
+Number of trees checked 4
+Runtime (s): 62.73577316700084
+Current score: -10895.105790979569
+NNI Iter: 26
+Number of trees checked 14
+Runtime (s): 165.3637747089997
+Current score: -10895.044478054111
+NNI Iter: 27
+Number of trees checked 2
+Runtime (s): 40.24472854099986
+Current score: -10894.904985004054
+NNI Iter: 28
+Number of trees checked 6
+Runtime (s): 77.70847941700049
+Current score: -10893.823202121872
+NNI Iter: 29
+Number of trees checked 4
+Runtime (s): 54.43147508400034
+Current score: -10893.777587817664
+NNI Iter: 30
+Number of trees checked 4
+Runtime (s): 73.36577233299977
+Current score: -10893.692123816938
+NNI Iter: 31
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 8
+Runtime (s): 1143.4483533330003
+Current score: -10893.662348597823
+NNI Iter: 32
+Number of trees checked 2
+Runtime (s): 34.8655875000004
+Current score: -10893.576090523684
+NNI Iter: 33
+Number of trees checked 12
+Runtime (s): 118.72306716700041
+Current score: -10893.561192500187
+NNI Iter: 34
+Number of trees checked 4
+Runtime (s): 43.434261124999466
+Current score: -10893.549562280357
+NNI Iter: 35
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 2
+Runtime (s): 329.36019216600016
+Current score: -10893.502041877098
+NNI Iter: 36
+Number of trees checked 4
+Runtime (s): 74.2290081250012
+Current score: -10893.285490128796
+NNI Iter: 37
+Number of trees checked 8
+Runtime (s): 127.89789474999998
+Current score: -10893.277414351696
+NNI Iter: 38
+Number of trees checked 2
+Runtime (s): 37.49490854200121
+Current score: -10893.227820627351
+NNI Iter: 39
+Number of trees checked 6
+Runtime (s): 81.64495312500003
+Current score: -10893.214533344015
+NNI Iter: 40
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 10
+Runtime (s): 947.3862047080002
+Current score: -10892.575513372241
+NNI Iter: 41
+Number of trees checked 4
+Runtime (s): 48.58616066700051
+Current score: -10892.498668553291
+NNI Iter: 42
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 26
+Runtime (s): 622.8277667500006
+Current score: -10892.366478189644
+NNI Iter: 43
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 16
+Runtime (s): 2076.2032567919996
+Current score: -10892.267347236073
+NNI Iter: 44
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 8
+Runtime (s): 527.9498984579986
+Current score: -10891.211948212056
+NNI Iter: 45
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 14
+Runtime (s): 1059.8423323750012
+Current score: -10891.176640241281
+NNI Iter: 46
+Number of trees checked 16
+Runtime (s): 190.11212587499904
+Current score: -10887.97171418395
+NNI Iter: 47
+Number of trees checked 4
+Runtime (s): 67.89452479099964
+Current score: -10887.786207981451
+NNI Iter: 48
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 38
+Runtime (s): 1779.831016917
+Current score: -10887.685577553366
+NNI Iter: 49
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 26
+Runtime (s): 2694.4391576670023
+Current score: -10887.670874186217
+NNI Iter: 50
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 18
+Runtime (s): 699.2215096660002
+Current score: -10887.66185914224
+NNI Iter: 51
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+couldn't optimize, probably due to 'local_brlen_opt'. Remove 'local_brlen_opt' and try again ...
+Number of trees checked 46
+Runtime (s): 1384.5805758749993
+None of the NNI neighbor trees was accepted. Stop NNI search
+Best score for this search: -10887.66185914224
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -10887.64303677357
+Tree height pre-scaling: 0.6417265964897556, input timescale: 1.0
+Tree height after scaling: 1.0
+Runtime (s): 20847.029938125

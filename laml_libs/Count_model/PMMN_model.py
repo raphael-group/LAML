@@ -24,7 +24,7 @@ class PMMN_model(PMM_base_model):
             params = Param(['mu','nu','phi','rho'],[mu,nu,phi,rho],[0,0,0,DEFAULT_min_rho],[DEFAULT_max_mu,DEFAULT_max_nu,1,1])
         super(PMMN_model,self).__init__(treeList,data,prior,params)
     
-    def Gamma(self,k,x,c):
+    def logGamma(self,k,x,c):
         # Layer 2: emission probabilities  
         # override the Base_model class
         # x is a cassette state of cassette k (data type: tuple of length J)
@@ -46,7 +46,7 @@ class PMMN_model(PMM_base_model):
                     p = self.emission_mtrx[x][c]
                 else:
                     p = (1-phi)*rho if c==x else (1-phi)*(1-rho)/(M-2) 
-        return p
+        return log(p) if p>0 else None
 
     def set_closed_form_optimal(self,fixed_params={},verbose=1):
         # For every param that has a closed-form M-step optimal, 

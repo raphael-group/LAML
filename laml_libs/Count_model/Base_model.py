@@ -257,9 +257,9 @@ class Base_model(Virtual_solver):
                     if node.is_leaf():
                         c = DLT_data.get(node.label,k)
                         for x in allele_list: 
-                            trans_p = self.Gamma(k,x,c) # transition probability
-                            if trans_p>0:
-                                node.in_llh[k][x] = log(trans_p)
+                            log_trans_p = self.logGamma(k,x,c) # transition probability
+                            if log_trans_p is not None:
+                                node.in_llh[k][x] = log_trans_p
                     else:   
                         for x in allele_list:
                             llh = 0

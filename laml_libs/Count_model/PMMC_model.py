@@ -20,7 +20,7 @@ class PMMC_model(PMM_base_model):
         params = Param(['mu','nu','phi','rho'],[mu,nu,phi,rho],[0,0,0,DEFAULT_min_rho],[DEFAULT_max_mu,DEFAULT_max_nu,1,1])
         super(PMMC_model,self).__init__(treeList,data,prior,params)
     
-    def Gamma(self,k,x,c):
+    def logGamma(self,k,x,c):
         # Layer 2: emission probabilities  
         # override the Base_model class
         # x is a cassette state of cassette k (data type: tuple of length J)
@@ -37,14 +37,13 @@ class PMMC_model(PMM_base_model):
                 c_is_missing = False
                 break   
         if x_is_silenced:
-            p_ans = 1 if c_is_missing else 0
+            log_p_ans = 0 if c_is_missing else None
         else:
             if c_is_missing:
-                p_ans = phi
+                log_p_ans = log(phi) if phi>0 else None
             elif phi == 1:
-                p_ans = 0
+                log_p_ans = None
             else:
-                #start = time.time()
                 P = [rho]
                 if x in c:
                     X = [c[x]] 
@@ -65,22 +64,15 @@ class PMMC_model(PMM_base_model):
                     X.append(0)
                     P.append((1-rho)/(M-1))
                     M_missing -= 1
-                #end = time.time()
-                #print("setup: ",end-start)
-                #p_ans = (1-phi)*multinomial.pmf(X,p=P,n=N)
-                #start = time.time()
                 log_p_ans = log(1-phi) + log(factorial(N))
                 for X_i,P_i in zip(X,P):
                     if P_i == 0 and X_i != 0:
-                        log_p_ans = -float("inf")
+                        log_p_ans = None
                         break
                     if P_i != 0:
                         log_p_ans += X_i*log(P_i)
                     log_p_ans -= log(factorial(X_i))
-                p_ans = exp(log_p_ans)
-                #end = time.time()
-                #print("compute: ",end-start)
-        return p_ans
+        return log_p_ans
     
     def set_closed_form_optimal(self,fixed_params={},verbose=1):
         # For every param that has a closed-form M-step optimal, 
@@ -110,7 +102,7 @@ class PMMC_model(PMM_base_model):
                         for x in v.log_node_posterior[k]:
                             w = exp(v.log_node_posterior[k][x])
                             #print(f"[Gamma] v: {v.label}, k: {k}, w: {w}, c: {c}, x: {x}")
-                            p_A = w*c[x]
+                            p_A = w*c[x] if x in c else 0
                             p_B = w*sum([c[y] for y in c if y != x])
                         p_C = 0    
                     A += p_A
