@@ -101,7 +101,6 @@ class PMMC_model(PMM_base_model):
                         c = self.data['DLT_data'].get(v.label,k) 
                         for x in v.log_node_posterior[k]:
                             w = exp(v.log_node_posterior[k][x])
-                            #print(f"[Gamma] v: {v.label}, k: {k}, w: {w}, c: {c}, x: {x}")
                             p_A = w*c[x] if x in c else 0
                             p_B = w*sum([c[y] for y in c if y != x])
                         p_C = 0    
