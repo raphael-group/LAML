@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>laml_libs.Count_model.PMMN_model &#8212; LAML-Pro 2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=60dbed4a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for laml_libs.Count_model.PMMN_model</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.PMM_base_model</span> <span class="kn">import</span> <span class="n">PMM_base_model</span>
+<span class="kn">from</span> <span class="nn">.AlleleTable</span> <span class="kn">import</span> <span class="n">AlleleTable</span>
+<span class="kn">from</span> <span class="nn">.Param</span> <span class="kn">import</span> <span class="n">Param</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">DEFAULT_max_mu</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">DEFAULT_max_nu</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">DEFAULT_min_rho</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<div class="viewcode-block" id="PMMN_model">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.PMMN_model.html#laml_libs.Count_model.PMMN_model.PMMN_model">[docs]</a>
+<span class="k">class</span> <span class="nc">PMMN_model</span><span class="p">(</span><span class="n">PMM_base_model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class represents the PMMN model as a generative process for the dynamic lineage tracing (DLT) data.</span>
+<span class="sd">    The DLT data of this model must be an instance of the CharMtrx class</span>
+<span class="sd">    This class inherits all attributes and methods from PMM_base_model. </span>
+<span class="sd">    It has the following parameters for layer 1:</span>
+<span class="sd">        mu: genome edit rate</span>
+<span class="sd">        nu: silencing rate</span>
+<span class="sd">        phi: dropout probability</span>
+<span class="sd">    Layer 2 is either parameterized by    </span>
+<span class="sd">        rho: the accuracy of readout in layer 2        </span>
+<span class="sd">    or a prior emission matrix. </span>
+<span class="sd">    NOTE: rho is a parameter while emission matrix governs hyperparameters. Only one of them should be specified.</span>
+<span class="sd">    This class overrides logGamma of PMM_base_model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># PMMN = probabilistic mixed-type missing with noise</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">treeList</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">prior</span><span class="p">,</span><span class="n">kw_params</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="c1"># data is a dictionary; must have &#39;DLT_data&#39; and data[&#39;DLT_data&#39;] must be an instance of the CharMtrx class</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">kw_params</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;mu&#39;</span> <span class="ow">in</span> <span class="n">kw_params</span> <span class="k">else</span> <span class="mi">1</span> <span class="c1"># arbitrarily chosen to set as a default value</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">kw_params</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;nu&#39;</span> <span class="ow">in</span> <span class="n">kw_params</span> <span class="k">else</span> <span class="mi">0</span> <span class="c1"># arbitrarily chosen to set as a default value</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">kw_params</span><span class="p">[</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;phi&#39;</span> <span class="ow">in</span> <span class="n">kw_params</span> <span class="k">else</span> <span class="mf">0.1</span> <span class="c1"># arbitrarily chosen to set as a default value</span>
+        
+        <span class="k">if</span> <span class="s1">&#39;emission_mtrx&#39;</span> <span class="ow">in</span> <span class="n">prior</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">emission_mtrx</span> <span class="o">=</span> <span class="n">prior</span><span class="p">[</span><span class="s1">&#39;emission_mtrx&#39;</span><span class="p">]</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">Param</span><span class="p">([</span><span class="s1">&#39;mu&#39;</span><span class="p">,</span><span class="s1">&#39;nu&#39;</span><span class="p">,</span><span class="s1">&#39;phi&#39;</span><span class="p">],[</span><span class="n">mu</span><span class="p">,</span><span class="n">nu</span><span class="p">,</span><span class="n">phi</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="n">DEFAULT_max_mu</span><span class="p">,</span><span class="n">DEFAULT_max_nu</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>  
+            <span class="bp">self</span><span class="o">.</span><span class="n">emission_mtrx</span> <span class="o">=</span> <span class="kc">None</span>  
+            <span class="n">rho</span> <span class="o">=</span> <span class="n">kw_params</span><span class="p">[</span><span class="s1">&#39;rho&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;rho&#39;</span> <span class="ow">in</span> <span class="n">kw_params</span> <span class="k">else</span> <span class="mi">1</span> <span class="c1"># arbitrarily chose to set as a default value</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">Param</span><span class="p">([</span><span class="s1">&#39;mu&#39;</span><span class="p">,</span><span class="s1">&#39;nu&#39;</span><span class="p">,</span><span class="s1">&#39;phi&#39;</span><span class="p">,</span><span class="s1">&#39;rho&#39;</span><span class="p">],[</span><span class="n">mu</span><span class="p">,</span><span class="n">nu</span><span class="p">,</span><span class="n">phi</span><span class="p">,</span><span class="n">rho</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">DEFAULT_min_rho</span><span class="p">],[</span><span class="n">DEFAULT_max_mu</span><span class="p">,</span><span class="n">DEFAULT_max_nu</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PMMN_model</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">treeList</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">prior</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="PMMN_model.logGamma">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.PMMN_model.html#laml_libs.Count_model.PMMN_model.PMMN_model.logGamma">[docs]</a>
+    <span class="k">def</span> <span class="nf">logGamma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">c</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the emission probability in Layer 2</span>
+<span class="sd">        This method overrides that of the Base_model class</span>
+<span class="sd">            x is a cassette state of cassette k (data type: tuple of length J)</span>
+<span class="sd">            c is a cassette state of cassette k (data type: tuple of length J)</span>
+<span class="sd">        &quot;&quot;&quot;</span>    
+        <span class="n">J</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">J</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">alphabet</span><span class="o">.</span><span class="n">get_M</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">x_is_silenced</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">J</span><span class="p">))</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s1">&#39;phi&#39;</span><span class="p">)</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s1">&#39;rho&#39;</span><span class="p">)</span> <span class="c1"># will be None if &#39;rho&#39; not in self.params</span>
+        <span class="n">missing_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="s1">&#39;?&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">J</span><span class="p">)</span>   
+
+        <span class="k">if</span> <span class="n">x_is_silenced</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="n">missing_state</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="n">missing_state</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">phi</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">emission_mtrx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emission_mtrx</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">phi</span><span class="p">)</span><span class="o">*</span><span class="n">rho</span> <span class="k">if</span> <span class="n">c</span><span class="o">==</span><span class="n">x</span> <span class="k">else</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">phi</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">rho</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">M</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> 
+        <span class="k">return</span> <span class="n">log</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PMMN_model.set_closed_form_optimal">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.PMMN_model.html#laml_libs.Count_model.PMMN_model.PMMN_model.set_closed_form_optimal">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_closed_form_optimal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="p">{},</span><span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;    </span>
+<span class="sd">        For every param that has a closed-form M-step optimal, </span>
+<span class="sd">        if that param is in fixed_params, set it to the specified fixed value;</span>
+<span class="sd">        otherwise, compute the closed-form solution and set that to the param&#39;s value</span>
+<span class="sd">        This method overrides that of the Base_model class</span>
+<span class="sd">        This class (i.e. the PMMN model) has two params with closed-form M-step, which are phi and rho</span>
+<span class="sd">        NOTE: rho will only be optimized if the prior emission matrix is not provided. </span>
+<span class="sd">        Otherwise, rho must have been set to None in __init__ and will still be None</span>
+<span class="sd">        &quot;&quot;&quot;</span>    
+        <span class="n">A</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="mi">0</span> 
+        <span class="n">C</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">J</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">J</span>
+        <span class="n">silenced_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">J</span><span class="p">)</span>
+        <span class="n">missing_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="s1">&#39;?&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">J</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_leaves</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+                    <span class="n">observed_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">label</span><span class="p">,</span><span class="n">k</span><span class="p">)</span> 
+                    <span class="k">if</span> <span class="n">observed_state</span> <span class="o">==</span> <span class="n">missing_state</span><span class="p">:</span> <span class="c1"># p_A = p_B = 0</span>
+                        <span class="n">p_A</span> <span class="o">=</span> <span class="n">p_B</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">if</span> <span class="n">silenced_state</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">log_node_posterior</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                            <span class="n">p_C</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">exp</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">log_node_posterior</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">silenced_state</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">p_C</span> <span class="o">=</span> <span class="mi">1</span>    
+                    <span class="k">else</span><span class="p">:</span> <span class="c1"># p_C = 0; p_A + p_B = 1</span>
+                        <span class="n">p_A</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">log_node_posterior</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">observed_state</span><span class="p">])</span>
+                        <span class="n">p_B</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">p_A</span>
+                        <span class="n">p_C</span> <span class="o">=</span> <span class="mi">0</span>    
+                    <span class="n">A</span> <span class="o">+=</span> <span class="n">p_A</span>
+                    <span class="n">B</span> <span class="o">+=</span> <span class="n">p_B</span>
+                    <span class="n">C</span> <span class="o">+=</span> <span class="n">p_C</span>
+
+        <span class="k">if</span> <span class="s1">&#39;phi&#39;</span> <span class="ow">in</span> <span class="n">fixed_params</span><span class="p">:</span>
+            <span class="n">phi_star</span> <span class="o">=</span> <span class="n">fixed_params</span><span class="p">[</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fixed phi to &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">phi_star</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">phi_star</span> <span class="o">=</span> <span class="n">C</span><span class="o">/</span><span class="p">(</span><span class="n">A</span><span class="o">+</span><span class="n">B</span><span class="o">+</span><span class="n">C</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current optimal phi: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">phi_star</span><span class="p">))</span>
+        <span class="c1"># set the value of phi to phi_star</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s1">&#39;phi&#39;</span><span class="p">,</span><span class="n">phi_star</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">emission_mtrx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># only optimize rho if the emission matrix is not provided</span>
+            <span class="k">if</span> <span class="s1">&#39;rho&#39;</span> <span class="ow">in</span> <span class="n">fixed_params</span><span class="p">:</span>
+                <span class="n">rho_star</span> <span class="o">=</span> <span class="n">fixed_params</span><span class="p">[</span><span class="s1">&#39;rho&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fixed rho to &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rho_star</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rho_star</span> <span class="o">=</span> <span class="n">A</span><span class="o">/</span><span class="p">(</span><span class="n">A</span><span class="o">+</span><span class="n">B</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current optimal rho: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rho_star</span><span class="p">))</span>
+            <span class="c1"># set the value of rho to rho_star</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s1">&#39;rho&#39;</span><span class="p">,</span><span class="n">rho_star</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">LAML-Pro</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">laml_libs</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, U.M.*, G.C.*, B.R..
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

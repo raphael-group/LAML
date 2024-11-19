@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>laml_libs.Utils.eval_lib &#8212; LAML-Pro 2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=60dbed4a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for laml_libs.Utils.eval_lib</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python</span>
+<span class="kn">from</span> <span class="nn">laml_libs.IO_handler.sequence_lib</span> <span class="kn">import</span> <span class="n">read_sequences</span><span class="p">,</span><span class="n">read_charMtrx</span>
+<span class="kn">from</span> <span class="nn">laml_libs.Utils.lca_lib</span> <span class="kn">import</span> <span class="n">find_LCAs</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">treeswift</span> <span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="score_char">
+<a class="viewcode-back" href="../../../laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.score_char">[docs]</a>
+<span class="k">def</span> <span class="nf">score_char</span><span class="p">(</span><span class="n">trueChar</span><span class="p">,</span><span class="n">estCharProbs</span><span class="p">,</span><span class="n">silencing_symbol</span><span class="o">=</span><span class="s1">&#39;-1&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">trueChar</span> <span class="o">==</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="s1">&#39;-1&#39;</span> <span class="ow">in</span> <span class="n">estCharProbs</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">-=</span> <span class="n">estCharProbs</span><span class="p">[</span><span class="s1">&#39;-1&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">trueChar</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span>
+            <span class="n">trueChar</span> <span class="o">=</span> <span class="n">silencing_symbol</span>    
+        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">trueChar</span> <span class="ow">in</span> <span class="n">estCharProbs</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">estCharProbs</span><span class="p">[</span><span class="n">trueChar</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">score</span>    </div>
+
+
+<div class="viewcode-block" id="get_charProbs">
+<a class="viewcode-back" href="../../../laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.get_charProbs">[docs]</a>
+<span class="k">def</span> <span class="nf">get_charProbs</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span><span class="n">soft_assignment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">masked_symbol</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">):</span>
+    <span class="n">estCharProbs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">masked_symbol</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">estCharProbs</span><span class="p">[</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pmax</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">best_c</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+            <span class="n">c</span><span class="p">,</span><span class="n">p</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>   
+            <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> 
+            <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="n">pmax</span><span class="p">:</span>
+                <span class="n">pmax</span> <span class="o">=</span> <span class="n">p</span>
+                <span class="n">best_c</span> <span class="o">=</span> <span class="n">c</span>
+            <span class="n">estCharProbs</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">soft_assignment</span><span class="p">:</span>
+            <span class="n">estCharProbs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">estCharProbs</span><span class="p">[</span><span class="n">best_c</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">estCharProbs</span></div>
+
+
+<div class="viewcode-block" id="score_seq">
+<a class="viewcode-back" href="../../../laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.score_seq">[docs]</a>
+<span class="k">def</span> <span class="nf">score_seq</span><span class="p">(</span><span class="n">trueCharList</span><span class="p">,</span><span class="n">estCharList</span><span class="p">,</span><span class="n">soft_assignment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">silencing_symbol</span><span class="o">=</span><span class="s1">&#39;-1&#39;</span><span class="p">,</span><span class="n">masked_symbol</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">):</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">trueCharList</span><span class="p">,</span><span class="n">estCharList</span><span class="p">):</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="n">estCharProbs</span> <span class="o">=</span> <span class="n">get_charProbs</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span><span class="n">soft_assignment</span><span class="o">=</span><span class="n">soft_assignment</span><span class="p">,</span><span class="n">masked_symbol</span><span class="o">=</span><span class="n">masked_symbol</span><span class="p">)</span>   
+        <span class="k">if</span> <span class="n">estCharProbs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="n">score_char</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">estCharProbs</span><span class="p">,</span><span class="n">silencing_symbol</span><span class="o">=</span><span class="n">silencing_symbol</span><span class="p">)</span>        
+            <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">score</span><span class="o">/</span><span class="n">k</span></div>
+
+
+<div class="viewcode-block" id="allelic_coupling">
+<a class="viewcode-back" href="../../../laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.allelic_coupling">[docs]</a>
+<span class="k">def</span> <span class="nf">allelic_coupling</span><span class="p">(</span><span class="n">char_mtrx</span><span class="p">,</span><span class="n">cells</span><span class="p">,</span><span class="n">masked_symbol</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span>
+    <span class="n">AC_answer</span> <span class="o">=</span> <span class="p">{}</span> 
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">seq_i</span> <span class="o">=</span> <span class="n">char_mtrx</span><span class="p">[</span><span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+            <span class="n">seq_j</span> <span class="o">=</span> <span class="n">char_mtrx</span><span class="p">[</span><span class="n">cells</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
+            <span class="n">seq_ij</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">d_ij</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">seq_i</span><span class="p">,</span><span class="n">seq_j</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span> <span class="ow">or</span> <span class="n">y</span> <span class="o">==</span> <span class="n">masked_symbol</span><span class="p">:</span>
+                    <span class="n">z</span> <span class="o">=</span> <span class="n">x</span>
+                <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="n">masked_symbol</span><span class="p">:</span>
+                    <span class="n">z</span> <span class="o">=</span> <span class="n">y</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">z</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
+                <span class="n">seq_ij</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">masked_symbol</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+                    <span class="n">d_ij</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">masked_symbol</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+                    <span class="n">d_ij</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">cells</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                <span class="n">c1</span><span class="p">,</span><span class="n">c2</span> <span class="o">=</span> <span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">cells</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>    
+                <span class="n">c1</span><span class="p">,</span><span class="n">c2</span> <span class="o">=</span> <span class="n">cells</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">AC_answer</span><span class="p">[(</span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">seq_ij</span><span class="p">,</span><span class="n">d_ij</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">AC_answer</span>            </div>
+
+
+<div class="viewcode-block" id="tree_coupling">
+<a class="viewcode-back" href="../../../laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.tree_coupling">[docs]</a>
+<span class="k">def</span> <span class="nf">tree_coupling</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">cells</span><span class="p">,</span><span class="n">charMtrx</span><span class="p">):</span>
+    <span class="c1"># assume that all nodes in tree are present in the charMtrx</span>
+    <span class="n">selected_leaves</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cells_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_leaves</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">label</span> <span class="ow">in</span> <span class="n">cells_set</span><span class="p">:</span>    
+            <span class="n">selected_leaves</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_leaves</span><span class="p">)</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">()</span>
+    <span class="n">selected_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">selected_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">selected_leaves</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">selected_leaves</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+    <span class="n">selected_lcas</span> <span class="o">=</span> <span class="n">find_LCAs</span><span class="p">(</span><span class="n">tree</span><span class="p">,[(</span><span class="n">x</span><span class="o">.</span><span class="n">label</span><span class="p">,</span><span class="n">y</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">selected_pairs</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">leaf_i</span><span class="p">,</span><span class="n">leaf_j</span><span class="p">),</span><span class="n">lca_ij</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">selected_pairs</span><span class="p">,</span><span class="n">selected_lcas</span><span class="p">):</span>
+        <span class="n">d_ij</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span><span class="n">leaf_i</span><span class="p">][</span><span class="n">leaf_j</span><span class="p">]</span>
+        <span class="n">s_ij</span> <span class="o">=</span> <span class="n">charMtrx</span><span class="p">[</span><span class="n">lca_ij</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">leaf_i</span><span class="o">.</span><span class="n">label</span> <span class="o">&lt;</span> <span class="n">leaf_j</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+            <span class="n">c1</span><span class="p">,</span><span class="n">c2</span> <span class="o">=</span> <span class="n">leaf_i</span><span class="o">.</span><span class="n">label</span><span class="p">,</span><span class="n">leaf_j</span><span class="o">.</span><span class="n">label</span>
+        <span class="k">else</span><span class="p">:</span>    
+            <span class="n">c1</span><span class="p">,</span><span class="n">c2</span> <span class="o">=</span> <span class="n">leaf_j</span><span class="o">.</span><span class="n">label</span><span class="p">,</span><span class="n">leaf_i</span><span class="o">.</span><span class="n">label</span>
+        <span class="n">answer</span><span class="p">[(</span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">s_ij</span><span class="p">,</span><span class="n">d_ij</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">answer</span>            </div>
+
+
+<div class="viewcode-block" id="read_annotation">
+<a class="viewcode-back" href="../../../laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.read_annotation">[docs]</a>
+<span class="k">def</span> <span class="nf">read_annotation</span><span class="p">(</span><span class="n">infile</span><span class="p">):</span>
+    <span class="n">fin</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">charMtrx</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">read_charMtrx</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span><span class="n">replace_mchar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">convert_to_int</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">fin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">fin</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">read_tree_newick</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">readline</span><span class="p">())</span>
+    <span class="n">fin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+   
+    <span class="c1"># place sequences onto the tree</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">seq</span> <span class="o">=</span> <span class="n">charMtrx</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">charMtrx</span><span class="p">,</span><span class="n">tree</span></div>
+
+
+<div class="viewcode-block" id="read_groundtruth">
+<a class="viewcode-back" href="../../../laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.read_groundtruth">[docs]</a>
+<span class="k">def</span> <span class="nf">read_groundtruth</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span><span class="n">restricted_leafset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">fin</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">charMtrx</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">read_charMtrx</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span><span class="n">replace_mchar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">convert_to_int</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">stop_key</span><span class="o">=</span><span class="s2">&quot;Evolve tree&quot;</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">charMtrx</span><span class="p">[</span><span class="s1">&#39;I0&#39;</span><span class="p">])</span>
+    <span class="n">fin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">fin</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Evolve tree:&quot;</span><span class="p">):</span>
+            <span class="n">treeStr</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;Evolve tree:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">read_tree_newick</span><span class="p">(</span><span class="n">treeStr</span><span class="p">)</span>
+    <span class="n">fin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">restricted_leafset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">extract_tree_with</span><span class="p">(</span><span class="n">restricted_leafset</span><span class="p">)</span>
+
+    <span class="c1"># HACKING: the groundtruth does not give the actual state for every dropout,</span>
+    <span class="c1"># but only puts &#39;d&#39;. Below is an attempt to recover it</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">():</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">seq</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">charMtrx</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+            <span class="n">p0</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">node</span><span class="o">.</span><span class="n">edge_length</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">seq</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">seq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span><span class="s1">&#39;d&#39;</span><span class="p">:</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">seq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span> <span class="k">if</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">seq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span> <span class="ow">and</span> <span class="n">p0</span><span class="o">&gt;</span><span class="mf">0.5</span><span class="p">)</span> <span class="k">else</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">seq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="c1"># convert edge lengths to the number of mutations                    </span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">k</span><span class="o">-</span><span class="n">score_seq</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">seq</span><span class="p">,</span><span class="n">node</span><span class="o">.</span><span class="n">seq</span><span class="p">,</span><span class="n">soft_assignment</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">silencing_symbol</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">)</span><span class="o">*</span><span class="n">k</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">edge_length</span> <span class="o">=</span> <span class="n">d</span> 
+    <span class="k">return</span> <span class="n">charMtrx</span><span class="p">,</span><span class="n">tree</span></div>
+
+
+<div class="viewcode-block" id="convert_to_hard_assignment">
+<a class="viewcode-back" href="../../../laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.convert_to_hard_assignment">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_to_hard_assignment</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+    <span class="n">new_seq</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seq</span><span class="p">:</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="n">charProbs</span> <span class="o">=</span> <span class="n">get_charProbs</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span><span class="n">soft_assignment</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">masked_symbol</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">charProbs</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">new_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_seq</span>    </div>
+
+        
+<div class="viewcode-block" id="count_mutation">
+<a class="viewcode-back" href="../../../laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.count_mutation">[docs]</a>
+<span class="k">def</span> <span class="nf">count_mutation</span><span class="p">(</span><span class="n">ann_tree</span><span class="p">,</span><span class="n">silence_symbol</span><span class="o">=</span><span class="s1">&#39;-1&#39;</span><span class="p">):</span>
+    <span class="c1"># count the total number of mutations on the tree for each site</span>
+    <span class="c1"># ann_tree is a treeswift object; here assume the tree has been &quot;annotated&quot;,</span>
+    <span class="c1"># so that every node has attribute node.seq</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ann_tree</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+    <span class="n">N_mus</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">k</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ann_tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="n">convert_to_hard_assignment</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+        <span class="n">pseq</span> <span class="o">=</span> <span class="n">convert_to_hard_assignment</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">pseq</span><span class="p">,</span><span class="n">seq</span><span class="p">)):</span>
+            <span class="n">N_mus</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="n">x</span><span class="o">!=</span><span class="n">y</span> <span class="ow">and</span> <span class="n">y</span><span class="o">!=</span><span class="n">silence_symbol</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">N_mus</span> </div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">LAML-Pro</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">laml_libs</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, U.M.*, G.C.*, B.R..
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

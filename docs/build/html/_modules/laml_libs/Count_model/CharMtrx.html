@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>laml_libs.Count_model.CharMtrx &#8212; LAML-Pro 2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=60dbed4a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for laml_libs.Count_model.CharMtrx</h1><div class="highlight"><pre>
+<div class="viewcode-block" id="CharMtrx">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx">[docs]</a>
+<span></span><span class="k">class</span> <span class="nc">CharMtrx</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to represent the character matrix</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        K: the number of cassettes</span>
+<span class="sd">        J: the number of sites per cassette</span>
+<span class="sd">        data_struct: a mapping: cell_name -&gt; (cassette -&gt; cassette_state). The data type is &quot;dictionary of lists of cassette_states&quot;</span>
+<span class="sd">        alphabet: an instance of class Alphabet</span>
+<span class="sd">    NOTE: We will use &quot;cassette_state&quot; and &quot;allele&quot; interchangeably throughout</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data_struct</span><span class="p">,</span><span class="n">alphabet</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialization of CharMtrx by the data_struct and alphabet</span>
+<span class="sd">            data_struct: a mapping: cell_name -&gt; (cassette -&gt; cassette_state). The data type is &quot;dictionary of lists of dictionaries&quot;</span>
+<span class="sd">            alphabet: an instance of class Alphabet</span>
+<span class="sd">        NOTE: we assume without checking that the alphabet and data_struct have the same K and J</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">K</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">J</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span> <span class="o">=</span> <span class="n">alphabet</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># when J=1, we may need to correct the cassette states to be tuples, not single values</span>
+            <span class="n">data_struct_corrected</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data_struct</span><span class="p">:</span>
+                <span class="n">seq</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data_struct</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
+                        <span class="n">seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="n">x</span><span class="p">]))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>    
+                <span class="n">data_struct_corrected</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">seq</span>                
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_struct</span> <span class="o">=</span> <span class="n">data_struct_corrected</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_struct</span> <span class="o">=</span> <span class="n">data_struct</span>    
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">cassette_state_lists</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cassette_state_lists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="o">.</span><span class="n">get_cassette_alphabet</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+       
+<div class="viewcode-block" id="CharMtrx.get_cell_names">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx.get_cell_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get all cell names &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_struct</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>   </div>
+
+
+<div class="viewcode-block" id="CharMtrx.get">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx.get">[docs]</a>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">w</span><span class="p">,</span><span class="n">k</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get the cassette state (i.e. allele) of cell w at cassette k</span>
+<span class="sd">                w: a cell name/label</span>
+<span class="sd">                k: a cassette index</span>
+<span class="sd">            return: an allele, which is represented by a tuple of self.J elements    </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_struct</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="n">k</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CharMtrx.is_missing">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx.is_missing">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_missing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">w</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">missing_symbol</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">):</span>    
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if cassette k of cell w is missing</span>
+<span class="sd">            w: a cell name/label</span>
+<span class="sd">            k: a cassette index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x_j</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x_j</span> <span class="o">!=</span> <span class="n">missing_symbol</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>        </div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">LAML-Pro</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">laml_libs</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, U.M.*, G.C.*, B.R..
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

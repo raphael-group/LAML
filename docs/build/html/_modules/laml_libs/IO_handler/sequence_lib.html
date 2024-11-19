@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>laml_libs.IO_handler.sequence_lib &#8212; LAML-Pro 2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=60dbed4a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for laml_libs.IO_handler.sequence_lib</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python</span>
+<span class="kn">from</span> <span class="nn">statistics</span> <span class="kn">import</span> <span class="n">mean</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">recognized_missing</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="s1">&#39;-1&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="data_to_CharMtrx_struct">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.data_to_CharMtrx_struct">[docs]</a>
+<span class="k">def</span> <span class="nf">data_to_CharMtrx_struct</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">charmat_ds</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1">#alphabet_ds = {}</span>
+
+    <span class="k">for</span> <span class="n">cell_json</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">cell_name</span> <span class="o">=</span> <span class="n">cell_json</span><span class="p">[</span><span class="s2">&quot;cell_name&quot;</span><span class="p">]</span>
+        <span class="n">cassettes</span> <span class="o">=</span> <span class="n">cell_json</span><span class="p">[</span><span class="s2">&quot;cassettes&quot;</span><span class="p">]</span>
+        <span class="n">charmat_ds</span><span class="p">[</span><span class="n">cell_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">cassette_data</span> <span class="ow">in</span> <span class="n">cassettes</span><span class="p">:</span>
+            <span class="n">cassette_idx</span> <span class="o">=</span> <span class="n">cassette_data</span><span class="p">[</span><span class="s2">&quot;cassette_idx&quot;</span><span class="p">]</span>
+            <span class="n">cassette_state</span> <span class="o">=</span> <span class="n">cassette_data</span><span class="p">[</span><span class="s2">&quot;cassette_state&quot;</span><span class="p">]</span>
+            <span class="n">charmat_ds</span><span class="p">[</span><span class="n">cell_name</span><span class="p">][</span><span class="n">cassette_idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">cassette_state</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">charmat_ds</span> <span class="c1">#, alphabet_ds </span></div>
+
+
+<div class="viewcode-block" id="data_to_AlleleTable_struct">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.data_to_AlleleTable_struct">[docs]</a>
+<span class="k">def</span> <span class="nf">data_to_AlleleTable_struct</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">alleletable_ds</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1">#alphabet_ds = {}</span>
+
+    <span class="k">for</span> <span class="n">cell_json</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">cell_name</span> <span class="o">=</span> <span class="n">cell_json</span><span class="p">[</span><span class="s2">&quot;cell_name&quot;</span><span class="p">]</span>
+        <span class="n">cassettes</span> <span class="o">=</span> <span class="n">cell_json</span><span class="p">[</span><span class="s2">&quot;cassettes&quot;</span><span class="p">]</span>
+        <span class="n">alleletable_ds</span><span class="p">[</span><span class="n">cell_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">cassette_data</span> <span class="ow">in</span> <span class="n">cassettes</span><span class="p">:</span>
+            <span class="n">cassette_idx</span> <span class="o">=</span> <span class="n">cassette_data</span><span class="p">[</span><span class="s2">&quot;cassette_idx&quot;</span><span class="p">]</span>
+            <span class="n">cassette_states</span> <span class="o">=</span> <span class="n">cassette_data</span><span class="p">[</span><span class="s2">&quot;cassette_state&quot;</span><span class="p">]</span>
+            <span class="n">alleletable_ds</span><span class="p">[</span><span class="n">cell_name</span><span class="p">][</span><span class="n">cassette_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">state_data</span>  <span class="ow">in</span> <span class="n">cassette_states</span><span class="p">:</span> 
+                <span class="n">state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">state_data</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">])</span>
+                <span class="n">observation</span> <span class="o">=</span> <span class="n">state_data</span><span class="p">[</span><span class="s2">&quot;observation&quot;</span><span class="p">]</span>
+                <span class="n">alleletable_ds</span><span class="p">[</span><span class="n">cell_name</span><span class="p">][</span><span class="n">cassette_idx</span><span class="p">][</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">observation</span>
+
+    <span class="k">return</span> <span class="n">alleletable_ds</span> <span class="c1">#, alphabet_ds </span></div>
+
+
+<div class="viewcode-block" id="charMtrx_to_json">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.charMtrx_to_json">[docs]</a>
+<span class="k">def</span> <span class="nf">charMtrx_to_json</span><span class="p">(</span><span class="n">charMtrx</span><span class="p">,</span><span class="n">delimiter</span><span class="p">,</span><span class="n">missing_char</span><span class="p">):</span>
+    <span class="n">result_json</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dataType&quot;</span><span class="p">:</span> <span class="s2">&quot;charMtrx&quot;</span><span class="p">,</span> <span class="s2">&quot;cell_data&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="k">for</span> <span class="n">cell_name</span> <span class="ow">in</span> <span class="n">charMtrx</span><span class="p">:</span>
+        <span class="n">cell_data</span> <span class="o">=</span> <span class="n">charMtrx</span><span class="p">[</span><span class="n">cell_name</span><span class="p">]</span>
+        <span class="n">cell_json</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cell_name&quot;</span><span class="p">:</span> <span class="n">cell_name</span><span class="p">,</span> <span class="s2">&quot;cassettes&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">for</span> <span class="n">cassette_idx</span><span class="p">,</span> <span class="n">cassette_state</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cell_data</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">cassette_state</span> <span class="o">!=</span> <span class="n">missing_char</span><span class="p">:</span>
+                <span class="n">cassette_json</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cassette_idx&quot;</span><span class="p">:</span> <span class="n">cassette_idx</span><span class="p">,</span>
+                                 <span class="s2">&quot;cassette_state&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">cassette_state</span><span class="p">,)</span>
+                                 <span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cassette_json</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cassette_idx&quot;</span><span class="p">:</span> <span class="n">cassette_idx</span><span class="p">,</span>
+                                 <span class="s2">&quot;cassette_state&quot;</span><span class="p">:</span> <span class="p">()</span>
+                                 <span class="p">}</span>
+            <span class="n">cell_json</span><span class="p">[</span><span class="s2">&quot;cassettes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cassette_json</span><span class="p">)</span>
+        <span class="n">result_json</span><span class="p">[</span><span class="s2">&quot;cell_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell_json</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result_json</span></div>
+
+   
+<div class="viewcode-block" id="write_json">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.write_json">[docs]</a>
+<span class="k">def</span> <span class="nf">write_json</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span><span class="n">outfile</span><span class="p">):</span>
+    <span class="n">json_string</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json_string</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="read_json">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_json">[docs]</a>
+<span class="k">def</span> <span class="nf">read_json</span><span class="p">(</span><span class="n">datafile</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">datafile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+
+<div class="viewcode-block" id="write_sequences">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.write_sequences">[docs]</a>
+<span class="k">def</span> <span class="nf">write_sequences</span><span class="p">(</span><span class="n">char_mtrx</span><span class="p">,</span><span class="n">nsites</span><span class="p">,</span><span class="n">outFile</span><span class="p">,</span><span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outFile</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+        <span class="c1"># header</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;cell&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsites</span><span class="p">):</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">delimiter</span><span class="o">+</span><span class="s2">&quot;r&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="c1">#fout.write(delimiter+&quot;r&quot; + str(i+1))</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># actual data</span>
+        <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">char_mtrx</span><span class="p">:</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">char_mtrx</span><span class="p">[</span><span class="n">cell</span><span class="p">]:</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">delimiter</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_sequences">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_sequences">[docs]</a>
+<span class="k">def</span> <span class="nf">read_sequences</span><span class="p">(</span><span class="n">inFile</span><span class="p">,</span><span class="n">filetype</span><span class="o">=</span><span class="s2">&quot;charMtrx&quot;</span><span class="p">,</span><span class="n">cassette_len</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">set_single_cassette_as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="n">masked_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">suppress_warnings</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">replace_mchar</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">inFile</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">filetype</span> <span class="o">==</span> <span class="s2">&quot;fasta&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">suppress_warnings</span><span class="p">:</span> 
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Reading &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">inFile</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; as fasta file. Processing missing data in these files is not yet implemented.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">read_fasta</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span><span class="n">cassette_len</span><span class="o">=</span><span class="n">cassette_len</span><span class="p">,</span><span class="n">set_single_cassette_as_tuple</span><span class="o">=</span><span class="n">set_single_cassette_as_tuple</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filetype</span> <span class="o">==</span> <span class="s2">&quot;charMtrx&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">read_charMtrx</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span><span class="n">cassette_len</span><span class="o">=</span><span class="n">cassette_len</span><span class="p">,</span><span class="n">set_single_cassette_as_tuple</span><span class="o">=</span><span class="n">set_single_cassette_as_tuple</span><span class="p">,</span><span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">,</span><span class="n">masked_symbol</span><span class="o">=</span><span class="n">masked_symbol</span><span class="p">,</span><span class="n">suppress_warnings</span><span class="o">=</span><span class="n">suppress_warnings</span><span class="p">,</span><span class="n">replace_mchar</span><span class="o">=</span><span class="n">replace_mchar</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="read_fasta">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_fasta">[docs]</a>
+<span class="k">def</span> <span class="nf">read_fasta</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span><span class="n">cassette_len</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">set_single_cassette_as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>    
+    <span class="k">if</span> <span class="n">cassette_len</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1">########## TODO ##########</span>
+        <span class="k">raise</span><span class="p">(</span><span class="s2">&quot;FATAL error: read_fasta is not yet implemented for cassette_len != 1&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="c1"># The following code only works for cassette_len = 1</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># will be a list of dictionaries</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+            <span class="n">S</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+            <span class="n">D</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">set_single_cassette_as_tuple</span><span class="p">:</span>
+                <span class="n">seq</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">([</span><span class="n">x</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seq</span><span class="p">]</span>
+            <span class="n">D</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">seq</span>       
+    <span class="k">return</span> <span class="n">S</span></div>
+
+
+<div class="viewcode-block" id="check_missing">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.check_missing">[docs]</a>
+<span class="k">def</span> <span class="nf">check_missing</span><span class="p">(</span><span class="n">seen_missing</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="c1"># returns whether character x is a missing character</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seen_missing</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">recognized_missing</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">x</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span> <span class="c1"># check alphanumeric </span>
+        <span class="k">return</span> <span class="kc">True</span> 
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># check positivity</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="read_charMtrx">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_charMtrx">[docs]</a>
+<span class="k">def</span> <span class="nf">read_charMtrx</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span><span class="n">cassette_len</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">set_single_cassette_as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="n">masked_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">suppress_warnings</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">replace_mchar</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span><span class="n">convert_to_int</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">stop_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">cassette_len</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1">########## TODO ##########</span>
+        <span class="k">raise</span><span class="p">(</span><span class="s2">&quot;FATAL error: read_charMtrx is not yet implemented for cassette_len != 1&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="c1"># The following code only works for cassette_len = 1</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">site_names</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">site_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;cell_name&#39;</span> <span class="ow">or</span> <span class="s2">&quot;cell&quot;</span> <span class="ow">in</span> <span class="n">site_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">site_names</span> <span class="o">=</span> <span class="n">site_names</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="k">if</span> <span class="n">masked_symbol</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">seen_missing</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">masked_symbol</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span> 
+        <span class="n">seen_missing</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">stop_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">stop_key</span><span class="p">):</span>
+            <span class="k">break</span>
+        <span class="n">line_split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">line_split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># check if any are missing characters or nonnegative</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line_split</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">check_missing</span><span class="p">(</span><span class="n">seen_missing</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+                <span class="n">seen_missing</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                
+                <span class="k">if</span> <span class="n">replace_mchar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1">#seq.append(replace_mchar)</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">replace_mchar</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1">#seq.append(x)   </span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">convert_to_int</span><span class="p">:</span>
+                    <span class="c1">#seq.append(int(x))</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>    
+                    <span class="c1">#seq.append(x)</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="k">if</span> <span class="n">set_single_cassette_as_tuple</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">c</span><span class="p">])</span>
+            <span class="n">seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>            
+        <span class="n">D</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">seq</span>
+    <span class="c1">#if len(seen_missing) &gt; 1 and not suppress_warnings:</span>
+    <span class="c1">#    print(&quot;Warning: Found &quot; + str(seen_missing) + &quot; characters and treated them as missing.&quot;)</span>
+    <span class="c1">#elif masked_symbol == None and len(seen_missing) &gt;= 1 and not suppress_warnings:</span>
+    <span class="c1">#    print(&quot;Warning: Reading sequences, detected &quot; + str(seen_missing) + &quot; as the missing character(s). We recommend explicitly providing the missing character.&quot;)</span>
+    <span class="k">return</span> <span class="n">D</span><span class="p">,</span> <span class="n">site_names</span>    </div>
+
+
+<div class="viewcode-block" id="read_Q">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_Q">[docs]</a>
+<span class="k">def</span> <span class="nf">read_Q</span><span class="p">(</span><span class="n">inFile</span><span class="p">,</span><span class="n">has_head</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">inFile</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="c1">#fin.readline() # skip the header</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="n">char</span><span class="p">,</span><span class="n">state</span><span class="p">,</span><span class="n">prob</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">int</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">:</span>
+                <span class="n">Q</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">char</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#{int(state):float(prob)}</span>
+            <span class="n">Q</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">char</span><span class="p">)][</span><span class="nb">int</span><span class="p">(</span><span class="n">state</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Q</span></div>
+
+
+<div class="viewcode-block" id="extract_brlens">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.extract_brlens">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_brlens</span><span class="p">(</span><span class="n">tfile</span><span class="p">,</span> <span class="n">ofile</span><span class="p">):</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">read_newick_tree</span><span class="p">(</span><span class="n">tfile</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ofile</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">nidx</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">():</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">h</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">nidx</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">h</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">edge_length</span><span class="p">)</span>
+                <span class="n">w</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="alphabet_size">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.alphabet_size">[docs]</a>
+<span class="k">def</span> <span class="nf">alphabet_size</span><span class="p">(</span><span class="n">mtx</span><span class="p">):</span>
+    <span class="n">alphabet_sizes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">char_idx</span> <span class="ow">in</span> <span class="n">mtx</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">mtx</span><span class="p">[</span><span class="n">char_idx</span><span class="p">]</span>
+        <span class="n">num_unique_keys</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">keys</span><span class="p">))</span>
+        <span class="n">alphabet_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">num_unique_keys</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">alphabet_sizes</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">alphabet_sizes</span><span class="p">),</span> <span class="n">mean</span><span class="p">(</span><span class="n">alphabet_sizes</span><span class="p">)</span></div>
+
+
+    <span class="c1">#df = pd.DataFrame.from_dict(mtx, orient=&#39;index&#39;)</span>
+    <span class="c1">#unique_series = df.nunique()</span>
+    <span class="c1">#return max(unique_series), min(unique_series), mean(unique_series)</span>
+
+<div class="viewcode-block" id="generate_q">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.generate_q">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_q</span><span class="p">(</span><span class="n">M_i</span><span class="p">,</span> <span class="n">unedited_state</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">M_i</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># add pseudo-mutated state</span>
+        <span class="n">m_i</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;1&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">m_i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">M_i</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span><span class="mi">1</span><span class="o">/</span><span class="n">m_i</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">M_i</span><span class="p">}</span>
+    <span class="n">q</span><span class="p">[</span><span class="n">unedited_state</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">q</span></div>
+
+
+<div class="viewcode-block" id="uniform_priors">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.uniform_priors">[docs]</a>
+<span class="k">def</span> <span class="nf">uniform_priors</span><span class="p">(</span><span class="n">alphabet</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">unedited_state</span><span class="p">,</span> <span class="n">missing_state</span><span class="p">):</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">dt</span> <span class="o">==</span> <span class="s2">&quot;charMtrx&quot;</span><span class="p">:</span>
+        <span class="c1"># list of possible site alphabets</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+            <span class="n">M_i</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">get_cassette_alphabet</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">unedited_state</span><span class="p">,</span> <span class="n">missing_state</span><span class="p">]])</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">generate_q</span><span class="p">(</span><span class="n">M_i</span><span class="p">,</span> <span class="n">unedited_state</span><span class="p">)</span>
+            <span class="n">Q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># a list of cassettes, where each cassette is a list of site alphabets</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+            <span class="n">cassette_q</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">J</span><span class="p">):</span>
+                <span class="n">M_i</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">get_site_alphabet</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">j</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">unedited_state</span><span class="p">,</span> <span class="n">missing_state</span><span class="p">]])</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">generate_q</span><span class="p">(</span><span class="n">M_i</span><span class="p">,</span> <span class="n">unedited_state</span><span class="p">)</span>
+                <span class="n">cassette_q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+            <span class="n">Q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cassette_q</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Q</span></div>
+
+
+<div class="viewcode-block" id="get_alphabet_prior">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.get_alphabet_prior">[docs]</a>
+<span class="k">def</span> <span class="nf">get_alphabet_prior</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">J</span><span class="p">):</span>
+    <span class="n">final_alphabet_ds</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">q_dict</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">%</span> <span class="n">J</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">cassette_dictionary</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cassette_dictionary</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_dict</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">%</span> <span class="n">J</span> <span class="o">==</span> <span class="n">J</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">final_alphabet_ds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cassette_dictionary</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">final_alphabet_ds</span></div>
+
+
+<div class="viewcode-block" id="get_alphabet_ds">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.get_alphabet_ds">[docs]</a>
+<span class="k">def</span> <span class="nf">get_alphabet_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">missing_state</span><span class="p">):</span>
+    <span class="c1"># Note, does not include missing states</span>
+    <span class="n">alphabet_ds</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">final_alphabet_ds</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">dt</span> <span class="o">==</span> <span class="s2">&quot;charMtrx&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">cell_name</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">cell_data</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">cell_name</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">cassette_idx</span> <span class="ow">in</span> <span class="n">cell_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">cassette_data</span> <span class="o">=</span> <span class="n">cell_data</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">]</span>
+                <span class="n">cassette_state</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">cell_name</span><span class="p">][</span><span class="n">cassette_idx</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">cassette_idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">alphabet_ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">alphabet_ds</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c1"># set of possible cassette_states</span>
+                <span class="k">if</span> <span class="n">cassette_state</span> <span class="o">!=</span> <span class="n">missing_state</span><span class="p">:</span>
+                    <span class="n">alphabet_ds</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cassette_state</span><span class="p">)</span>
+
+        <span class="c1"># order the indices of the cassette idx</span>
+        <span class="n">sorted_cassette_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">alphabet_ds</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+        <span class="k">for</span> <span class="n">cassette_idx</span> <span class="ow">in</span> <span class="n">sorted_cassette_keys</span><span class="p">:</span>
+            <span class="n">final_alphabet_ds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">alphabet_ds</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">])))</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">cell_name</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">cell_data</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">cell_name</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">cassette_idx</span> <span class="ow">in</span> <span class="n">cell_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">cassette_data</span> <span class="o">=</span> <span class="n">cell_data</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">]</span>
+                <span class="n">cassette_states</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">cell_name</span><span class="p">][</span><span class="n">cassette_idx</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">cassette_idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">alphabet_ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">alphabet_ds</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># set of possible cassette_states</span>
+
+                <span class="k">for</span> <span class="n">cassette_state</span> <span class="ow">in</span> <span class="n">cassette_states</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">site_state</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cassette_state</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">site_idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">alphabet_ds</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="n">alphabet_ds</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">][</span><span class="n">site_idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">site_state</span> <span class="o">!=</span> <span class="n">missing_state</span><span class="p">:</span>
+                            <span class="n">alphabet_ds</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">][</span><span class="n">site_idx</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">site_state</span><span class="p">)</span>
+
+        <span class="c1"># order the indices of the cassette idx</span>
+        <span class="n">sorted_cassette_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">alphabet_ds</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+        <span class="k">for</span> <span class="n">cassette_idx</span> <span class="ow">in</span> <span class="n">sorted_cassette_keys</span><span class="p">:</span>
+            <span class="c1"># to produce the cassette_list, sort the site indices, and sort the alphabet for each site index</span>
+            <span class="n">cassette_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">alphabet_ds</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">][</span><span class="n">key</span><span class="p">]))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">alphabet_ds</span><span class="p">[</span><span class="n">cassette_idx</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+            <span class="n">final_alphabet_ds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cassette_list</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">final_alphabet_ds</span></div>
+
+
+
+<span class="c1"># adapted from /n/fs/ragr-research/projects/scmail_experiments/Real_biodata/test_kptracer/proc_scripts</span>
+<div class="viewcode-block" id="load_pickle">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.load_pickle">[docs]</a>
+<span class="k">def</span> <span class="nf">load_pickle</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+<span class="c1"># returns dictionary for use with Cassiopeia</span>
+    <span class="n">infile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+    <span class="n">priors</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+    <span class="n">infile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">priors</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="c1"># scale to sum to 1</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="nb">float</span><span class="p">(</span><span class="n">priors</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">x</span><span class="p">])</span><span class="o">/</span><span class="nb">sum</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">priors</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">priors</span><span class="p">[</span><span class="n">i</span><span class="p">]}</span>
+        <span class="c1">#q = {int(x):float(priors[i][x])/sum([float(c) for c in priors[i]]) for x in priors[i]}</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">q</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># print(q[x], x, q[x] &lt; 1.0 and q[x] &gt;= 0.0)</span>
+            <span class="k">assert</span> <span class="n">q</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">1.0</span> <span class="ow">and</span> <span class="n">q</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.0</span>
+            <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span>
+            <span class="k">return</span> <span class="n">Q</span></div>
+
+
+<div class="viewcode-block" id="read_priors">
+<a class="viewcode-back" href="../../../laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_priors">[docs]</a>
+<span class="k">def</span> <span class="nf">read_priors</span><span class="p">(</span><span class="n">pfile</span><span class="p">,</span> <span class="n">msa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">site_names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">file_extension</span> <span class="o">=</span> <span class="n">pfile</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">file_extension</span> <span class="o">==</span> <span class="s2">&quot;pkl&quot;</span> <span class="ow">or</span> <span class="n">file_extension</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span> <span class="c1">#pickled file</span>
+        <span class="n">infile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">pfile</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+        <span class="n">priors</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+        <span class="n">infile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">priorkeys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">priors</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">site_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">priorkeys</span> <span class="o">!=</span> <span class="nb">sorted</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">site_names</span><span class="p">]):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Prior keys mismatch with site names.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Prior keys:&quot;</span><span class="p">,</span> <span class="n">priorkeys</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Site names:&quot;</span><span class="p">,</span> <span class="n">site_names</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Attempting to infer mapping between site names and prior keys...&quot;</span><span class="p">)</span>
+
+            <span class="c1"># check if we have the same number of keys</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">site_names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">priorkeys</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">site_names</span><span class="p">):</span>
+                    <span class="n">mapping</span><span class="p">[</span><span class="n">site_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">priorkeys</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># inferring prior and site_name mapping</span>
+                <span class="c1"># we should have a mapping from every site name to a prior dictionary</span>
+
+                <span class="c1"># compute offset </span>
+                <span class="n">site_name_digits</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">site_name</span> <span class="ow">in</span> <span class="n">site_names</span><span class="p">:</span>
+                    <span class="n">digit_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">site_name</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()])</span>
+                    <span class="n">site_name_digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">digit_name</span><span class="p">))</span>
+           
+                <span class="c1"># tell the difference between an offset and missing keys in the dictionary</span>
+                <span class="n">all_site_names_present</span> <span class="o">=</span> <span class="kc">True</span> 
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">site_names</span><span class="p">):</span>
+                    <span class="n">digit_name</span> <span class="o">=</span> <span class="n">site_name_digits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">digit_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">priors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">all_site_names_present</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">all_site_names_present</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Not all site names are present in the dictionary. Trying offset...&quot;</span><span class="p">)</span>
+                    <span class="n">offset</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">site_name_digits</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">priorkeys</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Offset between input site names and prior keys is assumed to be&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">site_names</span><span class="p">):</span>
+                    <span class="n">digit_name</span> <span class="o">=</span> <span class="n">site_name_digits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_site_names_present</span><span class="p">:</span>
+                        <span class="n">prior_name</span> <span class="o">=</span> <span class="n">digit_name</span> <span class="o">-</span> <span class="n">offset</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">prior_name</span> <span class="o">=</span> <span class="n">digit_name</span>
+                    <span class="n">mapping</span><span class="p">[</span><span class="n">site_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">prior_name</span>
+
+                    <span class="k">if</span> <span class="n">prior_name</span> <span class="ow">in</span> <span class="n">priors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">q</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">):</span><span class="n">priors</span><span class="p">[</span><span class="n">prior_name</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">priors</span><span class="p">[</span><span class="n">prior_name</span><span class="p">]}</span>
+                    <span class="k">elif</span> <span class="n">msa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing priors at site </span><span class="si">{</span><span class="n">site_name</span><span class="si">}</span><span class="s2">, filling in uniform priors...&quot;</span><span class="p">)</span>
+                        <span class="c1"># fill in uniform priors at site i</span>
+                        <span class="n">M_i</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">msa</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">msa</span> <span class="k">if</span> <span class="n">msa</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;?&quot;</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">M_i</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="c1"># add pseudo-mutated state</span>
+                            <span class="n">m_i</span> <span class="o">=</span> <span class="mi">1</span>
+                            <span class="n">q</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;1&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">}</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">m_i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">M_i</span><span class="p">)</span>
+                            <span class="n">q</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span><span class="mi">1</span><span class="o">/</span><span class="n">m_i</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">M_i</span><span class="p">}</span>
+                        <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing priors at site </span><span class="si">{</span><span class="n">site_name</span><span class="si">}</span><span class="s2">, pass in MSA as input to fill in uniform priors.&quot;</span><span class="p">)</span>
+                    <span class="n">Q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">Q</span>
+
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">priors</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">):</span><span class="n">priors</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">priors</span><span class="p">[</span><span class="n">i</span><span class="p">]}</span>
+            <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">Q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">file_extension</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span><span class="p">:</span>
+        <span class="c1">#k = len(site_names)</span>
+        <span class="c1">#Q = [{0:0} for i in range(k)]</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">Qi</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">seen_sites</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pfile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">():</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+            <span class="c1"># check if the first character of the character name is a string</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">charname_is_str</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">token</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+                <span class="n">site_idx</span><span class="p">,</span> <span class="n">char_state</span><span class="p">,</span> <span class="n">prob</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">charname_is_str</span><span class="p">:</span>
+                    <span class="n">site_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">site_idx</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">site_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">site_idx</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">site_idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen_sites</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seen_sites</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">Q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Qi</span><span class="p">)</span>
+                        <span class="n">Qi</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">seen_sites</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">site_idx</span><span class="p">)</span>
+                <span class="n">char_state</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">char_state</span><span class="p">)</span>
+                <span class="n">prob</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
+                <span class="c1">#Q[len(seen_sites) - 1][char_state] = prob</span>
+                <span class="n">Qi</span><span class="p">[</span><span class="n">char_state</span><span class="p">]</span> <span class="o">=</span> <span class="n">prob</span>
+            <span class="n">Q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Qi</span><span class="p">)</span>
+    <span class="c1">#else:</span>
+    <span class="c1">#    Q = [{0:0} for i in range(k)]</span>
+    <span class="c1">#    with open(pfile, &#39;r&#39;) as fin:</span>
+    <span class="c1">#        for line in fin:</span>
+    <span class="c1">#            site_idx, char_state, prob = line.strip().split()</span>
+    <span class="c1">#            site_idx, char_state, prob = int(site_idx), int(char_state), float(prob)</span>
+    <span class="c1">#            Q[site_idx][char_state] = prob &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">Q</span></div>
+
+                
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">LAML-Pro</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">laml_libs</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, U.M.*, G.C.*, B.R..
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -7,7 +7,7 @@
 
     <title>laml_libs.Count_model.Base_model module &#8212; LAML-Pro 2.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=181bfd13" />
     <script src="_static/documentation_options.js?v=60dbed4a"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -36,7 +36,7 @@
 <span id="laml-libs-count-model-base-model-module"></span><h1>laml_libs.Count_model.Base_model module<a class="headerlink" href="#module-laml_libs.Count_model.Base_model" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">laml_libs.Count_model.Base_model.</span></span><span class="sig-name descname"><span class="pre">Base_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">treeList</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">laml_libs.Count_model.Base_model.</span></span><span class="sig-name descname"><span class="pre">Base_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">treeList</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="laml_libs.Count_model.Virtual_solver.html#laml_libs.Count_model.Virtual_solver.Virtual_solver" title="laml_libs.Count_model.Virtual_solver.Virtual_solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Virtual_solver</span></code></a></p>
 <p>The base class for all models that involve dynamic lineage tracing (DLT) data
 .. attribute:: data</p>
@@ -69,7 +69,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.EM_optimization">
-<span class="sig-name descname"><span class="pre">EM_optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">randseed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EM_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'conv_eps':</span> <span class="pre">1e-06,</span> <span class="pre">'max_iter':</span> <span class="pre">1000}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.EM_optimization" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">EM_optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">randseed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EM_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'conv_eps':</span> <span class="pre">1e-06,</span> <span class="pre">'max_iter':</span> <span class="pre">1000}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.EM_optimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.EM_optimization" title="Link to this definition">¶</a></dt>
 <dd><p>The EM algorithm to optimize model’s parameters
 IMPORTANT: this EM algorithm ONLY optimizes the parameters in Layer 1 of the DLT data.
 Caution: this function will modify params and branch lengths in place!
@@ -78,18 +78,18 @@ verbose level: 1 –&gt; show all messages; 0 –&gt; show minimal messages; -1 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.Estep">
-<span class="sig-name descname"><span class="pre">Estep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_in_llh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Estep" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Estep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_in_llh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.Estep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Estep" title="Link to this definition">¶</a></dt>
 <dd><p>The E-step of the EM algorithm</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.Estep_in_llh">
-<span class="sig-name descname"><span class="pre">Estep_in_llh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Estep_in_llh" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Estep_in_llh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.Estep_in_llh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Estep_in_llh" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.Estep_out_llh">
-<span class="sig-name descname"><span class="pre">Estep_out_llh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Estep_out_llh" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Estep_out_llh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.Estep_out_llh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Estep_out_llh" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the out-llh and in-llh-edge of all nodes/edges
 Outcome: every node has two new attributes added:</p>
 <blockquote>
@@ -100,7 +100,7 @@ node.in_llh_edge: a list of K dictionaries</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.Estep_posterior">
-<span class="sig-name descname"><span class="pre">Estep_posterior</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Estep_posterior" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Estep_posterior</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.Estep_posterior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Estep_posterior" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the log-transformed of all posterior probabilities
 Outcome: every node has two new attribute:</p>
 <blockquote>
@@ -111,7 +111,7 @@ node.log_edge_posterior: a list of K dicitonaries</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.Mstep">
-<span class="sig-name descname"><span class="pre">Mstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_brlen_opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Mstep" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Mstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_brlen_opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.Mstep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Mstep" title="Link to this definition">¶</a></dt>
 <dd><p>The M-step of the EM algorithm
 .. rubric:: Notes</p>
 <p>Assume that Estep has been performed so that all nodes have S0-S4 attributes
@@ -121,7 +121,7 @@ verbose level: 1 –&gt; show all messages; 0 –&gt; show minimal messages; -1 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.Psi">
-<span class="sig-name descname"><span class="pre">Psi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Psi" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Psi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.Psi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.Psi" title="Link to this definition">¶</a></dt>
 <dd><p>Abstraction of the Layer 1 transition probabilities
 MUST be overrided in any derived class!
 return: a float in [0,1]</p>
@@ -129,49 +129,49 @@ return: a float in [0,1]</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.bound_brlen">
-<span class="sig-name descname"><span class="pre">bound_brlen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.bound_brlen" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">bound_brlen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.bound_brlen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.bound_brlen" title="Link to this definition">¶</a></dt>
 <dd><p>Get the lower and upper bounds for the tree branch lengths</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.get_bound">
-<span class="sig-name descname"><span class="pre">get_bound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_feasible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.get_bound" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_bound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_feasible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.get_bound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.get_bound" title="Link to this definition">¶</a></dt>
 <dd><p>Get the bounds for all parameters.
 return: an instance of optimize.Bounds</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.get_compute_cache">
-<span class="sig-name descname"><span class="pre">get_compute_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.get_compute_cache" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_compute_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.get_compute_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.get_compute_cache" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.get_params" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.get_params" title="Link to this definition">¶</a></dt>
 <dd><p>Get all the params of the model, represented by a dictionary, mapping (param_name -&gt; param_value)
 Override Virtual solver</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.get_tree_newick">
-<span class="sig-name descname"><span class="pre">get_tree_newick</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.get_tree_newick" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_tree_newick</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.get_tree_newick"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.get_tree_newick" title="Link to this definition">¶</a></dt>
 <dd><p>Get the list of newick strings of the trees. Override Virtual solver</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.ini_all_params">
-<span class="sig-name descname"><span class="pre">ini_all_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.ini_all_params" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ini_all_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.ini_all_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.ini_all_params" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize all parameters, including the tree branch lengths and all the params in self.params</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.ini_brlens">
-<span class="sig-name descname"><span class="pre">ini_brlens</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.ini_brlens" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ini_brlens</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.ini_brlens"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.ini_brlens" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.ini_one_param">
-<span class="sig-name descname"><span class="pre">ini_one_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.ini_one_param" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ini_one_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.ini_one_param"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.ini_one_param" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize the parameter named pname
 Here we set a simple initialization scheme for any of the param in self.params
 In many cases this method may need to be overrided in the derived class</p>
@@ -179,20 +179,20 @@ In many cases this method may need to be overrided in the derived class</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.llh_DLT_data">
-<span class="sig-name descname"><span class="pre">llh_DLT_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.llh_DLT_data" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">llh_DLT_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.llh_DLT_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.llh_DLT_data" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the log-likelihood of the dynamic lineage tracing (DLT) data</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.llh_DLT_data_edge">
-<span class="sig-name descname"><span class="pre">llh_DLT_data_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.llh_DLT_data_edge" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">llh_DLT_data_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.llh_DLT_data_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.llh_DLT_data_edge" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the in-llh on an edge from node to its parent (see the LAML-pro writeup for details)
 Assume in_llh has been computed for every node</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.logGamma">
-<span class="sig-name descname"><span class="pre">logGamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.logGamma" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">logGamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.logGamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.logGamma" title="Link to this definition">¶</a></dt>
 <dd><p>Abstraction of the Layer 2 emission probabilities
 MUST be overrided in any derived class!
 return: a negative float, or None if the probability is 0</p>
@@ -200,14 +200,14 @@ return: a negative float, or None if the probability is 0</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.log_Psi_cassette">
-<span class="sig-name descname"><span class="pre">log_Psi_cassette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.log_Psi_cassette" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">log_Psi_cassette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.log_Psi_cassette"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.log_Psi_cassette" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the log-transformed transition probability of cassette k
 return: a negative float, or None if the probability is 0</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.negative_llh">
-<span class="sig-name descname"><span class="pre">negative_llh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.negative_llh" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">negative_llh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.negative_llh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.negative_llh" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the negative log-likelihood of all data modules
 In this base class, only the DLT is included as data
 If a derived class has data modules other than the DLT data (e.g. spatial, gene expression, etc.),
@@ -216,7 +216,7 @@ this function MUST be overrided to compute the joint-llh of all available data m
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.optimize">
-<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_brlen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seeds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">solver_opts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.optimize" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_brlen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seeds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">solver_opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.optimize" title="Link to this definition">¶</a></dt>
 <dd><dl>
 <dt>Optimize branch lengths and all params in self.params</dt><dd><p>solver: can either be “Scipy” or “EM”
 random_seeds: can either be a single number or a list of intergers where len(random_seeds) = initials
@@ -236,18 +236,18 @@ fixed_brlen: can be one of the followings:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.scipy_optimization">
-<span class="sig-name descname"><span class="pre">scipy_optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">randseed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scipy_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'iprint':</span> <span class="pre">3,</span> <span class="pre">'maxiter':</span> <span class="pre">1000}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.scipy_optimization" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">scipy_optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">randseed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scipy_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'iprint':</span> <span class="pre">3,</span> <span class="pre">'maxiter':</span> <span class="pre">1000}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.scipy_optimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.scipy_optimization" title="Link to this definition">¶</a></dt>
 <dd><p>Optimize model parameters using Scipy</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.score_tree">
-<span class="sig-name descname"><span class="pre">score_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'compute_cache':</span> <span class="pre">None,</span> <span class="pre">'fixed_brlen':</span> <span class="pre">None,</span> <span class="pre">'fixed_params':</span> <span class="pre">None,</span> <span class="pre">'ultra_constr':</span> <span class="pre">False}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.score_tree" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">score_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'compute_cache':</span> <span class="pre">None,</span> <span class="pre">'fixed_brlen':</span> <span class="pre">None,</span> <span class="pre">'fixed_params':</span> <span class="pre">None,</span> <span class="pre">'ultra_constr':</span> <span class="pre">False}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.score_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.score_tree" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.set_closed_form_optimal">
-<span class="sig-name descname"><span class="pre">set_closed_form_optimal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.set_closed_form_optimal" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_closed_form_optimal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.set_closed_form_optimal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.set_closed_form_optimal" title="Link to this definition">¶</a></dt>
 <dd><p>For every param that has a closed-form M-step optimal,
 if that param is in fixed_params, set it to the specified fixed value;
 otherwise, compute the closed-form solution and set that to the param’s value
@@ -257,7 +257,7 @@ MUST be overrided in any derived class!</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.ultrametric_constr">
-<span class="sig-name descname"><span class="pre">ultrametric_constr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_brlen_opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.ultrametric_constr" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ultrametric_constr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_brlen_opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.ultrametric_constr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.ultrametric_constr" title="Link to this definition">¶</a></dt>
 <dd><p>Setup ultrametric constraints
 return: M and b, such that Mx = b is the linear constraint, where x is a list of all branch lengths
 NOTE: this function currently has some hacking, as it only works with binary trees (i.e. not multifurcation is allowed).</p>
@@ -265,7 +265,7 @@ NOTE: this function currently has some hacking, as it only works with binary tre
 
 <dl class="py method">
 <dt class="sig sig-object py" id="laml_libs.Count_model.Base_model.Base_model.x2params">
-<span class="sig-name descname"><span class="pre">x2params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.x2params" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">x2params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/laml_libs/Count_model/Base_model.html#Base_model.x2params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#laml_libs.Count_model.Base_model.Base_model.x2params" title="Link to this definition">¶</a></dt>
 <dd><p>Convert the representation of the params as a numpy array x into an instance of Param stored in self.params</p>
 </dd></dl>
 

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>laml_libs.mixins.errors &#8212; LAML-Pro 2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=60dbed4a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for laml_libs.mixins.errors</h1><div class="highlight"><pre>
+<div class="viewcode-block" id="AutocorrelationError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.AutocorrelationError">[docs]</a>
+<span></span><span class="k">class</span> <span class="nc">AutocorrelationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception for the tools.autocorrelation methods.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="CassiopeiaError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.CassiopeiaError">[docs]</a>
+<span class="k">class</span> <span class="nc">CassiopeiaError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An general exception for the Cassiopeia software.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="CassiopeiaTreeError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.CassiopeiaTreeError">[docs]</a>
+<span class="k">class</span> <span class="nc">CassiopeiaTreeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for the CassiopeiaTree class.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="DataSimulatorError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.DataSimulatorError">[docs]</a>
+<span class="k">class</span> <span class="nc">DataSimulatorError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic error for the DataSimulator subclasses&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="DistanceSolverError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.DistanceSolverError">[docs]</a>
+<span class="k">class</span> <span class="nc">DistanceSolverError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for all DistanceSolver subclasses.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ecDNABirthDeathSimulatorError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.ecDNABirthDeathSimulatorError">[docs]</a>
+<span class="k">class</span> <span class="nc">ecDNABirthDeathSimulatorError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An ExceptionClass for ecDNABirthDeathSimulator class.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="FitchCountError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.FitchCountError">[docs]</a>
+<span class="k">class</span> <span class="nc">FitchCountError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An ExceptionClass for FitchCount.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="GreedySolverError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.GreedySolverError">[docs]</a>
+<span class="k">class</span> <span class="nc">GreedySolverError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="HybridSolverError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.HybridSolverError">[docs]</a>
+<span class="k">class</span> <span class="nc">HybridSolverError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for all HybridSolver subclasses.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="ILPSolverError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.ILPSolverError">[docs]</a>
+<span class="k">class</span> <span class="nc">ILPSolverError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for all ILPError subclasses.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="iTOLError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.iTOLError">[docs]</a>
+<span class="k">class</span> <span class="nc">iTOLError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="LeafSubsamplerError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.LeafSubsamplerError">[docs]</a>
+<span class="k">class</span> <span class="nc">LeafSubsamplerError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for the LeafSubsampler class.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="PreprocessError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.PreprocessError">[docs]</a>
+<span class="k">class</span> <span class="nc">PreprocessError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="PriorTransformationError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.PriorTransformationError">[docs]</a>
+<span class="k">class</span> <span class="nc">PriorTransformationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for generating weights from priors.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="SharedMutationJoiningSolverError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.SharedMutationJoiningSolverError">[docs]</a>
+<span class="k">class</span> <span class="nc">SharedMutationJoiningSolverError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for SharedMutationJoiningSolver.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="TreeSimulatorError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.TreeSimulatorError">[docs]</a>
+<span class="k">class</span> <span class="nc">TreeSimulatorError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for all exceptions generated by</span>
+<span class="sd">    TreeSimulator or a subclass of TreeSimulator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="UnknownCigarStringError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.UnknownCigarStringError">[docs]</a>
+<span class="k">class</span> <span class="nc">UnknownCigarStringError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="UnspecifiedConfigParameterError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.UnspecifiedConfigParameterError">[docs]</a>
+<span class="k">class</span> <span class="nc">UnspecifiedConfigParameterError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="BranchLengthEstimatorError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.BranchLengthEstimatorError">[docs]</a>
+<span class="k">class</span> <span class="nc">BranchLengthEstimatorError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for the BranchLengthEstimator class.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="IIDExponentialMLEError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.IIDExponentialMLEError">[docs]</a>
+<span class="k">class</span> <span class="nc">IIDExponentialMLEError</span><span class="p">(</span><span class="n">BranchLengthEstimatorError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="TreeMetricError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.TreeMetricError">[docs]</a>
+<span class="k">class</span> <span class="nc">TreeMetricError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for calculating tree metrics&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="ParameterEstimateError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.ParameterEstimateError">[docs]</a>
+<span class="k">class</span> <span class="nc">ParameterEstimateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Exception class for the estimation and retrieval of tree parameters&quot;&quot;&quot;</span>
+    
+    <span class="k">pass</span></div>
+
+
+  
+<div class="viewcode-block" id="PlottingError">
+<a class="viewcode-back" href="../../../laml_libs.mixins.errors.html#laml_libs.mixins.errors.PlottingError">[docs]</a>
+<span class="k">class</span> <span class="nc">PlottingError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">LAML-Pro</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">laml_libs</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, U.M.*, G.C.*, B.R..
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

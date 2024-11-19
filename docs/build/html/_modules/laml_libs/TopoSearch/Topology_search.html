@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>laml_libs.TopoSearch.Topology_search &#8212; LAML-Pro 2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=60dbed4a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for laml_libs.TopoSearch.Topology_search</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">log</span><span class="p">,</span><span class="n">isclose</span><span class="p">,</span><span class="n">exp</span>
+<span class="kn">import</span> <span class="nn">timeit</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choice</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="nn">laml_libs</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">treeswift</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">laml_libs.PMM_original.EM_solver</span> <span class="kn">import</span> <span class="n">EM_solver</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">laml_libs.Utils.lca_lib</span> <span class="kn">import</span> <span class="n">find_LCAs</span>
+
+<div class="viewcode-block" id="Topology_search">
+<a class="viewcode-back" href="../../../laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search">[docs]</a>
+<span class="k">class</span> <span class="nc">Topology_search</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">treeTopoList</span><span class="p">,</span><span class="n">solver</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="p">{},</span><span class="n">prior</span><span class="o">=</span><span class="p">{},</span><span class="n">params</span><span class="o">=</span><span class="p">{},</span><span class="n">T_cooldown</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">alpha_cooldown</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span> <span class="o">=</span> <span class="n">treeTopoList</span> <span class="c1"># treeTopoList is a list of newick strings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">solver</span>     <span class="c1"># solver is a solver definition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>   
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">prior</span>
+        <span class="c1">#self.compute_cache = [{} for _ in range(len(self.treeTopoList))]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_cache</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__renew_treeList_obj</span><span class="p">()</span>
+        <span class="c1"># identify polytomies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_polytomy</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">has_polytomy</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">newick</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T_cooldown</span> <span class="o">=</span> <span class="n">T_cooldown</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_cooldown</span> <span class="o">=</span> <span class="n">alpha_cooldown</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha_cooldown</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">T_cooldown</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha_cooldown</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">T_cooldown</span>
+
+    <span class="k">def</span> <span class="nf">__renew_treeList_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">treeTopo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span><span class="p">:</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">read_tree_newick</span><span class="p">(</span><span class="n">treeTopo</span><span class="p">)</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">suppress_unifurcations</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="Topology_search.get_solver">
+<a class="viewcode-back" href="../../../laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.get_solver">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span></div>
+
+                
+<div class="viewcode-block" id="Topology_search.update_from_solver">
+<a class="viewcode-back" href="../../../laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.update_from_solver">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_from_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mySolver</span><span class="p">,</span><span class="n">collect_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span> <span class="o">=</span> <span class="n">mySolver</span><span class="o">.</span><span class="n">get_tree_newick</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">mySolver</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">collect_cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_cache</span> <span class="o">=</span> <span class="n">mySolver</span><span class="o">.</span><span class="n">get_compute_cache</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>    
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_cache</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+            <span class="c1">#self.compute_cache = [{} for _ in range(len(self.treeTopoList))]</span>
+
+    <span class="k">def</span> <span class="nf">__mark_polytomies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">eps_len</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+        <span class="c1"># mark and resolve all polytomies in self.treeList_obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_polytomy</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">():</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">mark</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">has_polytomy</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">resolve_polytomies</span><span class="p">()</span>
+        
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="s1">&#39;mark&#39;</span><span class="p">):</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">mark</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">edge_length</span> <span class="o">=</span> <span class="n">eps_len</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span> <span class="o">=</span> <span class="p">[</span><span class="n">tree</span><span class="o">.</span><span class="n">newick</span><span class="p">()</span> <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Topology_search.accept_proposal">
+<a class="viewcode-back" href="../../../laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.accept_proposal">[docs]</a>
+    <span class="k">def</span> <span class="nf">accept_proposal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">curr_score</span><span class="p">,</span><span class="n">new_score</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">new_score</span> <span class="o">&gt;</span> <span class="n">curr_score</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1e-12</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha_cooldown</span><span class="o">**</span><span class="n">t</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">exp</span><span class="p">((</span><span class="n">new_score</span><span class="o">-</span><span class="n">curr_score</span><span class="o">-</span><span class="mf">1e-12</span><span class="p">)</span><span class="o">/</span><span class="n">T</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">p</span></div>
+
+
+<div class="viewcode-block" id="Topology_search.search">
+<a class="viewcode-back" href="../../../laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.search">[docs]</a>
+    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">resolve_polytomies</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">nreps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">strategy</span><span class="o">=</span><span class="n">DEFAULT_STRATEGY</span><span class="p">,</span><span class="n">checkpoint_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">original_topos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span>
+        <span class="n">best_trees</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">best_score</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="n">best_params</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nreps</span><span class="p">):</span>
+            <span class="c1"># resolve polytomies</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Performing nni-search &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span> <span class="o">=</span> <span class="n">original_topos</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__renew_treeList_obj</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">resolve_polytomies</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__mark_polytomies</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">strategy</span><span class="p">[</span><span class="s1">&#39;resolve_search_only&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Only perform local nni moves to resolve polytomies&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_polytomy</span><span class="p">:</span>
+                    <span class="n">trees</span><span class="p">,</span><span class="n">score</span><span class="p">,</span><span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__search_one</span><span class="p">(</span><span class="n">strategy</span><span class="p">,</span><span class="n">maxiter</span><span class="o">=</span><span class="n">maxiter</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span><span class="n">only_marked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">checkpoint_file</span><span class="o">=</span><span class="n">checkpoint_file</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span> <span class="c1"># score this tree topology (optimize all numerical params)</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Found no polytomy to resolve. Optimizing numerical parameters without further topology search&quot;</span><span class="p">)</span>
+                    <span class="n">mySolver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solver</span><span class="p">()</span>
+                    <span class="n">score_tree_strategy</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">strategy</span><span class="p">)</span>
+                    <span class="n">score_tree_strategy</span><span class="p">[</span><span class="s1">&#39;fixed_brlen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">score</span><span class="p">,</span><span class="n">status</span> <span class="o">=</span> <span class="n">mySolver</span><span class="o">.</span><span class="n">score_tree</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="n">score_tree_strategy</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">update_from_solver</span><span class="p">(</span><span class="n">mySolver</span><span class="p">,</span><span class="n">collect_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">trees</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+            <span class="k">else</span><span class="p">:</span>    
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Perform nni moves for full topology search&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_polytomy</span> <span class="ow">and</span> <span class="n">resolve_polytomies</span><span class="p">:</span>                        
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Found polytomies in the input tree(s). Arbitrarily resolving them to obtain fully resolved initial tree(s).&quot;</span><span class="p">)</span> 
+                <span class="n">trees</span><span class="p">,</span><span class="n">score</span><span class="p">,</span><span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__search_one</span><span class="p">(</span><span class="n">strategy</span><span class="p">,</span><span class="n">maxiter</span><span class="o">=</span><span class="n">maxiter</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span><span class="n">only_marked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">checkpoint_file</span><span class="o">=</span><span class="n">checkpoint_file</span><span class="p">)</span>
+            <span class="c1"># The final optimization of parameters</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optimal topology found. Re-optimizing other parameters ...&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span> <span class="o">=</span> <span class="n">trees</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__renew_treeList_obj</span><span class="p">()</span>
+            <span class="n">mySolver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solver</span><span class="p">()</span>
+            <span class="n">score_tree_strategy</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">strategy</span><span class="p">)</span>
+            <span class="n">score_tree_strategy</span><span class="p">[</span><span class="s1">&#39;fixed_brlen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">score</span><span class="p">,</span><span class="n">status</span> <span class="o">=</span> <span class="n">mySolver</span><span class="o">.</span><span class="n">score_tree</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="n">score_tree_strategy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_from_solver</span><span class="p">(</span><span class="n">mySolver</span><span class="p">,</span><span class="n">collect_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">trees</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optimal score for this search: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+            <span class="c1"># compare to the best_score of previous searches</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">best_score</span><span class="p">:</span>
+                <span class="n">best_score</span> <span class="o">=</span> <span class="n">score</span>
+                <span class="n">best_trees</span> <span class="o">=</span> <span class="n">trees</span>    
+                <span class="n">best_params</span> <span class="o">=</span> <span class="n">params</span>
+
+        <span class="c1"># synchronization        </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span> <span class="o">=</span> <span class="n">best_trees</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">best_params</span>
+        
+        <span class="k">return</span> <span class="n">best_trees</span><span class="p">,</span><span class="n">best_score</span><span class="p">,</span><span class="n">best_params</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">__search_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">strategy</span><span class="p">,</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">only_marked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">checkpoint_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># optimize branch lengths and other parameters for the starting tree</span>
+        <span class="n">mySolver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solver</span><span class="p">()</span>
+        <span class="n">score_tree_strategy</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">strategy</span><span class="p">)</span>
+        <span class="n">score_tree_strategy</span><span class="p">[</span><span class="s1">&#39;fixed_brlen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">curr_score</span><span class="p">,</span><span class="n">status</span> <span class="o">=</span> <span class="n">mySolver</span><span class="o">.</span><span class="n">score_tree</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="n">score_tree_strategy</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_polytomy</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initial score (polytomies were arbitrarily resolved): &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curr_score</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initial score: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curr_score</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_from_solver</span><span class="p">(</span><span class="n">mySolver</span><span class="p">,</span><span class="n">collect_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">best_score</span> <span class="o">=</span> <span class="n">curr_score</span>
+        <span class="n">best_trees</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span>
+        <span class="n">best_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span> 
+        <span class="c1"># perform nni search</span>
+        <span class="k">for</span> <span class="n">nni_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxiter</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NNI Iter:&quot;</span><span class="p">,</span> <span class="n">nni_iter</span><span class="p">)</span>
+                <span class="n">start_time</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">default_timer</span><span class="p">()</span>
+            <span class="n">new_score</span><span class="p">,</span><span class="n">n_attempts</span><span class="p">,</span><span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_nni</span><span class="p">(</span><span class="n">curr_score</span><span class="p">,</span><span class="n">nni_iter</span><span class="p">,</span><span class="n">strategy</span><span class="p">,</span><span class="n">only_marked</span><span class="o">=</span><span class="n">only_marked</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of trees checked &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n_attempts</span><span class="p">))</span>
+                <span class="n">stop_time</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">default_timer</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Runtime (s):&quot;</span><span class="p">,</span> <span class="n">stop_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;None of the NNI neighbor trees was accepted. Stop NNI search&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="n">curr_score</span> <span class="o">=</span> <span class="n">new_score</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current score: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curr_score</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">curr_score</span> <span class="o">&gt;</span> <span class="n">best_score</span><span class="p">:</span>
+                <span class="n">best_score</span> <span class="o">=</span> <span class="n">curr_score</span>
+                <span class="n">best_trees</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span>
+                <span class="n">best_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+            <span class="k">if</span> <span class="n">nni_iter</span> <span class="o">%</span> <span class="n">chkpt_freq</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">checkpoint_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">checkpoint_file</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+                    <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NNI Iteration: </span><span class="si">{</span><span class="n">nni_iter</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current newick tree: </span><span class="si">{</span><span class="n">best_trees</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current negative-llh: </span><span class="si">{</span><span class="n">best_score</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current params: </span><span class="si">{</span><span class="n">best_params</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best score for this search: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">best_score</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">best_trees</span><span class="p">,</span><span class="n">best_score</span><span class="p">,</span><span class="n">best_params</span> 
+    
+<div class="viewcode-block" id="Topology_search.single_nni">
+<a class="viewcode-back" href="../../../laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.single_nni">[docs]</a>
+    <span class="k">def</span> <span class="nf">single_nni</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">curr_score</span><span class="p">,</span><span class="n">nni_iter</span><span class="p">,</span><span class="n">strategy</span><span class="p">,</span><span class="n">only_marked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">branches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">()</span> <span class="ow">or</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">():</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">only_marked</span> <span class="ow">or</span> <span class="n">node</span><span class="o">.</span><span class="n">mark</span><span class="p">:</span>
+                    <span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="c1"># branch ordering: random </span>
+        <span class="n">shuffle</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span>
+
+        <span class="n">took</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="n">n_attempts</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">took</span> <span class="ow">and</span> <span class="n">branches</span><span class="p">:</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">branches</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">took</span><span class="p">,</span><span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_nni</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">curr_score</span><span class="p">,</span><span class="n">nni_iter</span><span class="p">,</span><span class="n">strategy</span><span class="p">)</span>
+            <span class="n">n_attempts</span> <span class="o">+=</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="n">score</span><span class="p">,</span><span class="n">n_attempts</span><span class="p">,</span><span class="n">took</span></div>
+
+    
+<div class="viewcode-block" id="Topology_search.apply_nni">
+<a class="viewcode-back" href="../../../laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.apply_nni">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_nni</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">curr_score</span><span class="p">,</span><span class="n">nni_iter</span><span class="p">,</span><span class="n">strategy</span><span class="p">):</span>
+        <span class="c1"># apply nni [DESTRUCTIVE FUNCTION! Changes tree inside this function.]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">child_nodes</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">node</span> <span class="o">!=</span> <span class="n">u</span><span class="p">:</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">node</span>
+                <span class="k">break</span>                
+        <span class="n">u_children</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">child_nodes</span><span class="p">()</span>
+        <span class="c1"># shuffle the order of the nni moves</span>
+        <span class="n">shuffle</span><span class="p">(</span><span class="n">u_children</span><span class="p">)</span>
+        <span class="n">score_tree_strategy</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">strategy</span><span class="p">)</span>
+        <span class="n">score_tree_strategy</span><span class="p">[</span><span class="s1">&#39;fixed_brlen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">strategy</span><span class="p">[</span><span class="s1">&#39;local_brlen_opt&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">pname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+                <span class="n">score_tree_strategy</span><span class="p">[</span><span class="s1">&#39;fixed_params&#39;</span><span class="p">][</span><span class="n">pname</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">pname</span><span class="p">]</span>
+            <span class="n">free_branches</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">child_nodes</span><span class="p">()</span> <span class="o">+</span> <span class="n">v</span><span class="o">.</span><span class="n">child_nodes</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="n">v</span><span class="p">])</span>
+            <span class="n">fixed_branches_anchors</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">))]</span>
+            <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">tree</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+                        <span class="n">node</span><span class="o">.</span><span class="n">anchors</span> <span class="o">=</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">,</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">C</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">child_nodes</span><span class="p">()</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">anchors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">b</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">anchors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">node</span><span class="o">.</span><span class="n">anchors</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">free_branches</span><span class="p">:</span>
+                        <span class="n">fixed_branches_anchors</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">anchors</span><span class="p">)</span>
+            <span class="n">fixed_branches</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">))]</span>
+            <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">treeTopo</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">treeTopoList</span><span class="p">):</span>
+                <span class="n">tree</span> <span class="o">=</span> <span class="n">read_tree_newick</span><span class="p">(</span><span class="n">treeTopo</span><span class="p">)</span>
+                <span class="n">fixed_branches</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+=</span> <span class="n">find_LCAs</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">fixed_branches_anchors</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+            <span class="n">fixed_brlen</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">))]</span>
+            <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">B</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fixed_branches</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+                    <span class="n">fixed_brlen</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">fixed_branches_anchors</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">edge_length</span>
+            <span class="n">score_tree_strategy</span><span class="p">[</span><span class="s1">&#39;fixed_brlen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fixed_brlen</span>
+            <span class="n">score_tree_strategy</span><span class="p">[</span><span class="s1">&#39;compute_cache&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_cache</span>
+
+        <span class="k">for</span> <span class="n">u_child</span> <span class="ow">in</span> <span class="n">u_children</span><span class="p">:</span>
+            <span class="n">u_child</span><span class="o">.</span><span class="n">set_parent</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">remove_child</span><span class="p">(</span><span class="n">u_child</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">u_child</span><span class="p">)</span>
+
+            <span class="n">w</span><span class="o">.</span><span class="n">set_parent</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">remove_child</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="n">mySolver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">([</span><span class="n">tree</span><span class="o">.</span><span class="n">newick</span><span class="p">()</span> <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>            
+            <span class="n">new_score</span><span class="p">,</span><span class="n">status</span> <span class="o">=</span> <span class="n">mySolver</span><span class="o">.</span><span class="n">score_tree</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="n">score_tree_strategy</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="s2">&quot;optimal&quot;</span> <span class="ow">and</span> <span class="n">strategy</span><span class="p">[</span><span class="s1">&#39;local_brlen_opt&#39;</span><span class="p">]:</span> <span class="c1"># couldn&#39;t optimize, probably due to &#39;local_brlen_opt&#39;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;couldn&#39;t optimize, probably due to &#39;local_brlen_opt&#39;. Remove &#39;local_brlen_opt&#39; and try again ...&quot;</span><span class="p">)</span>
+                <span class="n">score_tree_strategy</span><span class="p">[</span><span class="s1">&#39;fixed_brlen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># remove &#39;local_brlen_opt&#39; and try again</span>
+                <span class="n">mySolver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">([</span><span class="n">tree</span><span class="o">.</span><span class="n">newick</span><span class="p">()</span> <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeList_obj</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>            
+                <span class="n">new_score</span><span class="p">,</span><span class="n">status</span> <span class="o">=</span> <span class="n">mySolver</span><span class="o">.</span><span class="n">score_tree</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="n">score_tree_strategy</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">accept_proposal</span><span class="p">(</span><span class="n">curr_score</span><span class="p">,</span><span class="n">new_score</span><span class="p">,</span><span class="n">nni_iter</span><span class="p">):</span> <span class="c1"># accept the new tree and params                </span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_from_solver</span><span class="p">(</span><span class="n">mySolver</span><span class="p">,</span><span class="n">collect_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span><span class="p">,</span><span class="n">new_score</span>
+            
+            <span class="c1"># Score doesn&#39;t improve --&gt; reverse to the previous state</span>
+            <span class="n">u_child</span><span class="o">.</span><span class="n">set_parent</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">remove_child</span><span class="p">(</span><span class="n">u_child</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">u_child</span><span class="p">)</span>
+            
+            <span class="n">w</span><span class="o">.</span><span class="n">set_parent</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">remove_child</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>            
+
+        <span class="c1"># no move accepted</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span><span class="n">curr_score</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">LAML-Pro</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">laml_libs</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, U.M.*, G.C.*, B.R..
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

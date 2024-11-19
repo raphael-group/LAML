@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>laml_libs.Count_model.Base_model &#8212; LAML-Pro 2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=60dbed4a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for laml_libs.Count_model.Base_model</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">treeswift</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">log</span><span class="p">,</span><span class="n">exp</span><span class="p">,</span><span class="n">sqrt</span><span class="p">,</span> <span class="n">isclose</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">choice</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">laml_libs</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.Virtual_solver</span> <span class="kn">import</span> <span class="n">Virtual_solver</span>
+<span class="kn">from</span> <span class="nn">.Mstep_solver</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">laml_libs.Utils.lca_lib</span> <span class="kn">import</span> <span class="n">find_LCAs</span>
+<span class="kn">from</span> <span class="nn">.Param</span> <span class="kn">import</span> <span class="n">Param</span>
+<span class="kn">from</span> <span class="nn">.Alphabet</span> <span class="kn">import</span> <span class="n">Alphabet</span>
+<span class="kn">from</span> <span class="nn">.AlleleTable</span> <span class="kn">import</span> <span class="n">AlleleTable</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="o">*</span> 
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">cvxpy</span> <span class="k">as</span> <span class="nn">cp</span>
+
+<div class="viewcode-block" id="Base_model">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model">[docs]</a>
+<span class="k">class</span> <span class="nc">Base_model</span><span class="p">(</span><span class="n">Virtual_solver</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The base class for all models that involve dynamic lineage tracing (DLT) data</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        data: a dictionary mapping from data module name to its data structure. The data MUST have the key &#39;DLT_data&#39;, where data[&#39;DLT_data&#39;] is an instance of either AlleleTable or CharMtrx</span>
+<span class="sd">        num_cassettes: the number of cassettes in the DLT data</span>
+<span class="sd">        site_per_cassette: the number of sites per cassette in the DLT data</span>
+<span class="sd">        Q: hyper-parameters for transition probabilities</span>
+<span class="sd">        silence_mechanism: either &#39;convolve&#39; or &#39;separated&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">treeList</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">prior</span><span class="p">,</span><span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        params: an instance of the Param class, contains the parameters of the model</span>
+<span class="sd">        data: a dictionary mapping from data module name to its data structure. The data MUST have the key &#39;DLT_data&#39;, where data[&#39;DLT_data&#39;] is an instance of either AlleleTable or CharMtrx. This base class only uses `DLT_data` of `data`, but a derived class can use more attributes for joint likelihood computation</span>
+<span class="sd">        treeList: a list of trees in newick strings</span>
+<span class="sd">        prior: contains information about hyper-parameters and information about model variations (e.g. silencing mechanism). This is a dictionary mapping the name of a hyper-param/model-spec to the actual data. This base class only uses prior[&quot;Q&quot;] and prior[&quot;silence_mechanism&quot;] of prior, but a derived class can use more depending on the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_cassettes</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">K</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_per_cassette</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">J</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_edges</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">treeList</span><span class="p">:</span>
+            <span class="n">tree_obj</span> <span class="o">=</span> <span class="n">read_tree_newick</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree_obj</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">new_root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">()</span>
+                <span class="n">new_root</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">tree_obj</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+                <span class="n">tree_obj</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">new_root</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_edges</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">tree_obj</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">()))</span><span class="o">-</span><span class="mi">1</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree_obj</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tree_obj</span><span class="p">)</span>
+
+        <span class="c1"># get silence_mechanism; default to &#39;convolve&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">silence_mechanism</span> <span class="o">=</span> <span class="s1">&#39;convolve&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;silence_mechanism&#39;</span> <span class="ow">in</span> <span class="n">prior</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">silence_mechanism</span> <span class="o">=</span> <span class="n">prior</span><span class="p">[</span><span class="s1">&#39;silence_mechanism&#39;</span><span class="p">]</span> <span class="c1"># should be one of {&#39;convolve&#39;,&#39;separated&#39;}</span>
+
+        <span class="c1"># normalize Q</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">prior</span><span class="p">[</span><span class="s1">&#39;Q&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Q</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">Q_k</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">:</span>
+            <span class="n">Q_k_norm</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">Q_kj</span> <span class="ow">in</span> <span class="n">Q_k</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">Q_kj</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Q_kj</span><span class="p">])</span>
+                <span class="n">Q_kj_norm</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span><span class="n">Q_kj</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">/</span><span class="n">s</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Q_kj</span><span class="p">}</span> 
+                <span class="n">Q_k_norm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Q_kj_norm</span><span class="p">)</span>                   
+            <span class="bp">self</span><span class="o">.</span><span class="n">Q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Q_k_norm</span><span class="p">)</span>        
+            
+        <span class="c1"># set dmin and dmax </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dmin</span> <span class="o">=</span> <span class="n">DEFAULT_dmin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dmax</span> <span class="o">=</span> <span class="n">DEFAULT_dmax</span>
+
+<div class="viewcode-block" id="Base_model.get_tree_newick">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.get_tree_newick">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_tree_newick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the list of newick strings of the trees. Override Virtual solver</span>
+<span class="sd">        &quot;&quot;&quot;</span>    
+        <span class="k">return</span> <span class="p">[</span><span class="n">tree</span><span class="o">.</span><span class="n">newick</span><span class="p">()</span> <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Base_model.get_params">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.get_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all the params of the model, represented by a dictionary, mapping (param_name -&gt; param_value)</span>
+<span class="sd">        Override Virtual solver</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_name2value_dict</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Base_model.score_tree">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.score_tree">[docs]</a>
+    <span class="k">def</span> <span class="nf">score_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">strategy</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;ultra_constr&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span><span class="s1">&#39;fixed_params&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span><span class="s1">&#39;fixed_brlen&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span><span class="s1">&#39;compute_cache&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">}):</span>
+    <span class="c1"># override Virtual solver</span>
+        <span class="n">ultra_constr</span> <span class="o">=</span> <span class="n">strategy</span><span class="p">[</span><span class="s1">&#39;ultra_constr&#39;</span><span class="p">]</span>
+        <span class="n">fixed_params</span> <span class="o">=</span> <span class="n">strategy</span><span class="p">[</span><span class="s1">&#39;fixed_params&#39;</span><span class="p">]</span>
+        <span class="n">fixed_brlen</span> <span class="o">=</span> <span class="n">strategy</span><span class="p">[</span><span class="s1">&#39;fixed_brlen&#39;</span><span class="p">]</span>
+        <span class="n">compute_cache</span> <span class="o">=</span> <span class="n">strategy</span><span class="p">[</span><span class="s1">&#39;compute_cache&#39;</span><span class="p">]</span>
+        <span class="n">nllh</span><span class="p">,</span><span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="s1">&#39;EM&#39;</span><span class="p">,</span><span class="n">initials</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">verbose</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">ultra_constr</span><span class="o">=</span><span class="n">ultra_constr</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span>
+                                        <span class="n">fixed_brlen</span><span class="o">=</span><span class="n">fixed_brlen</span><span class="p">,</span><span class="n">compute_cache</span><span class="o">=</span><span class="n">compute_cache</span><span class="p">)</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">nllh</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="o">-</span><span class="n">nllh</span>
+        <span class="k">return</span> <span class="n">score</span><span class="p">,</span><span class="n">status</span></div>
+
+    
+<div class="viewcode-block" id="Base_model.get_compute_cache">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.get_compute_cache">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_compute_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># override Virtual solver</span>
+        <span class="c1"># run Estep with all node recomputed to make sure all values are up-to-date </span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Estep</span><span class="p">()</span>
+        <span class="c1"># pull values to cache</span>
+        <span class="n">cache_attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;in_llh&#39;</span><span class="p">,</span><span class="s1">&#39;out_llh&#39;</span><span class="p">,</span><span class="s1">&#39;in_llh_edge&#39;</span><span class="p">,</span><span class="s1">&#39;log_node_posterior&#39;</span><span class="p">,</span><span class="s1">&#39;log_edge_posterior&#39;</span><span class="p">]</span>
+        <span class="n">full_cache</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="n">this_cache</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">():</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">anchors</span> <span class="o">=</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">,</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">C</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">child_nodes</span><span class="p">()</span>
+                    <span class="n">a</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">anchors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">b</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">anchors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">anchors</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+                <span class="n">this_cache</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">anchors</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>    
+                <span class="n">node_dict</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="vm">__dict__</span>
+                <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">cache_attrs</span><span class="p">:</span>  
+                    <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">node_dict</span><span class="p">:</span>
+                        <span class="n">this_cache</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">anchors</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">node_dict</span><span class="p">[</span><span class="n">attr</span><span class="p">])</span>
+            <span class="n">full_cache</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_cache</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">full_cache</span>        </div>
+
+    
+<div class="viewcode-block" id="Base_model.ultrametric_constr">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.ultrametric_constr">[docs]</a>
+    <span class="k">def</span> <span class="nf">ultrametric_constr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">local_brlen_opt</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup ultrametric constraints</span>
+<span class="sd">        return: M and b, such that Mx = b is the linear constraint, where x is a list of all branch lengths</span>
+<span class="sd">        NOTE: this function currently has some hacking, as it only works with binary trees (i.e. not multifurcation is allowed).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_edges</span>
+        <span class="k">if</span> <span class="n">local_brlen_opt</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+                <span class="n">N</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">([</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">()</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_fixed</span><span class="p">])</span>
+        <span class="n">constrs</span> <span class="o">=</span> <span class="p">{}</span>        
+        <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">constraint</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]</span><span class="o">*</span><span class="n">N</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">constant</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">edge_length</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_fixed</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">():</span> <span class="c1">#####HACKING#####</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> <span class="c1">#####HACKING#####</span>
+                        <span class="n">c1</span><span class="p">,</span><span class="n">c2</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">y</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">c1</span><span class="o">.</span><span class="n">constraint</span><span class="p">,</span><span class="n">c2</span><span class="o">.</span><span class="n">constraint</span><span class="p">))</span>
+                        <span class="n">m_compl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="o">-</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">m</span><span class="p">)</span>
+                        <span class="n">c</span> <span class="o">=</span> <span class="n">c2</span><span class="o">.</span><span class="n">constant</span><span class="o">-</span><span class="n">c1</span><span class="o">.</span><span class="n">constant</span>
+                        <span class="k">if</span> <span class="nb">sum</span><span class="p">([</span><span class="n">x</span><span class="o">!=</span><span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">m</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">m</span> <span class="ow">in</span> <span class="n">constrs</span> <span class="ow">or</span> <span class="n">m_compl</span> <span class="ow">in</span> <span class="n">constrs</span><span class="p">):</span>
+                            <span class="n">constrs</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+                    <span class="k">else</span><span class="p">:</span> <span class="c1">#####HACKING#####</span>
+                        <span class="n">c1</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">constraint</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="n">constraint</span>
+                    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_fixed</span><span class="p">:</span>
+                        <span class="n">node</span><span class="o">.</span><span class="n">constant</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="n">constant</span> <span class="o">+</span> <span class="n">node</span><span class="o">.</span><span class="n">edge_length</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">node</span><span class="o">.</span><span class="n">constant</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="n">constant</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">mark_fixed</span> <span class="ow">and</span> <span class="n">local_brlen_opt</span><span class="p">):</span> <span class="c1">#####HACKING#####</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">constraint</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">y</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">constraint</span><span class="p">,</span><span class="n">tree</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">constraint</span><span class="p">))</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">constant</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">constant</span>
+            <span class="n">constrs</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">constrs</span><span class="p">:</span>
+            <span class="n">M</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constrs</span><span class="p">[</span><span class="n">m</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">M</span><span class="p">,</span><span class="n">b</span></div>
+
+
+<div class="viewcode-block" id="Base_model.ini_brlens">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.ini_brlens">[docs]</a>
+    <span class="k">def</span> <span class="nf">ini_brlens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dmax</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dmin</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dmin</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_edges</span><span class="p">)]</span>        
+        <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">edge_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">edge_length</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_fixed</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dmin</span><span class="p">,</span><span class="n">node</span><span class="o">.</span><span class="n">edge_length</span><span class="p">)</span>
+                <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span> 
+        <span class="k">return</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="Base_model.ini_one_param">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.ini_one_param">[docs]</a>
+    <span class="k">def</span> <span class="nf">ini_one_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Initialize the parameter named pname</span>
+<span class="sd">            Here we set a simple initialization scheme for any of the param in self.params</span>
+<span class="sd">            In many cases this method may need to be overrided in the derived class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lower_bound</span><span class="p">,</span><span class="n">upper_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_bound</span><span class="p">(</span><span class="n">pname</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="p">(</span><span class="n">upper_bound</span><span class="o">-</span><span class="n">lower_bound</span><span class="p">)</span><span class="o">+</span><span class="n">lower_bound</span></div>
+
+
+<div class="viewcode-block" id="Base_model.ini_all_params">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.ini_all_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">ini_all_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Initialize all parameters, including the tree branch lengths and all the params in self.params</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># initialize branch lengths</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ini_brlens</span><span class="p">()</span>
+        <span class="c1"># initialize the params specified in self.params</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_names</span><span class="p">():</span>
+            <span class="n">x</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fixed_params</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">fixed_params</span> <span class="k">else</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ini_one_param</span><span class="p">(</span><span class="n">p</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">x</span>    </div>
+
+
+<div class="viewcode-block" id="Base_model.bound_brlen">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.bound_brlen">[docs]</a>
+    <span class="k">def</span> <span class="nf">bound_brlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get the lower and upper bounds for the tree branch lengths</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dmin</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">num_edges</span><span class="p">,[</span><span class="bp">self</span><span class="o">.</span><span class="n">dmax</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">num_edges</span></div>
+
+    
+<div class="viewcode-block" id="Base_model.get_bound">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.get_bound">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">keep_feasible</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get the bounds for all parameters.</span>
+<span class="sd">            return: an instance of optimize.Bounds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lower_bounds</span><span class="p">,</span><span class="n">upper_bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bound_brlen</span><span class="p">()</span>  
+        <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">l</span><span class="p">,</span><span class="n">u</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lower_bounds</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">upper_bounds</span><span class="p">)):</span>
+            <span class="n">pname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">pname</span> <span class="ow">in</span> <span class="n">fixed_params</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">fixed_params</span><span class="p">[</span><span class="n">pname</span><span class="p">]</span><span class="o">-</span><span class="n">eps</span>
+                <span class="n">u</span> <span class="o">=</span> <span class="n">fixed_params</span><span class="p">[</span><span class="n">pname</span><span class="p">]</span><span class="o">+</span><span class="n">eps</span>
+            <span class="n">lower_bounds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+            <span class="n">upper_bounds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>                
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">Bounds</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span><span class="n">upper_bounds</span><span class="p">,</span><span class="n">keep_feasible</span><span class="o">=</span><span class="n">keep_feasible</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bounds</span></div>
+
+
+<div class="viewcode-block" id="Base_model.x2params">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.x2params">[docs]</a>
+    <span class="k">def</span> <span class="nf">x2params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Convert the representation of the params as a numpy array x into an instance of Param stored in self.params</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># x2brlens</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">():</span> <span class="c1">#and not node.mark_fixed:</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">edge_length</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># other x2params                </span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">fixed_params</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">fixed_params</span> <span class="k">else</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+    
+<div class="viewcode-block" id="Base_model.Psi">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Psi">[docs]</a>
+    <span class="k">def</span> <span class="nf">Psi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">c_node</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Abstraction of the Layer 1 transition probabilities</span>
+<span class="sd">            MUST be overrided in any derived class!</span>
+<span class="sd">            return: a float in [0,1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="Base_model.log_Psi_cassette">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.log_Psi_cassette">[docs]</a>
+    <span class="k">def</span> <span class="nf">log_Psi_cassette</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">c_node</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">            Compute the log-transformed transition probability of cassette k  </span>
+<span class="sd">            return: a negative float, or None if the probability is 0</span>
+<span class="sd">        &quot;&quot;&quot;</span>    
+        <span class="n">log_trans_p</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">J</span><span class="p">):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Psi</span><span class="p">(</span><span class="n">c_node</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">log_trans_p</span> <span class="o">+=</span> <span class="n">log</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="c1">#####*****#####</span>
+            <span class="k">else</span><span class="p">:</span>    
+                <span class="n">log_trans_p</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">log_trans_p</span></div>
+
+
+<div class="viewcode-block" id="Base_model.logGamma">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.logGamma">[docs]</a>
+    <span class="k">def</span> <span class="nf">logGamma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">c</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Abstraction of the Layer 2 emission probabilities</span>
+<span class="sd">            MUST be overrided in any derived class!</span>
+<span class="sd">            return: a negative float, or None if the probability is 0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="Base_model.llh_DLT_data">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.llh_DLT_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">llh_DLT_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">            Compute the log-likelihood of the dynamic lineage tracing (DLT) data</span>
+<span class="sd">        &quot;&quot;&quot;</span>    
+        <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">DLT_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span>
+        <span class="n">root_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">J</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span><span class="p">:</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">in_llh</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span> <span class="c1"># a list of dictionaries</span>
+        
+        <span class="n">total_llh</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+            <span class="c1">#allele_list = self.data[&#39;DLT_data&#39;].alphabet.get_cassette_alphabet(k)</span>
+            <span class="n">allele_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cassette_state_lists</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+                        <span class="n">c</span> <span class="o">=</span> <span class="n">DLT_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">allele_list</span><span class="p">:</span> 
+                            <span class="n">log_trans_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logGamma</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="c1"># transition probability</span>
+                            <span class="k">if</span> <span class="n">log_trans_p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="n">node</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_trans_p</span>
+                    <span class="k">else</span><span class="p">:</span>   
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">allele_list</span><span class="p">:</span>
+                            <span class="n">llh</span> <span class="o">=</span> <span class="mi">0</span>
+                            <span class="k">for</span> <span class="n">c_node</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                                <span class="n">llh_list</span> <span class="o">=</span> <span class="p">[]</span>                                    
+                                <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">c_node</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                                    <span class="n">log_trans_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_Psi_cassette</span><span class="p">(</span><span class="n">c_node</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+                                    <span class="k">if</span> <span class="n">log_trans_p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                        <span class="n">llh_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_trans_p</span> <span class="o">+</span> <span class="n">c_node</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">y</span><span class="p">])</span>
+                                <span class="k">if</span> <span class="n">llh_list</span><span class="p">:</span> <span class="c1"># if the list is not empty</span>
+                                    <span class="n">llh</span> <span class="o">+=</span> <span class="n">log_sum_exp</span><span class="p">(</span><span class="n">llh_list</span><span class="p">)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">llh</span> <span class="o">=</span> <span class="kc">None</span>
+                                    <span class="k">break</span>   
+                            <span class="k">if</span> <span class="n">llh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="n">node</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">llh</span>
+                <span class="k">if</span> <span class="n">root_state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                    <span class="n">tree</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">root_state</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+                <span class="n">total_llh</span> <span class="o">+=</span> <span class="n">tree</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">root_state</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">total_llh</span></div>
+
+
+<div class="viewcode-block" id="Base_model.llh_DLT_data_edge">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.llh_DLT_data_edge">[docs]</a>
+    <span class="k">def</span> <span class="nf">llh_DLT_data_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">node</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Compute the in-llh on an edge from node to its parent (see the LAML-pro writeup for details)</span>
+<span class="sd">            Assume in_llh has been computed for every node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">llh_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+            <span class="n">log_trans_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_Psi_cassette</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">log_trans_p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+                <span class="n">llh_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">+</span> <span class="n">log_trans_p</span><span class="p">)</span>        
+        <span class="k">return</span> <span class="n">log_sum_exp</span><span class="p">(</span><span class="n">llh_list</span><span class="p">)</span> <span class="k">if</span> <span class="n">llh_list</span> <span class="k">else</span> <span class="kc">None</span>       </div>
+
+
+<div class="viewcode-block" id="Base_model.negative_llh">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.negative_llh">[docs]</a>
+    <span class="k">def</span> <span class="nf">negative_llh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Compute the negative log-likelihood of all data modules</span>
+<span class="sd">            In this base class, only the DLT is included as data</span>
+<span class="sd">            If a derived class has data modules other than the DLT data (e.g. spatial, gene expression, etc.), </span>
+<span class="sd">            this function MUST be overrided to compute the joint-llh of all available data modules</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">llh_DLT_data</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Base_model.optimize">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.optimize">[docs]</a>
+    <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">solver</span><span class="p">,</span><span class="n">initials</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">fixed_brlen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">compute_cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="p">{},</span><span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">max_trials</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">random_seeds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ultra_constr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="o">**</span><span class="n">solver_opts</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Optimize branch lengths and all params in self.params</span>
+<span class="sd">                solver: can either be &quot;Scipy&quot; or &quot;EM&quot;</span>
+<span class="sd">                random_seeds: can either be a single number or a list of intergers where len(random_seeds) = initials</span>
+<span class="sd">                verbose level: 1 --&gt; show all messages; 0 --&gt; show minimal messages; -1 --&gt; completely silent</span>
+<span class="sd">                fixed_brlen: can be one of the followings:</span>
+<span class="sd">                    1. None: don&#39;t fix any branch length</span>
+<span class="sd">                    2. (str) &quot;All&quot;: fix all branch lengths to the current value. Assume without checking that solver.trees have (valid) branch lengths</span>
+<span class="sd">                    3. (list of dictionaries) a list of t dictionaries where t is the number of trees in self.trees. Each dictionay fixed_brlen[t] maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed</span>
+<span class="sd">                fixed_params: a dictionary mapping a param&#39;s name to the value we wish to fix it to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_failed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">all_trials</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">random_seeds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rseeds</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="mi">10000</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">initials</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">random_seeds</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Global random seed: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">random_seeds</span><span class="p">))</span>
+            <span class="n">seed</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">random_seeds</span><span class="p">)</span>
+            <span class="n">rseeds</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="mi">10000</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">initials</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">random_seeds</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">random_seeds</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">initials</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fatal: the number of random seeds is smaller than the number of initials!&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">random_seeds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">initials</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: the number of random seeds is larger than the number of initials. Ignoring the last &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">random_seeds</span><span class="p">)</span><span class="o">-</span><span class="n">initials</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; seeds&quot;</span><span class="p">)</span>
+            <span class="n">rseeds</span> <span class="o">=</span> <span class="n">random_seeds</span><span class="p">[:</span><span class="n">initials</span><span class="p">]</span>    
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fatal: incorrect random_seeds type provided&quot;</span><span class="p">)</span>        
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="n">all_failed</span> <span class="ow">and</span> <span class="n">all_trials</span> <span class="o">&lt;</span> <span class="n">max_trials</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optimization start with &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">initials</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; initials&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">initials</span><span class="p">):</span>
+                <span class="n">randseed</span> <span class="o">=</span> <span class="n">rseeds</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">+</span> <span class="n">all_trials</span>
+                <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initial point &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rep</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;. Random seed: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">randseed</span><span class="p">))</span>
+
+                <span class="c1"># read in compute_cache</span>
+                <span class="k">if</span> <span class="n">compute_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">tree</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">):</span>
+                        <span class="n">cache_nodes</span> <span class="o">=</span> <span class="n">find_LCAs</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="nb">list</span><span class="p">(</span><span class="n">compute_cache</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+                        <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">compute_cache</span><span class="p">[</span><span class="n">t</span><span class="p">]):</span>
+                            <span class="n">u</span> <span class="o">=</span> <span class="n">cache_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">compute_cache</span><span class="p">[</span><span class="n">t</span><span class="p">][(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)]:</span>
+                                <span class="nb">setattr</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">compute_cache</span><span class="p">[</span><span class="n">t</span><span class="p">][(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)][</span><span class="n">attr</span><span class="p">])</span>
+                
+                <span class="c1"># read in fixed_brlen and mark the tree nodes</span>
+                <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">tree</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">):</span>
+                    <span class="c1"># initialization</span>
+                    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                        <span class="n">node</span><span class="o">.</span><span class="n">mark_fixed</span> <span class="o">=</span> <span class="p">(</span><span class="n">fixed_brlen</span> <span class="o">==</span> <span class="s1">&#39;All&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">())</span>
+                    <span class="k">if</span> <span class="n">fixed_brlen</span> <span class="o">==</span> <span class="s1">&#39;All&#39;</span><span class="p">:</span> <span class="c1"># the above piece of code should have set all mark_fixed flags to True</span>
+                        <span class="k">continue</span>    
+                    <span class="k">if</span> <span class="n">fixed_brlen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">fixed_nodes</span> <span class="o">=</span> <span class="n">find_LCAs</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="nb">list</span><span class="p">(</span><span class="n">fixed_brlen</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>        
+                        <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fixed_brlen</span><span class="p">[</span><span class="n">t</span><span class="p">]):</span>
+                            <span class="n">u</span> <span class="o">=</span> <span class="n">fixed_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                            <span class="n">u</span><span class="o">.</span><span class="n">edge_length</span> <span class="o">=</span> <span class="n">fixed_brlen</span><span class="p">[</span><span class="n">t</span><span class="p">][(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)]</span>
+                            <span class="n">u</span><span class="o">.</span><span class="n">mark_fixed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="c1"># mark the nodes that will need to be recomputed</span>
+                    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                        <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_fixed</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">compute_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">c_node</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                            <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span> <span class="ow">or</span> <span class="n">c_node</span><span class="o">.</span><span class="n">mark_recompute</span>
+               
+                <span class="c1"># NOTE: the solvers will use the flags &quot;mark_fixed&quot; and &quot;mark_recompute&quot; decorated on the tree nodes</span>
+                <span class="c1"># Be careful: don&#39;t modify these flags while doing the computation/optimization inside the solver!</span>
+                <span class="k">if</span> <span class="n">solver</span> <span class="o">==</span> <span class="s1">&#39;Scipy&#39;</span><span class="p">:</span>
+                    <span class="n">scipy_options</span> <span class="o">=</span> <span class="n">solver_opts</span> <span class="k">if</span> <span class="n">solver_opts</span> <span class="k">else</span> <span class="n">DEFAULT_scipy_options</span>
+                    <span class="n">scipy_options</span><span class="p">[</span><span class="s1">&#39;disp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">verbose</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">nllh</span><span class="p">,</span><span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scipy_optimization</span><span class="p">(</span><span class="n">randseed</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span><span class="n">ultra_constr</span><span class="o">=</span><span class="n">ultra_constr</span><span class="p">,</span><span class="n">scipy_options</span><span class="o">=</span><span class="n">scipy_options</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">EM_options</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">opts</span> <span class="ow">in</span> <span class="n">DEFAULT_EM_options</span><span class="p">:</span>
+                        <span class="n">EM_options</span><span class="p">[</span><span class="n">opts</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_EM_options</span><span class="p">[</span><span class="n">opts</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">opts</span> <span class="ow">in</span> <span class="n">solver_opts</span><span class="p">:</span>
+                        <span class="n">EM_options</span><span class="p">[</span><span class="n">opts</span><span class="p">]</span> <span class="o">=</span> <span class="n">solver_opts</span><span class="p">[</span><span class="n">opts</span><span class="p">]</span>    
+                    <span class="n">nllh</span><span class="p">,</span><span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">EM_optimization</span><span class="p">(</span><span class="n">randseed</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span><span class="n">ultra_constr</span><span class="o">=</span><span class="n">ultra_constr</span><span class="p">,</span><span class="n">EM_options</span><span class="o">=</span><span class="n">EM_options</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">nllh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">all_failed</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optimal point found for initial point &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rep</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="c1"># remove zero-length branches</span>
+                    <span class="n">processed_trees</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+                        <span class="n">tree_copy</span> <span class="o">=</span> <span class="n">read_tree_newick</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">newick</span><span class="p">())</span>
+                        <span class="n">tree_copy</span><span class="o">.</span><span class="n">collapse_short_branches</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dmin</span><span class="o">*</span><span class="mf">0.01</span><span class="p">)</span> <span class="c1">##### HACKING: using a hard-code for now #####</span>
+                        <span class="n">processed_trees</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tree_copy</span><span class="o">.</span><span class="n">newick</span><span class="p">())</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">nllh</span><span class="p">,</span><span class="n">rep</span><span class="p">,</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">),</span><span class="n">processed_trees</span><span class="p">,</span><span class="n">status</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fatal: failed to optimize using initial point &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rep</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>    
+            <span class="n">all_trials</span> <span class="o">+=</span> <span class="n">initials</span>    
+        <span class="k">if</span> <span class="n">all_failed</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fatal: Optimization failed on more than &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_trials</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; retries. Aborting ...&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>    
+            <span class="n">results</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="n">best_nllh</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">best_params</span><span class="p">,</span><span class="n">best_trees</span><span class="p">,</span><span class="n">status</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">best_trees</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">read_tree_newick</span><span class="p">(</span><span class="n">tree</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">best_params</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Numerical optimization finished successfully&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">status</span></div>
+
+
+<div class="viewcode-block" id="Base_model.Estep_in_llh">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Estep_in_llh">[docs]</a>
+    <span class="k">def</span> <span class="nf">Estep_in_llh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">llh_DLT_data</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Base_model.Estep_out_llh">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Estep_out_llh">[docs]</a>
+    <span class="k">def</span> <span class="nf">Estep_out_llh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Compute the out-llh and in-llh-edge of all nodes/edges</span>
+<span class="sd">            Outcome: every node has two new attributes added:</span>
+<span class="sd">                node.out_llh: a list of K dictionaries</span>
+<span class="sd">                node.in_llh_edge: a list of K dictionaries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">DLT_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span>
+        <span class="n">root_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">J</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span><span class="p">:</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">out_llh</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span> <span class="c1"># a list of dictionaries</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">in_llh_edge</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span> <span class="c1"># a list of dictionaries</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+            <span class="c1">#allele_list = self.data[&#39;DLT_data&#39;].alphabet.get_cassette_alphabet(k)</span>
+            <span class="n">allele_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cassette_state_lists</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">():</span>
+                        <span class="n">node</span><span class="o">.</span><span class="n">out_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">root_state</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">is_root</span><span class="p">():</span>
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">allele_list</span><span class="p">:</span>
+                            <span class="n">log_trans_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_Psi_cassette</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">root_state</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> 
+                            <span class="k">if</span> <span class="n">log_trans_p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="n">node</span><span class="o">.</span><span class="n">out_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_trans_p</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">allele_list</span><span class="p">:</span>
+                            <span class="n">llh_list</span> <span class="o">=</span> <span class="p">[]</span>                                    
+                            <span class="n">par_state_lists</span> <span class="o">=</span> <span class="p">[]</span>
+                            <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">x_j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">x_j</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                                    <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">alphabet</span><span class="o">.</span><span class="n">get_site_alphabet</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">L</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="n">x_j</span><span class="p">])</span>
+                                <span class="n">par_state_lists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+                            <span class="n">candidate_par_states</span> <span class="o">=</span> <span class="n">join_lists</span><span class="p">(</span><span class="n">par_state_lists</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">candidate_par_states</span><span class="p">:</span>
+                            <span class="c1">#for y in node.parent.out_llh[k]:</span>
+                                <span class="k">if</span> <span class="n">y</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">out_llh</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                                    <span class="k">continue</span>
+                                <span class="n">log_trans_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_Psi_cassette</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">log_trans_p</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                                    <span class="k">continue</span>
+                                <span class="n">par_out_llh</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">out_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">y</span><span class="p">]</span>
+                                <span class="n">sum_sisters_in_llh</span> <span class="o">=</span> <span class="mi">0</span>
+                                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                                    <span class="k">if</span> <span class="n">w</span> <span class="ow">is</span> <span class="n">node</span><span class="p">:</span>
+                                        <span class="k">continue</span>
+                                    <span class="k">if</span> <span class="n">y</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">w</span><span class="o">.</span><span class="n">in_llh_edge</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                                        <span class="n">curr_llh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llh_DLT_data_edge</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>    
+                                        <span class="n">w</span><span class="o">.</span><span class="n">in_llh_edge</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">curr_llh</span>
+                                    <span class="k">else</span><span class="p">:</span>
+                                        <span class="n">curr_llh</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">in_llh_edge</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">y</span><span class="p">]</span>    
+                                    <span class="c1">#curr_llh = self.llh_DLT_data_edge(w,k,y)</span>
+                                    <span class="k">if</span> <span class="n">curr_llh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                        <span class="n">sum_sisters_in_llh</span> <span class="o">+=</span> <span class="n">curr_llh</span>
+                                    <span class="k">else</span><span class="p">:</span>
+                                        <span class="n">sum_sisters_in_llh</span> <span class="o">=</span> <span class="kc">None</span>
+                                        <span class="k">break</span>
+                                <span class="k">if</span> <span class="n">sum_sisters_in_llh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                    <span class="n">llh_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_trans_p</span><span class="o">+</span><span class="n">par_out_llh</span><span class="o">+</span><span class="n">sum_sisters_in_llh</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">llh_list</span><span class="p">:</span> <span class="c1"># if the list is not empty</span>
+                                <span class="n">node</span><span class="o">.</span><span class="n">out_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_sum_exp</span><span class="p">(</span><span class="n">llh_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Base_model.Estep_posterior">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Estep_posterior">[docs]</a>
+    <span class="k">def</span> <span class="nf">Estep_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">            Compute the log-transformed of all posterior probabilities</span>
+<span class="sd">            Outcome: every node has two new attribute: </span>
+<span class="sd">                node.log_node_posterior: a list of K dictionaries</span>
+<span class="sd">                node.log_edge_posterior: a list of K dicitonaries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">DLT_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span>
+        <span class="n">root_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">J</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span><span class="p">:</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">log_node_posterior</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span> <span class="c1"># a list of dictionaries</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">log_edge_posterior</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span> <span class="c1"># a list of dictionaries</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+            <span class="c1">#allele_list = self.data[&#39;DLT_data&#39;].alphabet.get_cassette_alphabet(k)</span>
+            <span class="n">allele_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;DLT_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cassette_state_lists</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_preorder</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_recompute</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">():</span>
+                        <span class="n">node</span><span class="o">.</span><span class="n">log_node_posterior</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">root_state</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">allele_list</span><span class="p">:</span>
+                            <span class="n">in_llh</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+                            <span class="n">out_llh</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">out_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">out_llh</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+                            <span class="n">total_llh</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">root_state</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">in_llh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">out_llh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                                <span class="n">node</span><span class="o">.</span><span class="n">log_node_posterior</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">in_llh</span> <span class="o">+</span> <span class="n">out_llh</span> <span class="o">-</span> <span class="n">total_llh</span>
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">log_node_posterior</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                                <span class="n">log_p_trans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_Psi_cassette</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">log_p_trans</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                                    <span class="k">continue</span>
+                                <span class="n">log_u_post</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">log_node_posterior</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">x</span><span class="p">]</span>
+                                <span class="n">log_v_in</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">in_llh</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">y</span><span class="p">]</span>
+                                <span class="n">log_llh_edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llh_DLT_data_edge</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+                                <span class="n">node</span><span class="o">.</span><span class="n">log_edge_posterior</span><span class="p">[</span><span class="n">k</span><span class="p">][(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)]</span> <span class="o">=</span> <span class="n">log_u_post</span> <span class="o">+</span> <span class="n">log_v_in</span> <span class="o">+</span> <span class="n">log_p_trans</span> <span class="o">-</span> <span class="n">log_llh_edge</span></div>
+
+
+<div class="viewcode-block" id="Base_model.Estep">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Estep">[docs]</a>
+    <span class="k">def</span> <span class="nf">Estep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">run_in_llh</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; The E-step of the EM algorithm &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">run_in_llh</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Estep_in_llh</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Estep_out_llh</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Estep_posterior</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="Base_model.set_closed_form_optimal">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.set_closed_form_optimal">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_closed_form_optimal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="p">{},</span><span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            For every param that has a closed-form M-step optimal, </span>
+<span class="sd">            if that param is in fixed_params, set it to the specified fixed value;</span>
+<span class="sd">            otherwise, compute the closed-form solution and set that to the param&#39;s value</span>
+<span class="sd">            IMPORTANT: this is a placeholder for this function in the base class</span>
+<span class="sd">            MUST be overrided in any derived class!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span> <span class="c1"># this function should never be called, so this line should never be reached!</span></div>
+
+
+<div class="viewcode-block" id="Base_model.Mstep">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Mstep">[docs]</a>
+    <span class="k">def</span> <span class="nf">Mstep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="p">{},</span><span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">local_brlen_opt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ultra_constr_cache</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">            The M-step of the EM algorithm</span>
+<span class="sd">            Notes:</span>
+<span class="sd">                Assume that Estep has been performed so that all nodes have S0-S4 attributes</span>
+<span class="sd">                Output: optimize all parameters and store them in the trees&#39; branch lengths and self.params</span>
+<span class="sd">                verbose level: 1 --&gt; show all messages; 0 --&gt; show minimal messages; -1 --&gt; completely silent        </span>
+<span class="sd">        &quot;&quot;&quot;</span>    
+        <span class="c1"># setup and call a Mstep_solver</span>
+        <span class="n">selected_solver</span> <span class="o">=</span> <span class="n">Mstep_PMMconv</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">silence_mechanism</span> <span class="o">==</span> <span class="s2">&quot;convolve&quot;</span> <span class="k">else</span> <span class="n">Mstep_PMMsep</span>
+        <span class="n">my_Mstep_solver</span> <span class="o">=</span> <span class="n">selected_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ultra_constr_cache</span><span class="o">=</span><span class="n">ultra_constr_cache</span><span class="p">,</span><span class="n">local_brlen_opt</span><span class="o">=</span><span class="n">local_brlen_opt</span><span class="p">,</span><span class="n">nIters</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">d_star</span><span class="p">,</span><span class="n">status_d</span><span class="p">,</span><span class="n">nu_star</span><span class="p">,</span><span class="n">status_nu</span> <span class="o">=</span> <span class="n">my_Mstep_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="c1"># place the optimal value back to params</span>
+        <span class="k">if</span> <span class="n">status_nu</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;optimal&quot;</span><span class="p">,</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s1">&#39;nu&#39;</span><span class="p">,</span><span class="n">nu_star</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status_d</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;optimal&quot;</span><span class="p">,</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">,</span><span class="s2">&quot;fixed&quot;</span><span class="p">]:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">is_root</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">mark_fixed</span> <span class="ow">and</span> <span class="n">local_brlen_opt</span><span class="p">):</span>   
+                        <span class="n">node</span><span class="o">.</span><span class="n">edge_length</span> <span class="o">=</span> <span class="n">d_star</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="p">(</span><span class="n">status_d</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;fixed&quot;</span><span class="p">,</span><span class="s2">&quot;optimal&quot;</span><span class="p">,</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">status_nu</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;optimal&quot;</span><span class="p">,</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;optimal&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">status_d</span> <span class="o">!=</span> <span class="s2">&quot;optimal&quot;</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">+=</span> <span class="s2">&quot;failed_d&quot;</span>
+            <span class="k">if</span> <span class="n">status_nu</span> <span class="o">!=</span> <span class="s2">&quot;optimal&quot;</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;,failed_nu&quot;</span>
+        <span class="k">return</span> <span class="n">success</span><span class="p">,</span> <span class="n">status</span></div>
+
+
+<div class="viewcode-block" id="Base_model.EM_optimization">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.EM_optimization">[docs]</a>
+    <span class="k">def</span> <span class="nf">EM_optimization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">randseed</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="p">{},</span><span class="n">ultra_constr</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">EM_options</span><span class="o">=</span><span class="n">DEFAULT_EM_options</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            The EM algorithm to optimize model&#39;s parameters</span>
+<span class="sd">            IMPORTANT: this EM algorithm ONLY optimizes the parameters in Layer 1 of the DLT data.</span>
+<span class="sd">            Caution: this function will modify params and branch lengths in place!</span>
+<span class="sd">            verbose level: 1 --&gt; show all messages; 0 --&gt; show minimal messages; -1 --&gt; completely silent</span>
+<span class="sd">        &quot;&quot;&quot;</span>    
+        <span class="n">seed</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">randseed</span><span class="p">)</span>
+        <span class="n">maxIter</span> <span class="o">=</span> <span class="n">EM_options</span><span class="p">[</span><span class="s1">&#39;max_iter&#39;</span><span class="p">]</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ini_all_params</span><span class="p">(</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x2params</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">)</span>
+        <span class="n">pre_llh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llh_DLT_data</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initial parameter values: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">show_values</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initial nllh: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">pre_llh</span><span class="p">))</span>
+        <span class="n">em_iter</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ultra_constr</span><span class="p">:</span>
+            <span class="n">ultra_constr_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ultrametric_constr</span><span class="p">(</span><span class="n">local_brlen_opt</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#####*****##### </span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ultra_constr_cache</span> <span class="o">=</span> <span class="kc">None</span>        
+        <span class="k">while</span> <span class="n">em_iter</span> <span class="o">&lt;=</span> <span class="n">maxIter</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting EM iter: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">em_iter</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Estep&quot;</span><span class="p">)</span>
+            <span class="n">estep_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Estep</span><span class="p">(</span><span class="n">run_in_llh</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1">#####*****#####</span>
+            <span class="n">estep_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Estep runtime (s): </span><span class="si">{</span><span class="n">estep_end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">estep_start</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mstep&quot;</span><span class="p">)</span>
+            <span class="n">mstep_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">m_success</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Mstep</span><span class="p">(</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span><span class="n">local_brlen_opt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ultra_constr_cache</span><span class="o">=</span><span class="n">ultra_constr_cache</span><span class="p">)</span>
+            <span class="n">mstep_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mstep runtime (s): </span><span class="si">{</span><span class="n">mstep_end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">mstep_start</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">m_success</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;d_infeasible&quot;</span><span class="p">:</span> <span class="c1"># should only happen with local EM</span>
+                    <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: EM failed to optimize parameters in one Mstep due to infeasible constraints&quot;</span><span class="p">)</span> 
+                    <span class="k">return</span> <span class="o">-</span><span class="n">pre_llh</span><span class="p">,</span><span class="n">status</span>
+                <span class="k">elif</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>    
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: EM failed to optimize parameters in one Mstep.&quot;</span><span class="p">)</span>                
+            <span class="n">curr_llh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llh_DLT_data</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Finished EM iter: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">em_iter</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;. Current nllh: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">curr_llh</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">((</span><span class="n">curr_llh</span> <span class="o">-</span> <span class="n">pre_llh</span><span class="p">)</span><span class="o">/</span><span class="n">pre_llh</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">DEFAULT_conv_eps</span><span class="p">:</span>
+                <span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+            <span class="n">pre_llh</span> <span class="o">=</span> <span class="n">curr_llh</span>
+            <span class="n">em_iter</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">converged</span> <span class="ow">and</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: exceeded maximum number of EM iterations (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">maxIter</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; iters)!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">curr_llh</span><span class="p">,</span><span class="n">status</span>    </div>
+
+
+<div class="viewcode-block" id="Base_model.scipy_optimization">
+<a class="viewcode-back" href="../../../laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.scipy_optimization">[docs]</a>
+    <span class="k">def</span> <span class="nf">scipy_optimization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">randseed</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="p">{},</span><span class="n">ultra_constr</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">scipy_options</span><span class="o">=</span><span class="n">DEFAULT_scipy_options</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Optimize model parameters using Scipy &quot;&quot;&quot;</span>
+        <span class="c1"># optimize using a specific initial point identified by the input randseed</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">nllh</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">x2params</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">)</span>            
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_llh</span><span class="p">()</span>
+        
+        <span class="n">seed</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">randseed</span><span class="p">)</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ini_all_params</span><span class="p">(</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bound</span><span class="p">(</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">)</span>
+        <span class="n">constraints</span> <span class="o">=</span> <span class="p">[]</span>    
+
+        <span class="n">A</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">mark_fixed</span><span class="p">:</span>
+                    <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
+                    <span class="n">a</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">A</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+                    <span class="n">b</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">edge_length</span><span class="p">)</span>
+                <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>   
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>     
+            <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">optimize</span><span class="o">.</span><span class="n">LinearConstraint</span><span class="p">(</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">A</span><span class="p">),</span><span class="n">b</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">keep_feasible</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">ultra_constr</span><span class="p">:</span>
+            <span class="n">M</span><span class="p">,</span><span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ultrametric_constr</span><span class="p">(</span><span class="n">local_brlen_opt</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># temporary solution: this version only works with local_brlen_opt=False</span>
+            <span class="c1">#constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))</span>
+            <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">optimize</span><span class="o">.</span><span class="n">LinearConstraint</span><span class="p">(</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">M</span><span class="p">),</span><span class="n">b</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">keep_feasible</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nllh</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;SLSQP&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">scipy_options</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span><span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x2params</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">)</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">fun</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">,</span><span class="n">params</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span><span class="kc">None</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;optimal&quot;</span> <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">success</span> <span class="k">else</span> <span class="n">out</span><span class="o">.</span><span class="n">message</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">,</span><span class="n">status</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">LAML-Pro</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">laml_libs</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, U.M.*, G.C.*, B.R..
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
