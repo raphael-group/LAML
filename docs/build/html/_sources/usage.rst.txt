@@ -1,0 +1,9 @@
+Usage
+========
+
+Installation
+-------------
+
+1. To use LAML-PrO first install it with pip.
+
+

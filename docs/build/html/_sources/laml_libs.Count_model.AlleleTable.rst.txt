@@ -1,0 +1,7 @@
+laml\_libs.Count\_model.AlleleTable module
+==========================================
+
+.. automodule:: laml_libs.Count_model.AlleleTable
+   :members:
+   :undoc-members:
+   :show-inheritance:

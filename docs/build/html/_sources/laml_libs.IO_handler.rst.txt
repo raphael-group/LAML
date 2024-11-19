@@ -1,0 +1,19 @@
+laml\_libs.IO\_handler package
+==============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   laml_libs.IO_handler.DLT_parser
+   laml_libs.IO_handler.sequence_lib
+
+Module contents
+---------------
+
+.. automodule:: laml_libs.IO_handler
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,28 @@
+laml\_libs.Count\_model package
+===============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   laml_libs.Count_model.AlleleTable
+   laml_libs.Count_model.Alphabet
+   laml_libs.Count_model.Base_model
+   laml_libs.Count_model.CharMtrx
+   laml_libs.Count_model.Mstep_solver
+   laml_libs.Count_model.PMMC_model
+   laml_libs.Count_model.PMMN_model
+   laml_libs.Count_model.PMM_base_model
+   laml_libs.Count_model.Param
+   laml_libs.Count_model.Virtual_solver
+   laml_libs.Count_model.utils
+
+Module contents
+---------------
+
+.. automodule:: laml_libs.Count_model
+   :members:
+   :undoc-members:
+   :show-inheritance:

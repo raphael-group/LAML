@@ -1,0 +1,7 @@
+laml\_libs.IO\_handler.sequence\_lib module
+===========================================
+
+.. automodule:: laml_libs.IO_handler.sequence_lib
+   :members:
+   :undoc-members:
+   :show-inheritance:

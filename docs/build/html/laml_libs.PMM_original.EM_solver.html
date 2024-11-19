@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>laml_libs.PMM_original.EM_solver module &#8212; LAML-Pro 2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=60dbed4a"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="laml_libs.PMM_original.ML_solver module" href="laml_libs.PMM_original.ML_solver.html" />
+    <link rel="prev" title="laml_libs.PMM_original package" href="laml_libs.PMM_original.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-laml_libs.PMM_original.EM_solver">
+<span id="laml-libs-pmm-original-em-solver-module"></span><h1>laml_libs.PMM_original.EM_solver module<a class="headerlink" href="#module-laml_libs.PMM_original.EM_solver" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">laml_libs.PMM_original.EM_solver.</span></span><span class="sig-name descname"><span class="pre">EM_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">treeList</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'nu':</span> <span class="pre">0,</span> <span class="pre">'phi':</span> <span class="pre">0,</span> <span class="pre">'sigma':</span> <span class="pre">0}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver" title="laml_libs.PMM_original.ML_solver.ML_solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">ML_solver</span></code></a></p>
+<p>EM_solver class.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.EM_optimization">
+<span class="sig-name descname"><span class="pre">EM_optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize_phi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize_nu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxIter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.EM_optimization" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.Estep">
+<span class="sig-name descname"><span class="pre">Estep</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.Estep" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.Estep_in_llh">
+<span class="sig-name descname"><span class="pre">Estep_in_llh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.Estep_in_llh" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.Estep_out_llh">
+<span class="sig-name descname"><span class="pre">Estep_out_llh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.Estep_out_llh" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.Estep_posterior">
+<span class="sig-name descname"><span class="pre">Estep_posterior</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.Estep_posterior" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.Mstep">
+<span class="sig-name descname"><span class="pre">Mstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimize_phi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize_nu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_nu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_brlen_opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.Mstep" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.get_compute_cache">
+<span class="sig-name descname"><span class="pre">get_compute_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.get_compute_cache" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.lineage_llh">
+<span class="sig-name descname"><span class="pre">lineage_llh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.lineage_llh" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.optimize_one">
+<span class="sig-name descname"><span class="pre">optimize_one</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">randseed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_phi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_nu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultra_constr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.optimize_one" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.ultrametric_constr">
+<span class="sig-name descname"><span class="pre">ultrametric_constr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_brlen_opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.ultrametric_constr" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.EM_solver.x2brlen">
+<span class="sig-name descname"><span class="pre">x2brlen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.EM_solver.x2brlen" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.log_sum_exp">
+<span class="sig-prename descclassname"><span class="pre">laml_libs.PMM_original.EM_solver.</span></span><span class="sig-name descname"><span class="pre">log_sum_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numlist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.log_sum_exp" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.pseudo_log">
+<span class="sig-prename descclassname"><span class="pre">laml_libs.PMM_original.EM_solver.</span></span><span class="sig-name descname"><span class="pre">pseudo_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.pseudo_log" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="laml_libs.PMM_original.EM_solver.random">
+<span class="sig-prename descclassname"><span class="pre">laml_libs.PMM_original.EM_solver.</span></span><span class="sig-name descname"><span class="pre">random</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">x</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">interval</span> <span class="pre">[0,</span> <span class="pre">1).</span></span></span><a class="headerlink" href="#laml_libs.PMM_original.EM_solver.random" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">LAML-Pro</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">laml_libs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="laml_libs.html">laml_libs package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="laml_libs.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.Count_model.html">laml_libs.Count_model package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.IO_handler.html">laml_libs.IO_handler package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="laml_libs.PMM_original.html">laml_libs.PMM_original package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="laml_libs.PMM_original.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6 current"><a class="current reference internal" href="#">laml_libs.PMM_original.EM_solver module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver"><code class="docutils literal notranslate"><span class="pre">EM_solver</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.EM_optimization"><code class="docutils literal notranslate"><span class="pre">EM_solver.EM_optimization()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.Estep"><code class="docutils literal notranslate"><span class="pre">EM_solver.Estep()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.Estep_in_llh"><code class="docutils literal notranslate"><span class="pre">EM_solver.Estep_in_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.Estep_out_llh"><code class="docutils literal notranslate"><span class="pre">EM_solver.Estep_out_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.Estep_posterior"><code class="docutils literal notranslate"><span class="pre">EM_solver.Estep_posterior()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.Mstep"><code class="docutils literal notranslate"><span class="pre">EM_solver.Mstep()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.get_compute_cache"><code class="docutils literal notranslate"><span class="pre">EM_solver.get_compute_cache()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.lineage_llh"><code class="docutils literal notranslate"><span class="pre">EM_solver.lineage_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.optimize_one"><code class="docutils literal notranslate"><span class="pre">EM_solver.optimize_one()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.ultrametric_constr"><code class="docutils literal notranslate"><span class="pre">EM_solver.ultrametric_constr()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.EM_solver.x2brlen"><code class="docutils literal notranslate"><span class="pre">EM_solver.x2brlen()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.log_sum_exp"><code class="docutils literal notranslate"><span class="pre">log_sum_exp()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.pseudo_log"><code class="docutils literal notranslate"><span class="pre">pseudo_log()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#laml_libs.PMM_original.EM_solver.random"><code class="docutils literal notranslate"><span class="pre">random()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html">laml_libs.PMM_original.ML_solver module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.PMM_original.SpaLin_solver.html">laml_libs.PMM_original.SpaLin_solver module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.PMM_original.Virtual_solver.html">laml_libs.PMM_original.Virtual_solver module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.PMM_original.html#module-laml_libs.PMM_original">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.TopoSearch.html">laml_libs.TopoSearch package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.Utils.html">laml_libs.Utils package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.mixins.html">laml_libs.mixins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.preprocess.html">laml_libs.preprocess package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="laml_libs.html#module-laml_libs">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">laml_libs</a><ul>
+  <li><a href="laml_libs.html">laml_libs package</a><ul>
+  <li><a href="laml_libs.PMM_original.html">laml_libs.PMM_original package</a><ul>
+      <li>Previous: <a href="laml_libs.PMM_original.html" title="previous chapter">laml_libs.PMM_original package</a></li>
+      <li>Next: <a href="laml_libs.PMM_original.ML_solver.html" title="next chapter">laml_libs.PMM_original.ML_solver module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, U.M.*, G.C.*, B.R..
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/laml_libs.PMM_original.EM_solver.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

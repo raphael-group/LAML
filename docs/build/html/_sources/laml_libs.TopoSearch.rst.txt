@@ -1,0 +1,19 @@
+laml\_libs.TopoSearch package
+=============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   laml_libs.TopoSearch.Topology_search
+   laml_libs.TopoSearch.Topology_search_parallel
+
+Module contents
+---------------
+
+.. automodule:: laml_libs.TopoSearch
+   :members:
+   :undoc-members:
+   :show-inheritance:

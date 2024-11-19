@@ -1,0 +1,7 @@
+laml\_libs.preprocess.collapse\_cython module
+=============================================
+
+.. automodule:: laml_libs.preprocess.collapse_cython
+   :members:
+   :undoc-members:
+   :show-inheritance:

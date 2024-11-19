@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LAML-Pro documentation &#8212; LAML-Pro 2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=60dbed4a"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="laml-pro-documentation">
+<h1>LAML-Pro documentation<a class="headerlink" href="#laml-pro-documentation" title="Link to this heading">¶</a></h1>
+<p><strong>LAML-Pro</strong> or Lineage Analysis via Maximum Likelihood with Probabilistic Observations is a Python library for jointly infering cell genotype assignments and the cell lineage tree. It builds on LAML.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This project is under active development.</p>
+</div>
+<section id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#installation">Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">laml_libs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="laml_libs.html">laml_libs package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="laml_libs.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.Count_model.html">laml_libs.Count_model package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.Count_model.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.AlleleTable.html">laml_libs.Count_model.AlleleTable module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.AlleleTable.html#laml_libs.Count_model.AlleleTable.AlleleTable"><code class="docutils literal notranslate"><span class="pre">AlleleTable</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.AlleleTable.html#laml_libs.Count_model.AlleleTable.AlleleTable.J"><code class="docutils literal notranslate"><span class="pre">AlleleTable.J</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.AlleleTable.html#laml_libs.Count_model.AlleleTable.AlleleTable.data_struct"><code class="docutils literal notranslate"><span class="pre">AlleleTable.data_struct</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.AlleleTable.html#laml_libs.Count_model.AlleleTable.AlleleTable.alphabet"><code class="docutils literal notranslate"><span class="pre">AlleleTable.alphabet</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.AlleleTable.html#laml_libs.Count_model.AlleleTable.AlleleTable.get"><code class="docutils literal notranslate"><span class="pre">AlleleTable.get()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.AlleleTable.html#laml_libs.Count_model.AlleleTable.AlleleTable.get_one_count"><code class="docutils literal notranslate"><span class="pre">AlleleTable.get_one_count()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.AlleleTable.html#laml_libs.Count_model.AlleleTable.AlleleTable.is_missing"><code class="docutils literal notranslate"><span class="pre">AlleleTable.is_missing()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.Alphabet.html">laml_libs.Count_model.Alphabet module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.Alphabet.html#laml_libs.Count_model.Alphabet.Alphabet"><code class="docutils literal notranslate"><span class="pre">Alphabet</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Alphabet.html#laml_libs.Count_model.Alphabet.Alphabet.J"><code class="docutils literal notranslate"><span class="pre">Alphabet.J</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Alphabet.html#laml_libs.Count_model.Alphabet.Alphabet.M"><code class="docutils literal notranslate"><span class="pre">Alphabet.M</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Alphabet.html#laml_libs.Count_model.Alphabet.Alphabet.data_struct"><code class="docutils literal notranslate"><span class="pre">Alphabet.data_struct</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Alphabet.html#laml_libs.Count_model.Alphabet.Alphabet.get_M"><code class="docutils literal notranslate"><span class="pre">Alphabet.get_M()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Alphabet.html#laml_libs.Count_model.Alphabet.Alphabet.get_cassette_alphabet"><code class="docutils literal notranslate"><span class="pre">Alphabet.get_cassette_alphabet()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Alphabet.html#laml_libs.Count_model.Alphabet.Alphabet.get_site_alphabet"><code class="docutils literal notranslate"><span class="pre">Alphabet.get_site_alphabet()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.Base_model.html">laml_libs.Count_model.Base_model module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model"><code class="docutils literal notranslate"><span class="pre">Base_model</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.num_cassettes"><code class="docutils literal notranslate"><span class="pre">Base_model.num_cassettes</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.site_per_cassette"><code class="docutils literal notranslate"><span class="pre">Base_model.site_per_cassette</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Q"><code class="docutils literal notranslate"><span class="pre">Base_model.Q</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.silence_mechanism"><code class="docutils literal notranslate"><span class="pre">Base_model.silence_mechanism</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.EM_optimization"><code class="docutils literal notranslate"><span class="pre">Base_model.EM_optimization()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Estep"><code class="docutils literal notranslate"><span class="pre">Base_model.Estep()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Estep_in_llh"><code class="docutils literal notranslate"><span class="pre">Base_model.Estep_in_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Estep_out_llh"><code class="docutils literal notranslate"><span class="pre">Base_model.Estep_out_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Estep_posterior"><code class="docutils literal notranslate"><span class="pre">Base_model.Estep_posterior()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Mstep"><code class="docutils literal notranslate"><span class="pre">Base_model.Mstep()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.Psi"><code class="docutils literal notranslate"><span class="pre">Base_model.Psi()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.bound_brlen"><code class="docutils literal notranslate"><span class="pre">Base_model.bound_brlen()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.get_bound"><code class="docutils literal notranslate"><span class="pre">Base_model.get_bound()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.get_compute_cache"><code class="docutils literal notranslate"><span class="pre">Base_model.get_compute_cache()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.get_params"><code class="docutils literal notranslate"><span class="pre">Base_model.get_params()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.get_tree_newick"><code class="docutils literal notranslate"><span class="pre">Base_model.get_tree_newick()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.ini_all_params"><code class="docutils literal notranslate"><span class="pre">Base_model.ini_all_params()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.ini_brlens"><code class="docutils literal notranslate"><span class="pre">Base_model.ini_brlens()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.ini_one_param"><code class="docutils literal notranslate"><span class="pre">Base_model.ini_one_param()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.llh_DLT_data"><code class="docutils literal notranslate"><span class="pre">Base_model.llh_DLT_data()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.llh_DLT_data_edge"><code class="docutils literal notranslate"><span class="pre">Base_model.llh_DLT_data_edge()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.logGamma"><code class="docutils literal notranslate"><span class="pre">Base_model.logGamma()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.log_Psi_cassette"><code class="docutils literal notranslate"><span class="pre">Base_model.log_Psi_cassette()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.negative_llh"><code class="docutils literal notranslate"><span class="pre">Base_model.negative_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.optimize"><code class="docutils literal notranslate"><span class="pre">Base_model.optimize()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.scipy_optimization"><code class="docutils literal notranslate"><span class="pre">Base_model.scipy_optimization()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.score_tree"><code class="docutils literal notranslate"><span class="pre">Base_model.score_tree()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.set_closed_form_optimal"><code class="docutils literal notranslate"><span class="pre">Base_model.set_closed_form_optimal()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.ultrametric_constr"><code class="docutils literal notranslate"><span class="pre">Base_model.ultrametric_constr()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.Base_model.x2params"><code class="docutils literal notranslate"><span class="pre">Base_model.x2params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.Base_model.html#laml_libs.Count_model.Base_model.random"><code class="docutils literal notranslate"><span class="pre">random()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.CharMtrx.html">laml_libs.Count_model.CharMtrx module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx"><code class="docutils literal notranslate"><span class="pre">CharMtrx</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx.J"><code class="docutils literal notranslate"><span class="pre">CharMtrx.J</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx.data_struct"><code class="docutils literal notranslate"><span class="pre">CharMtrx.data_struct</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx.alphabet"><code class="docutils literal notranslate"><span class="pre">CharMtrx.alphabet</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx.get"><code class="docutils literal notranslate"><span class="pre">CharMtrx.get()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx.get_cell_names"><code class="docutils literal notranslate"><span class="pre">CharMtrx.get_cell_names()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.CharMtrx.html#laml_libs.Count_model.CharMtrx.CharMtrx.is_missing"><code class="docutils literal notranslate"><span class="pre">CharMtrx.is_missing()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html">laml_libs.Count_model.Mstep_solver module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html#laml_libs.Count_model.Mstep_solver.Mstep_PMM_base"><code class="docutils literal notranslate"><span class="pre">Mstep_PMM_base</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html#laml_libs.Count_model.Mstep_solver.Mstep_PMM_base.optimize_brlen"><code class="docutils literal notranslate"><span class="pre">Mstep_PMM_base.optimize_brlen()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html#laml_libs.Count_model.Mstep_solver.Mstep_PMM_base.optimize_nu"><code class="docutils literal notranslate"><span class="pre">Mstep_PMM_base.optimize_nu()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html#laml_libs.Count_model.Mstep_solver.Mstep_PMM_base.solve"><code class="docutils literal notranslate"><span class="pre">Mstep_PMM_base.solve()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html#laml_libs.Count_model.Mstep_solver.Mstep_PMMconv"><code class="docutils literal notranslate"><span class="pre">Mstep_PMMconv</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html#laml_libs.Count_model.Mstep_solver.Mstep_PMMconv.optimize_brlen"><code class="docutils literal notranslate"><span class="pre">Mstep_PMMconv.optimize_brlen()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html#laml_libs.Count_model.Mstep_solver.Mstep_PMMconv.optimize_nu"><code class="docutils literal notranslate"><span class="pre">Mstep_PMMconv.optimize_nu()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html#laml_libs.Count_model.Mstep_solver.Mstep_PMMsep"><code class="docutils literal notranslate"><span class="pre">Mstep_PMMsep</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html#laml_libs.Count_model.Mstep_solver.Mstep_PMMsep.optimize_brlen"><code class="docutils literal notranslate"><span class="pre">Mstep_PMMsep.optimize_brlen()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Mstep_solver.html#laml_libs.Count_model.Mstep_solver.Mstep_PMMsep.optimize_nu"><code class="docutils literal notranslate"><span class="pre">Mstep_PMMsep.optimize_nu()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.PMMC_model.html">laml_libs.Count_model.PMMC_model module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.PMMC_model.html#laml_libs.Count_model.PMMC_model.PMMC_model"><code class="docutils literal notranslate"><span class="pre">PMMC_model</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.PMMC_model.html#laml_libs.Count_model.PMMC_model.PMMC_model.logGamma"><code class="docutils literal notranslate"><span class="pre">PMMC_model.logGamma()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.PMMC_model.html#laml_libs.Count_model.PMMC_model.PMMC_model.set_closed_form_optimal"><code class="docutils literal notranslate"><span class="pre">PMMC_model.set_closed_form_optimal()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.PMMN_model.html">laml_libs.Count_model.PMMN_model module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.PMMN_model.html#laml_libs.Count_model.PMMN_model.PMMN_model"><code class="docutils literal notranslate"><span class="pre">PMMN_model</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.PMMN_model.html#laml_libs.Count_model.PMMN_model.PMMN_model.logGamma"><code class="docutils literal notranslate"><span class="pre">PMMN_model.logGamma()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.PMMN_model.html#laml_libs.Count_model.PMMN_model.PMMN_model.set_closed_form_optimal"><code class="docutils literal notranslate"><span class="pre">PMMN_model.set_closed_form_optimal()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.PMM_base_model.html">laml_libs.Count_model.PMM_base_model module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.PMM_base_model.html#laml_libs.Count_model.PMM_base_model.PMM_base_model"><code class="docutils literal notranslate"><span class="pre">PMM_base_model</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.PMM_base_model.html#laml_libs.Count_model.PMM_base_model.PMM_base_model.Psi"><code class="docutils literal notranslate"><span class="pre">PMM_base_model.Psi()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.Param.html">laml_libs.Count_model.Param module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.Param.html#laml_libs.Count_model.Param.Param"><code class="docutils literal notranslate"><span class="pre">Param</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Param.html#laml_libs.Count_model.Param.Param.get_bound"><code class="docutils literal notranslate"><span class="pre">Param.get_bound()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Param.html#laml_libs.Count_model.Param.Param.get_name2value_dict"><code class="docutils literal notranslate"><span class="pre">Param.get_name2value_dict()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Param.html#laml_libs.Count_model.Param.Param.get_names"><code class="docutils literal notranslate"><span class="pre">Param.get_names()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Param.html#laml_libs.Count_model.Param.Param.get_value"><code class="docutils literal notranslate"><span class="pre">Param.get_value()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Param.html#laml_libs.Count_model.Param.Param.set_value"><code class="docutils literal notranslate"><span class="pre">Param.set_value()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Param.html#laml_libs.Count_model.Param.Param.show_values"><code class="docutils literal notranslate"><span class="pre">Param.show_values()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.Virtual_solver.html">laml_libs.Count_model.Virtual_solver module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.Virtual_solver.html#laml_libs.Count_model.Virtual_solver.Virtual_solver"><code class="docutils literal notranslate"><span class="pre">Virtual_solver</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Virtual_solver.html#laml_libs.Count_model.Virtual_solver.Virtual_solver.get_compute_cache"><code class="docutils literal notranslate"><span class="pre">Virtual_solver.get_compute_cache()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Virtual_solver.html#laml_libs.Count_model.Virtual_solver.Virtual_solver.get_params"><code class="docutils literal notranslate"><span class="pre">Virtual_solver.get_params()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Virtual_solver.html#laml_libs.Count_model.Virtual_solver.Virtual_solver.get_tree_newick"><code class="docutils literal notranslate"><span class="pre">Virtual_solver.get_tree_newick()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.Count_model.Virtual_solver.html#laml_libs.Count_model.Virtual_solver.Virtual_solver.score_tree"><code class="docutils literal notranslate"><span class="pre">Virtual_solver.score_tree()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.Virtual_solver.html#laml_libs.Count_model.Virtual_solver.random"><code class="docutils literal notranslate"><span class="pre">random()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Count_model.utils.html">laml_libs.Count_model.utils module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.utils.html#laml_libs.Count_model.utils.charMtrx_2_alleleTable"><code class="docutils literal notranslate"><span class="pre">charMtrx_2_alleleTable()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.utils.html#laml_libs.Count_model.utils.countgen"><code class="docutils literal notranslate"><span class="pre">countgen()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.utils.html#laml_libs.Count_model.utils.join_lists"><code class="docutils literal notranslate"><span class="pre">join_lists()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.utils.html#laml_libs.Count_model.utils.log_sum_exp"><code class="docutils literal notranslate"><span class="pre">log_sum_exp()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.utils.html#laml_libs.Count_model.utils.pseudo_log"><code class="docutils literal notranslate"><span class="pre">pseudo_log()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Count_model.utils.html#laml_libs.Count_model.utils.random"><code class="docutils literal notranslate"><span class="pre">random()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.Count_model.html#module-laml_libs.Count_model">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.IO_handler.html">laml_libs.IO_handler package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.IO_handler.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html">laml_libs.IO_handler.DLT_parser module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser"><code class="docutils literal notranslate"><span class="pre">DLT_parser</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.charMtrx_to_json"><code class="docutils literal notranslate"><span class="pre">DLT_parser.charMtrx_to_json()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.check_missing"><code class="docutils literal notranslate"><span class="pre">DLT_parser.check_missing()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.data_to_AlleleTable_struct"><code class="docutils literal notranslate"><span class="pre">DLT_parser.data_to_AlleleTable_struct()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.data_to_CharMtrx_struct"><code class="docutils literal notranslate"><span class="pre">DLT_parser.data_to_CharMtrx_struct()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.datafile_to_json"><code class="docutils literal notranslate"><span class="pre">DLT_parser.datafile_to_json()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.get_alphabet_ds"><code class="docutils literal notranslate"><span class="pre">DLT_parser.get_alphabet_ds()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.get_alphabet_prior"><code class="docutils literal notranslate"><span class="pre">DLT_parser.get_alphabet_prior()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.get_from_path"><code class="docutils literal notranslate"><span class="pre">DLT_parser.get_from_path()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.parse_json"><code class="docutils literal notranslate"><span class="pre">DLT_parser.parse_json()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.parse_prior"><code class="docutils literal notranslate"><span class="pre">DLT_parser.parse_prior()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.process_datafile"><code class="docutils literal notranslate"><span class="pre">DLT_parser.process_datafile()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.read_charMtrx"><code class="docutils literal notranslate"><span class="pre">DLT_parser.read_charMtrx()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.read_fasta"><code class="docutils literal notranslate"><span class="pre">DLT_parser.read_fasta()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.read_json"><code class="docutils literal notranslate"><span class="pre">DLT_parser.read_json()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.read_priors"><code class="docutils literal notranslate"><span class="pre">DLT_parser.read_priors()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.read_sequences"><code class="docutils literal notranslate"><span class="pre">DLT_parser.read_sequences()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.set_alphabet"><code class="docutils literal notranslate"><span class="pre">DLT_parser.set_alphabet()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.set_json_obj"><code class="docutils literal notranslate"><span class="pre">DLT_parser.set_json_obj()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.uniform_priors"><code class="docutils literal notranslate"><span class="pre">DLT_parser.uniform_priors()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.IO_handler.DLT_parser.html#laml_libs.IO_handler.DLT_parser.DLT_parser.write_json"><code class="docutils literal notranslate"><span class="pre">DLT_parser.write_json()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html">laml_libs.IO_handler.sequence_lib module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.alphabet_size"><code class="docutils literal notranslate"><span class="pre">alphabet_size()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.charMtrx_to_json"><code class="docutils literal notranslate"><span class="pre">charMtrx_to_json()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.check_missing"><code class="docutils literal notranslate"><span class="pre">check_missing()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.data_to_AlleleTable_struct"><code class="docutils literal notranslate"><span class="pre">data_to_AlleleTable_struct()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.data_to_CharMtrx_struct"><code class="docutils literal notranslate"><span class="pre">data_to_CharMtrx_struct()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.extract_brlens"><code class="docutils literal notranslate"><span class="pre">extract_brlens()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.generate_q"><code class="docutils literal notranslate"><span class="pre">generate_q()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.get_alphabet_ds"><code class="docutils literal notranslate"><span class="pre">get_alphabet_ds()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.get_alphabet_prior"><code class="docutils literal notranslate"><span class="pre">get_alphabet_prior()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.load_pickle"><code class="docutils literal notranslate"><span class="pre">load_pickle()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_Q"><code class="docutils literal notranslate"><span class="pre">read_Q()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_charMtrx"><code class="docutils literal notranslate"><span class="pre">read_charMtrx()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_fasta"><code class="docutils literal notranslate"><span class="pre">read_fasta()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_json"><code class="docutils literal notranslate"><span class="pre">read_json()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_priors"><code class="docutils literal notranslate"><span class="pre">read_priors()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.read_sequences"><code class="docutils literal notranslate"><span class="pre">read_sequences()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.uniform_priors"><code class="docutils literal notranslate"><span class="pre">uniform_priors()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.write_json"><code class="docutils literal notranslate"><span class="pre">write_json()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.IO_handler.sequence_lib.html#laml_libs.IO_handler.sequence_lib.write_sequences"><code class="docutils literal notranslate"><span class="pre">write_sequences()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.IO_handler.html#module-laml_libs.IO_handler">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.PMM_original.html">laml_libs.PMM_original package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.PMM_original.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html">laml_libs.PMM_original.EM_solver module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver"><code class="docutils literal notranslate"><span class="pre">EM_solver</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.EM_optimization"><code class="docutils literal notranslate"><span class="pre">EM_solver.EM_optimization()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.Estep"><code class="docutils literal notranslate"><span class="pre">EM_solver.Estep()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.Estep_in_llh"><code class="docutils literal notranslate"><span class="pre">EM_solver.Estep_in_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.Estep_out_llh"><code class="docutils literal notranslate"><span class="pre">EM_solver.Estep_out_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.Estep_posterior"><code class="docutils literal notranslate"><span class="pre">EM_solver.Estep_posterior()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.Mstep"><code class="docutils literal notranslate"><span class="pre">EM_solver.Mstep()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.get_compute_cache"><code class="docutils literal notranslate"><span class="pre">EM_solver.get_compute_cache()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.lineage_llh"><code class="docutils literal notranslate"><span class="pre">EM_solver.lineage_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.optimize_one"><code class="docutils literal notranslate"><span class="pre">EM_solver.optimize_one()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.ultrametric_constr"><code class="docutils literal notranslate"><span class="pre">EM_solver.ultrametric_constr()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.EM_solver.x2brlen"><code class="docutils literal notranslate"><span class="pre">EM_solver.x2brlen()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.log_sum_exp"><code class="docutils literal notranslate"><span class="pre">log_sum_exp()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.pseudo_log"><code class="docutils literal notranslate"><span class="pre">pseudo_log()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.PMM_original.EM_solver.html#laml_libs.PMM_original.EM_solver.random"><code class="docutils literal notranslate"><span class="pre">random()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html">laml_libs.PMM_original.ML_solver module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver"><code class="docutils literal notranslate"><span class="pre">ML_solver</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.az_partition"><code class="docutils literal notranslate"><span class="pre">ML_solver.az_partition()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.bound_brlen"><code class="docutils literal notranslate"><span class="pre">ML_solver.bound_brlen()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.bound_nu"><code class="docutils literal notranslate"><span class="pre">ML_solver.bound_nu()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.bound_phi"><code class="docutils literal notranslate"><span class="pre">ML_solver.bound_phi()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.get_bound"><code class="docutils literal notranslate"><span class="pre">ML_solver.get_bound()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.get_compute_cache"><code class="docutils literal notranslate"><span class="pre">ML_solver.get_compute_cache()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.get_params"><code class="docutils literal notranslate"><span class="pre">ML_solver.get_params()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.get_tree_newick"><code class="docutils literal notranslate"><span class="pre">ML_solver.get_tree_newick()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.ini_all"><code class="docutils literal notranslate"><span class="pre">ML_solver.ini_all()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.ini_brlens"><code class="docutils literal notranslate"><span class="pre">ML_solver.ini_brlens()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.ini_nu"><code class="docutils literal notranslate"><span class="pre">ML_solver.ini_nu()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.ini_phi"><code class="docutils literal notranslate"><span class="pre">ML_solver.ini_phi()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.lineage_llh"><code class="docutils literal notranslate"><span class="pre">ML_solver.lineage_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.negative_llh"><code class="docutils literal notranslate"><span class="pre">ML_solver.negative_llh()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.optimize"><code class="docutils literal notranslate"><span class="pre">ML_solver.optimize()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.optimize_one"><code class="docutils literal notranslate"><span class="pre">ML_solver.optimize_one()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.score_tree"><code class="docutils literal notranslate"><span class="pre">ML_solver.score_tree()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.ultrametric_constr"><code class="docutils literal notranslate"><span class="pre">ML_solver.ultrametric_constr()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.x2brlen"><code class="docutils literal notranslate"><span class="pre">ML_solver.x2brlen()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.x2nu"><code class="docutils literal notranslate"><span class="pre">ML_solver.x2nu()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.x2params"><code class="docutils literal notranslate"><span class="pre">ML_solver.x2params()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.ML_solver.x2phi"><code class="docutils literal notranslate"><span class="pre">ML_solver.x2phi()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.Params"><code class="docutils literal notranslate"><span class="pre">Params</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.PMM_original.ML_solver.html#laml_libs.PMM_original.ML_solver.random"><code class="docutils literal notranslate"><span class="pre">random()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.PMM_original.SpaLin_solver.html">laml_libs.PMM_original.SpaLin_solver module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.PMM_original.Virtual_solver.html">laml_libs.PMM_original.Virtual_solver module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.PMM_original.Virtual_solver.html#laml_libs.PMM_original.Virtual_solver.Virtual_solver"><code class="docutils literal notranslate"><span class="pre">Virtual_solver</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.Virtual_solver.html#laml_libs.PMM_original.Virtual_solver.Virtual_solver.get_compute_cache"><code class="docutils literal notranslate"><span class="pre">Virtual_solver.get_compute_cache()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.Virtual_solver.html#laml_libs.PMM_original.Virtual_solver.Virtual_solver.get_params"><code class="docutils literal notranslate"><span class="pre">Virtual_solver.get_params()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.Virtual_solver.html#laml_libs.PMM_original.Virtual_solver.Virtual_solver.get_tree_newick"><code class="docutils literal notranslate"><span class="pre">Virtual_solver.get_tree_newick()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.PMM_original.Virtual_solver.html#laml_libs.PMM_original.Virtual_solver.Virtual_solver.score_tree"><code class="docutils literal notranslate"><span class="pre">Virtual_solver.score_tree()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.PMM_original.Virtual_solver.html#laml_libs.PMM_original.Virtual_solver.random"><code class="docutils literal notranslate"><span class="pre">random()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.PMM_original.html#module-laml_libs.PMM_original">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.TopoSearch.html">laml_libs.TopoSearch package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.TopoSearch.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search.html">laml_libs.TopoSearch.Topology_search module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search"><code class="docutils literal notranslate"><span class="pre">Topology_search</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.accept_proposal"><code class="docutils literal notranslate"><span class="pre">Topology_search.accept_proposal()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.apply_nni"><code class="docutils literal notranslate"><span class="pre">Topology_search.apply_nni()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.get_solver"><code class="docutils literal notranslate"><span class="pre">Topology_search.get_solver()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.search"><code class="docutils literal notranslate"><span class="pre">Topology_search.search()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.single_nni"><code class="docutils literal notranslate"><span class="pre">Topology_search.single_nni()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.Topology_search.update_from_solver"><code class="docutils literal notranslate"><span class="pre">Topology_search.update_from_solver()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search.html#laml_libs.TopoSearch.Topology_search.random"><code class="docutils literal notranslate"><span class="pre">random()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search_parallel.html">laml_libs.TopoSearch.Topology_search_parallel module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search_parallel.html#laml_libs.TopoSearch.Topology_search_parallel.Topology_search_parallel"><code class="docutils literal notranslate"><span class="pre">Topology_search_parallel</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search_parallel.html#laml_libs.TopoSearch.Topology_search_parallel.Topology_search_parallel.apply_nni"><code class="docutils literal notranslate"><span class="pre">Topology_search_parallel.apply_nni()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search_parallel.html#laml_libs.TopoSearch.Topology_search_parallel.Topology_search_parallel.list_all_nni"><code class="docutils literal notranslate"><span class="pre">Topology_search_parallel.list_all_nni()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search_parallel.html#laml_libs.TopoSearch.Topology_search_parallel.Topology_search_parallel.single_nni"><code class="docutils literal notranslate"><span class="pre">Topology_search_parallel.single_nni()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.TopoSearch.Topology_search_parallel.html#laml_libs.TopoSearch.Topology_search_parallel.random"><code class="docutils literal notranslate"><span class="pre">random()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.TopoSearch.html#module-laml_libs.TopoSearch">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.Utils.html">laml_libs.Utils package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.Utils.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Utils.eval_lib.html">laml_libs.Utils.eval_lib module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.allelic_coupling"><code class="docutils literal notranslate"><span class="pre">allelic_coupling()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.convert_to_hard_assignment"><code class="docutils literal notranslate"><span class="pre">convert_to_hard_assignment()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.count_mutation"><code class="docutils literal notranslate"><span class="pre">count_mutation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.get_charProbs"><code class="docutils literal notranslate"><span class="pre">get_charProbs()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.read_annotation"><code class="docutils literal notranslate"><span class="pre">read_annotation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.read_groundtruth"><code class="docutils literal notranslate"><span class="pre">read_groundtruth()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.score_char"><code class="docutils literal notranslate"><span class="pre">score_char()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.score_seq"><code class="docutils literal notranslate"><span class="pre">score_seq()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.eval_lib.html#laml_libs.Utils.eval_lib.tree_coupling"><code class="docutils literal notranslate"><span class="pre">tree_coupling()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Utils.lca_lib.html">laml_libs.Utils.lca_lib module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.lca_lib.html#laml_libs.Utils.lca_lib.find_LCAs"><code class="docutils literal notranslate"><span class="pre">find_LCAs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.Utils.plot_lib.html">laml_libs.Utils.plot_lib module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.plot_lib.html#laml_libs.Utils.plot_lib.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.plot_lib.html#laml_libs.Utils.plot_lib.plot_dtype"><code class="docutils literal notranslate"><span class="pre">plot_dtype()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.plot_lib.html#laml_libs.Utils.plot_lib.plot_time"><code class="docutils literal notranslate"><span class="pre">plot_time()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.plot_lib.html#laml_libs.Utils.plot_lib.proc_to_sec"><code class="docutils literal notranslate"><span class="pre">proc_to_sec()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.Utils.plot_lib.html#laml_libs.Utils.plot_lib.read_txtfile"><code class="docutils literal notranslate"><span class="pre">read_txtfile()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.Utils.html#module-laml_libs.Utils">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.mixins.html">laml_libs.mixins package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.mixins.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.mixins.errors.html">laml_libs.mixins.errors module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.AutocorrelationError"><code class="docutils literal notranslate"><span class="pre">AutocorrelationError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.BranchLengthEstimatorError"><code class="docutils literal notranslate"><span class="pre">BranchLengthEstimatorError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.CassiopeiaError"><code class="docutils literal notranslate"><span class="pre">CassiopeiaError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.CassiopeiaTreeError"><code class="docutils literal notranslate"><span class="pre">CassiopeiaTreeError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.DataSimulatorError"><code class="docutils literal notranslate"><span class="pre">DataSimulatorError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.DistanceSolverError"><code class="docutils literal notranslate"><span class="pre">DistanceSolverError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.FitchCountError"><code class="docutils literal notranslate"><span class="pre">FitchCountError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.GreedySolverError"><code class="docutils literal notranslate"><span class="pre">GreedySolverError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.HybridSolverError"><code class="docutils literal notranslate"><span class="pre">HybridSolverError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.IIDExponentialMLEError"><code class="docutils literal notranslate"><span class="pre">IIDExponentialMLEError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.ILPSolverError"><code class="docutils literal notranslate"><span class="pre">ILPSolverError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.LeafSubsamplerError"><code class="docutils literal notranslate"><span class="pre">LeafSubsamplerError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.ParameterEstimateError"><code class="docutils literal notranslate"><span class="pre">ParameterEstimateError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.PlottingError"><code class="docutils literal notranslate"><span class="pre">PlottingError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.PreprocessError"><code class="docutils literal notranslate"><span class="pre">PreprocessError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.PriorTransformationError"><code class="docutils literal notranslate"><span class="pre">PriorTransformationError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.SharedMutationJoiningSolverError"><code class="docutils literal notranslate"><span class="pre">SharedMutationJoiningSolverError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.TreeMetricError"><code class="docutils literal notranslate"><span class="pre">TreeMetricError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.TreeSimulatorError"><code class="docutils literal notranslate"><span class="pre">TreeSimulatorError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.UnknownCigarStringError"><code class="docutils literal notranslate"><span class="pre">UnknownCigarStringError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.UnspecifiedConfigParameterError"><code class="docutils literal notranslate"><span class="pre">UnspecifiedConfigParameterError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.ecDNABirthDeathSimulatorError"><code class="docutils literal notranslate"><span class="pre">ecDNABirthDeathSimulatorError</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="laml_libs.mixins.errors.html#laml_libs.mixins.errors.iTOLError"><code class="docutils literal notranslate"><span class="pre">iTOLError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.mixins.logging.html">laml_libs.mixins.logging module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.mixins.utilities.html">laml_libs.mixins.utilities module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.mixins.warnings.html">laml_libs.mixins.warnings module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.mixins.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="laml_libs.preprocess.html">laml_libs.preprocess package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.preprocess.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.UMI_utils.html">laml_libs.preprocess.UMI_utils module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.alignment_utilities.html">laml_libs.preprocess.alignment_utilities module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.cassiopeia_preprocess.html">laml_libs.preprocess.cassiopeia_preprocess module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.collapse_cython.html">laml_libs.preprocess.collapse_cython module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.constants.html">laml_libs.preprocess.constants module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.doublet_utils.html">laml_libs.preprocess.doublet_utils module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.lineage_utils.html">laml_libs.preprocess.lineage_utils module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.map_utils.html">laml_libs.preprocess.map_utils module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.pipeline.html">laml_libs.preprocess.pipeline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.setup_utilities.html">laml_libs.preprocess.setup_utilities module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="laml_libs.preprocess.utilities.html">laml_libs.preprocess.utilities module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="laml_libs.preprocess.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="laml_libs.html#module-laml_libs">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">LAML-Pro</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">laml_libs</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="usage.html" title="next chapter">Usage</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, U.M.*, G.C.*, B.R..
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

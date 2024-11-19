@@ -1,0 +1,7 @@
+laml\_libs.Count\_model.PMM\_base\_model module
+===============================================
+
+.. automodule:: laml_libs.Count_model.PMM_base_model
+   :members:
+   :undoc-members:
+   :show-inheritance:

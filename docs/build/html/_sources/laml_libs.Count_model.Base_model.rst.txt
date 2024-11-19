@@ -1,0 +1,7 @@
+laml\_libs.Count\_model.Base\_model module
+==========================================
+
+.. automodule:: laml_libs.Count_model.Base_model
+   :members:
+   :undoc-members:
+   :show-inheritance:

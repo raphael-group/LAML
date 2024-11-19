@@ -1,0 +1,7 @@
+laml\_libs.PMM\_original.Virtual\_solver module
+===============================================
+
+.. automodule:: laml_libs.PMM_original.Virtual_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:

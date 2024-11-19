@@ -1,0 +1,7 @@
+laml\_libs.Count\_model.CharMtrx module
+=======================================
+
+.. automodule:: laml_libs.Count_model.CharMtrx
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,19 @@
+.. LAML-Pro documentation master file, created by
+   sphinx-quickstart on Fri Nov  8 14:58:33 2024.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+LAML-Pro documentation
+======================
+
+**LAML-Pro** or Lineage Analysis via Maximum Likelihood with Probabilistic Observations is a Python library for jointly infering cell genotype assignments and the cell lineage tree. It builds on LAML.
+
+.. note::
+   This project is under active development.
+
+Contents 
+----------------------
+.. toctree::
+   usage
+   modules 
+

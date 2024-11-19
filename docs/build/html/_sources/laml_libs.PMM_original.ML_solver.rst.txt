@@ -1,0 +1,7 @@
+laml\_libs.PMM\_original.ML\_solver module
+==========================================
+
+.. automodule:: laml_libs.PMM_original.ML_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
