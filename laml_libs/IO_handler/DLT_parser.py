@@ -1,7 +1,7 @@
 from laml_libs.Count_model.AlleleTable import AlleleTable
 from laml_libs.Count_model.CharMtrx import CharMtrx
 from laml_libs.Count_model.Alphabet import Alphabet
-import json
+import json, pickle
 
 recognized_missing = set(['-', '?', '-1'])
 
@@ -312,6 +312,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
             #    new_q_dict[0] = 0
             #    q_dict = new_q_dict
             #else:
+            #print("q_dict", q_dict)
             q_dict = q_dict[0]
             q_dict[0] = 0
             if idx % J == 0:
@@ -510,7 +511,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
                             q[0] = 0
                         else:
                             raise(f"Missing priors at site {site_name}, pass in MSA as input to fill in uniform priors.")
-                        Q.append(q)
+                        Q.append([q])
                     print(mapping)
                     return Q
 
@@ -518,7 +519,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
             for i in sorted(priors.keys()):
                 q = {int(x):priors[i][x] for x in priors[i]}
                 q[0] = 0
-                Q.append(q)
+                Q.append([q])
 
         elif file_extension == "csv":
             #k = len(site_names)
