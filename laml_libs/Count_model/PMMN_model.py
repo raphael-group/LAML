@@ -8,6 +8,20 @@ DEFAULT_max_nu = 1
 DEFAULT_min_rho = 0.5
 
 class PMMN_model(PMM_base_model):
+    """
+    This class represents the PMMN model as a generative process for the dynamic lineage tracing (DLT) data.
+    The DLT data of this model must be an instance of the CharMtrx class
+    This class inherits all attributes and methods from PMM_base_model. 
+    It has the following parameters for layer 1:
+        mu: genome edit rate
+        nu: silencing rate
+        phi: dropout probability
+    Layer 2 is either parameterized by    
+        rho: the accuracy of readout in layer 2        
+    or a prior emission matrix. 
+    NOTE: rho is a parameter while emission matrix governs hyperparameters. Only one of them should be specified.
+    This class overrides logGamma of PMM_base_model
+    """
     # PMMN = probabilistic mixed-type missing with noise
     def __init__(self,treeList,data,prior,kw_params={}):
     # data is a dictionary; must have 'DLT_data' and data['DLT_data'] must be an instance of the CharMtrx class
@@ -25,10 +39,12 @@ class PMMN_model(PMM_base_model):
         super(PMMN_model,self).__init__(treeList,data,prior,params)
     
     def logGamma(self,k,x,c):
-        # Layer 2: emission probabilities  
-        # override the Base_model class
-        # x is a cassette state of cassette k (data type: tuple of length J)
-        # c is a cassette state of cassette k (data type: tuple of length J)
+        """
+        Compute the emission probability in Layer 2
+        This method overrides that of the Base_model class
+            x is a cassette state of cassette k (data type: tuple of length J)
+            c is a cassette state of cassette k (data type: tuple of length J)
+        """    
         J = self.data['DLT_data'].J
         M = self.data['DLT_data'].alphabet.get_M(k)
         x_is_silenced = (x == tuple([-1]*J))
@@ -49,11 +65,15 @@ class PMMN_model(PMM_base_model):
         return log(p) if p>0 else None
 
     def set_closed_form_optimal(self,fixed_params={},verbose=1):
-        # For every param that has a closed-form M-step optimal, 
-        # if that param is in fixed_params, set it to the specified fixed value;
-        # otherwise, compute the closed-form solution and set that to the param's value
-        # Override the Base_model class. 
-        # This class (i.e. the PMMN model) has two params with closed-form M-step, which are phi and rho
+        """    
+        For every param that has a closed-form M-step optimal, 
+        if that param is in fixed_params, set it to the specified fixed value;
+        otherwise, compute the closed-form solution and set that to the param's value
+        This method overrides that of the Base_model class
+        This class (i.e. the PMMN model) has two params with closed-form M-step, which are phi and rho
+        NOTE: rho will only be optimized if the prior emission matrix is not provided. 
+        Otherwise, rho must have been set to None in __init__ and will still be None
+        """    
         A = 0
         B = 0 
         C = 0
@@ -92,13 +112,14 @@ class PMMN_model(PMM_base_model):
         # set the value of phi to phi_star
         self.params.set_value('phi',phi_star)
         
-        if 'rho' in fixed_params:
-            rho_star = fixed_params['rho']
-            if verbose > 0:
-                print("Fixed rho to " + str(rho_star))
-        else:
-            rho_star = A/(A+B)
-            if verbose > 0:
-                print("Current optimal rho: " + str(rho_star))
-        # set the value of rho to rho_star
-        self.params.set_value('rho',rho_star)
+        if self.emission_mtrx is None: # only optimize rho if the emission matrix is not provided
+            if 'rho' in fixed_params:
+                rho_star = fixed_params['rho']
+                if verbose > 0:
+                    print("Fixed rho to " + str(rho_star))
+            else:
+                rho_star = A/(A+B)
+                if verbose > 0:
+                    print("Current optimal rho: " + str(rho_star))
+            # set the value of rho to rho_star
+            self.params.set_value('rho',rho_star)

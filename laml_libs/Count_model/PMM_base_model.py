@@ -8,10 +8,15 @@ DEFAULT_max_nu = 1
 DEFAULT_min_rho = 0.5
 
 class PMM_base_model(Base_model):
-    # PMM = probabilistic mixed-type missing 
+    """
+    The base class for all models that use PMM as a generative process for the dynamic lineage tracing (DLT) data
+    It inherits all attributes and methods from Base_model and only overrides Psi
+    """
     def Psi(self,c_node,k,j,alpha,beta):
-        # Layer 1: transition probabilities  
-        # override the Base_model class
+        """
+        Compute Layer 1 transition probabilities  
+        This function overrides the Base_model class
+        """    
         delta = c_node.edge_length
         nu = self.params.get_value('nu')
         if alpha == 0:

@@ -18,12 +18,22 @@ import time
 import cvxpy as cp
 
 class Base_model(Virtual_solver):
+    """
+    The base class for all models that involve dynamic lineage tracing (DLT) data
+    Attributes:
+        data: a dictionary mapping from data module name to its data structure. The data MUST have the key 'DLT_data', where data['DLT_data'] is an instance of either AlleleTable or CharMtrx
+        num_cassettes: the number of cassettes in the DLT data
+        site_per_cassette: the number of sites per cassette in the DLT data
+        Q: hyper-parameters for transition probabilities
+        silence_mechanism: either 'convolve' or 'separated'.
+    """
     def __init__(self,treeList,data,prior,params):
-    # `params` is an instance of the Param class
-    # `data` is a dictionary of multiple data modules; it MUST have 'DLT_data'
-    # this base class only uses `DLT_data` of `data`, but a derived class can use more attributes for joint likelihood computation
-    # `prior` contains hyper-parameters and information about model variations (e.g. silencing mechanism)
-    # this base class uses `Q` and `silence_mechanism` of `prior`, but a derived class can use more depending on the model
+        """
+        params: an instance of the Param class, contains the parameters of the model
+        data: a dictionary mapping from data module name to its data structure. The data MUST have the key 'DLT_data', where data['DLT_data'] is an instance of either AlleleTable or CharMtrx. This base class only uses `DLT_data` of `data`, but a derived class can use more attributes for joint likelihood computation
+        treeList: a list of trees in newick strings
+        prior: contains information about hyper-parameters and information about model variations (e.g. silencing mechanism). This is a dictionary mapping the name of a hyper-param/model-spec to the actual data. This base class only uses prior["Q"] and prior["silence_mechanism"] of prior, but a derived class can use more depending on the model
+        """
         self.data = data
         self.num_cassettes = data['DLT_data'].K
         self.site_per_cassette = data['DLT_data'].J
@@ -33,7 +43,6 @@ class Base_model(Virtual_solver):
         self.num_edges = 0
         for tree in treeList:
             tree_obj = read_tree_newick(tree)
-            #tree_obj.suppress_unifurcations()
             if len(tree_obj.root.children) > 1:
                 new_root = Node()
                 new_root.add_child(tree_obj.root)
@@ -64,11 +73,16 @@ class Base_model(Virtual_solver):
         self.dmax = DEFAULT_dmax
 
     def get_tree_newick(self):
-    # override Virtual solver
+        """
+        Get the list of newick strings of the trees. Override Virtual solver
+        """    
         return [tree.newick() for tree in self.trees]
 
     def get_params(self):
-    # override Virtual solver
+        """
+        Get all the params of the model, represented by a dictionary, mapping (param_name -> param_value)
+        Override Virtual solver
+        """
         return self.params.get_name2value_dict()
 
     def score_tree(self,strategy={'ultra_constr':False,'fixed_params':None,'fixed_brlen':None,'compute_cache':None}):
@@ -91,7 +105,6 @@ class Base_model(Virtual_solver):
         self.Estep()
         # pull values to cache
         cache_attrs = ['in_llh','out_llh','in_llh_edge','log_node_posterior','log_edge_posterior']
-        #cache_attrs = ['log_node_posterior']
         full_cache = []
         for tree in self.trees:
             this_cache = {}
@@ -110,15 +123,16 @@ class Base_model(Virtual_solver):
                 for attr in cache_attrs:  
                     if attr in node_dict:
                         this_cache[node.anchors][attr] = deepcopy(node_dict[attr])
-                        #for x in node_dict[attr]:
-                        #    this_cache[node.anchors][attr].append(deepcopy(x))
             full_cache.append(this_cache)
-        #for x in 'a','b','c','d':
-        #    print('send',x,full_cache[0][(x,x)]['log_node_posterior'])
         return full_cache        
     
     def ultrametric_constr(self,local_brlen_opt=True):
-        N = self.num_edges#-self.num_polytomy_mark
+        """
+        Setup ultrametric constraints
+        return: M and b, such that Mx = b is the linear constraint, where x is a list of all branch lengths
+        NOTE: this function currently has some hacking, as it only works with binary trees (i.e. not multifurcation is allowed).
+        """
+        N = self.num_edges
         if local_brlen_opt:
             for tree in self.trees:
                 N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
@@ -144,7 +158,6 @@ class Base_model(Virtual_solver):
                         node.constant = c1.constant + node.edge_length
                     else:
                         node.constant = c1.constant
-                #if not node.polytomy_mark and not (node.mark_fixed and local_brlen_opt):    
                 if not node.is_root() and not (node.mark_fixed and local_brlen_opt): #####HACKING#####
                     node.constraint[idx] = 1
                     idx += 1
@@ -170,12 +183,18 @@ class Base_model(Virtual_solver):
         return x
 
     def ini_one_param(self,pname):
-        # here we set a simple initialization scheme for all params
-        # in most cases this method should be overrided in a class that inhirits from this base class
+        """
+            Initialize the parameter named pname
+            Here we set a simple initialization scheme for any of the param in self.params
+            In many cases this method may need to be overrided in the derived class
+        """
         lower_bound,upper_bound = self.params.get_bound(pname)
         return random()*(upper_bound-lower_bound)+lower_bound
 
     def ini_all_params(self,fixed_params={}):
+        """
+            Initialize all parameters, including the tree branch lengths and all the params in self.params
+        """
         # initialize branch lengths
         x = self.ini_brlens()
         # initialize the params specified in self.params
@@ -183,10 +202,17 @@ class Base_model(Virtual_solver):
             x += [fixed_params[p]] if p in fixed_params else [self.ini_one_param(p)]
         return x    
 
-    def bound_brlen(self):        
+    def bound_brlen(self):
+        """
+            Get the lower and upper bounds for the tree branch lengths
+        """        
         return [self.dmin]*self.num_edges,[self.dmax]*self.num_edges
     
     def get_bound(self,keep_feasible=False,fixed_params={}):
+        """
+            Get the bounds for all parameters.
+            return: an instance of optimize.Bounds
+        """
         lower_bounds,upper_bounds = self.bound_brlen()  
         for i,(l,u) in enumerate(zip(self.params.lower_bounds,self.params.upper_bounds)):
             pname = self.params.names[i]
@@ -199,6 +225,9 @@ class Base_model(Virtual_solver):
         return bounds
 
     def x2params(self,x,fixed_params={}):
+        """
+            Convert the representation of the params as a numpy array x into an instance of Param stored in self.params
+        """
         # x2brlens
         i = 0
         for tree in self.trees:
@@ -212,14 +241,18 @@ class Base_model(Virtual_solver):
             i += 1
     
     def Psi(self,c_node,k,j,x,y):
-        # Layer 1 transition probabilities
-        # This is a placeholder (i.e. non-informative model) for this function in the base class
-        # MUST be overrided in any derived class!
+        """
+            Abstraction of the Layer 1 transition probabilities
+            MUST be overrided in any derived class!
+            return: a float in [0,1]
+        """
         return 1
 
     def log_Psi_cassette(self,c_node,k,x,y):
-        # compute the log-transformed transition probability of cassette k  
-        # return None if the probability is 0
+        """ 
+            Compute the log-transformed transition probability of cassette k  
+            return: a negative float, or None if the probability is 0
+        """    
         log_trans_p = 0
         for j in range(self.data['DLT_data'].J):
             p = self.Psi(c_node,k,j,x[j],y[j])
@@ -230,14 +263,18 @@ class Base_model(Virtual_solver):
                 break
         return log_trans_p
 
-    def Gamma(self,k,x,c):
-        # Layer 2 transition probabilities (i.e. emission probabilities)
-        # A placeholder (i.e. non-informative model) for this function in the base class
-        # MUST be overrided in any derived class!
+    def logGamma(self,k,x,c):
+        """
+            Abstraction of the Layer 2 emission probabilities
+            MUST be overrided in any derived class!
+            return: a negative float, or None if the probability is 0
+        """
         return 1
 
     def llh_DLT_data(self):
-        # compute the log-likelihood of the dynamic lineage tracing (DLT) data (e.g. character matrix, allele table)
+        """ 
+            Compute the log-likelihood of the dynamic lineage tracing (DLT) data
+        """    
         K = self.data['DLT_data'].K
         DLT_data = self.data['DLT_data']
         root_state = tuple([0]*self.data['DLT_data'].J)
@@ -282,7 +319,10 @@ class Base_model(Virtual_solver):
         return total_llh
 
     def llh_DLT_data_edge(self,node,k,x):
-        # assume in_llh has been computed for every node
+        """
+            Compute the in-llh on an edge from node to its parent (see the LAML-pro writeup for details)
+            Assume in_llh has been computed for every node
+        """
         llh_list = []
         for y in node.in_llh[k]:
             log_trans_p = self.log_Psi_cassette(node,k,x,y)
@@ -291,22 +331,26 @@ class Base_model(Virtual_solver):
         return log_sum_exp(llh_list) if llh_list else None       
 
     def negative_llh(self):
-        # compute the negative log-likelihood of all data modules
-        # in the base class, only the allele table is included
-        # if a derived class has data modules other than the allele table, 
-        # this function MUST be overrided to compute the joint-llh 
-        # of all available data modules
+        """
+            Compute the negative log-likelihood of all data modules
+            In this base class, only the DLT is included as data
+            If a derived class has data modules other than the DLT data (e.g. spatial, gene expression, etc.), 
+            this function MUST be overrided to compute the joint-llh of all available data modules
+        """
         return -self.llh_DLT_data()
 
     def optimize(self,solver,initials=20,fixed_brlen=None,compute_cache=None,fixed_params={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False,**solver_opts):
-    # solver can either be "Scipy" or "EM"
-    # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
-    # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
-    # fixed_brlen can be one of the followings:
-        # 1. None: don't fix any branch length
-        # 2. (str) "All": fix all branch lengths to the current value. Assume without checking that solver.trees have (valid) branch lengths
-        # 3. a list of t dictionaries where t is the number of trees in self.trees. Each dictionay fixed_brlen[t] maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed
-    # fixed_params is a dictionary mapping a param's name to the value we wish to fix it to
+        """
+            Optimize branch lengths and all params in self.params
+                solver: can either be "Scipy" or "EM"
+                random_seeds: can either be a single number or a list of intergers where len(random_seeds) = initials
+                verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
+                fixed_brlen: can be one of the followings:
+                    1. None: don't fix any branch length
+                    2. (str) "All": fix all branch lengths to the current value. Assume without checking that solver.trees have (valid) branch lengths
+                    3. (list of dictionaries) a list of t dictionaries where t is the number of trees in self.trees. Each dictionay fixed_brlen[t] maps a tuple (a,b) to a number. Each pair a, b is a tuple of two leaf nodes whose LCA define the node for the branch above it to be fixed
+                fixed_params: a dictionary mapping a param's name to the value we wish to fix it to
+        """
         results = []
         all_failed = True
         all_trials = 0
@@ -413,6 +457,12 @@ class Base_model(Virtual_solver):
         self.llh_DLT_data()
 
     def Estep_out_llh(self):
+        """
+            Compute the out-llh and in-llh-edge of all nodes/edges
+            Outcome: every node has two new attributes added:
+                node.out_llh: a list of K dictionaries
+                node.in_llh_edge: a list of K dictionaries
+        """
         K = self.data['DLT_data'].K
         DLT_data = self.data['DLT_data']
         root_state = tuple([0]*self.data['DLT_data'].J)
@@ -477,7 +527,12 @@ class Base_model(Virtual_solver):
                                 node.out_llh[k][x] = log_sum_exp(llh_list)
 
     def Estep_posterior(self):
-    # compute the log-transformed of all posterior probabilities
+        """ 
+            Compute the log-transformed of all posterior probabilities
+            Outcome: every node has two new attribute: 
+                node.log_node_posterior: a list of K dictionaries
+                node.log_edge_posterior: a list of K dicitonaries
+        """
         K = self.data['DLT_data'].K
         DLT_data = self.data['DLT_data']
         root_state = tuple([0]*self.data['DLT_data'].J)
@@ -515,34 +570,30 @@ class Base_model(Virtual_solver):
                                 node.log_edge_posterior[k][(x,y)] = log_u_post + log_v_in + log_p_trans - log_llh_edge
 
     def Estep(self,run_in_llh=True):
+        """ The E-step of the EM algorithm """
         if run_in_llh:
-            #start = time.time()
             self.Estep_in_llh()
-            #end = time.time()
-            #print("Estep in-llh:",end-start)
-        #start = time.time()
         self.Estep_out_llh()
-        #end = time.time()
-        #print("Estep out-llh:",end-start)
-        
-        #start = time.time()
         self.Estep_posterior()
-        #end = time.time()
-        #print("Estep posterior:",end-start)
-
+    
     def set_closed_form_optimal(self,fixed_params={},verbose=1):
-        # For every param that has a closed-form M-step optimal, 
-        # if that param is in fixed_params, set it to the specified fixed value;
-        # otherwise, compute the closed-form solution and set that to the param's value
-        # IMPORTANT: this is a placeholder for this function in the base class
-        # MUST be overrided in any derived class!
+        """
+            For every param that has a closed-form M-step optimal, 
+            if that param is in fixed_params, set it to the specified fixed value;
+            otherwise, compute the closed-form solution and set that to the param's value
+            IMPORTANT: this is a placeholder for this function in the base class
+            MUST be overrided in any derived class!
+        """
         return False # this function should never be called, so this line should never be reached!
 
     def Mstep(self,fixed_params={},verbose=1,local_brlen_opt=True,ultra_constr_cache=None):
-        # assume that Estep has been performed so that all nodes have S0-S4 attributes
-        # output: optimize all parameters: branch lengths, phi, and nu
-        # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
-        
+        """ 
+            The M-step of the EM algorithm
+            Notes:
+                Assume that Estep has been performed so that all nodes have S0-S4 attributes
+                Output: optimize all parameters and store them in the trees' branch lengths and self.params
+                verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
+        """    
         # setup and call a Mstep_solver
         selected_solver = Mstep_PMMconv if self.silence_mechanism == "convolve" else Mstep_PMMsep
         my_Mstep_solver = selected_solver(self,ultra_constr_cache=ultra_constr_cache,local_brlen_opt=local_brlen_opt,nIters=1)
@@ -569,116 +620,13 @@ class Base_model(Virtual_solver):
                 status = ",failed_nu"
         return success, status
 
-    def Mstep_old(self,fixed_params={},verbose=1,local_brlen_opt=True,ultra_constr_cache=None,eps_nu=1e-5,eps_s=1e-6):
-        # assume that Estep has been performed so that all nodes have S0-S4 attributes
-        # output: optimize all parameters: branch lengths, phi, and nu
-        # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent        
-       
-        # optimize the params that have a closed-form solution
-        self.set_closed_form_optimal(fixed_params=fixed_params,verbose=verbose)
-
-        # optimize nu and all branch lengths
-        K = self.data['DLT_data'].K
-        N = self.num_edges
-        if local_brlen_opt:
-            for tree in self.trees:
-                N -= len([node for node in tree.traverse_postorder() if node.mark_fixed])
-        C_z2z = np.zeros(N)
-        C_z2a = np.zeros(N)
-        C_a2a = np.zeros(N)
-        C_za2s = np.zeros(N)
-        
-        d_ini = np.zeros(N)
-        i = 0
-        for tree in self.trees:
-            for v in tree.traverse_postorder():
-                if not v.is_root() and not (v.mark_fixed and local_brlen_opt):   
-                    for k in range(K):    
-                        for x,y in v.log_edge_posterior[k]:
-                            w = exp(v.log_edge_posterior[k][(x,y)])
-                            for x_j,y_j in zip(x,y):
-                                C_z2z[i] += w*(x_j == 0 and y_j == 0)
-                                C_z2a[i] += w*(x_j == 0 and y_j != 0 and y_j != -1)
-                                C_a2a[i] += w*(x_j == y_j and x_j != 0 and x_j != -1)
-                                C_za2s[i] += w*(y_j == -1 and x_j != -1)
-                    d_ini[i] = v.edge_length
-                    i += 1
-        def __optimize_brlen(nu,verbose=False): # nu is a single number
-            var_d = cp.Variable(N,nonneg=True) # the branch length variables
-            SA = -(nu+1)*C_z2z.T @ var_d
-            SB = -nu*(C_z2a+C_a2a).T @ var_d
-            SC = (C_z2a).T @ cp.log(1-cp.exp(-var_d))
-            SD = (C_za2s).T @ cp.log(1-cp.exp(-nu*var_d)) if sum(C_za2s) > 0 and nu > eps_nu else 0
-            
-            objective = cp.Maximize(SA+SB+SC+SD)
-            constraints = [np.zeros(N)+self.dmin <= var_d, var_d <= np.zeros(N)+self.dmax]             
-            if ultra_constr_cache is not None:
-                M,b = ultra_constr_cache
-                constraints += [np.array(M) @ var_d == np.array(b)]
-            prob = cp.Problem(objective,constraints)
-            prob.solve(verbose=verbose,solver=cp.MOSEK)
-            return var_d.value,prob.status
-       
-        def __optimize_nu(d,verbose=False): # d is a vector of all branch lengths
-            var_nu = cp.Variable(1,nonneg=True) # the nu variable
-            SA = -(var_nu+1)*(C_z2z).T @ d
-            SB = -var_nu*(C_z2a+C_a2a).T @ d
-            SD = C_za2s.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(C_za2s) > 0 else 0
-            
-            objective = cp.Maximize(SA+SB+SD)
-            prob = cp.Problem(objective)
-            prob.solve(verbose=verbose,solver=cp.MOSEK)
-            return var_nu.value[0],prob.status
-
-        nIters = 1
-        nu_star = self.params.get_value('nu')
-        for r in range(nIters):
-            if verbose > 0:
-                print("Optimizing branch lengths. Current nu:" + str(nu_star))
-            try:
-                d_star,status_d = __optimize_brlen(nu_star,verbose=False)
-            except:
-                d_star = d_ini
-                status_d = "failure"
-            if status_d == "infeasible": # should only happen with local EM 
-                return False,"d_infeasible"
-            if 'nu' in fixed_params:
-                if verbose > 0:
-                    print("Fixed nu to " + str(fixed_params['nu']))
-                nu_star = fixed_params['nu']
-                status_nu = "optimal"    
-            else:    
-                if verbose > 0:
-                    print("Optimizing nu")
-                try:
-                    nu_star,status_nu = __optimize_nu(d_star,verbose=False)                 
-                except:
-                    status_nu = "failure"
-        
-        # place the optimal value back to params
-        self.params.set_value('nu',nu_star)
-        i = 0
-        for tree in self.trees:
-            for node in tree.traverse_postorder():
-                if not node.is_root() and not (node.mark_fixed and local_brlen_opt):   
-                    node.edge_length = d_star[i]
-                    i += 1
-        success = (status_d == "optimal" or status_d == "UNKNOWN") and (status_nu == "optimal" or status_nu == "UNKNOWN")
-        if success:
-            status = "optimal"
-        else:
-            status = ""
-            if status_d != "optimal":
-                status += "failed_d"
-            if status_nu != "optimal":
-                status = ",failed_nu"
-        return success, status
-    
     def EM_optimization(self,randseed,verbose=1,fixed_params={},ultra_constr=True,EM_options=DEFAULT_EM_options):
-        # IMPORTANT: this EM algorithm ONLY optimizes the likelihood of the allele table !
-        # optimize the following parameters: branch lengths and nu
-        # caution: this function will modify params and branch lengths in place!
-        # verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
+        """
+            The EM algorithm to optimize model's parameters
+            IMPORTANT: this EM algorithm ONLY optimizes the parameters in Layer 1 of the DLT data.
+            Caution: this function will modify params and branch lengths in place!
+            verbose level: 1 --> show all messages; 0 --> show minimal messages; -1 --> completely silent
+        """    
         seed(a=randseed)
         maxIter = EM_options['max_iter']
         x0 = self.ini_all_params(fixed_params=fixed_params)
@@ -728,6 +676,7 @@ class Base_model(Virtual_solver):
         return -curr_llh,status    
 
     def scipy_optimization(self,randseed,fixed_params={},ultra_constr=True,scipy_options=DEFAULT_scipy_options):
+        """ Optimize model parameters using Scipy """
         # optimize using a specific initial point identified by the input randseed
         warnings.filterwarnings("ignore")
         def nllh(x): 

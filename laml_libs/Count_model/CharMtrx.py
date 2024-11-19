@@ -1,13 +1,22 @@
 class CharMtrx:
+    """A class to represent the character matrix
+    Attributes:
+        K: the number of cassettes
+        J: the number of sites per cassette
+        data_struct: a mapping: cell_name -> (cassette -> cassette_state). The data type is "dictionary of lists of cassette_states"
+        alphabet: an instance of class Alphabet
+    NOTE: We will use "cassette_state" and "allele" interchangeably throughout
+    """
     def __init__(self,data_struct,alphabet):
-    # K: the number of cassettes
-    # J: the number of sites per cassette
-    # data_struct: a mapping: cell_name -> (cassette -> cassette_state)
-    # alphabet: an instance of class Alphabet; must have the same K and J
+        """Initialization of CharMtrx by the data_struct and alphabet
+            data_struct: a mapping: cell_name -> (cassette -> cassette_state). The data type is "dictionary of lists of dictionaries"
+            alphabet: an instance of class Alphabet
+        NOTE: we assume without checking that the alphabet and data_struct have the same K and J
+        """
         self.K = alphabet.K
         self.J = alphabet.J
         self.alphabet = alphabet
-        if self.J == 1: # may need to correct the cassette states to be tuples, not single values
+        if self.J == 1: # when J=1, we may need to correct the cassette states to be tuples, not single values
             data_struct_corrected = {}
             for c in data_struct:
                 seq = []
@@ -26,17 +35,23 @@ class CharMtrx:
             self.cassette_state_lists.append(self.alphabet.get_cassette_alphabet(k))
        
     def get_cell_names(self):
+        """ Get all cell names """
         return self.data_struct.keys()   
 
     def get(self,w,k):
-        # w: a cell name/label
-        # k: a cassette index
+        """
+            Get the cassette state (i.e. allele) of cell w at cassette k
+                w: a cell name/label
+                k: a cassette index
+            return: an allele, which is represented by a tuple of self.J elements    
+        """
         return self.data_struct[w][k]
 
     def is_missing(self,w,k,missing_symbol='?'):    
-        # w: a cell name/label
-        # k: a cassette index
-        # check if cassette k of cell w is missing
+        """Check if cassette k of cell w is missing
+            w: a cell name/label
+            k: a cassette index
+        """
         x = self.get(w,k)
         for x_j in x:
             if x_j != missing_symbol:

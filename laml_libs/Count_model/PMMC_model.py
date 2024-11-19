@@ -10,6 +10,18 @@ DEFAULT_max_nu = 1
 DEFAULT_min_rho = 0.5
 
 class PMMC_model(PMM_base_model):
+    """
+        This class represents the PMMC model as a generative process for the dynamic lineage tracing (DLT) data.
+        The DLT data of this model must be an instance of the AlleleTable class
+        This class inherits all attributes and methods from PMM_base_model. 
+        It has the following parameters for layer 1:
+            mu: genome edit rate
+            nu: silencing rate
+            phi: dropout probability
+        Layer 2 is either parameterized by    
+            rho: the accuracy of readout in layer 2        
+        This class overrides logGamma of PMM_base_model
+    """
     # PMMC = probabilistic mixed-type missing with counts
     def __init__(self,treeList,data,prior,kw_params={}):
     # data is a dictionary; must have 'DLT_data' and data['DLT_data'] must be an instance of the AlleleTable class
@@ -21,11 +33,12 @@ class PMMC_model(PMM_base_model):
         super(PMMC_model,self).__init__(treeList,data,prior,params)
     
     def logGamma(self,k,x,c):
-        # Layer 2: emission probabilities  
-        # override the Base_model class
-        # x is a cassette state of cassette k (data type: tuple of length J)
-        # c is a mapping (cassette state -> count) (data type: a dictionary, where keys are tuples of length J, values are integers)
-        # NOTE: assume without checking that x is in c.keys()
+        """
+            Compute the emission probability in Layer 2
+            This method overrides that of the Base_model class
+                x is a cassette state of cassette k (data type: tuple of length J)
+                c is a mapping (cassette state -> count); its data type is a dictionary whose keys are tuples of length J and whose values are integers
+        """    
         J = self.data['DLT_data'].J # self.data['DLT_data'] is an instance of AlleleTable
         M = self.data['DLT_data'].alphabet.get_M(k)
         x_is_silenced = (x == tuple([-1]*J))
@@ -75,11 +88,13 @@ class PMMC_model(PMM_base_model):
         return log_p_ans
     
     def set_closed_form_optimal(self,fixed_params={},verbose=1):
-        # For every param that has a closed-form M-step optimal, 
-        # if that param is in fixed_params, set it to the specified fixed value;
-        # otherwise, compute the closed-form solution and set that to the param's value
-        # Override the Base_model class. 
-        # This class (i.e. the PMMN model) has two params with closed-form M-step, which are phi and rho
+        """
+            For every param that has a closed-form M-step optimal, 
+            if that param is in fixed_params, set it to the specified fixed value;
+            otherwise, compute the closed-form solution and set that to the param's value
+            Override the Base_model class. 
+            This class (i.e. the PMMC model) has two params with closed-form M-step, which are phi and rho 
+        """
         A = 0
         B = 0 
         C = 0
