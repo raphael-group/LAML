@@ -328,3 +328,23 @@ class ProcData(unittest.TestCase):
                 set2 = set(tmp.DLT_data.alphabet.get_cassette_alphabet(k))
                 self.assertEqual(set1, set2)
 
+    def test_15(self):
+        """"
+        ## Test reading in PMMI. 
+        alleletable_file = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_proc_data/example_small_alleletable.json')
+        priorfile = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_proc_data/small_priors.csv')
+        tmp = DLT_parser()
+        self.assertEqual(tmp.max_allele_per_cassette, None)
+        tmp = DLT_parser(max_allele_per_cassette=2)
+        self.assertEqual(tmp.max_allele_per_cassette, 2)
+
+        DLT_data, Q = tmp.get_from_path(datafile=alleletable_file, priorfile=priorfile, max_allele_per_cassette=1)
+        """
+
+        # I introduced a new state in the prior file at site index 3 that isn't observed in the json, should be in the alphabet
+        #self.assertEqual(tmp.alphabet.M, [60, 60])
+        #self.assertEqual(tmp.max_allele_per_cassette, 1)
+        #self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {-1, 0, 1, 2, 3})
+        #self.assertEqual(tmp.alphabet.get_site_alphabet(1,0), {-1, 0, 1, 2, 3})
+        #self.assertEqual(tmp.alphabet.get_site_alphabet(1,1), {-1, 0, 1})
+        pass

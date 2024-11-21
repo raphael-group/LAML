@@ -131,7 +131,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
             alphabet_ds = [[list(set([0,-1]+list(s.keys()))) for s in k] for k in Q]
         if len(alphabet_ds) != self.K:
             #print("alphabet_ds", len(alphabet_ds), "K", self.K)
-            raise(f"Prior file K={len(alphabet_ds)}, which does not match K={self.K} from previously provided data.")
+            raise ValueError(f"Prior file K={len(alphabet_ds)}, which does not match K={self.K} from previously provided data.")
         #else:
 
         self.K = len(alphabet_ds)
