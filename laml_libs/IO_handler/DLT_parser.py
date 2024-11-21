@@ -115,12 +115,12 @@ class DLT_parser: # DLT: dynamic lineage tracing
         self.data_struct = data_struct
         return data_struct
 
-    def parse_prior(self,priorFile,sites_per_cassette):
+    def parse_prior(self,priorFile,sites_per_cassette): #, obs, site_names):
         # parse a prior file and return Q and alphabet
         # sites_per_cassette will be J in the constructed alphabet
         self.priorfile = priorFile
         # Note: read_priors currently does NOT fill in the unedited cassette state!
-        Q = self.read_priors(priorFile) 
+        Q = self.read_priors(priorFile) #, msa=obs, site_names=site_names) 
         # Q will be processed into a list of (list of dictionaries)
         # Q is a cassette list of site lists with dictionaries for each site
         Q = self.get_alphabet_prior(Q,sites_per_cassette,self.datatype)
@@ -151,7 +151,15 @@ class DLT_parser: # DLT: dynamic lineage tracing
         # dataFile is in json format
         if priorfile is not None:
             # resets self.alphabet according to the priorfile
-            Q = self.parse_prior(priorfile, sites_per_cassette=self.J)
+            Q = self.parse_prior(priorfile, sites_per_cassette=self.J) 
+            """
+            file_extension = pfile.strip().split(".")[-1]
+            if file_extension == "csv":
+                site_names = [i for i in range(self.J * self.K)]
+                Q = self.parse_prior(priorfile, sites_per_cassette=self.J, obs=alphabet_ds, site_names=site_names)
+            else:
+                Q = self.parse_prior(priorfile, sites_per_cassette=self.J, obs=None, site_names=None)
+            """
         else:
             #print("getting uniform priors")
             # uses the self.alphabet according to the datafile
@@ -537,6 +545,41 @@ class DLT_parser: # DLT: dynamic lineage tracing
                 token = lines[0].split(',')[0]
                 charname_is_str = not token.isnumeric()
 
+                """
+                priorkeys = set()
+                for line in lines: 
+                    site_idx, char_state, prob = line.strip().split(',')
+                    if charname_is_str:
+                        site_idx = int(site_idx[1:])
+                    else:
+                        site_idx = int(site_idx)
+                    priorkeys.add(site_idx)
+
+                #Q = [[] for _ in priorkeys]
+
+                if site_names is not None:
+                    if len(priorkeys) != len(site_names):
+                        if msa is not None:
+                            Q = [[] for _ in range(max(len(priorkeys), len(site_names)))]
+                            for i in range(site_names):
+                                print(f"Missing priors at site {site_name}, filling in uniform priors using observations...")
+                                # fill in uniform priors at site i
+                                cassette_idx = i // self.J
+                                site_idx = i % self.J
+                                M_i = set(msa[cassette_idx][site_idx]) # fill in alphabet at this site i
+                                #set(msa[x][i] for x in msa if msa[x][i] not in [0,"?",-1])
+                                if len(M_i) == 0:
+                                    # add pseudo-mutated state
+                                    m_i = 1
+                                    q={"1":1.0}
+                                else:
+                                    m_i = len(M_i)
+                                    q = {x:1/m_i for x in M_i}
+                                q[0] = 0
+                                Q[i] = [q]
+                        else:
+                            raise(f"Missing priors at site {site_name}, pass observations to this function to fill in uniform priors.")
+                """
                 for line in lines:
                     site_idx, char_state, prob = line.strip().split(',')
                     if charname_is_str:
@@ -547,13 +590,16 @@ class DLT_parser: # DLT: dynamic lineage tracing
                         if len(seen_sites) > 0:
                             Qi = [Qi]
                             Q.append(Qi)
+                            #Q[site_idx] = Qi
                             Qi = {}
                         seen_sites.add(site_idx)
                     char_state = int(char_state)
                     prob = float(prob)
                     #Q[len(seen_sites) - 1][char_state] = prob
                     Qi[char_state] = prob
+
                 Qi = [Qi]
+                #Q[site_idx] = Qi
                 Q.append(Qi)
         #else:
         #    Q = [{0:0} for i in range(k)]

@@ -1,0 +1,262 @@
+{
+    "dataType": "alleleTable",
+    "cell_data": [
+        {
+            "cell_name": "a",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                0,
+                                1,
+                                1 
+                            ],
+                            "observation": 120
+                        },
+                        {
+                            "state": [
+                                1,
+                                0,
+                                0
+                            ],
+                            "observation": 5
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                2,
+                                1,
+                                2 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "b",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                0,
+                                2,
+                                1 
+                            ],
+                            "observation": 73
+                        },
+                        {
+                            "state": [
+                                2,
+                                0,
+                                0
+                            ],
+                            "observation": 29
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                2,
+                                2,
+                                2 
+                            ],
+                            "observation": 12
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "c",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                2,
+                                0,
+                                2 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                1,
+                                1,
+                                0 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "d",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                1,
+                                0,
+                                0 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                0,
+                                1,
+                                0 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "e",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                3,
+                                0,
+                                2 
+                            ],
+                            "observation": 10
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {}
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "f",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                1,
+                                0,
+                                2 
+                            ],
+                            "observation": 16
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                1,
+                                1,
+                                2 
+                            ],
+                            "observation": 13
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "g",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                0,
+                                0,
+                                1
+                            ],
+                            "observation": 2
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                0,
+                                0,
+                                2 
+                            ],
+                            "observation": 9
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cell_name": "h",
+            "cassettes": [
+                {
+                    "cassette_idx": 0,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                2,
+                                2,
+                                1
+                            ],
+                            "observation": 7
+                        }
+                    ]
+                },
+                {
+                    "cassette_idx": 1,
+                    "cassette_state": [
+                        {
+                            "state": [
+                                3,
+                                0,
+                                1
+                            ],
+                            "observation": 32
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
