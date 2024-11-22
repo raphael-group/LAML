@@ -69,6 +69,7 @@ def main():
     numericalOptions.add_argument("-L","--compute_llh",action='store_true',help="Compute log-likelihood of the input tree(s) in -t and the input params in -P (lambda,phi,nu,rho). Will NOT optimize branch lengths, lambda, phi, nu, or rho. The input tree(s) in -t MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
     numericalOptions.add_argument("--timescale",required=False,default=1.0,help="Experiment time. Scales the output tree height to this value. Default: 1.0.")
     numericalOptions.add_argument("--fixedBrlens",action='store_true',help="Keep the branch lengths of the input trees (specified in -t) fixed and optimize other numerical parameters. Preferably the genome edit rate (lambda) should be specified via -P; if lambda is not given, assume lambda=1. This option does NOT work with --topology_search.")
+    numericalOptions.add_argument("--silence_mechanism",required=False,default="separated",help="Silencing mechanism, must be 'separated' or 'convolve'. Default: 'separated'")
     numericalOptions.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in single cell sequencing.")
     numericalOptions.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
     numericalOptions.add_argument("--noError",action='store_true',help="Assume there is no error in the input character matrix.")
@@ -142,10 +143,15 @@ def main():
             random_seeds = random_seeds[0]
 
     priorfile = None if args["priors"] == "uniform" else args["priors"]
-    parser = DLT_parser(datafile=args["characters"], priorfile=priorfile, max_allele_per_cassette=args["max_states_per_cassette"])
+    silence_mechanism = args["silence_mechanism"] 
+    parser = DLT_parser(datafile=args["characters"], 
+                        priorfile=priorfile, 
+                        max_allele_per_cassette=args["max_states_per_cassette"],
+                        silence_mechanism = silence_mechanism
+                        )
     selected_model = PMMN_model if args["readout_model"] == "PMMN" else PMMC_model
-    data = {'DLT_data': parser.DLT_data} 
-    prior = {'Q': parser.priors}  
+    data = {'DLT_data': parser.DLT_data}
+    prior = {'Q': parser.priors,'silence_mechanism':silence_mechanism}  
 
     # main tasks        
     #ini_phi = 0 if fixed_phi is None else fixed_phi

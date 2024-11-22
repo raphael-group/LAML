@@ -10,36 +10,75 @@ from .virtual_unit_tests import VirtualUnitTest
 
 class PMMNTest_in_llh(VirtualUnitTest):
     # test in_llh computation 
-    def test_1(self): 
+    def test_1a(self): 
         charMtrx = {'a':[1],'b':[1],'c':[1]}
         Q = [[{1:1}]]
         T = "(((a:1,b:1)ab:1,c:1)abc:1)r;"
         
         K = 1
         J = 1
-        alphabet = Alphabet(K,J,[[[0,1,-1]]])
+        silence_mechanism = 'convolve'
+        alphabet = Alphabet(K,J,[[[0,1,-1]]],silence_mechanism=silence_mechanism)
         DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
 
         true_nllh = 0.20665578828621584
 
-        myModel = PMMN_model([T],{'DLT_data':DLT_data},{'Q':Q},{'mu':1,'nu':0,'phi':0,'rho':1})
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':1,'nu':0,'phi':0,'rho':1})
         my_nllh = myModel.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_1 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_1a failed.")
     
-    def test_2(self): 
+    def test_1b(self): 
+        charMtrx = {'a':[1],'b':[1],'c':[1]}
+        Q = [[{1:1}]]
+        T = "(((a:1,b:1)ab:1,c:1)abc:1)r;"
+        
+        K = 1
+        J = 1
+        silence_mechanism = 'separated'
+        alphabet = Alphabet(K,J,[[[0,1]]],silence_mechanism=silence_mechanism)
+        DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
+
+        true_nllh = 0.20665578828621584
+
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':1,'nu':0,'phi':0,'rho':1})
+        my_nllh = myModel.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_1b failed.")
+    
+    def test_2a(self): 
         charMtrx = {'a':[1],'b':[1],'c':[0]}
         Q = [[{1:1}]]
         T = "(((a:1,b:1)ab:1,c:1)abc:1)r;"
         K = 1
         J = 1
-        alphabet = Alphabet(K,J,[[[0,1,-1]]])
+        silence_mechanism = 'convolve'
+        alphabet = Alphabet(K,J,[[[0,1,-1]]],silence_mechanism=silence_mechanism)
         DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
 
         true_nllh = 2.2495946917551692 
 
-        myModel = PMMN_model([T],{'DLT_data':DLT_data},{'Q':Q},{'mu':1,'nu':0,'phi':0,'rho':1})
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':1,'nu':0,'phi':0,'rho':1})
         my_nllh = myModel.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_2 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_2a failed.")
+    
+    def test_2b(self): 
+        charMtrx = {'a':[1],'b':[1],'c':[0]}
+        Q = [[{1:1}]]
+        T = "(((a:1,b:1)ab:1,c:1)abc:1)r;"
+        K = 1
+        J = 1
+        silence_mechanism = 'separated'
+        alphabet = Alphabet(K,J,[[[0,1]]],silence_mechanism=silence_mechanism)
+        DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
+
+        true_nllh = 2.2495946917551692 
+
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':1,'nu':0,'phi':0,'rho':1})
+        my_nllh = myModel.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_2b failed.")
    
     def test_3(self): 
         charMtrx = {'a':[1],'b':[0],'c':[1]}
@@ -135,33 +174,71 @@ class PMMNTest_in_llh(VirtualUnitTest):
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_8 failed.")
     
     
-    def test_9(self): 
+    def test_9a(self): 
         charMtrx = {'a':[0],'b':[0],'c':['?']}
         Q = [[{1:1}]]
         T = "(((a:1,b:1)ab:1,c:1)abc:1)r;"
         K = 1
         J = 1
-        alphabet = Alphabet(K,J,[[[0,1,-1]]])
+        silence_mechanism = 'convolve'
+        alphabet = Alphabet(K,J,[[[0,1,-1]]],silence_mechanism=silence_mechanism)
         DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
         
         true_nllh = 6.513306124309698
 
-        myModel = PMMN_model([T],{'DLT_data':DLT_data},{'Q':Q},{'mu':1,'nu':0,'phi':0.1,'rho':1})
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':1,'nu':0,'phi':0.1,'rho':1})
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_9 failed.")
     
-    def test_10(self): 
+    def test_9b(self): 
+        charMtrx = {'a':[0],'b':[0],'c':['?']}
+        Q = [[{1:1}]]
+        T = "(((a:1,b:1)ab:1,c:1)abc:1)r;"
+        K = 1
+        J = 1
+        silence_mechanism = 'separated'
+        alphabet = Alphabet(K,J,[[[0,1]]],silence_mechanism=silence_mechanism)
+        DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
+        
+        true_nllh = 6.513306124309698
+
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':1,'nu':0,'phi':0.1,'rho':1})
+        my_nllh = myModel.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_9 failed.")
+    
+    def test_10a(self): 
         charMtrx = {'a':[0],'b':['?'],'c':[0]}
         Q = [[{1:1}]]
         T = "(((a:1,b:1)ab:1,c:1)abc:1)r;"
         K = 1
         J = 1
-        alphabet = Alphabet(K,J,[[[0,1,-1]]])
+        silence_mechanism = 'convolve'
+        alphabet = Alphabet(K,J,[[[0,1,-1]]],silence_mechanism=silence_mechanism)
         DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
         
         true_nllh = 6.513306124309698
 
-        myModel = PMMN_model([T],{'DLT_data':DLT_data},{'Q':Q},{'mu':1,'nu':0,'phi':0.1,'rho':1})
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':1,'nu':0,'phi':0.1,'rho':1})
+        my_nllh = myModel.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_10 failed.")
+    
+    def test_10b(self): 
+        charMtrx = {'a':[0],'b':['?'],'c':[0]}
+        Q = [[{1:1}]]
+        T = "(((a:1,b:1)ab:1,c:1)abc:1)r;"
+        K = 1
+        J = 1
+        silence_mechanism = 'separated'
+        alphabet = Alphabet(K,J,[[[0,1]]],silence_mechanism=silence_mechanism)
+        DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
+        
+        true_nllh = 6.513306124309698
+
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':1,'nu':0,'phi':0.1,'rho':1})
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_10 failed.")
     
@@ -346,53 +423,113 @@ class PMMNTest_in_llh(VirtualUnitTest):
         my_nllh = myModel.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_22 failed.")
     
-    def test_23(self): 
+    def test_23a(self): 
         # Testing with silencing rate and no missing data.
         charMtrx = {'a':[(1,)],'b':[(1,)]}
         Q = [[{1:1}]]
         T = "((a:1,b:1)ab:1)r;"
         K = 1
         J = 1
-        alphabet = Alphabet(K,J,[[[0,1,-1]]])
+        silence_mechanism = 'convolve'
+        alphabet = Alphabet(K,J,[[[0,1,-1]]],silence_mechanism=silence_mechanism)
         DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
         
         true_nllh = 0.3995946911551692
 
-        myModel = PMMN_model([T],{'DLT_data':DLT_data},{'Q':Q},{'mu':11,'nu':0.05,'phi':0,'rho':1})
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':11,'nu':0.05,'phi':0,'rho':1})
         my_nllh = myModel.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_23 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_23a failed.")
     
-    def test_24(self): 
+    def test_23b(self): 
+        # Testing with silencing rate and no missing data.
+        charMtrx = {'a':[(1,)],'b':[(1,)]}
+        Q = [[{1:1}]]
+        T = "((a:1,b:1)ab:1)r;"
+        K = 1
+        J = 1
+        silence_mechanism = 'separated'
+        alphabet = Alphabet(K,J,[[[0,1]]],silence_mechanism=silence_mechanism)
+        DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
+        
+        true_nllh = 0.3995946911551692
+
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':11,'nu':0.05,'phi':0,'rho':1})
+        my_nllh = myModel.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_23b failed.")
+    
+    def test_24a(self): 
         # Testing with silencing and missing data.
         charMtrx = {'a':[(1,)],'b':[('?',)]}
         Q = [[{1:1}]]
         T = "((a:1,b:1)ab:1)r;"
         K = 1
         J = 1
-        alphabet = Alphabet(K,J,[[[0,1,-1]]])
+        silence_mechanism = 'convolve'
+        alphabet = Alphabet(K,J,[[[0,1,-1]]],silence_mechanism=silence_mechanism)
         DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
         
         true_nllh = 3.266041566926236
 
-        myModel = PMMN_model([T],{'DLT_data':DLT_data},{'Q':Q},{'mu':11,'nu':0.05,'phi':0,'rho':1})
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':11,'nu':0.05,'phi':0,'rho':1})
         my_nllh = myModel.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_24 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_24a failed.")
     
-    def test_25(self): 
+    def test_24b(self): 
+        # Testing with silencing and missing data.
+        charMtrx = {'a':[(1,)],'b':[('?',)]}
+        Q = [[{1:1}]]
+        T = "((a:1,b:1)ab:1)r;"
+        K = 1
+        J = 1
+        silence_mechanism = 'separated'
+        alphabet = Alphabet(K,J,[[[0,1]]],silence_mechanism=silence_mechanism)
+        DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
+        
+        true_nllh = 3.266041566926236
+
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':11,'nu':0.05,'phi':0,'rho':1})
+        my_nllh = myModel.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_24b failed.")
+    
+    def test_25a(self): 
         # Testing with multistate.
         charMtrx = {'a':[(1,)],'b':[(1,)]}
         Q = [[{1:0.5,2:0.5}]]
         T = "((a:1,b:1)ab:1)r;"
         K = 1
         J = 1
-        alphabet = Alphabet(K,J,[[[0,1,2,-1]]])
+        silence_mechanism = 'convolve'
+        alphabet = Alphabet(K,J,[[[0,1,2,-1]]],silence_mechanism=silence_mechanism)
         DLT_data = CharMtrx(charMtrx,alphabet)
-        
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
+
         true_nllh = 1.0418276933439998
 
-        myModel = PMMN_model([T],{'DLT_data':DLT_data},{'Q':Q},{'mu':11,'nu':0,'phi':0,'rho':1})
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':11,'nu':0,'phi':0,'rho':1})
         my_nllh = myModel.negative_llh()
-        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_25 failed.")
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_25a failed.")
+    
+    def test_25b(self): 
+        # Testing with multistate.
+        charMtrx = {'a':[(1,)],'b':[(1,)]}
+        Q = [[{1:0.5,2:0.5}]]
+        T = "((a:1,b:1)ab:1)r;"
+        K = 1
+        J = 1
+        silence_mechanism = 'separated'
+        alphabet = Alphabet(K,J,[[[0,1,2]]],silence_mechanism=silence_mechanism)
+        DLT_data = CharMtrx(charMtrx,alphabet)
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}
+
+        true_nllh = 1.0418276933439998
+
+        myModel = PMMN_model([T],{'DLT_data':DLT_data},priors,{'mu':11,'nu':0,'phi':0,'rho':1})
+        my_nllh = myModel.negative_llh()
+        self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="PMMNTest in llh: test_25b failed.")
     
     def test_26(self): 
         # Testing with phi and missing data.

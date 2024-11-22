@@ -16,6 +16,7 @@ class CharMtrx:
         self.K = alphabet.K
         self.J = alphabet.J
         self.alphabet = alphabet
+        self.silence_mechanism = alphabet.silence_mechanism 
         if self.J == 1: # when J=1, we may need to correct the cassette states to be tuples, not single values
             data_struct_corrected = {}
             for c in data_struct:
@@ -29,7 +30,6 @@ class CharMtrx:
             self.data_struct = data_struct_corrected
         else:
             self.data_struct = data_struct    
-        
         self.cassette_state_lists = []
         for k in range(self.K):
             self.cassette_state_lists.append(self.alphabet.get_cassette_alphabet(k))

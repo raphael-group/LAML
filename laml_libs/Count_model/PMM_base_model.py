@@ -16,19 +16,21 @@ class PMM_base_model(Base_model):
         """
         Compute Layer 1 transition probabilities  
         This function overrides the Base_model class
+        NOTE: this does not include the transition probabilities of the silence flag in the 'separated' silence mechanism
+        Instead, the silence flag is handled in log_Psi_cassette of the Base_model
         """    
         delta = c_node.edge_length
         nu = self.params.get_value('nu')
         if alpha == 0:
             if beta == 0:
                 p = exp(-delta*(1+nu)) if self.silence_mechanism == 'convolve' else exp(-delta)
-            elif beta == -1:
+            elif beta == -1: # shouldn't happen if self.silence_mechanism == 'separated'
                 p = 1-exp(-delta*nu)
             else:
                 q = self.Q[k][j][beta]
                 p = q*exp(-delta*nu)*(1-exp(-delta)) if self.silence_mechanism == 'convolve' else q*(1-exp(-delta)) 
         else:
-            if alpha == -1 and beta == -1:
+            if alpha == -1 and beta == -1: # shouldn't happen if self.silence_mechanism == 'separated'
                 p = 1
             elif alpha == beta:
                 p = exp(-delta*nu) if self.silence_mechanism == 'convolve' else 1

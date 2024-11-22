@@ -16,10 +16,11 @@ class AlleleTable:
             max_allele_per_cassette: is either None or a positive integer. 
                 If None: use all available alleles
                 If not none: for every cell at every cassette, only use maximum `max_allele_per_cassette` top alleles 
-        NOTE: we assume without checking that the alphabet and data_struct have the same K and J
+            IMPORTANT: Assume without checking that alphabet and data_struct have the same K and J
         """
         self.K = alphabet.K # the number of cassettes
         self.J = alphabet.J # the number of sites per cassette
+        self.silence_mechanism = alphabet.silence_mechanism 
         self.alphabet = alphabet
         
         if self.J == 1: # may need to correct the cassette states to be tuples, not single values
@@ -44,13 +45,22 @@ class AlleleTable:
             for k in range(self.K):
                 self.cassette_state_lists.append(self.alphabet.get_cassette_alphabet(k))
         else:
-            root_state = tuple([0]*self.J)
-            silenced_state = tuple([-1]*self.J)
-            self.cassette_state_lists = [set([root_state,silenced_state]) for _ in range(self.K)]
+            root_state = tuple([0]*self.J) if self.silence_mechanism == 'convolve' else tuple([0]*(self.J+1))
+            self.cassette_state_lists = [set([root_state]) for _ in range(self.K)]
             for k in range(self.K):                        
                 for cell in self.data_struct:
                     top_alleles = set(heapq.nlargest(max_allele_per_cassette,self.data_struct[cell][k], key=self.data_struct[cell][k].get))
-                    self.cassette_state_lists[k] = self.cassette_state_lists[k].union(top_alleles)                
+                    if self.silence_mechanism == 'convolve':
+                        silenced_state = tuple([-1]*self.J)
+                        top_cassette_states = top_alleles.union([silenced_state])
+                    else:
+                        top_cassette_states = set([])
+                        for allele in top_alleles: # allele is a tuple
+                            c0 = tuple(list(allele)+[0])
+                            c1 = tuple(list(allele)+[-1])
+                            top_cassette_states.add(c0)
+                            top_cassette_states.add(c1)
+                    self.cassette_state_lists[k] = self.cassette_state_lists[k].union(top_cassette_states)
 
     def get_one_count(self,w,k,x):
         """

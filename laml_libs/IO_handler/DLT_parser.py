@@ -7,7 +7,7 @@ recognized_missing = set(['-', '?', '-1'])
 
 class DLT_parser: # DLT: dynamic lineage tracing
 
-    def __init__(self, datafile=None, priorfile=None, unedited_state=0, missing_state="?", delimiter=",", outputfile=None, max_allele_per_cassette=None):
+    def __init__(self, datafile=None, priorfile=None, unedited_state=0, missing_state="?", delimiter=",", outputfile=None, max_allele_per_cassette=None,silence_mechanism='convolve'):
         # intended user facing
         self.datafile = datafile
         self.priorfile = priorfile 
@@ -16,6 +16,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
         self.delimiter = delimiter
         self.outputfile = outputfile
         self.max_allele_per_cassette = int(max_allele_per_cassette) if max_allele_per_cassette is not None else max_allele_per_cassette
+        self.silence_mechanism = silence_mechanism
 
         self.datatype = None
         self.DLT_data = None
@@ -26,7 +27,7 @@ class DLT_parser: # DLT: dynamic lineage tracing
         self.priors = None
         self.alphabet = None
 
-        if datafile is not None: 
+        if datafile is not None:
             self.get_from_path(self.datafile, self.delimiter, self.missing_state, self.outputfile, self.priorfile, self.max_allele_per_cassette)
     
     def process_datafile(self, datafile, delimiter, missing_state, outputfile, max_allele_per_cassette):
@@ -47,7 +48,11 @@ class DLT_parser: # DLT: dynamic lineage tracing
         ### assumes self.data_struct has been set
         #print("[set_alphabet] self.data_struct", self.data_struct)
         alphabet_ds = self.get_alphabet_ds(self.data_struct, self.datatype, self.missing_state)
-        alphabet = Alphabet(K=self.K, J=self.J, data_struct=alphabet_ds, silence_mechanism='convolve')
+        alphabet = Alphabet( K = self.K, 
+                             J = self.J, 
+                             data_struct = alphabet_ds, 
+                             silence_mechanism=self.silence_mechanism
+                            )
         self.alphabet = alphabet
         return alphabet_ds, alphabet
 
@@ -124,18 +129,24 @@ class DLT_parser: # DLT: dynamic lineage tracing
         # Q will be processed into a list of (list of dictionaries)
         # Q is a cassette list of site lists with dictionaries for each site
         Q = self.get_alphabet_prior(Q,sites_per_cassette,self.datatype)
-
+        default_set = set([0,-1]) if self.silence_mechanism == 'convolve' else set([0])
         if sites_per_cassette == 1:
-            alphabet_ds = [[list(set([0,-1]+list(k[0].keys())))] for k in Q]
+            #alphabet_ds = [[list(set([0,-1]+list(k[0].keys())))] for k in Q]
+            alphabet_ds = [[list(set(k[0].keys()).union(default_set))] for k in Q]
         else:
-            alphabet_ds = [[list(set([0,-1]+list(s.keys()))) for s in k] for k in Q]
+            #alphabet_ds = [[list(set([0,-1]+list(s.keys()))) for s in k] for k in Q]
+            alphabet_ds = [[list(set(s.keys()).union(default_set)) for s in k] for k in Q]
         if len(alphabet_ds) != self.K:
             #print("alphabet_ds", len(alphabet_ds), "K", self.K)
             raise ValueError(f"Prior file K={len(alphabet_ds)}, which does not match K={self.K} from previously provided data.")
         #else:
 
         self.K = len(alphabet_ds)
-        alphabet = Alphabet(self.K, sites_per_cassette, alphabet_ds) 
+        #alphabet = Alphabet(self.K, sites_per_cassette, alphabet_ds) 
+        alphabet = Alphabet(K = self.K, 
+                            J = sites_per_cassette, 
+                            data_struct = alphabet_ds, 
+                            silence_mechanism=self.silence_mechanism)
         self.alphabet = alphabet
         return Q #, alphabet_ds #alphabet 
 
@@ -191,7 +202,9 @@ class DLT_parser: # DLT: dynamic lineage tracing
                 cell_data = ds[cell_name]
                 for cassette_idx, cassette_state in enumerate(cell_data):
                     if len(final_alphabet_ds) <= cassette_idx:
-                        final_alphabet_ds.append({0, -1})
+                        #final_alphabet_ds.append({0, -1})
+                        default_states = set([0,-1]) if self.silence_mechanism == 'convolve' else set([0])
+                        final_alphabet_ds.append(default_states)
 
                     if cassette_state != missing_state:
                         final_alphabet_ds[cassette_idx].add(cassette_state)
@@ -213,7 +226,9 @@ class DLT_parser: # DLT: dynamic lineage tracing
                     for cassette_state in cassette_state_dict.keys():
                         for site_idx, site_state in enumerate(cassette_state):
                             if site_idx not in alphabet_ds[cassette_idx].keys():
-                                alphabet_ds[cassette_idx][site_idx] = {0,-1}
+                                alphabet_ds[cassette_idx][site_idx] = {0}
+                                if self.silence_mechanism == 'convolve':
+                                    alphabet_ds[cassette_idx][site_idx].add(-1)
                             if site_state != missing_state:
                                 alphabet_ds[cassette_idx][site_idx].add(site_state)
 

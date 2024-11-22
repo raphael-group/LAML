@@ -364,14 +364,15 @@ class PMMCTest_in_llh(VirtualUnitTest):
     
     def test_24(self): 
         # Testing with silencing and missing data.
-        alleleTable = {'a':[{1:1,0:0}],'b':[{}]}
+        #alleleTable = {'a':[{1:1,0:0}],'b':[{}]}
+        alleleTable = {'a':[{1:1}],'b':[{}]}
         Q = [[{1:1}]]
         T = "((a:1,b:1)ab:1)r;"
         K = 1
         J = 1
         alphabet = Alphabet(K,J,[[[0,1,-1]]])
         DLT_data = AlleleTable(alleleTable,alphabet)
-        
+
         true_nllh = 3.266041566926236
 
         myModel = PMMC_model([T],{'DLT_data':DLT_data},{'Q':Q},{'mu':11,'nu':0.05,'phi':0,'rho':1})

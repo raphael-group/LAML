@@ -1,0 +1,2 @@
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c c30_noise0.02_rep84.msa.txt -t c30_noise0.02_rep84.nj_tree.nwk -p c30_noise0.02_rep84.prior.csv -o example3 --nInitials 1 --randomreps 1 -v --topology_search --readout_model PMMN

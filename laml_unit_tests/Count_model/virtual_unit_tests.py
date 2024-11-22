@@ -32,18 +32,24 @@ class VirtualUnitTest(unittest.TestCase):
         return tree_reduced    
 
     # computing the outside likelihood
-    def check_outllh(self,T,Q,charMtrx,test_model,test_msg,convert_to_counts,test_no=0,give_label=False,**params):
+    def check_outllh(self,T,Q,charMtrx,test_model,test_msg,convert_to_counts,test_no=0,give_label=False,silence_mechanism='convolve',**params):
         # generic function to test the computed out0 and out1 after calling Estep_out_llh
         K = len(list(charMtrx.values())[0])
         J = 1
-        alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)])
+        if silence_mechanism == 'convolve':
+            alphabet = Alphabet(K,J,[[[0,-1]+list(Q[k][0].keys())] for k in range(K)],silence_mechanism=silence_mechanism)
+            root_state = (0,)
+        else:
+            alphabet = Alphabet(K,J,[[[0]+list(Q[k][0].keys())] for k in range(K)],silence_mechanism=silence_mechanism)
+            root_state = (0,0)
         
         if convert_to_counts:
             allele_table = charMtrx_2_alleleTable(charMtrx,alphabet)
             data = {'DLT_data':allele_table}
         else:
-            data = {'DLT_data':CharMtrx(charMtrx,alphabet)}    
-        myModel = test_model([T],data,{'Q':Q},params)
+            data = {'DLT_data':CharMtrx(charMtrx,alphabet)} 
+        priors = {'Q':Q,'silence_mechanism':silence_mechanism}        
+        myModel = test_model([T],data,priors,params)
         if give_label:
             currIdx = 0
             for node in myModel.trees[0].traverse_preorder():
@@ -65,9 +71,9 @@ class VirtualUnitTest(unittest.TestCase):
             else:    
                 data0 = {'DLT_data':CharMtrx(charMtrx0,alphabet)}    
             tree_str = tree_reduced[x]
-            myModel0 = test_model([tree_str],data0,{'Q':Q},params)
+            myModel0 = test_model([tree_str],data0,priors,params)
             myModel0.Estep_in_llh()
             for k in range(K):
-                true = myModel0.trees[0].root.in_llh[k][tuple([0])]
-                est = out_llh[x][k][tuple([0])]
+                true = myModel0.trees[0].root.in_llh[k][root_state]
+                est = out_llh[x][k][root_state]
                 self.assertAlmostEqual((est+log(1-params['phi'])-true)/true,0,places=2,msg=test_msg+": test_" + str(test_no) + " failed.")

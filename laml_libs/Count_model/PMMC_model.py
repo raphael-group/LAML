@@ -39,9 +39,18 @@ class PMMC_model(PMM_base_model):
                 x is a cassette state of cassette k (data type: tuple of length J)
                 c is a mapping (cassette state -> count); its data type is a dictionary whose keys are tuples of length J and whose values are integers
         """    
-        J = self.data['DLT_data'].J # self.data['DLT_data'] is an instance of AlleleTable
+        #J = self.data['DLT_data'].J # self.data['DLT_data'] is an instance of AlleleTable
         M = self.data['DLT_data'].alphabet.get_M(k)
-        x_is_silenced = (x == tuple([-1]*J))
+        if self.silence_mechanism == 'separated':
+            x_is_silenced = (x[-1] == -1)
+            x = x[:-1] # remove the silence flag
+        else: # self.silence_mechanism is 'convolve'
+            x_is_silenced = False
+            for x_j in x:
+                if x_j == -1:
+                    x_is_silenced = True
+                    break    
+        #x_is_silenced = (x == tuple([-1]*J))
         phi = self.params.get_value('phi')
         rho = self.params.get_value('rho') # will be None if 'rho' not in self.params
         c_is_missing = True
@@ -95,40 +104,58 @@ class PMMC_model(PMM_base_model):
             Override the Base_model class. 
             This class (i.e. the PMMC model) has two params with closed-form M-step, which are phi and rho 
         """
-        A = 0
-        B = 0 
-        C = 0
+        def __is_silenced(x):
+            # "separated" silencing mechanism, we only need to check the flag
+            if self.silence_mechanism == 'separated': 
+                    return x[-1] == -1
+            # "convolved" silencing mechanism, return True if any of the site is silenced
+            for x_j in x:
+                if x_j == -1:
+                    return True
+                return False        
+        A = 0 # x is not silenced, c is missing
+        B = 0 # x is not silenced, c is not missing 
+        C = 0 # x is not silenced, c is not missing, y = x
+        D = 0 # x is not silenced, c is not missing, y != x
         
         K = self.data['DLT_data'].K
-        J = self.data['DLT_data'].J
-        silenced_state = tuple([-1]*J)
+        #J = self.data['DLT_data'].J
         
         for tree in self.trees:
             for v in tree.traverse_leaves():
                 for k in range(K):
-                    if self.data['DLT_data'].is_missing(v.label,k): # p_A = p_B = 0
-                        p_A = p_B = 0
-                        if silenced_state in v.log_node_posterior[k]:
-                            p_C = 1-exp(v.log_node_posterior[k][silenced_state])
-                        else:
-                            p_C = 1    
-                    else: # p_C = 0; p_A + p_B = 1
-                        c = self.data['DLT_data'].get(v.label,k) 
+                    p_A = p_B = p_C = p_D = 0
+                    p_silenced = 0
+                    for x in v.log_node_posterior[k]:
+                        if __is_silenced(x):
+                            p_silenced += exp(v.log_node_posterior[k][x])
+                    if self.data['DLT_data'].is_missing(v.label,k): # c is missing
+                        p_A = 1-p_silenced  # p_A is P(c is missing, x is not silenced | D; T,\Theta)
+                    else: 
+                        c = self.data['DLT_data'].get(v.label,k) # NOTE: c is not missing
+                        p_B = 1-p_silenced # p_B is P(c is not missing, x is not silenced | D; T,\Theta)
                         for x in v.log_node_posterior[k]:
+                            if __is_silenced(x):
+                                continue
                             w = exp(v.log_node_posterior[k][x])
-                            p_A = w*c[x] if x in c else 0
-                            p_B = w*sum([c[y] for y in c if y != x])
-                        p_C = 0    
+                            x_no_flag = x if self.silence_mechanism == 'convolve' else x[:-1]
+                            for y in c:
+                                if y == x_no_flag:
+                                    p_C += w*c[y] # w*c[y] is P(c is not missing, x is not silenced, y=x)
+                                else:    
+                                    p_D += w*c[y] # w*c[y] is P(c is not missing, x is not silenced, y!=x)
                     A += p_A
                     B += p_B
                     C += p_C
+                    D += p_D
 
         if 'phi' in fixed_params:
             phi_star = fixed_params['phi']
             if verbose > 0:
                 print("Fixed phi to " + str(phi_star))
         else:
-            phi_star = C/(A+B+C)
+            # optimizaztion problem: max_{\phi}Alog\phi + Blog(1-\phi)
+            phi_star = A/(A+B)
             if verbose > 0:
                 print("Current optimal phi: " + str(phi_star))
         # set the value of phi to phi_star
@@ -139,7 +166,8 @@ class PMMC_model(PMM_base_model):
             if verbose > 0:
                 print("Fixed rho to " + str(rho_star))
         else:
-            rho_star = A/(A+B)
+            # optimization problem: max_{\rho}C\log\rho + Dlog(1-\rho)
+            rho_star = C/(C+D)
             if verbose > 0:
                 print("Current optimal rho: " + str(rho_star))
         # set the value of rho to rho_star

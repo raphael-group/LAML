@@ -34,7 +34,7 @@ class ProcData(unittest.TestCase):
         self.assertEqual(len(tmp.data), 4)
 
         alphabet_ds = tmp.set_alphabet()
-        self.assertEqual(tmp.alphabet.M, [5, 3, 4, 4, 3, 4])
+        self.assertEqual(tmp.alphabet.M, [4, 2, 3, 3, 2, 3])
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {0, 1, 2, 3, -1})
 
         # check that it added a 0 in
@@ -64,7 +64,7 @@ class ProcData(unittest.TestCase):
         self.assertEqual(len(tmp.data), 4)
 
         alphabet_ds = tmp.set_alphabet()
-        self.assertEqual(tmp.alphabet.M, [5, 3, 4, 4, 3, 4])
+        self.assertEqual(tmp.alphabet.M, [4, 2, 3, 3, 2, 3])
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {0, 1, 2, 3, -1})
 
         # check that it added a 0 in
@@ -87,7 +87,7 @@ class ProcData(unittest.TestCase):
 
         # check that the alphabet is read correctly
         alphabet_ds = tmp.set_alphabet()
-        self.assertEqual(tmp.alphabet.M, [5, 3, 4, 4, 3, 4])
+        self.assertEqual(tmp.alphabet.M, [4, 2, 3, 3, 2, 3])
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {0, 1, 2, 3, -1})
 
         # check that it added a 0 in
@@ -155,7 +155,7 @@ class ProcData(unittest.TestCase):
 
         # check that the alphabet is read correctly
         alphabet_ds = tmp.set_alphabet()
-        self.assertEqual(tmp.alphabet.M, [prod([5, 3, 4]), prod([4, 3, 3])])
+        self.assertEqual(tmp.alphabet.M, [prod([4, 2, 3]), prod([3, 2, 2])])
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {-1, 0, 1, 2, 3})
         self.assertEqual(tmp.alphabet.get_site_alphabet(1,1), {-1, 0, 1})  
         
@@ -186,7 +186,7 @@ class ProcData(unittest.TestCase):
         Q = tmp.parse_prior(priorfile,tmp.J)
 
         # I introduced a new state in the prior file at site index 3 that isn't observed in the json, should be in the alphabet
-        self.assertEqual(tmp.alphabet.M, [5, 3, 4, 5, 3, 4]) # alphabet is made according to priorfile
+        self.assertEqual(tmp.alphabet.M, [4, 2, 3, 4, 2, 3]) # alphabet is made according to priorfile
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {0, 1, 2, 3, -1})
         self.assertEqual(tmp.alphabet.get_site_alphabet(4,0), {0, 1, -1})
 
@@ -206,7 +206,7 @@ class ProcData(unittest.TestCase):
         Q = tmp.parse_prior(priorfile,tmp.J)
         
         # I introduced a new state in the prior file at site index 3 that isn't observed in the json, should be in the alphabet
-        self.assertEqual(tmp.alphabet.M, [5, 3, 4, 5, 3, 4]) # alphabet is made according to priorfile
+        self.assertEqual(tmp.alphabet.M, [4, 2, 3, 4, 2, 3]) # alphabet is made according to priorfile
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {0, 1, 2, 3, -1})
         self.assertEqual(tmp.alphabet.get_site_alphabet(4,0), {0, 1, -1})
         
@@ -226,7 +226,7 @@ class ProcData(unittest.TestCase):
         Q = tmp.parse_prior(priorfile,tmp.J)
 
         # I introduced a new state in the prior file at site index 3 that isn't observed in the json, should be in the alphabet
-        self.assertEqual(tmp.alphabet.M, [60, 60]) # [ 5 * 3 * 4 ], ...
+        self.assertEqual(tmp.alphabet.M, [24, 24]) # [ 4 * 2 * 3 ], ...
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {-1, 0, 1, 2, 3})
         self.assertEqual(tmp.alphabet.get_site_alphabet(1,0), {-1, 0, 1, 2, 3})
         self.assertEqual(tmp.alphabet.get_site_alphabet(1,1), {-1, 0, 1})
@@ -244,7 +244,7 @@ class ProcData(unittest.TestCase):
         ### Uniform priors should drop the -1
         
         # I introduced a new state in the prior file at site index 3 that isn't observed in the json, should be in the alphabet
-        self.assertEqual(tmp.alphabet.M, [60, 36]) # the extra entry at site index 3 is not there in the uniform priors
+        self.assertEqual(tmp.alphabet.M, [24, 12]) # the extra entry at site index 3 is not there in the uniform priors
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {-1, 0, 1, 2, 3})
         self.assertEqual(tmp.alphabet.get_site_alphabet(1,1), {-1, 0, 1})
 
@@ -261,7 +261,7 @@ class ProcData(unittest.TestCase):
         DLT_data, Q = tmp.get_from_path(datafile=alleletable_file, priorfile=priorfile)
 
         # I introduced a new state in the prior file at site index 3 that isn't observed in the json, should be in the alphabet
-        self.assertEqual(tmp.alphabet.M, [60, 60])
+        self.assertEqual(tmp.alphabet.M, [24, 24])
         self.assertEqual(tmp.alphabet.get_site_alphabet(1,0), {-1, 0, 1, 2, 3})
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {-1, 0, 1, 2, 3})
         self.assertEqual(tmp.alphabet.get_site_alphabet(1,1), {-1, 0, 1})
@@ -278,7 +278,7 @@ class ProcData(unittest.TestCase):
         DLT_data, Q = tmp.get_from_path(datafile=alleletable_file, priorfile=priorfile, max_allele_per_cassette=1)
 
         # I introduced a new state in the prior file at site index 3 that isn't observed in the json, should be in the alphabet
-        self.assertEqual(tmp.alphabet.M, [60, 60])
+        self.assertEqual(tmp.alphabet.M, [24, 24])
         self.assertEqual(tmp.max_allele_per_cassette, 1)
         self.assertEqual(tmp.alphabet.get_site_alphabet(0,0), {-1, 0, 1, 2, 3})
         self.assertEqual(tmp.alphabet.get_site_alphabet(1,0), {-1, 0, 1, 2, 3})

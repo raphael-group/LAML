@@ -13,16 +13,25 @@ from .utils import *
 from .virtual_unit_tests import VirtualUnitTest
 
 class PMMNTest_out_llh(VirtualUnitTest):
-    def check_outllh(self,T,Q,charMtrx,test_no=0,give_label=False,**params):
-        super(PMMNTest_out_llh,self).check_outllh(T,Q,charMtrx,PMMN_model,"PMMNTest out llh",False,test_no=test_no,give_label=give_label,**params)
+    def check_outllh(self,T,Q,charMtrx,test_no=0,give_label=False,silence_mechanism='convolve',**params):
+        super(PMMNTest_out_llh,self).check_outllh(T,Q,charMtrx,PMMN_model,"PMMNTest out llh",False,
+                                                    test_no=test_no,give_label=give_label,silence_mechanism=silence_mechanism,**params)
 
-    def test_1(self):
+    def test_1a(self):
         T = "(((a:1,b:1)e:1,(c:1,d:1)f:1)g:1)r;"
         Q = [[{1:1.0}]]
         charMtrx = {'a':[1],'b':[1],'c':[1],'d':[1]}
         phi = 0
         nu = 0.5
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,rho=1,test_no=1)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,rho=1,test_no="1a",silence_mechanism='convolve')
+    
+    def test_1b(self):
+        T = "(((a:1,b:1)e:1,(c:1,d:1)f:1)g:1)r;"
+        Q = [[{1:1.0}]]
+        charMtrx = {'a':[1],'b':[1],'c':[1],'d':[1]}
+        phi = 0
+        nu = 0.5
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,rho=1,test_no="1b",silence_mechanism='separated')
    
     def test_2(self):
         T = "(((a:1,b:1)e:1,(c:1,d:1)f:1)g:1)r;"
@@ -208,15 +217,23 @@ class PMMNTest_out_llh(VirtualUnitTest):
         phi = 0.3
         self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,rho=1,test_no=24)
     
-    def test_25(self):
+    def test_25a(self):
         T = "(((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,d:1.1)h:0.2,e:0.2)g:0.2)r;"
         Q = [[{1:0.2,2:0.6,3:0.2}]]
         charMtrx = {'a':['?'],'b':[0],'c':[2],'d':['?'],'e':[1]}
         nu = 0.2
         phi = 0.3
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,rho=1,test_no=25)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,rho=1,test_no="25a",silence_mechanism='convolve')
     
-    def test_26(self):
+    def test_25b(self):
+        T = "(((((a:0.47,b:1.3)f:1.1,c:0.14)g:0.8,d:1.1)h:0.2,e:0.2)g:0.2)r;"
+        Q = [[{1:0.2,2:0.6,3:0.2}]]
+        charMtrx = {'a':['?'],'b':[0],'c':[2],'d':['?'],'e':[1]}
+        nu = 0.2
+        phi = 0.3
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,rho=1,test_no="25b",silence_mechanism='separated')
+    
+    def test_26a(self):
         treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_Count_model/test_PMM_base/test1_n25.tre')
         charMtrx_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_Count_model/test_PMM_base/test1_charMtrx.txt')
         T = read_tree_newick(treedata_path)
@@ -230,4 +247,20 @@ class PMMNTest_out_llh(VirtualUnitTest):
             m_i = len(M_i)
             q = {x:1/m_i for x in M_i}
             Q[i].append(q)
-        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,rho=1,test_no=26,give_label=True)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,rho=1,test_no="26a",give_label=True,silence_mechanism='convolve')
+    
+    def test_26b(self):
+        treedata_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_Count_model/test_PMM_base/test1_n25.tre')
+        charMtrx_path = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_Count_model/test_PMM_base/test1_charMtrx.txt')
+        T = read_tree_newick(treedata_path)
+        phi = 0.05231954386883335
+        nu = 0.15877477685098262
+        charMtrx,_ = read_sequences(charMtrx_path,filetype="charMtrx",delimiter=",",masked_symbol='?',suppress_warnings=True)
+        k = 60
+        Q = [[] for _ in range(k)]
+        for i in range(k):
+            M_i = set(charMtrx[x][i] for x in charMtrx if charMtrx[x][i] not in [0,"?"])
+            m_i = len(M_i)
+            q = {x:1/m_i for x in M_i}
+            Q[i].append(q)
+        self.check_outllh(T,Q,charMtrx,mu=1,phi=phi,nu=nu,rho=1,test_no="26b",give_label=True,silence_mechanism='separated')

@@ -1,0 +1,1 @@
+python ../../run_laml2.py -c character_matrix.csv -t starting.tree -p priors.csv -o output_convolve --nInitials 1 --timescale 10 -v --readout_model "PMMN" --silence_mechanism convolve --randseeds 7899

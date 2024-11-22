@@ -21,15 +21,18 @@ class Alphabet():
         self.K = K
         self.J = J
         self.data_struct = data_struct
-        if silence_mechanism == 'separated':
-            self.J += 1
-            for DS in self.data_struct:
-                DS.append([0,-1]) # add one site to represent the silencing flag
-
+        
         self.M = [] # store the length of all cassette's alphabets
         for k in range(K):
-            M_k = prod([len(A) for A in data_struct[k]]) # NOTE: this is the length of the cassette alphabet, not site alphabet
+            M_k = prod([len([x for x in A if x != -1]) for A in data_struct[k]]) # NOTE: this is the length of the cassette alphabet, not site alphabet
             self.M.append(M_k)
+        
+        self.silence_mechanism = silence_mechanism
+        
+        if silence_mechanism == 'separated':
+            #self.J += 1
+            for DS in self.data_struct:
+                DS.append([0,-1]) # add one site to represent the silencing flag
 
     def get_site_alphabet(self,k,j): 
         """
@@ -61,4 +64,5 @@ class Alphabet():
                     for y in a_list[j]:        
                         curr.append(x+[y])
                 return curr
-        return set([tuple(x) for x in __get_alphabet(self.J-1)])
+        J = self.J if self.silence_mechanism == 'convolve' else self.J+1
+        return set([tuple(x) for x in __get_alphabet(J-1)])

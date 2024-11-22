@@ -12,7 +12,7 @@ from laml_libs.Count_model.CharMtrx import CharMtrx
 
 class PMMNTest_posterior(VirtualUnitTest):
     # test posterior computation
-    def check_posterior(self,charMtrx,Q,T,phi,nu,rho,test_no): ##### only works if K = 1, J = 1, and alphabet = {0,1,-1} #####
+    def check_posterior(self,charMtrx,Q,T,phi,nu,rho,test_no): ##### only works if K = 1, J = 1, alphabet = {0,1,-1}, and 'convolve' silence mechanism #####
         ref_file = pkg_resources.resource_filename('laml_unit_tests', 'test_data/test_Count_model/test_PMMN/test_posterior/test_'+str(test_no)+'.txt')
         value_types = ['post_node_z','post_node_s','post_edge_zz','post_edge_za','post_edge_zs','post_edge_aa','post_edge_as']
         ref_values = {x:{} for x in value_types}
@@ -33,9 +33,7 @@ class PMMNTest_posterior(VirtualUnitTest):
         myModel = PMMN_model([T],{'DLT_data':DLT_data},{'Q':Q},{'mu':1,'nu':nu,'phi':phi,'rho':rho})
         myModel.Estep()
 
-        #print(ref_values)
         for node in myModel.trees[0].traverse_postorder():
-            #print(node.label)
             # test post_node_z
             if node.label in ref_values['post_node_z']:
                 true = ref_values['post_node_z'][node.label]
@@ -44,7 +42,6 @@ class PMMNTest_posterior(VirtualUnitTest):
             # test post_node_s
             if node.label in ref_values['post_node_s']:
                 true = ref_values['post_node_s'][node.label]
-                #print(node.label,node.out_llh[0][(0,)],node.out_llh[0][(-1,)])
                 est = node.log_node_posterior[0][(-1,)]
                 self.assertAlmostEqual(true,est,places=5,msg="PMMNTest posterior: test_" + str(test_no) +  " failed for post_node_s.")
             # test post_edge_zz

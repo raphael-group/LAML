@@ -43,6 +43,12 @@ class Base_model(Virtual_solver):
         self.num_edges = 0
         for tree in treeList:
             tree_obj = read_tree_newick(tree)
+            # if the root has more than one child, that means it is not the "true root"
+            # (i.e. the input tree has the branch above the root omitted)
+            # In this case, we need to add one more node above the root to serve as the true root
+            # NOTE: with this convention, the root branch (i.e. the branch goint up from the root) will not be used. 
+            # This is in contrast with the convention used in the original LAML, which does not actively add the new node
+            # to serve as the "true root", but always uses the root branch    
             if len(tree_obj.root.children) > 1:
                 new_root = Node()
                 new_root.add_child(tree_obj.root)
@@ -130,7 +136,7 @@ class Base_model(Virtual_solver):
         """
         Setup ultrametric constraints
         return: M and b, such that Mx = b is the linear constraint, where x is a list of all branch lengths
-        NOTE: this function currently has some hacking, as it only works with binary trees (i.e. not multifurcation is allowed).
+        NOTE: this function currently has some hacking, as it only works with binary trees (i.e. no multifurcation is allowed).
         """
         N = self.num_edges
         if local_brlen_opt:
@@ -162,8 +168,11 @@ class Base_model(Virtual_solver):
                     node.constraint[idx] = 1
                     idx += 1
         for tree in self.trees[1:]:
-            m = tuple(x-y for (x,y) in zip(self.trees[0].root.constraint,tree.root.constraint))
-            c = tree.root.constant-self.trees[0].root.constant
+            # NOTE: assume without checking that all trees have root with only one child 
+            # This assumption should be correct because the __init__ method makes sure all trees stored in this class 
+            # follow this assumption
+            m = tuple(x-y for (x,y) in zip(self.trees[0].root.children[0].constraint,tree.root.children[0].constraint))
+            c = tree.root.children[0].constant-self.trees[0].root.children[0].constant
             constrs[m] = c
         M = []
         b = []
@@ -251,16 +260,25 @@ class Base_model(Virtual_solver):
     def log_Psi_cassette(self,c_node,k,x,y):
         """ 
             Compute the log-transformed transition probability of cassette k  
-            return: a negative float, or None if the probability is 0
+            return: a negative float, or None if the probability is 0 (because we cannot take log of 0)
         """    
         log_trans_p = 0
         for j in range(self.data['DLT_data'].J):
             p = self.Psi(c_node,k,j,x[j],y[j])
             if p > 0:
-                log_trans_p += log(p) #####*****#####
+                log_trans_p += log(p)
             else:    
                 log_trans_p = None
                 break
+        if self.silence_mechanism == 'separated':
+            delta = c_node.edge_length
+            nu = self.params.get_value('nu')
+            Omega = {(0,0):exp(-delta*nu),(0,-1):1-exp(-delta*nu),(-1,0):0,(-1,-1):1}
+            p = Omega[(x[-1],y[-1])]
+            if p>0 and log_trans_p is not None:
+                log_trans_p += log(p)
+            else:
+                log_trans_p = None            
         return log_trans_p
 
     def logGamma(self,k,x,c):
@@ -277,7 +295,7 @@ class Base_model(Virtual_solver):
         """    
         K = self.data['DLT_data'].K
         DLT_data = self.data['DLT_data']
-        root_state = tuple([0]*self.data['DLT_data'].J)
+        root_state = tuple([0]*self.data['DLT_data'].J) if self.silence_mechanism == 'convolve' else tuple([0]*(self.data['DLT_data'].J+1))
         for tree in self.trees:
             for node in tree.traverse_postorder():
                 if node.mark_recompute:
@@ -465,7 +483,7 @@ class Base_model(Virtual_solver):
         """
         K = self.data['DLT_data'].K
         DLT_data = self.data['DLT_data']
-        root_state = tuple([0]*self.data['DLT_data'].J)
+        root_state = tuple([0]*self.data['DLT_data'].J) if self.silence_mechanism == 'convolve' else tuple([0]*(self.data['DLT_data'].J+1))
         
         for tree in self.trees:
             for node in tree.traverse_preorder():
@@ -535,7 +553,7 @@ class Base_model(Virtual_solver):
         """
         K = self.data['DLT_data'].K
         DLT_data = self.data['DLT_data']
-        root_state = tuple([0]*self.data['DLT_data'].J)
+        root_state = tuple([0]*self.data['DLT_data'].J) if self.silence_mechanism == 'convolve' else tuple([0]*(self.data['DLT_data'].J+1))
         
         for tree in self.trees:
             for node in tree.traverse_preorder():
@@ -544,8 +562,7 @@ class Base_model(Virtual_solver):
                     node.log_edge_posterior = [{} for _ in range(K)] # a list of dictionaries
 
         for k in range(K):
-            #allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
-            allele_list = self.data['DLT_data'].cassette_state_lists[k]
+            #allele_list = self.data['DLT_data'].cassette_state_lists[k]
             for tree in self.trees:
                 for node in tree.traverse_preorder():
                     if not node.mark_recompute:
@@ -553,9 +570,10 @@ class Base_model(Virtual_solver):
                     if node.is_root():
                         node.log_node_posterior[k][root_state] = 0
                     else:
+                        allele_list = set(node.in_llh[k].keys()).intersection(set(node.out_llh[k].keys()))
                         for x in allele_list:
-                            in_llh = node.in_llh[k][x] if x in node.in_llh[k] else None
-                            out_llh = node.out_llh[k][x] if x in node.out_llh[k] else None
+                            in_llh = node.in_llh[k][x] #if x in node.in_llh[k] else None
+                            out_llh = node.out_llh[k][x] #if x in node.out_llh[k] else None
                             total_llh = tree.root.in_llh[k][root_state]
                             if (in_llh is not None) and (out_llh is not None):
                                 node.log_node_posterior[k][x] = in_llh + out_llh - total_llh

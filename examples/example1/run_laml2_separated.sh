@@ -1,0 +1,1 @@
+python ../../run_laml2.py -c character_matrix.csv -t starting.tree -o output_separated --nInitials 1 --timescale 10 -v --readout_model "PMMN" --silence_mechanism separated -p priors.csv --randseeds 7899 
