@@ -54,6 +54,8 @@ class DLT_parser: # DLT: dynamic lineage tracing
                              silence_mechanism=self.silence_mechanism
                             )
         self.alphabet = alphabet
+        # get M
+        print("Max cassette alphabet size M:",max([alphabet.get_M(k) for k in range(self.K)]))
         return alphabet_ds, alphabet
 
     def datafile_to_json(self, datafile, delimiter, missing_state, outputfile): #,datafile,delimiter,missing_state,outputfile): 

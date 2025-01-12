@@ -152,23 +152,23 @@ class PMMC_model(PMM_base_model):
         if 'phi' in fixed_params:
             phi_star = fixed_params['phi']
             if verbose > 0:
-                print("Fixed phi to " + str(phi_star))
+                print("Fixed phi to " + str(phi_star), flush=True)
         else:
             # optimizaztion problem: max_{\phi}Alog\phi + Blog(1-\phi)
             phi_star = A/(A+B)
             if verbose > 0:
-                print("Current optimal phi: " + str(phi_star))
+                print("Current optimal phi: " + str(phi_star), flush=True)
         # set the value of phi to phi_star
         self.params.set_value('phi',phi_star)
         
         if 'rho' in fixed_params:
             rho_star = fixed_params['rho']
             if verbose > 0:
-                print("Fixed rho to " + str(rho_star))
+                print("Fixed rho to " + str(rho_star), flush=True)
         else:
             # optimization problem: max_{\rho}C\log\rho + Dlog(1-\rho)
             rho_star = C/(C+D)
             if verbose > 0:
-                print("Current optimal rho: " + str(rho_star))
+                print("Current optimal rho: " + str(rho_star), flush=True)
         # set the value of rho to rho_star
         self.params.set_value('rho',rho_star)

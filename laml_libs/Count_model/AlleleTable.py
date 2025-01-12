@@ -62,6 +62,8 @@ class AlleleTable:
                             top_cassette_states.add(c1)
                     self.cassette_state_lists[k] = self.cassette_state_lists[k].union(top_cassette_states)
 
+        print("Max cassette states after applying -s thresh:", max([len(self.cassette_state_lists[k]) for k in range(self.K)]))
+
     def get_one_count(self,w,k,x):
         """
             Get the UMI count of cell w at cassette k of allele x

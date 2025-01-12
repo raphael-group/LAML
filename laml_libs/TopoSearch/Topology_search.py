@@ -167,7 +167,7 @@ class Topology_search:
                 break
             curr_score = new_score
             if verbose:
-                print("Current score: " + str(curr_score))
+                print("Current score: " + str(curr_score), flush=True)
             if curr_score > best_score:
                 best_score = curr_score
                 best_trees = self.treeTopoList
@@ -178,8 +178,9 @@ class Topology_search:
                     fout.write(f"Current newick tree: {best_trees}\n")
                     fout.write(f"Current negative-llh: {best_score}\n")
                     fout.write(f"Current params: {best_params}\n")
+                    fout.write(f"Runtime (s): {stop_time - start_time}\n")
         if verbose:
-            print("Best score for this search: " + str(best_score))
+            print("Best score for this search: " + str(best_score), flush=True)
         return best_trees,best_score,best_params 
     
     def single_nni(self,curr_score,nni_iter,strategy,only_marked=False,verbose=False):

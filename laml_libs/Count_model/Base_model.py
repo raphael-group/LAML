@@ -16,6 +16,9 @@ from .AlleleTable import AlleleTable
 from .utils import * 
 import time
 import cvxpy as cp
+from collections import defaultdict
+import concurrent.futures
+from itertools import repeat
 
 class Base_model(Virtual_solver):
     """
@@ -37,6 +40,10 @@ class Base_model(Virtual_solver):
         self.data = data
         self.num_cassettes = data['DLT_data'].K
         self.site_per_cassette = data['DLT_data'].J
+
+        self._estep_in_llh = False
+        self._estep_out_llh = False
+        self._estep_posterior = False
 
         self.params = params
         self.trees = []
@@ -62,6 +69,10 @@ class Base_model(Virtual_solver):
         self.silence_mechanism = 'convolve'
         if 'silence_mechanism' in prior:
             self.silence_mechanism = prior['silence_mechanism'] # should be one of {'convolve','separated'}
+
+        self.parallel = False
+        if 'parallel' in prior:
+            self.parallel = prior['parallel']
 
         # normalize Q
         Q = prior['Q']
@@ -97,7 +108,7 @@ class Base_model(Virtual_solver):
         fixed_params = strategy['fixed_params']
         fixed_brlen = strategy['fixed_brlen']
         compute_cache = strategy['compute_cache']
-        nllh,status = self.optimize('EM',initials=1,verbose=-1,ultra_constr=ultra_constr,fixed_params=fixed_params,
+        nllh,status = self.optimize('EM',initials=1,verbose=1,ultra_constr=ultra_constr,fixed_params=fixed_params,
                                         fixed_brlen=fixed_brlen,compute_cache=compute_cache)
         score = None if nllh is None else -nllh
         return score,status
@@ -289,10 +300,11 @@ class Base_model(Virtual_solver):
         """
         return 1
 
-    def llh_DLT_data(self):
+    def llh_DLT_data(self, verbose=-1):
         """ 
             Compute the log-likelihood of the dynamic lineage tracing (DLT) data
         """    
+        llh_dlt_data_start = time.time()
         K = self.data['DLT_data'].K
         DLT_data = self.data['DLT_data']
         root_state = tuple([0]*self.data['DLT_data'].J) if self.silence_mechanism == 'convolve' else tuple([0]*(self.data['DLT_data'].J+1))
@@ -302,6 +314,7 @@ class Base_model(Virtual_solver):
                     node.in_llh = [{} for _ in range(K)] # a list of dictionaries
         
         total_llh = 0
+        all_llh = []
         for k in range(K):
             #allele_list = self.data['DLT_data'].alphabet.get_cassette_alphabet(k)
             allele_list = self.data['DLT_data'].cassette_state_lists[k]
@@ -334,6 +347,83 @@ class Base_model(Virtual_solver):
                 if root_state not in tree.root.in_llh[k]:
                     tree.root.in_llh[k][root_state] = -float("inf")
                 total_llh += tree.root.in_llh[k][root_state]
+                all_llh.append(tree.root.in_llh[k][root_state])
+        print("all_llh:", all_llh)
+
+        if verbose > 0:
+            llh_dlt_data_end = time.time()
+            print(f"Estep_llh_dlt_data runtime (s): {llh_dlt_data_end - llh_dlt_data_start}")
+
+        return total_llh
+    
+    def llh_DLT_data_parallel(self, verbose=-1):
+        """ 
+            Compute the log-likelihood of the dynamic lineage tracing (DLT) data
+        """    
+        llh_dlt_data_start = time.time()
+        K = self.data['DLT_data'].K
+        idx = 0
+        for tree in self.trees:
+            for node in tree.traverse_postorder():
+                if node.mark_recompute:
+                    node.in_llh = [{} for _ in range(K)] # a list of dictionaries
+                if node.label is None:
+                    node.label = f"filler_node_label{idx}"
+        
+        total_llh = self.helper1_llh_DLT_data_parallel()
+        #self.trees, DLT_data, root_state, self.logGamma, self.log_Psi_cassette, K)
+
+        if verbose > 0:
+            print(total_llh)
+            llh_dlt_data_end = time.time()
+            print(f"Estep_llh_dlt_data runtime (s): {llh_dlt_data_end - llh_dlt_data_start}")
+
+        return total_llh
+    
+    def helper1_llh_DLT_data_parallel(self):
+        """ Requires to have internal nodes all labeled. """
+
+        trees = self.trees
+        logGamma = self.logGamma
+        log_Psi_cassette = self.log_Psi_cassette
+        DLT_data = self.data['DLT_data']
+        K = self.data['DLT_data'].K
+        root_state = tuple([0]*self.data['DLT_data'].J) if self.silence_mechanism == 'convolve' else tuple([0]*(self.data['DLT_data'].J+1))
+
+        total_llh = []
+        all_tree_update_dict = {}
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            args = zip(repeat((trees, DLT_data, root_state, logGamma, log_Psi_cassette)), range(K))
+            for k, res in zip(range(K), executor.map(helper2_llh_DLT_data_parallel, args)):
+                #print("processing cassette:", k)
+                tree_update_dict, tree_llhs = res
+                total_llh.extend(tree_llhs)
+                all_tree_update_dict[k] = tree_update_dict
+        print(total_llh)
+        #print("parallelization done.")
+       
+        for tree_idx, tree in enumerate(self.trees):
+            for node in tree.traverse_postorder():
+                for k in range(K):
+                    allele_list = DLT_data.cassette_state_lists[k]
+                    if not node.mark_recompute:
+                        continue
+                    if node.is_leaf():
+                        for x in allele_list: 
+                            if node.label in all_tree_update_dict[k][tree_idx]:
+                            #if all_tree_update_dict[k][tree_idx][node.label][x] is not None:
+                                node.in_llh[k][x] = all_tree_update_dict[k][tree_idx][node.label][x]
+                    else:   
+                        for x in allele_list:
+                            for k in range(K):
+                                if node.label in all_tree_update_dict[k][tree_idx]:
+                                #if all_tree_update_dict[k][tree_idx][node.label][x] is not None:
+                                    node.in_llh[k][x] = all_tree_update_dict[k][tree_idx][node.label][x]
+            if root_state not in tree.root.in_llh[k]:
+                for k in range(K):
+                    tree.root.in_llh[k][root_state] = -float("inf")
+
+        total_llh = sum(total_llh)
         return total_llh
 
     def llh_DLT_data_edge(self,node,k,x):
@@ -355,7 +445,7 @@ class Base_model(Virtual_solver):
             If a derived class has data modules other than the DLT data (e.g. spatial, gene expression, etc.), 
             this function MUST be overrided to compute the joint-llh of all available data modules
         """
-        return -self.llh_DLT_data()
+        return -self.llh_DLT_data_parallel() if self.parallel else -self.llh_DLT_data() 
 
     def optimize(self,solver,initials=20,fixed_brlen=None,compute_cache=None,fixed_params={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False,**solver_opts):
         """
@@ -471,16 +561,26 @@ class Base_model(Virtual_solver):
                 print("Numerical optimization finished successfully")
             return results[0][0],status
 
-    def Estep_in_llh(self):
-        self.llh_DLT_data()
+    def Estep_in_llh(self, verbose=-1):
+        self._estep_in_llh = True
+        estep_in_llh_start = time.time()
+        if self.parallel:
+            self.llh_DLT_data_parallel()
+        else:
+            self.llh_DLT_data()
+        if verbose > 0:
+            estep_in_llh_end= time.time()
+            print(f"Estep_in_llh runtime (s): {estep_in_llh_end - estep_in_llh_start}")
 
-    def Estep_out_llh(self):
+    def Estep_out_llh(self, verbose=-1):
         """
             Compute the out-llh and in-llh-edge of all nodes/edges
             Outcome: every node has two new attributes added:
                 node.out_llh: a list of K dictionaries
                 node.in_llh_edge: a list of K dictionaries
         """
+        self._estep_out_llh = True
+        estep_out_llh_start = time.time()
         K = self.data['DLT_data'].K
         DLT_data = self.data['DLT_data']
         root_state = tuple([0]*self.data['DLT_data'].J) if self.silence_mechanism == 'convolve' else tuple([0]*(self.data['DLT_data'].J+1))
@@ -543,14 +643,19 @@ class Base_model(Virtual_solver):
                                     llh_list.append(log_trans_p+par_out_llh+sum_sisters_in_llh)
                             if llh_list: # if the list is not empty
                                 node.out_llh[k][x] = log_sum_exp(llh_list)
+        if verbose > 0:
+            estep_out_llh_end= time.time()
+            print(f"Estep_out_llh runtime (s): {estep_out_llh_end - estep_out_llh_start}")
 
-    def Estep_posterior(self):
+    def Estep_posterior(self, verbose=-1):
         """ 
             Compute the log-transformed of all posterior probabilities
             Outcome: every node has two new attribute: 
                 node.log_node_posterior: a list of K dictionaries
                 node.log_edge_posterior: a list of K dicitonaries
         """
+        self._estep_posterior = True
+        estep_pos_start = time.time()
         K = self.data['DLT_data'].K
         DLT_data = self.data['DLT_data']
         root_state = tuple([0]*self.data['DLT_data'].J) if self.silence_mechanism == 'convolve' else tuple([0]*(self.data['DLT_data'].J+1))
@@ -586,6 +691,9 @@ class Base_model(Virtual_solver):
                                 log_v_in = node.in_llh[k][y]
                                 log_llh_edge = self.llh_DLT_data_edge(node,k,x)
                                 node.log_edge_posterior[k][(x,y)] = log_u_post + log_v_in + log_p_trans - log_llh_edge
+        if verbose > 0:
+            estep_pos_end = time.time()
+            print(f"Estep_posterior runtime (s): {estep_pos_end - estep_pos_start}")
 
     def Estep(self,run_in_llh=True):
         """ The E-step of the EM algorithm """
@@ -649,7 +757,10 @@ class Base_model(Virtual_solver):
         maxIter = EM_options['max_iter']
         x0 = self.ini_all_params(fixed_params=fixed_params)
         self.x2params(x0,fixed_params=fixed_params)
-        pre_llh = self.llh_DLT_data()
+        if self.parallel:
+            pre_llh = self.llh_DLT_data_parallel()
+        else:
+            pre_llh = self.llh_DLT_data()
         if verbose >= 0:
             print("Initial parameter values: " + self.params.show_values())
             print("Initial nllh: " + str(-pre_llh))
@@ -681,7 +792,10 @@ class Base_model(Virtual_solver):
                     return -pre_llh,status
                 elif verbose >= 0:    
                     print("Warning: EM failed to optimize parameters in one Mstep.")                
-            curr_llh = self.llh_DLT_data()
+            if self.parallel:
+                curr_llh = self.llh_DLT_data_parallel()
+            else:
+                curr_llh = self.llh_DLT_data()
             if verbose > 0:
                 print("Finished EM iter: " + str(em_iter) + ". Current nllh: " + str(-curr_llh))
             if abs((curr_llh - pre_llh)/pre_llh) < DEFAULT_conv_eps:
@@ -732,3 +846,53 @@ class Base_model(Virtual_solver):
             f,params = None,None
         status = "optimal" if out.success else out.message
         return f,status
+  
+
+
+def helper2_llh_DLT_data_parallel(args):
+    print("parallel llh_DLT_data")
+    targs, k = args
+    trees, DLT_data, root_state, logGamma, log_Psi_cassette = targs
+
+    print("helper2 on cassette:", k)
+    tree_llhs = []
+    allele_list = DLT_data.cassette_state_lists[k]
+    tree_update_dict = defaultdict(dict)
+    for tree_idx, tree in enumerate(trees):
+        node_update_dict = defaultdict(dict)
+        for node_idx, node in enumerate(tree.traverse_postorder()):
+            if not node.mark_recompute:
+                continue
+            if node.is_leaf():
+                c = DLT_data.get(node.label,k)
+                for x in allele_list: 
+                    log_trans_p = logGamma(k,x,c) # transition probability
+                    if log_trans_p is not None:
+                        node.in_llh[k][x] = log_trans_p
+                        node_update_dict[node.label][x] = log_trans_p
+            else:   
+                for x in allele_list:
+                    llh = 0
+                    for c_node in node.children:
+                        llh_list = []                                    
+                        for y in c_node.in_llh[k]:
+                            log_trans_p = log_Psi_cassette(c_node,k,x,y)
+                            if log_trans_p is not None:
+                                llh_list.append(log_trans_p + c_node.in_llh[k][y])
+                        if llh_list: # if the list is not empty
+                            llh += log_sum_exp(llh_list)
+                        else:
+                            llh = None
+                            break   
+                    if llh is not None:
+                        node.in_llh[k][x] = llh
+                        node_update_dict[node.label][x] = llh
+        if root_state not in tree.root.in_llh[k]:
+            #tree.root.in_llh[k][root_state] = -float("inf")
+            node_update_dict[tree.root.label][root_state] = -float("inf")
+        tree_llhs.append(tree.root.in_llh[k][root_state]) 
+        #node_update_dict[tree.root.label][k][root_state]) #tree.root.in_llh[k][root_state])
+        tree_update_dict[tree_idx] = node_update_dict
+        print("helper2 num entries:", len(node_update_dict), flush=True)
+    
+    return node_update_dict, tree_llhs

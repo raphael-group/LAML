@@ -39,6 +39,7 @@ class Alphabet():
             Get the alphabet of site j of cassette k
             return: a set of the possible site states
         """
+        #print('k', k, 'j', j)
         return set([x for x in self.data_struct[k][j]])
 
     def get_M(self,k): 

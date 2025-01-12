@@ -83,7 +83,7 @@ def main():
     topologySearchOptions.add_argument("--keep_polytomies",action='store_true', required=False,help="Keep polytomies while performing topology search. This option only works with --topology_search.")
     topologySearchOptions.add_argument("--randomreps", required=False, default=1, type=int, help="Number of replicates to run for the random strategy of topology search.")
     topologySearchOptions.add_argument("--maxIters", required=False, default=500, type=int, help="Maximum number of iterations to run topology search.")
-    topologySearchOptions.add_argument("--parallel", required=False,action='store_true', help="Turn on parallel version of topology search.")
+    topologySearchOptions.add_argument("--parallel", required=False,action='store_true', help="Turn on parallel version of likelihood computation.")
 
     if len(argv) == 1:
         parser.print_help()
@@ -150,14 +150,15 @@ def main():
                         silence_mechanism = silence_mechanism
                         )
     selected_model = PMMN_model if args["readout_model"] == "PMMN" else PMMC_model
+    print("J:", parser.DLT_data.J, "K:", parser.DLT_data.K)
     data = {'DLT_data': parser.DLT_data}
-    prior = {'Q': parser.priors,'silence_mechanism':silence_mechanism}  
+    prior = {'Q': parser.priors,'silence_mechanism':silence_mechanism, 'parallel': args['parallel']}  
 
     # main tasks        
     #ini_phi = 0 if fixed_phi is None else fixed_phi
     #ini_nu = 0 if fixed_nu is None else fixed_nu
     #ini_params = {'phi':0.1,'nu':0,'mu':1,'rho':1}
-    Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
+    Topology_search = Topology_search_sequential #if not args["parallel"] else Topology_search_parallel
     #myTopoSearch = Topology_search(input_trees, selected_model, data=data, prior=prior, params=ini_params)
     myTopoSearch = Topology_search(input_trees, selected_model, data=data, prior=prior, params=fixed_params)
 
@@ -224,9 +225,9 @@ def main():
                 print("Starting topology search")
 
             if args["parallel"]:
-                print("Running topology search in parallel...")
+                print("Running likelihood computation in parallel...")
             else:
-                print("Running topology search sequentially...")
+                print("Running likelihood computation sequentially...")
             checkpoint_file = f"{prefix}_ckpt.txt"
             opt_trees,max_score,opt_params = myTopoSearch.search(resolve_polytomies=resolve_polytomies,maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'],checkpoint_file=checkpoint_file) 
             nllh = -max_score        
@@ -235,7 +236,8 @@ def main():
     if not args["compute_llh"]:
         out_tree = prefix + "_trees.nwk"
         out_params = prefix + "_params.txt"
-        
+       
+        t_strs = []
         with open(out_tree,'w') as fout:
             for tstr in opt_trees:
                 tree = read_tree_newick(tstr)
@@ -258,15 +260,49 @@ def main():
                     new_root.add_child(tree.root)
                     tree.root = new_root
                 fout.write(tree.newick() + "\n")
-        
+                t_strs.append(tree.newick())
+    
         with open(out_params,'w') as fout:
             fout.write("Dropout probability: phi=" + str(opt_params['phi']) + "\n")
             fout.write("Silencing rate: nu=" + str(opt_params['nu']) + "\n") 
             fout.write("Sequencing accuracy: rho=" + str(opt_params['rho']) + "\n") 
             fout.write("Mutation rate: lambda=" +  str(edit_rate) + "\n") 
             fout.write("Negative-llh: " +  str(nllh) + "\n")
-                    
-        stop_time = timeit.default_timer()
+        
+
+        print("now attempting to output posterior annotations.")
+        mySolver = myTopoSearch.get_solver()
+        mySolver.Estep()
+        #nllh = mySolver.optimize('EM',initials=args["nInitials"],fixed_params=fixed_params,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True,fixed_brlen=fixed_brlen)
+
+        out_annotations = prefix + "_annotations.txt"
+        with open(out_annotations,'w') as fout:
+            print("mySolver.trees", mySolver.trees)
+            print("mySolver._estep_in_llh", mySolver._estep_in_llh)
+            print("mySolver._estep_out_llh", mySolver._estep_out_llh)
+            print("mySolver._estep_posterior", mySolver._estep_posterior)
+            for idx, node in enumerate(tree.traverse_preorder()):
+                if node == tree.root and node.label is None:
+                    node.label = 'root'
+                elif node.label is None:
+                    node.label = f'filler-label-{idx}'
+
+            for t_idx, tree in enumerate(mySolver.trees):
+                t_str = tree.newick()
+                fout.write(f"{tstr}\n")
+                print("num_nodes", tree.num_nodes(leaves=True, internal=True))
+                for node in tree.traverse_preorder():
+                    if node == tree.root and node.label is None:
+                        node.label = 'root'
+                    #print("node:", node.label)
+                    #print("node hasattr: log_node_posterior", hasattr(node, 'log_node_posterior'))
+                    #print("node hasattr: out_llh", hasattr(node, 'out_llh'))
+                    #print("node hasattr: in_llh", hasattr(node, 'in_llh'))
+                    print(node.label, "\t", node.log_node_posterior)
+                    node_imputed_states = [max(k, key=lambda key: k[key]) for k in node.log_node_posterior]
+                    #print("node imputed states:", node_imputed_states)
+                    fout.write(f"{node.label},{node_imputed_states}\n")
+
         print("Runtime (s):", stop_time - start_time)
 
 if __name__ == "__main__":

@@ -70,7 +70,7 @@ class Mstep_PMM_base:
         for r in range(self.nIters):
             if self.N_free > 0:
                 if verbose > 0:
-                    print("Optimizing branch lengths. Current nu:" + str(nu_star))
+                    print("Optimizing branch lengths. Current nu:" + str(nu_star), flush=True)
                 #try:
                 d_star,status_d = self.optimize_brlen(nu_star,verbose=False)
                 #except:
@@ -90,7 +90,7 @@ class Mstep_PMM_base:
             else:    
                 d_star_full = self._free_to_full_list(d_star)
                 if verbose > 0:
-                    print("Optimizing nu")
+                    print("Optimizing nu", flush=True)
                 #try:
                 nu_star,status_nu = self.optimize_nu(d_star_full,verbose=False)                 
                 #except:
@@ -156,7 +156,7 @@ class Mstep_PMMsep(Mstep_PMM_base):
     def optimize_brlen(self,nu,verbose=False): # nu is a single number
         # override Mstep_PMM_base
         var_d = cp.Variable(self.N,nonneg=True) # the branch length variables
-        SA = -self.C_z2z[self._j2i].T @ var_d
+        SA = -self.C_z2z[self._j2i].T @ var_d # [Gillian]: possibly causing errors
         SB = (self.C_z2a[self._j2i]).T @ cp.log(1-cp.exp(-var_d))
         SC = -nu*self.C_omega_z2z[self._j2i].T @ var_d
         SD = (self.C_omega_z2s[self._j2i]).T @ cp.log(1-cp.exp(-nu*var_d)) #if sum(self.C_omega_z2s[self._j2i]) > 0 and nu > eps_nu else 0

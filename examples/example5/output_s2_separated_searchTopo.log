@@ -1,0 +1,10 @@
+Launching LAML version 2.0.0
+LAML was called as follows: ../../run_laml2.py -c TLS_Bar8.json -t Bar8_newick_noMutationlessEdges_Labeled_resolved.nwk -p priors_Bar8.csv -m -1 --readout_model PMMC -o output_s2_separated_searchTopo -v -s 2 --nInitials 1 --silence_mechanism separated --topology_search
+Setup finished. Beginning computation...
+No polytomy detected.
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Initial score: -10203.656805499568
+NNI Iter: 0
