@@ -1,0 +1,76 @@
+Launching LAML version 0.0.4
+LAML was called as follows: run_laml.py -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv --nInitials 1 --randomreps 1 --topology_search -v --timescale 10 --solver fastEM -o example2_fastEM
+No polytomy detected.
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Initial score: -1127.1012
+NNI Iter: 0
+Number of trees checked: 16
+Current score: -1127.1477
+Runtime (s): 3.08631562499977
+NNI Iter: 1
+Number of trees checked: 2
+Current score: -1126.3722
+Runtime (s): 0.3919637920007517
+NNI Iter: 2
+Number of trees checked: 24
+Current score: -1126.9333
+Runtime (s): 4.578203291999671
+NNI Iter: 3
+Number of trees checked: 10
+Current score: -1127.2101
+Runtime (s): 1.7997618749996036
+NNI Iter: 4
+Number of trees checked: 6
+Current score: -1127.1534
+Runtime (s): 0.9736292500001582
+NNI Iter: 5
+Number of trees checked: 6
+Current score: -1126.9218
+Runtime (s): 1.033901959001014
+NNI Iter: 6
+Number of trees checked: 20
+Current score: -1126.8071
+Runtime (s): 3.9021258749999106
+NNI Iter: 7
+Number of trees checked: 14
+Current score: -1126.3464
+Runtime (s): 2.6068658330004837
+NNI Iter: 8
+Number of trees checked: 4
+Current score: -1126.5168
+Runtime (s): 0.5862620420011808
+NNI Iter: 9
+Number of trees checked: 32
+Current score: -1127.6217
+Runtime (s): 6.654107166999893
+NNI Iter: 10
+Number of trees checked: 6
+Current score: -1126.8921
+Runtime (s): 1.0820928749999439
+NNI Iter: 11
+Number of trees checked: 44
+Current score: -1126.6262
+Runtime (s): 9.14769887500006
+NNI Iter: 12
+Number of trees checked: 46
+Current score: -1126.4688
+Runtime (s): 9.795680125000217
+NNI Iter: 13
+Number of trees checked: 2
+Current score: -1126.5402
+Runtime (s): 0.21968808300152887
+NNI Iter: 14
+Number of trees checked: 10
+Current score: -1126.4668
+Runtime (s): 2.121256959000675
+NNI Iter: 15
+Number of trees checked: 124
+Best score for this search: -1126.3464
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -1127.6241169964358
+Tree height pre-scaling: 2.328893525594388, input timescale: 10
+Tree height after scaling: 10.0, mutation rate: 0.2328893525594388
+Runtime (s): 80.4020314999998

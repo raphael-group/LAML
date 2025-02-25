@@ -1,0 +1,30 @@
+NNI Iteration: 0
+Current newick tree: ['((((((64,65)node_124,(70,71)node_121)node_120,((124,125)node_117,(100,101)node_114)node_113)node_112,(((74,75)node_109,(94,95)node_106)node_105,((88,89)node_102,(82,83)node_99)node_98)node_97)node_96,((((120,121)node_93,(90,91)node_90)node_89,((112,113)node_86,(108,109)node_83)node_82)node_81,(((116,117)node_78,(104,105)node_75)node_74,((126,127)node_71,(122,123)node_68)node_67)node_66)node_65)node_64,(((((102,103)node_61,(118,119)node_58)node_57,((110,111)node_54,(98,99)node_51)node_50)node_49,(((96,97)node_46,(106,107)node_43)node_42,((72,73)node_39,(68,69)node_36)node_35)node_34)node_33,((((84,85)node_30,(80,81)node_27)node_26,((76,77)node_23,(78,79)node_20)node_19)node_18,(((86,87)node_15,(114,115)node_12)node_11,((66,67)node_8,(92,93)node_5)node_4)node_3)node_2)node_1)node_0;']
+Current negative-llh: -1126.3668212890625
+Current dropout rate: 0.007843266241252422
+Current silencing rate: 0.010016246698796749
+NNI Iteration: 10
+Current newick tree: ['((((((112,113)node_124,(108,109)node_121)node_120,((90,91)node_117,(121,120)node_114)node_113)node_112,((117,(((123,122)node_108,(126,127)node_105)node_104,(104,105)node_101)node_100)node_99,116)node_97)node_96,(((64,65)node_93,((70,71)node_90,((100,101)node_87,(124,125)node_84)node_83)node_82)node_81,(((94,95)node_78,(74,75)node_75)node_74,((83,82)node_71,(88,89)node_68)node_67)node_66)node_65)node_64,(((((111,110)node_61,(98,99)node_58)node_57,((102,103)node_54,(118,119)node_51)node_50)node_49,(((73,72)node_46,(68,69)node_43)node_42,((107,106)node_39,(97,96)node_36)node_35)node_34)node_33,((((84,85)node_30,(81,80)node_27)node_26,((77,76)node_23,(78,79)node_20)node_19)node_18,(((((86,87)node_15,(114,115)node_12)node_11,67)node_9,66)node_7,(92,93)node_4)node_3)node_2)node_1)node_0;']
+Current negative-llh: -1126.3033447265625
+Current dropout rate: 0.007843266241252422
+Current silencing rate: 0.010016246698796749
+NNI Iteration: 20
+Current newick tree: ['((((((106,107)node_124,(97,96)node_121)node_120,((68,69)node_117,(73,72)node_114)node_113)node_112,(((110,111)node_109,(99,98)node_106)node_105,((119,118)node_102,(102,103)node_99)node_98)node_97)node_96,((((80,81)node_93,(85,84)node_90)node_89,((78,79)node_86,(77,76)node_83)node_82)node_81,(((67,((86,87)node_77,(115,114)node_74)node_73)node_72,(93,92)node_69)node_68,66)node_66)node_65)node_64,(((((121,120)node_61,(90,91)node_58)node_57,((108,109)node_54,(112,113)node_51)node_50)node_49,(((122,123)node_46,(126,127)node_43)node_42,((104,(117,116)node_38)node_37,105)node_35)node_34)node_33,((((88,89)node_30,(83,82)node_27)node_26,((95,94)node_23,(75,74)node_20)node_19)node_18,(((64,65)node_15,(71,70)node_12)node_11,(((100,101)node_8,125)node_6,124)node_4)node_3)node_2)node_1)node_0;']
+Current negative-llh: -1123.9080810546875
+Current dropout rate: 0.007843266241252422
+Current silencing rate: 0.010016246698796749
+NNI Iteration: 0
+Current newick tree: ['((((((64,65)node_124,(70,71)node_121)node_120,((124,125)node_117,(100,101)node_114)node_113)node_112,(((74,75)node_109,(94,95)node_106)node_105,((88,89)node_102,(82,83)node_99)node_98)node_97)node_96,((((120,121)node_93,(90,91)node_90)node_89,((112,113)node_86,(108,109)node_83)node_82)node_81,(((116,117)node_78,(104,105)node_75)node_74,((126,127)node_71,(122,123)node_68)node_67)node_66)node_65)node_64,(((((102,103)node_61,(118,119)node_58)node_57,((110,111)node_54,(98,99)node_51)node_50)node_49,(((96,97)node_46,(106,107)node_43)node_42,((72,73)node_39,(68,69)node_36)node_35)node_34)node_33,((((84,85)node_30,(80,81)node_27)node_26,((76,77)node_23,(78,79)node_20)node_19)node_18,(((86,87)node_15,(114,115)node_12)node_11,((66,67)node_8,(92,93)node_5)node_4)node_3)node_2)node_1)node_0;']
+Current negative-llh: -1126.3338623046875
+Current dropout rate: 0.007890617474913597
+Current silencing rate: 0.009853726252913475
+NNI Iteration: 10
+Current newick tree: ['((((((64,65)node_124,(70,71)node_121)node_120,((124,125)node_117,(100,101)node_114)node_113)node_112,(((74,75)node_109,(94,95)node_106)node_105,((88,89)node_102,(82,83)node_99)node_98)node_97)node_96,((((120,121)node_93,(90,91)node_90)node_89,((112,113)node_86,(108,109)node_83)node_82)node_81,(((116,117)node_78,(104,105)node_75)node_74,((126,127)node_71,(122,123)node_68)node_67)node_66)node_65)node_64,(((((102,103)node_61,(118,119)node_58)node_57,((110,111)node_54,(98,99)node_51)node_50)node_49,(((96,97)node_46,(106,107)node_43)node_42,((72,73)node_39,(68,69)node_36)node_35)node_34)node_33,((((84,85)node_30,(80,81)node_27)node_26,((76,77)node_23,(78,79)node_20)node_19)node_18,(((86,87)node_15,(114,115)node_12)node_11,((66,67)node_8,(92,93)node_5)node_4)node_3)node_2)node_1)node_0;']
+Current negative-llh: -1126.3338623046875
+Current dropout rate: 0.007890617474913597
+Current silencing rate: 0.009853726252913475
+NNI Iteration: 20
+Current newick tree: ['((((((64,65)node_124,(70,71)node_121)node_120,((124,125)node_117,(100,101)node_114)node_113)node_112,(((74,75)node_109,(94,95)node_106)node_105,((88,89)node_102,(82,83)node_99)node_98)node_97)node_96,((((120,121)node_93,(90,91)node_90)node_89,((112,113)node_86,(108,109)node_83)node_82)node_81,(((116,117)node_78,(104,105)node_75)node_74,((126,127)node_71,(122,123)node_68)node_67)node_66)node_65)node_64,(((((102,103)node_61,(118,119)node_58)node_57,((110,111)node_54,(98,99)node_51)node_50)node_49,(((96,97)node_46,(106,107)node_43)node_42,((72,73)node_39,(68,69)node_36)node_35)node_34)node_33,((((84,85)node_30,(80,81)node_27)node_26,((76,77)node_23,(78,79)node_20)node_19)node_18,(((86,87)node_15,(114,115)node_12)node_11,((66,67)node_8,(92,93)node_5)node_4)node_3)node_2)node_1)node_0;']
+Current negative-llh: -1126.3338623046875
+Current dropout rate: 0.007890617474913597
+Current silencing rate: 0.009853726252913475

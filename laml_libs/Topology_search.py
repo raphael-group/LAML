@@ -114,6 +114,7 @@ class Topology_search:
             mySolver = self.get_solver()
             score_tree_strategy = deepcopy(strategy)
             score_tree_strategy['fixed_brlen'] = None
+            score_tree_strategy['final_optimization'] = True
             score,status = mySolver.score_tree(strategy=score_tree_strategy)
             self.update_from_solver(mySolver)
             trees = self.treeTopoList
@@ -153,6 +154,8 @@ class Topology_search:
                 print("NNI Iter:", nni_iter)
                 start_time = timeit.default_timer()
             new_score,n_attempts,success = self.single_nni(curr_score,nni_iter,strategy,only_marked=only_marked)
+            if verbose: 
+                print(f"Number of trees checked: {n_attempts}")
             if not success:
                 break
             curr_score = new_score

@@ -5,6 +5,7 @@ import laml_libs as scmail
 from laml_libs.sequence_lib import read_sequences, read_priors
 from laml_libs.ML_solver import ML_solver
 from laml_libs.EM_solver import EM_solver
+from laml_libs.fastEM_solver import fastEM_solver
 from laml_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
 from laml_libs.Topology_search import Topology_search as Topology_search_sequential
 from math import *
@@ -52,11 +53,12 @@ def main():
     outputOptions.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
    
     # Numerical Optimization Arguments
-    numericalOptions.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM'. Default: EM")
+    numericalOptions.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM' or 'fastEM'. Default: EM")
     numericalOptions.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (lambda,phi,nu). Will NOT optimize branch lengths, lambda, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
     numericalOptions.add_argument("--timescale",required=False,default=1.0,help="Timeframe of experiment. Scales ultrametric output tree branches to this timescale. To get an accurate estimate of mutation rate, provide timeframe in number of cell generations. Default: 1.0.")
     numericalOptions.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in single cell sequencing.")
     numericalOptions.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
+    numericalOptions.add_argument("--noultrametric",action='store_true',help="[Deprecated] But turns OFF the ultrametric constraint.")
     numericalOptions.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
     numericalOptions.add_argument("--randseeds",required=False,help="Random seeds for branch length optimization. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
 
@@ -140,7 +142,11 @@ def main():
 
     selected_solver = EM_solver
     em_selected = True
-    if args["solver"].lower() != "em": 
+    fastem_selected = False
+    if args["solver"].lower() == "fastem":
+        selected_solver = fastEM_solver
+        fastem_selected = True
+    elif args["solver"].lower() != "em": 
         selected_solver = ML_solver   
         em_selected = False
 
@@ -151,9 +157,7 @@ def main():
     params = {'nu':fixed_nu if fixed_nu is not None else scmail.eps,'phi':fixed_phi if fixed_phi is not None else scmail.eps}  
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
-
     myTopoSearch = Topology_search(input_trees, selected_solver, data=data, prior=prior, params=params)
-
 
     if args["compute_llh"]:
         print("Compute the joint likelihood of the input trees and specified parameters without any optimization")
@@ -172,7 +176,7 @@ def main():
         # setup the strategy
         my_strategy = deepcopy(scmail.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
-        my_strategy['ultra_constr'] = True #args["ultrametric"] # TODO: Remove this flag
+        my_strategy['ultra_constr'] = args["noultrametric"] #True #args["ultrametric"] # TODO: Remove this flag
         # resolve polytomies or not?
         resolve_polytomies = not args["keep_polytomies"]
         # only resolve polytomies or do full search?
@@ -180,7 +184,9 @@ def main():
         # full search or local search to only resolve polytomies? 
         if not args["resolve_search"] and not args["topology_search"]:
             print("Optimizing branch lengths, phi, and nu without topology search")
-            if em_selected:
+            if fastem_selected:
+                print("Optimization by fast EM algorithm (implementation in Jax)")
+            elif em_selected:
                 print("Optimization by EM algorithm") 
             else:    
                 print("Optimization by generic solver (Scipy-SLSQP)")        
@@ -267,6 +273,7 @@ def main():
                         out += alpha + ":" + str(p_alpha)
                 return out
 
+        # Use EM_solver to estimate the posteriors and apply the ultrametric 
         my_solver = EM_solver(opt_trees,{'charMtrx':msa},{'Q':Q},{'phi':opt_params['phi'],'nu':opt_params['nu']})
         my_solver.az_partition()
         my_solver.Estep()

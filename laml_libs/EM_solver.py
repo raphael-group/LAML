@@ -464,6 +464,7 @@ class EM_solver(ML_solver):
         if verbose >= 0:
             print("Initial phi: " + str(self.params.phi) + ". Initial nu: " + str(self.params.nu) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
+        #print(f"initial oldEM: {[t.newick() for t in self.trees]}")
         converged = False
         if ultra_constr:
             ultra_constr_cache = self.ultrametric_constr(local_brlen_opt=True) 

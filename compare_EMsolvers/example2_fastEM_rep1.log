@@ -1,0 +1,232 @@
+Launching LAML version 0.0.4
+LAML was called as follows: run_laml.py -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv --nInitials 1 --randomreps 1 --topology_search -v --timescale 10 --solver fastEM -o example2_fastEM_rep1
+No polytomy detected.
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Initial score: -1126.3668
+NNI Iter: 0
+Number of trees checked: 20
+Current score: -1126.8567
+Runtime (s): 3.7212954170008743
+NNI Iter: 1
+Number of trees checked: 22
+Current score: -1126.7179
+Runtime (s): 4.00181424999937
+NNI Iter: 2
+Number of trees checked: 14
+Current score: -1128.1636
+Runtime (s): 2.4532875000004424
+NNI Iter: 3
+Number of trees checked: 16
+Current score: -1128.3013
+Runtime (s): 2.9427396669998416
+NNI Iter: 4
+Number of trees checked: 10
+Current score: -1128.5941
+Runtime (s): 1.7618171249996522
+NNI Iter: 5
+Number of trees checked: 46
+Current score: -1129.0667
+Runtime (s): 9.557920166998883
+NNI Iter: 6
+Number of trees checked: 4
+Current score: -1128.8722
+Runtime (s): 0.800661958001001
+NNI Iter: 7
+Number of trees checked: 4
+Current score: -1126.3033
+Runtime (s): 0.6732394999999087
+NNI Iter: 8
+Number of trees checked: 26
+Current score: -1128.0193
+Runtime (s): 5.112136457999441
+NNI Iter: 9
+Number of trees checked: 30
+Current score: -1128.0055
+Runtime (s): 5.807614792000095
+NNI Iter: 10
+Number of trees checked: 10
+Current score: -1127.8627
+Runtime (s): 1.811499792000177
+NNI Iter: 11
+Number of trees checked: 16
+Current score: -1128.2288
+Runtime (s): 3.166012749999936
+NNI Iter: 12
+Number of trees checked: 16
+Current score: -1128.1033
+Runtime (s): 3.4632519589995354
+NNI Iter: 13
+Number of trees checked: 4
+Current score: -1126.706
+Runtime (s): 0.5999113340003532
+NNI Iter: 14
+Number of trees checked: 18
+Current score: -1126.5436
+Runtime (s): 3.410857417000443
+NNI Iter: 15
+Number of trees checked: 2
+Current score: -1126.2568
+Runtime (s): 0.4089288340001076
+NNI Iter: 16
+Number of trees checked: 10
+Current score: -1125.9326
+Runtime (s): 1.93132337499992
+NNI Iter: 17
+Number of trees checked: 70
+Current score: -1124.8206
+Runtime (s): 14.545153375000154
+NNI Iter: 18
+Number of trees checked: 8
+Current score: -1124.148
+Runtime (s): 1.6588530000008177
+NNI Iter: 19
+Number of trees checked: 54
+Current score: -1124.1024
+Runtime (s): 11.463292207999984
+NNI Iter: 20
+Number of trees checked: 58
+Current score: -1123.9081
+Runtime (s): 11.65809900000022
+NNI Iter: 21
+Number of trees checked: 124
+Best score for this search: -1123.9081
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -1125.162248243883
+Tree height pre-scaling: 2.3286849052876386, input timescale: 10
+Tree height after scaling: 10.0, mutation rate: 0.23286849052876385
+Runtime (s): 121.61296770900117
+Launching LAML version 0.0.4
+LAML was called as follows: run_laml.py -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv --nInitials 1 --randomreps 1 --topology_search -v --timescale 10 --solver fastEM -o example2_fastEM_rep1
+No polytomy detected.
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Initial score: -1126.3339
+NNI Iter: 0
+Number of trees checked: 4
+Current score: -1126.9518
+Runtime (s): 0.7221683339994343
+NNI Iter: 1
+Number of trees checked: 14
+Current score: -1129.6921
+Runtime (s): 2.651010707999376
+NNI Iter: 2
+Number of trees checked: 12
+Current score: -1126.4722
+Runtime (s): 2.1462149580002006
+NNI Iter: 3
+Number of trees checked: 14
+Current score: -1126.5104
+Runtime (s): 2.6381109169997217
+NNI Iter: 4
+Number of trees checked: 22
+Current score: -1128.4885
+Runtime (s): 4.632044042000416
+NNI Iter: 5
+Number of trees checked: 10
+Current score: -1129.2047
+Runtime (s): 1.7527284169991617
+NNI Iter: 6
+Number of trees checked: 10
+Current score: -1129.3236
+Runtime (s): 1.7924636250008916
+NNI Iter: 7
+Number of trees checked: 6
+Current score: -1129.347
+Runtime (s): 0.9493178329994407
+NNI Iter: 8
+Number of trees checked: 8
+Current score: -1129.1548
+Runtime (s): 1.430028124999808
+NNI Iter: 9
+Number of trees checked: 4
+Current score: -1128.7725
+Runtime (s): 0.6139299170008599
+NNI Iter: 10
+Number of trees checked: 14
+Current score: -1128.9774
+Runtime (s): 2.642495666999821
+NNI Iter: 11
+Number of trees checked: 14
+Current score: -1129.3901
+Runtime (s): 2.72906733399941
+NNI Iter: 12
+Number of trees checked: 36
+Current score: -1129.056
+Runtime (s): 6.711118125000212
+NNI Iter: 13
+Number of trees checked: 8
+Current score: -1129.4465
+Runtime (s): 1.3892732500007696
+NNI Iter: 14
+Number of trees checked: 42
+Current score: -1129.057
+Runtime (s): 7.805023750001055
+NNI Iter: 15
+Number of trees checked: 8
+Current score: -1128.575
+Runtime (s): 1.3656942090001394
+NNI Iter: 16
+Number of trees checked: 18
+Current score: -1128.5955
+Runtime (s): 3.9730108339990693
+NNI Iter: 17
+Number of trees checked: 54
+Current score: -1128.6893
+Runtime (s): 11.255816249999043
+NNI Iter: 18
+Number of trees checked: 8
+Current score: -1127.2864
+Runtime (s): 1.5460036249987752
+NNI Iter: 19
+Number of trees checked: 8
+Current score: -1127.1132
+Runtime (s): 1.458767792000799
+NNI Iter: 20
+Number of trees checked: 10
+Current score: -1126.6906
+Runtime (s): 2.0193575419998524
+NNI Iter: 21
+Number of trees checked: 34
+Current score: -1126.4076
+Runtime (s): 7.29269424999984
+NNI Iter: 22
+Number of trees checked: 98
+Current score: -1125.5815
+Runtime (s): 21.19818366599975
+NNI Iter: 23
+Number of trees checked: 4
+Current score: -1125.5348
+Runtime (s): 0.7765100830001757
+NNI Iter: 24
+Number of trees checked: 12
+Current score: -1125.2665
+Runtime (s): 2.5334444580003037
+NNI Iter: 25
+Number of trees checked: 2
+Current score: -1124.7434
+Runtime (s): 0.39983995799957484
+NNI Iter: 26
+Number of trees checked: 2
+Current score: -1124.1489
+Runtime (s): 0.19459945800008427
+NNI Iter: 27
+Number of trees checked: 14
+Current score: -1124.0535
+Runtime (s): 3.0470569589997467
+NNI Iter: 28
+Number of trees checked: 48
+Current score: -1123.9153
+Runtime (s): 10.737774833000003
+NNI Iter: 29
+Number of trees checked: 124
+Best score for this search: -1123.9153
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -1125.1478877421807
+Tree height pre-scaling: 2.3320087716994697, input timescale: 10
+Tree height after scaling: 10.0, mutation rate: 0.23320087716994697
+Runtime (s): 143.15142149999883
