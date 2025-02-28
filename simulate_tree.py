@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from scmail_libs.sim_lib import *
+from laml_libs.sim_lib import *
 from treeswift import *
 import random
 import argparse

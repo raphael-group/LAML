@@ -5,7 +5,7 @@ import laml_libs as scmail
 from laml_libs.sequence_lib import read_sequences, read_priors
 from laml_libs.ML_solver import ML_solver
 from laml_libs.EM_solver import EM_solver
-from laml_libs.fastEM_solver import fastEM_solver
+from laml_libs.fastEM_solver import fastEM_solver, parse_data, parse_tree
 from laml_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
 from laml_libs.Topology_search import Topology_search as Topology_search_sequential
 from math import *
@@ -16,9 +16,11 @@ import timeit
 from sys import argv,exit,stdout,setrecursionlimit
 import sys
 from copy import deepcopy
+import jax
 
 setrecursionlimit(5000)
 
+os.environ['JAX_PLATFORM_NAME'] = 'gpu'
 class Logger(object):
     def __init__(self, output_prefix):
         self.terminal = sys.stdout
@@ -93,6 +95,13 @@ def main():
     print("Launching " + scmail.PROGRAM_NAME + " version " + scmail.PROGRAM_VERSION)
     print(scmail.PROGRAM_NAME + " was called as follows: " + " ".join(argv))
     start_time = timeit.default_timer()
+
+    print(f"CUDA_VISIBLE_DEVICES: {os.environ.get('CUDA_VISIBLE_DEVICES')}")
+    print(f"JAX_PLATFORMS: {os.environ.get('JAX_PLATFORMS')}")
+    print(f"JAX version: {jax.__version__}")
+    print(f"Using JAX backend with {jax.devices()} devices.")
+    print(f"Using device {jax.devices()[-1]} for computation.")
+    jax.config.update("jax_default_device", jax.devices()[-1])
     
     # preprocessing: read and analyze input
     delim_map = {'tab':'\t','comma':',','whitespace':' '}
@@ -155,6 +164,21 @@ def main():
     prior = {'Q':Q} 
     
     params = {'nu':fixed_nu if fixed_nu is not None else scmail.eps,'phi':fixed_phi if fixed_phi is not None else scmail.eps}  
+
+    # do additional input processing if fastem is selected
+    if fastem_selected:
+        data['charMtrx_recode'] = []
+        data['ordered_leaf_labels'] = []
+        prior['Q_recode'] = []
+        for tidx, tstr in enumerate(input_trees):
+            swift_tree = read_tree_newick(tstr)
+            parser_tree_out = parse_tree(swift_tree)
+            out_phylogeny = parse_data(parser_tree_out, data, prior) # obj used to init the EMoptimizer
+            ordered_leaf_labels = parser_tree_out['relabeling_vector'][:parser_tree_out['num_leaves']]
+            data['charMtrx_recode'].append(out_phylogeny.character_matrix)
+            data['ordered_leaf_labels'].append(ordered_leaf_labels)
+            prior['Q_recode'].append(out_phylogeny.mutation_priors)
+
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
     myTopoSearch = Topology_search(input_trees, selected_solver, data=data, prior=prior, params=params)

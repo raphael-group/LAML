@@ -62,11 +62,45 @@ class Topology_search:
         self.treeTopoList = [tree.newick() for tree in self.treeList_obj]
 
     def __accept_proposal__(self,curr_score,new_score,t):
+        #print(f"curr_score: {curr_score}, new_score: {new_score}, relative improvement (positive): {new_score-curr_score}")
         if new_score > curr_score:
+            print(f"curr_score: {curr_score}, new_score: {new_score}, relative improvement (positive): {new_score-curr_score}")
             return True
+        else:
+            T = max(1e-12,self.a*self.alpha_cooldown**t + self.b)
+            #T = max(1e-4,self.a*self.alpha_cooldown**t + self.b)
+            p = min(exp((new_score-curr_score-1e-12)/T),1)
+            #print(f"Acceptance probability: {p}")
+            prob_accept = random() < p
+            if prob_accept:
+                print(f"accept w.p. {p, prob_accept}")
+            return prob_accept
+
+        #relative_improvement = (curr_score - new_score)/abs(curr_score) # bigger is better, should be negative
+        #print(f"curr_score: {curr_score}, new_score: {new_score}")
+        #print(f"relative improvement: {relative_improvement}")
+        #if relative_improvement < -0.001 and curr_score < new_score:
+        #    return True
+        #else:
+        #    eps = 0.001
+        #    T = max(eps,self.a*self.alpha_cooldown**t + self.b) # T decreases over time
+        #    p = min(exp((new_score-curr_score-eps)/T),1) # p decreases over time
+        #    print(f"Acceptance probability: {p}")
+        #    return random() < p
+        """"
+        print(f"curr_score: {curr_score}, new_score: {new_score}")
+        relative_improvement = (curr_score - new_score)/abs(curr_score)
+        print(f"relative improvement: {relative_improvement}")
+        if relative_improvement < 0.001 and curr_score < new_score: 
+        #if new_score > curr_score:
+            return True
+        else:
+            return False
         T = max(1e-12,self.a*self.alpha_cooldown**t + self.b)
         p = min(exp((new_score-curr_score-1e-12)/T),1)
+        print(f"Acceptance probability: {p}")
         return random() < p
+        """
 
     def search(self,resolve_polytomies=True,maxiter=100,verbose=False,nreps=1,strategy=DEFAULT_STRATEGY,checkpoint_file=None):
         original_topos = self.treeTopoList
@@ -78,7 +112,7 @@ class Topology_search:
         for i in range(nreps):
             # resolve polytomies
             if verbose:
-                print("Performing nni-search " + str(i+1))
+                print("Performing nni-search " + str(i+1), flush=True)
             self.treeTopoList = original_topos
             self.params = original_params
             self.__renew_treeList_obj__()
@@ -101,13 +135,13 @@ class Topology_search:
                     params = self.params
             else:    
                 if verbose:
-                    print("Perform nni moves for full topology search")
+                    print("Perform nni moves for full topology search", flush=True)
                     if self.has_polytomy and resolve_polytomies:                        
                         print("Found polytomies in the input tree(s). Arbitrarily resolving them to obtain fully resolved initial tree(s).") 
                 trees,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False,checkpoint_file=checkpoint_file)
             # The final optimization of parameters
             if verbose:
-                print("Optimal topology found. Re-optimizing other parameters ...")
+                print("Optimal topology found. Re-optimizing other parameters ...", flush=True)
             self.treeTopoList = trees
             self.params = params
             self.__renew_treeList_obj__()
@@ -120,7 +154,7 @@ class Topology_search:
             trees = self.treeTopoList
             params = self.params
             if verbose:
-                print("Optimal score for this search: " + str(score))
+                print("Optimal score for this search: " + str(score), flush=True)
             # compare to the best_score of previous searches
             if score > best_score:
                 best_score = score
@@ -141,9 +175,9 @@ class Topology_search:
         curr_score,status = mySolver.score_tree(strategy=score_tree_strategy)
         if verbose:
             if self.has_polytomy:
-                print("Initial score (polytomies were arbitrarily resolved): " + str(curr_score))
+                print("Initial score (polytomies were arbitrarily resolved): " + str(curr_score), flush=True)
             else:
-                print("Initial score: " + str(curr_score))
+                print("Initial score: " + str(curr_score), flush=True)
         self.update_from_solver(mySolver)
         best_score = curr_score
         best_trees = self.treeTopoList
@@ -151,11 +185,11 @@ class Topology_search:
         # perform nni search
         for nni_iter in range(maxiter):
             if verbose:
-                print("NNI Iter:", nni_iter)
+                print("NNI Iter:", nni_iter, flush=True)
                 start_time = timeit.default_timer()
             new_score,n_attempts,success = self.single_nni(curr_score,nni_iter,strategy,only_marked=only_marked)
             if verbose: 
-                print(f"Number of trees checked: {n_attempts}")
+                print(f"Number of trees checked: {n_attempts}", flush=True)
             if not success:
                 break
             curr_score = new_score
@@ -164,9 +198,9 @@ class Topology_search:
                 best_trees = self.treeTopoList
                 best_params = self.params
             if verbose:
-                print("Current score: " + str(curr_score))
+                print("Current score: " + str(curr_score), flush=True)
                 stop_time = timeit.default_timer()
-                print("Runtime (s):", stop_time - start_time)
+                print("Runtime (s):", stop_time - start_time, flush=True)
             if nni_iter % chkpt_freq == 0 and checkpoint_file is not None:
                 with open(checkpoint_file, "a") as fout:
                     fout.write(f"NNI Iteration: {nni_iter}\n")
@@ -175,7 +209,7 @@ class Topology_search:
                     fout.write(f"Current dropout rate: {best_params['phi']}\n")
                     fout.write(f"Current silencing rate: {best_params['nu']}\n")
         if verbose:
-            print("Best score for this search: " + str(best_score))
+            print("Best score for this search: " + str(best_score), flush=True)
         return best_trees,best_score,best_params 
     
     def single_nni(self,curr_score,nni_iter,strategy,only_marked=False,verbose=False):
