@@ -154,6 +154,7 @@ def optimize_parameters_expectation_maximization(
             lg.logger.info(f"M-step descent steps: {its}")
             lg.logger.info(f"EM iteration {iteration}, Previous NLLH: {previous_nllh}, Current NLLH: {current_nllh}")
             lg.logger.info(f"Relative Improvement: {jnp.abs(current_nllh - previous_nllh) / jnp.abs(previous_nllh)}")
+            lg.logger.info(f"Params: {jnp.sum(branch_lengths != jnp.exp(params[0])), jax.nn.sigmoid(params[1])}")
 
         if jnp.abs(current_nllh - previous_nllh) / jnp.abs(previous_nllh) < EM_STOPPING_CRITERION:
             break

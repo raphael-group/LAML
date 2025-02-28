@@ -43,6 +43,9 @@ class Topology_search:
     def update_from_solver(self,mySolver):
         self.treeTopoList = mySolver.get_tree_newick()
         self.params = mySolver.get_params()
+        self.__renew_treeList_obj__() # added Feb 28, 2025: why weren't we using this to record branch lengths? 
+        # maybe because we want to keep all the node annotations? 
+        #print("update_from_solver:", self.treeTopoList)
 
     def __mark_polytomies__(self,eps_len=1e-3):
         # mark and resolve all polytomies in self.treeList_obj
@@ -72,8 +75,8 @@ class Topology_search:
             p = min(exp((new_score-curr_score-1e-12)/T),1)
             #print(f"Acceptance probability: {p}")
             prob_accept = random() < p
-            if prob_accept:
-                print(f"accept w.p. {p, prob_accept}")
+            #if prob_accept:
+            #    print(f"accept w.p. {p, prob_accept}")
             return prob_accept
 
         #relative_improvement = (curr_score - new_score)/abs(curr_score) # bigger is better, should be negative
@@ -129,6 +132,7 @@ class Topology_search:
                     mySolver = self.get_solver()
                     score_tree_strategy = deepcopy(strategy)
                     score_tree_strategy['fixed_brlen'] = None
+                    score_tree_strategy['nodes_to_recompute'] = None
                     score,status = mySolver.score_tree(strategy=score_tree_strategy)
                     self.update_from_solver(mySolver)
                     trees = self.treeTopoList
@@ -149,6 +153,7 @@ class Topology_search:
             score_tree_strategy = deepcopy(strategy)
             score_tree_strategy['fixed_brlen'] = None
             score_tree_strategy['final_optimization'] = True
+            score_tree_strategy['nodes_to_recompute'] = None
             score,status = mySolver.score_tree(strategy=score_tree_strategy)
             self.update_from_solver(mySolver)
             trees = self.treeTopoList
@@ -172,6 +177,7 @@ class Topology_search:
         mySolver = self.get_solver()
         score_tree_strategy = deepcopy(strategy)
         score_tree_strategy['fixed_brlen'] = None
+        score_tree_strategy['nodes_to_recompute'] = None
         curr_score,status = mySolver.score_tree(strategy=score_tree_strategy)
         if verbose:
             if self.has_polytomy:
@@ -214,6 +220,7 @@ class Topology_search:
     
     def single_nni(self,curr_score,nni_iter,strategy,only_marked=False,verbose=False):
         branches = []
+
         for tree in self.treeList_obj:
             for node in tree.traverse_preorder():
                 if node.is_leaf() or node.is_root():
@@ -244,12 +251,14 @@ class Topology_search:
         shuffle(u_children)
         score_tree_strategy = deepcopy(strategy)
         score_tree_strategy['fixed_brlen'] = None
+        score_tree_strategy['nodes_to_recompute'] = None
 
         if strategy['local_brlen_opt']:
             score_tree_strategy['fixed_nu'] = self.params['nu'] 
             score_tree_strategy['fixed_phi'] = self.params['phi'] 
             free_branches = set(u.child_nodes() + v.child_nodes() + [v])
             fixed_branches_anchors = [[] for _ in range(len(self.treeList_obj))]
+            nodes_to_recompute = [[] for _ in range(len(self.treeList_obj))]
             for t,tree in enumerate(self.treeList_obj):
                 for node in tree.traverse_postorder():
                     if node.is_leaf():
@@ -261,6 +270,8 @@ class Topology_search:
                         node.anchors = (a,b)
                     if not node in free_branches:
                         fixed_branches_anchors[t].append(node.anchors)
+                    else:
+                        nodes_to_recompute[t].append(node.anchors)
             fixed_branches = [[] for _ in range(len(self.treeList_obj))]
             for t,treeTopo in enumerate(self.treeTopoList):
                 tree = read_tree_newick(treeTopo)
@@ -269,7 +280,12 @@ class Topology_search:
             for t,B in enumerate(fixed_branches):
                 for i,node in enumerate(B):
                     fixed_brlen[t][fixed_branches_anchors[t][i]] = node.edge_length
+
+            # possibility 1: update the branch lengths in self.treeList_obj too
+
             score_tree_strategy['fixed_brlen'] = fixed_brlen
+            score_tree_strategy['nodes_to_recompute'] = nodes_to_recompute
+            #print("before score tree (treeTopoList):", [tree for tree in self.treeTopoList])
 
         for u_child in u_children:
             u_child.set_parent(v)
@@ -280,14 +296,18 @@ class Topology_search:
             v.remove_child(w)
             u.add_child(w)
 
+            #print("before score tree (treeList_obj):", [tree.newick() for tree in self.treeList_obj])
             mySolver = self.solver([tree.newick() for tree in self.treeList_obj],self.data,self.prior,self.params)            
             new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
+            #print("after score tree:", [tree.newick() for tree in self.treeList_obj])
             if status != "optimal" and strategy['local_brlen_opt']:
                 score_tree_strategy['fixed_brlen'] = None
+                score_tree_strategy['nodes_to_recompute'] = None
                 mySolver = self.solver([tree.newick() for tree in self.treeList_obj],self.data,self.prior,self.params)            
                 new_score,status = mySolver.score_tree(strategy=score_tree_strategy)
             if self.__accept_proposal__(curr_score,new_score,nni_iter): # accept the new tree and params                
                 self.update_from_solver(mySolver)
+                #print("after update_from_solver:", [tree.newick() for tree in self.treeList_obj])
                 return True,new_score
             
             # Score doesn't improve --> reverse to the previous state

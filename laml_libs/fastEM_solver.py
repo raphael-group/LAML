@@ -168,11 +168,11 @@ class fastEM_solver(EM_solver):
             # set up an object of class EMOptimizer
             self.ordered_leaf_labels.append(data['ordered_leaf_labels'][tidx])
             parser_tree_out = parse_tree(swift_tree, has_branch_mask=False, ordered_leaf_labels=self.ordered_leaf_labels[tidx])
-            self.myEMOptimizers.append(EMOptimizer(prior['Q_recode'][tidx], data['charMtrx_recode'][tidx]))
+            self.myEMOptimizers.append(EMOptimizer(prior['Q_recode'][tidx], data['charMtrx_recode'][tidx], verbose=False))
 
         #print(f"after init fastEM_solver: {[t.newick() for t in self.trees]}")
   
-    def score_tree(self, strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':None}, compare=False): 
+    def score_tree(self, strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':None, 'nodes_to_recompute': None}, compare=False): 
         if compare: 
             trees = deepcopy(self.trees)
             ultra_constr = False #strategy['ultra_constr']
@@ -228,10 +228,14 @@ class fastEM_solver(EM_solver):
                 nu = fixed_nu if fixed_nu else 0.5 
                 phi = fixed_phi if fixed_phi else 0.5
                 
+                optimize_nu = True if fixed_nu else False
+                optimize_phi = True if fixed_phi else False
+                print(f"Optimize_nu: {optimize_nu} optimize_phi: {optimize_phi}")
+                
                 # call laml API from fast_em
                 out = self.myEMOptimizers[tidx].optimize(parser_tree_out['nxtree'], parser_tree_out['branch_lengths'], 
-                                                         nu, phi, parser_tree_out['branch_mask'], fixed_nu, fixed_phi)
-
+                                                         nu, phi, parser_tree_out['branch_mask'], optimize_nu, optimize_phi)
+                
                 #print("relabeling_vector", parser_tree_out['relabeling_vector'])
                 all_relabeling_vectors.append(parser_tree_out['relabeling_vector'])
 
@@ -278,10 +282,12 @@ class fastEM_solver(EM_solver):
             fixed_phi = strategy['fixed_phi']
             fixed_nu = strategy['fixed_nu']
             fixed_brlen = strategy['fixed_brlen'] 
+            nodes_to_recompute = strategy['nodes_to_recompute']
             has_branch_mask = False
             if fixed_brlen is not None:
                 has_branch_mask = True
             #print("has_branch_mask:", has_branch_mask)
+            #print("nodes_to_recompute:", nodes_to_recompute)
 
             if 'final_optimization' in strategy.keys():
                 oldEM_score, oldEM_status = self.score_tree_oldEM(strategy)
@@ -295,25 +301,28 @@ class fastEM_solver(EM_solver):
             start_time = time.time()
             for tidx, swift_tree in enumerate(self.trees): #self.trees):
 
-                # mark swift_tree branches
+                if nodes_to_recompute:
+                    recompute_nodes = find_LCAs(swift_tree, list(nodes_to_recompute[tidx]))
+
                 for node in swift_tree.traverse_postorder():
-                    node.mark_fixed = False
+                    node.mark_fixed = True
                     if fixed_brlen is None:
                         continue
-                    fixed_nodes = find_LCAs(swift_tree, list(fixed_brlen[tidx].keys()))
-                    for i,(a,b) in enumerate(fixed_brlen[tidx]):
-                        u = fixed_nodes[i]
-                        u.edge_length = fixed_brlen[tidx][(a,b)]
-                        u.mark_fixed = True
+                    if nodes_to_recompute:
+                        if node.label in recompute_nodes and node.get_edge_length() > 0:
+                            node.mark_fixed = False
 
                 # assumes swift_tree already has branches marked?
                 parser_tree_out = parse_tree(swift_tree, has_branch_mask=has_branch_mask, ordered_leaf_labels=self.ordered_leaf_labels[tidx])
                 nu = fixed_nu if fixed_nu else 0.5 
                 phi = fixed_phi if fixed_phi else 0.5
+
+                fix_nu = False #False if fixed_nu else True
+                fix_phi = False #False if fixed_phi else True
                 
                 # call laml API from fast_em
                 out = self.myEMOptimizers[tidx].optimize(parser_tree_out['nxtree'], parser_tree_out['branch_lengths'], 
-                                                         nu, phi, parser_tree_out['branch_mask'], fixed_nu, fixed_phi)
+                                                         nu, phi, parser_tree_out['branch_mask'], fix_nu, fix_phi)
                 all_relabeling_vectors.append(parser_tree_out['relabeling_vector'])
 
                 nllh = out['nllh']
@@ -330,6 +339,7 @@ class fastEM_solver(EM_solver):
                 l2n = swift_tree.label_to_node(selection='all')
                 for i, swift_label in enumerate(parser_tree_out['relabeling_vector']):
                     l2n[swift_label].set_edge_length(branch_lengths[i])
+            #print(f"output of fastEM: {[t.newick() for t in self.trees]}")
 
             end_time = time.time()
             fastEM_elapsed_time = end_time - start_time
