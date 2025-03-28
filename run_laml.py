@@ -219,12 +219,12 @@ def main():
         my_strategy['ultra_constr'] = args["noultrametric"] #True #args["ultrametric"] # TODO: Remove this flag
         # resolve polytomies or not?
         resolve_polytomies = not args["keep_polytomies"]
-        # if resolve polytomies, currently cannot run with fastEM_solver
-        if resolve_polytomies:
-            print("Resolve polytomies not implemented for fastEM_solver. Defaulting to EM_solver...")
-            selected_solver = EM_solver
         # only resolve polytomies or do full search?
         my_strategy['resolve_search_only'] = args["resolve_search"]
+        # if only resolve polytomies, currently cannot run with fastEM_solver
+        if my_strategy['resolve_search_only']:
+            print("Resolve polytomies not implemented for fastEM_solver. Defaulting to EM_solver...")
+            selected_solver = EM_solver
         # full search or local search to only resolve polytomies? 
         if not args["resolve_search"] and not args["topology_search"]:
             print("Optimizing branch lengths, phi, and nu without topology search")

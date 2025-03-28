@@ -1,7 +1,7 @@
 import os 
 import unittest
 from laml_libs import *
-from laml_libs.fastEM_solver import fastEM_solver
+from laml_libs.fastEM_solver import fastEM_solver, parse_data, parse_tree
 from laml_libs.EM_solver import EM_solver
 from laml_libs.ML_solver import ML_solver
 from laml_libs.Topology_search import Topology_search
@@ -68,18 +68,26 @@ class TopoSearchTest_wfastEMSolver(unittest.TestCase):
         msa = {'a':[1, 1, 0, 0, 0], 'b':[1, 1, 1, 0, 0], 'c':[0, 0, 0, 1, 0], 'd':[0, 0, 0, 1, 0]}
         nllh_bf,bf_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
          
+
         T0 = '((a,c),(b,d));'
-        data = {'charMtrx':msa}
-        prior = {'Q':Q}
-        params = {'phi':0,'nu':0}
         
+        parser_tree_out = parse_tree(read_tree_newick(T0))
+        out_phylogeny = parse_data(parser_tree_out, {'charMtrx':msa}, {'Q': Q}) # obj used to init the EMoptimizer
+        Q_recode = out_phylogeny.mutation_priors
+        ordered_leaf_labels = parser_tree_out['relabeling_vector'][:parser_tree_out['num_leaves']]
+        charMtrx_recode = out_phylogeny.character_matrix
+
+        data = {'charMtrx':msa, 'ordered_leaf_labels': [ordered_leaf_labels], 'charMtrx_recode': [charMtrx_recode]}
+        prior = {'Q':Q, 'Q_recode': [Q_recode]}
+        params = {'phi':0,'nu':0}
+       
         # topology search with EM_solver
         myTopoSearch_EM = Topology_search([T0],fastEM_solver,data=data,prior=prior,params=params)
         best_tree,max_score,best_params = myTopoSearch_EM.search(maxiter=200,nreps=10,verbose=False)
         nllh_nni_EM = -max_score
         
         self.assertAlmostEqual(nllh_bf,nllh_nni_EM,places=4,msg="TopoSearchTest: test_1 failed.")
-   
+  
     # topology search on a tree with polytomies
     def test_3(self):
         Q = [{0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}, {0:0, 1:1.0}]
@@ -87,10 +95,17 @@ class TopoSearchTest_wfastEMSolver(unittest.TestCase):
         nllh_bf,bf_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
         
         T0 = '(a,b,c,d);'
-        data = {'charMtrx':msa}
-        prior = {'Q':Q}
-        params = {'nu':0,'phi':0}
         
+        parser_tree_out = parse_tree(read_tree_newick(T0))
+        out_phylogeny = parse_data(parser_tree_out, {'charMtrx':msa}, {'Q': Q}) # obj used to init the EMoptimizer
+        Q_recode = out_phylogeny.mutation_priors
+        ordered_leaf_labels = parser_tree_out['relabeling_vector'][:parser_tree_out['num_leaves']]
+        charMtrx_recode = out_phylogeny.character_matrix
+
+        data = {'charMtrx':msa, 'ordered_leaf_labels': [ordered_leaf_labels], 'charMtrx_recode': [charMtrx_recode]}
+        prior = {'Q':Q, 'Q_recode': [Q_recode]}
+        params = {'phi':0,'nu':0}
+       
         myTopoSearch = Topology_search([T0],fastEM_solver,data=data,prior=prior,params=params)
         best_tree,max_score,best_params = myTopoSearch.search(maxiter=200,verbose=False,nreps=10)
         nllh_nni = -max_score
@@ -125,8 +140,14 @@ class TopoSearchTest_wfastEMSolver(unittest.TestCase):
         nllh_bf = 11.809140958825493 # precomputed from brute-force
         
         T0 = '((a,c),(b,d));'
-        data = {'charMtrx':msa}
-        prior = {'Q':Q}
+        parser_tree_out = parse_tree(read_tree_newick(T0))
+        out_phylogeny = parse_data(parser_tree_out, {'charMtrx':msa}, {'Q': Q}) # obj used to init the EMoptimizer
+        Q_recode = out_phylogeny.mutation_priors
+        ordered_leaf_labels = parser_tree_out['relabeling_vector'][:parser_tree_out['num_leaves']]
+        charMtrx_recode = out_phylogeny.character_matrix
+
+        data = {'charMtrx':msa, 'ordered_leaf_labels': [ordered_leaf_labels], 'charMtrx_recode': [charMtrx_recode]}
+        prior = {'Q':Q, 'Q_recode': [Q_recode]}
         params = {'phi':0,'nu':0}
         
         # topology search with EM_solver
@@ -144,8 +165,14 @@ class TopoSearchTest_wfastEMSolver(unittest.TestCase):
         nllh_bf,tree_bf = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver)
         
         T0 = '((a,b),(c,d));'
-        data = {'charMtrx':msa}
-        prior = {'Q':Q}
+        parser_tree_out = parse_tree(read_tree_newick(T0))
+        out_phylogeny = parse_data(parser_tree_out, {'charMtrx':msa}, {'Q': Q}) # obj used to init the EMoptimizer
+        Q_recode = out_phylogeny.mutation_priors
+        ordered_leaf_labels = parser_tree_out['relabeling_vector'][:parser_tree_out['num_leaves']]
+        charMtrx_recode = out_phylogeny.character_matrix
+
+        data = {'charMtrx':msa, 'ordered_leaf_labels': [ordered_leaf_labels], 'charMtrx_recode': [charMtrx_recode]}
+        prior = {'Q':Q, 'Q_recode': [Q_recode]}
         params = {'phi':0,'nu':0}
         
         myTopoSearch = Topology_search([T0],fastEM_solver,data=data,prior=prior,params=params)
@@ -201,8 +228,14 @@ class TopoSearchTest_wfastEMSolver(unittest.TestCase):
         msa = {'a':[0, 1, 1, 1, 1], 'b':[1, 0, 0, 0, 0], 'c':[1, 0, 0, 0, 0], 'd':[0, 1, 1, 1, 1]}
         nllh_bf,bf_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver,ultra_constr=True)
         T0 = '((a,b),(c,d));'
-        data = {'charMtrx':msa}
-        prior = {'Q':Q}
+        parser_tree_out = parse_tree(read_tree_newick(T0))
+        out_phylogeny = parse_data(parser_tree_out, {'charMtrx':msa}, {'Q': Q}) # obj used to init the EMoptimizer
+        Q_recode = out_phylogeny.mutation_priors
+        ordered_leaf_labels = parser_tree_out['relabeling_vector'][:parser_tree_out['num_leaves']]
+        charMtrx_recode = out_phylogeny.character_matrix
+
+        data = {'charMtrx':msa, 'ordered_leaf_labels': [ordered_leaf_labels], 'charMtrx_recode': [charMtrx_recode]}
+        prior = {'Q':Q, 'Q_recode': [Q_recode]}
         params = {'phi':0,'nu':0}
         
         myTopoSearch = Topology_search([T0],fastEM_solver,data=data,prior=prior,params=params)
@@ -219,8 +252,14 @@ class TopoSearchTest_wfastEMSolver(unittest.TestCase):
         nllh_bf,bf_tree = self.__brute_force_search__(msa,Q,['a','b','c','d'],solver=ML_solver,ultra_constr=True)
         #nllh_bf = 7.0063474330891236 # pre-computed using brute-force search
         T0 = '(a,b,c,d);'
-        data = {'charMtrx':msa}
-        prior = {'Q':Q}
+        parser_tree_out = parse_tree(read_tree_newick(T0))
+        out_phylogeny = parse_data(parser_tree_out, {'charMtrx':msa}, {'Q': Q}) # obj used to init the EMoptimizer
+        Q_recode = out_phylogeny.mutation_priors
+        ordered_leaf_labels = parser_tree_out['relabeling_vector'][:parser_tree_out['num_leaves']]
+        charMtrx_recode = out_phylogeny.character_matrix
+
+        data = {'charMtrx':msa, 'ordered_leaf_labels': [ordered_leaf_labels], 'charMtrx_recode': [charMtrx_recode]}
+        prior = {'Q':Q, 'Q_recode': [Q_recode]}
         params = {'phi':0,'nu':0}
         
         myTopoSearch = Topology_search([T0],fastEM_solver,data=data,prior=prior,params=params)
@@ -230,4 +269,3 @@ class TopoSearchTest_wfastEMSolver(unittest.TestCase):
 
         nllh_nni = -max_score
         self.assertAlmostEqual(nllh_bf,nllh_nni,places=4,msg="TopoSearchTest: test_10 failed.")
-

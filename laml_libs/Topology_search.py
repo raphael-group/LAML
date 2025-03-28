@@ -67,7 +67,7 @@ class Topology_search:
     def __accept_proposal__(self,curr_score,new_score,t):
         #print(f"curr_score: {curr_score}, new_score: {new_score}, relative improvement (positive): {new_score-curr_score}")
         if new_score > curr_score:
-            print(f"curr_score: {curr_score}, new_score: {new_score}, relative improvement (positive): {new_score-curr_score}")
+            #print(f"curr_score: {curr_score}, new_score: {new_score}, relative improvement (positive): {new_score-curr_score}")
             return True
         else:
             T = max(1e-12,self.a*self.alpha_cooldown**t + self.b)
