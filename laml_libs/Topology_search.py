@@ -43,9 +43,9 @@ class Topology_search:
     def update_from_solver(self,mySolver):
         self.treeTopoList = mySolver.get_tree_newick()
         self.params = mySolver.get_params()
-        self.__renew_treeList_obj__() # added Feb 28, 2025: why weren't we using this to record branch lengths? 
-        # maybe because we want to keep all the node annotations? 
-        #print("update_from_solver:", self.treeTopoList)
+        if self.get_solver().solver_name == "fastEM_solver":
+            self.__renew_treeList_obj__() # added Feb 28, 2025: I would rather pass in all the updated branch lengths
+            # currently does not maintain marked nodes, so that it cannot be run to resolve polytomies!
 
     def __mark_polytomies__(self,eps_len=1e-3):
         # mark and resolve all polytomies in self.treeList_obj
@@ -285,7 +285,6 @@ class Topology_search:
 
             score_tree_strategy['fixed_brlen'] = fixed_brlen
             score_tree_strategy['nodes_to_recompute'] = nodes_to_recompute
-            #print("before score tree (treeTopoList):", [tree for tree in self.treeTopoList])
 
         for u_child in u_children:
             u_child.set_parent(v)

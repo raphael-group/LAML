@@ -51,6 +51,9 @@ def parse_tree(swift_tree, has_branch_mask=False, ordered_leaf_labels=None):
     - branch_mask vector (optionally): True means to reoptimize branch lengths. By default, applies to all.
     - relabeling_vector: corresponds to swift_tree labels in the index order of branch_lengths
 
+    Returns:
+    - parsed dictionary
+
     Note: The only change to the original treeswift object is to 
     add internal node labels if they did not previously exist.
     Assumes all leaves are labeled.
@@ -147,6 +150,9 @@ class fastEM_solver(EM_solver):
 
     def __init__(self,treeList,data,prior,params={'nu':0,'phi':0,'sigma':0}):
         super().__init__(treeList,data,prior,params={'nu':0,'phi':0,'sigma':0}) #, **kwargs)
+        self.solver_name = "fastEM_solver"
+        self.data = data
+        self.prior = prior
         self.character_matrix_recode = None
         self.mutation_priors_recode = None
         self.myEMOptimizers = []
@@ -170,8 +176,7 @@ class fastEM_solver(EM_solver):
             parser_tree_out = parse_tree(swift_tree, has_branch_mask=False, ordered_leaf_labels=self.ordered_leaf_labels[tidx])
             self.myEMOptimizers.append(EMOptimizer(prior['Q_recode'][tidx], data['charMtrx_recode'][tidx], verbose=False))
 
-        #print(f"after init fastEM_solver: {[t.newick() for t in self.trees]}")
-  
+
     def score_tree(self, strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':None, 'nodes_to_recompute': None}, compare=False): 
         if compare: 
             trees = deepcopy(self.trees)

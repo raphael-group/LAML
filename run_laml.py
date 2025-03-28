@@ -12,6 +12,7 @@ from math import *
 from treeswift import *
 import random
 import argparse
+import mosek
 import timeit
 from sys import argv,exit,stdout,setrecursionlimit
 import sys
@@ -55,7 +56,7 @@ def main():
     outputOptions.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
    
     # Numerical Optimization Arguments
-    numericalOptions.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM' or 'fastEM'. Default: EM")
+    numericalOptions.add_argument("--solver",required=False,default="EM",help="Specify a solver. Options are 'Scipy' or 'EM' or 'fastEM-gpu' or 'fastEM-cpu'. Default: EM")
     numericalOptions.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (lambda,phi,nu). Will NOT optimize branch lengths, lambda, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.")
     numericalOptions.add_argument("--timescale",required=False,default=1.0,help="Timeframe of experiment. Scales ultrametric output tree branches to this timescale. To get an accurate estimate of mutation rate, provide timeframe in number of cell generations. Default: 1.0.")
     numericalOptions.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in single cell sequencing.")
@@ -158,9 +159,18 @@ def main():
     selected_solver = EM_solver
     em_selected = True
     fastem_selected = False
-    if args["solver"].lower() == "fastem":
+    if args["solver"].lower() == "fastem-cpu" or args["solver"].lower() == "fastem-gpu":
         selected_solver = fastEM_solver
         fastem_selected = True
+        if os.environ.get('XLA_PYTHON_CLIENT_PREALLOCATE') != 'false':
+            print("Note that XLA_PYTHON_CLIENT_PREALLOCATE is set to TRUE by default, so that recorded memory may not be accurate.")
+        if args["solver"].lower() == "fastem-cpu":
+            os.environ['JAX_PLATFORM_NAME'] = 'cpu'
+            os.environ['JAX_PLATFORM_NAME'] = ''
+        else:
+            os.environ['JAX_PLATFORM_NAME'] = 'gpu'
+            if os.environ.get('JAX_PLATFORMS') != 'cuda':
+                raise ValueError("JAX_PLATFORMS must be set to 'cuda'.")
     elif args["solver"].lower() != "em": 
         selected_solver = ML_solver   
         em_selected = False
@@ -209,6 +219,10 @@ def main():
         my_strategy['ultra_constr'] = args["noultrametric"] #True #args["ultrametric"] # TODO: Remove this flag
         # resolve polytomies or not?
         resolve_polytomies = not args["keep_polytomies"]
+        # if resolve polytomies, currently cannot run with fastEM_solver
+        if resolve_polytomies:
+            print("Resolve polytomies not implemented for fastEM_solver. Defaulting to EM_solver...")
+            selected_solver = EM_solver
         # only resolve polytomies or do full search?
         my_strategy['resolve_search_only'] = args["resolve_search"]
         # full search or local search to only resolve polytomies? 

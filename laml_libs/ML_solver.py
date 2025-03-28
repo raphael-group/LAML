@@ -17,6 +17,7 @@ class Params:
 
 class ML_solver(Virtual_solver):
     def __init__(self,treeList,data,prior,params={'nu':eps,'phi':eps}):
+        self.solver_name = "ML_solver"
         charMtrx = data['charMtrx']
         Q = prior['Q']
         nu = params['nu']
