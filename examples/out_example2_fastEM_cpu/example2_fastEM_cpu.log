@@ -1,34 +1,5 @@
 Launching LAML version 0.0.4
 LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example2_fastEM_cpu --nInitials 1 --randomreps 5 --topology_search -v --solver fastEM-cpu --timescale 10
-Launching LAML version 0.0.4
-LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example2_fastEM_cpu --nInitials 1 --randomreps 5 --topology_search -v --solver fastEM-cpu --timescale 10
-Note that XLA_PYTHON_CLIENT_PREALLOCATE is set to TRUE by default, so that recorded memory may not be accurate.
-Resolve polytomies not implemented for fastEM_solver. Defaulting to EM_solver...
-No polytomy detected.
-Starting topology search
-Running topology search sequentially...
-Performing nni-search 1
-Perform nni moves for full topology search
-Launching LAML version 0.0.4
-LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example2_fastEM_cpu --nInitials 1 --randomreps 5 --topology_search -v --solver fastEM-cpu --timescale 10
-Note that XLA_PYTHON_CLIENT_PREALLOCATE is set to TRUE by default, so that recorded memory may not be accurate.
-Resolve polytomies not implemented for fastEM_solver. Defaulting to EM_solver...
-No polytomy detected.
-Starting topology search
-Running topology search sequentially...
-Performing nni-search 1
-Perform nni moves for full topology search
-Launching LAML version 0.0.4
-LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example2_fastEM_cpu --nInitials 1 --randomreps 5 --topology_search -v --solver fastEM-cpu --timescale 10
-Note that XLA_PYTHON_CLIENT_PREALLOCATE is set to TRUE by default, so that recorded memory may not be accurate.
-Resolve polytomies not implemented for fastEM_solver. Defaulting to EM_solver...
-No polytomy detected.
-Starting topology search
-Running topology search sequentially...
-Performing nni-search 1
-Perform nni moves for full topology search
-Launching LAML version 0.0.4
-LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example2_fastEM_cpu --nInitials 1 --randomreps 5 --topology_search -v --solver fastEM-cpu --timescale 10
 Note that XLA_PYTHON_CLIENT_PREALLOCATE is set to TRUE by default, so that recorded memory may not be accurate.
 Resolve polytomies not implemented for fastEM_solver. Defaulting to EM_solver...
 No polytomy detected.
