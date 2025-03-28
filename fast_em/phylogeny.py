@@ -1,5 +1,5 @@
 """
-Author: Henri Schmidt (w/ edits from Gillian)
+Author: Henri Schmidt with edits from Gillian Chu
 """
 import treeswift
 import networkx as nx

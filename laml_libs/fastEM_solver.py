@@ -230,7 +230,7 @@ class fastEM_solver(EM_solver):
                 
                 optimize_nu = True if fixed_nu else False
                 optimize_phi = True if fixed_phi else False
-                print(f"Optimize_nu: {optimize_nu} optimize_phi: {optimize_phi}")
+                #print(f"Optimize_nu: {optimize_nu} optimize_phi: {optimize_phi}")
                 
                 # call laml API from fast_em
                 out = self.myEMOptimizers[tidx].optimize(parser_tree_out['nxtree'], parser_tree_out['branch_lengths'], 
@@ -321,8 +321,7 @@ class fastEM_solver(EM_solver):
                 fix_phi = False #False if fixed_phi else True
                 
                 # call laml API from fast_em
-                out = self.myEMOptimizers[tidx].optimize(parser_tree_out['nxtree'], parser_tree_out['branch_lengths'], 
-                                                         nu, phi, parser_tree_out['branch_mask'], fix_nu, fix_phi)
+                out = self.myEMOptimizers[tidx].optimize(parser_tree_out['nxtree'], parser_tree_out['branch_lengths'], nu, phi, parser_tree_out['branch_mask'], fix_nu, fix_phi)
                 all_relabeling_vectors.append(parser_tree_out['relabeling_vector'])
 
                 nllh = out['nllh']

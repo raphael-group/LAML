@@ -1,5 +1,5 @@
 """
-Author: Henri Schmidt
+Author: Henri Schmidt with edits from Gillian Chu
 """
 import time
 import timeit

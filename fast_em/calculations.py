@@ -1,5 +1,5 @@
 """
-Author: Henri Schmidt
+Author: Henri Schmidt with edits from Gillian Chu
 """
 import jax 
 import numpy as np

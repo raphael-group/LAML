@@ -20,7 +20,7 @@ import jax
 
 setrecursionlimit(5000)
 
-os.environ['JAX_PLATFORM_NAME'] = 'gpu'
+
 class Logger(object):
     def __init__(self, output_prefix):
         self.terminal = sys.stdout
@@ -63,6 +63,7 @@ def main():
     numericalOptions.add_argument("--noultrametric",action='store_true',help="[Deprecated] But turns OFF the ultrametric constraint.")
     numericalOptions.add_argument("--nInitials",type=int,required=False,default=20,help="The number of initial points. Default: 20.")
     numericalOptions.add_argument("--randseeds",required=False,help="Random seeds for branch length optimization. Can be a single interger number or a list of intergers whose length is equal to the number of initial points (see --nInitials).")
+    numericalOptions.add_argument("--gpu",action='store_true',required=False, default=False, help="Runs on discoverable GPUs otherwise throws error.")
 
     # Topology Search Arguments
     topologySearchOptions.add_argument("--topology_search",action='store_true', required=False,help="Perform topology search using NNI operations. Always returns a fully resolved (i.e. binary) tree.")
@@ -96,8 +97,13 @@ def main():
     print(scmail.PROGRAM_NAME + " was called as follows: " + " ".join(argv))
     start_time = timeit.default_timer()
 
-    print(f"CUDA_VISIBLE_DEVICES: {os.environ.get('CUDA_VISIBLE_DEVICES')}")
-    print(f"JAX_PLATFORMS: {os.environ.get('JAX_PLATFORMS')}")
+    if args['gpu']:
+        os.environ['JAX_PLATFORM_NAME'] = 'gpu'
+        print(f"CUDA_VISIBLE_DEVICES: {os.environ.get('CUDA_VISIBLE_DEVICES')}")
+        print(f"JAX_PLATFORMS: {os.environ.get('JAX_PLATFORMS')}")
+    else:
+        os.environ['JAX_PLATFORM_NAME'] = 'cpu'
+
     print(f"JAX version: {jax.__version__}")
     print(f"Using JAX backend with {jax.devices()} devices.")
     print(f"Using device {jax.devices()[-1]} for computation.")
