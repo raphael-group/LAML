@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 from typing import Iterable, Optional, Union, Dict
-import sys
+import sys, os
 
 import numpy as np
 import pandas as pd
@@ -138,8 +138,10 @@ def main():
     print(f"[✓] Rooted NJ topology with {tree.count(tips=True)} tips → {out_path}")
 
 def build_starting_tree(cm_path = Path, out_path = Path):
-    if not cm_path.is_file():
+    if not os.path.isfile(cm_path):
         sys.exit(f"[ERROR] Character‑matrix file '{cm_path}' not found.")
+
+    out_path = Path(out_path)
 
     cm = _load_character_matrix(cm_path)
     cm.loc["root"] = 0
@@ -152,7 +154,7 @@ def build_starting_tree(cm_path = Path, out_path = Path):
 
     # write to file
     tstr = str(tree)
-    out_path.write_text(tstr + "\n")
+    out_path.write_text(tstr)
     print(f"[✓] Rooted NJ topology with {tree.count(tips=True)} tips → {out_path}")
 
 

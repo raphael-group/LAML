@@ -95,12 +95,20 @@ def main():
         print("Input files not found.")
         exit(0)
 
-    if not os.path.isfile(args["topology"]):
-        print("No input topology found, using NJ with weighted Hamming distance and unedited sequence as heuristic rooting.")
+    if not args["topology"]:
+        # topology filename was not provided
+        #if not args["topology_search"]:
+        print("WARNING: No input topology found! We use NJ with weighted Hamming distance to construct an unrooted tree, and use an unedited sequence for a heuristic root, but this is not recommended.")
         tree_file = f"{prefix}_input.nj.nwk"
         build_starting_tree(args["characters"], tree_file)
     else:
-        tree_file = args["topology"]
+        # topology filename was provided but doesn't exist
+        if not os.path.isfile(args["topology"]):
+            print("WARNING: No input topology found! We will use NJ with weighted Hamming distance to construct an unrooted tree, and use an unedited sequence for a heuristic root, but this is not recommended.")
+            tree_file = f"{prefix}_input.nj.nwk"
+            build_starting_tree(args["characters"], tree_file)
+        else: 
+            tree_file = args["topology"]
     
     print("Launching " + laml.PROGRAM_NAME + " version " + laml.PROGRAM_VERSION)
     print(laml.PROGRAM_NAME + " was called as follows: " + " ".join(argv))

@@ -1,1 +1,5 @@
+# Assumes user in directory: `example1/`
+
+python ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example1 --nInitials 1 --timescale 10
+
 This is s50d50p01_sub250_r01.
