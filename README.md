@@ -64,7 +64,7 @@ Users may consider one of three primary modes for running LAML:
 ## Input
 LAML requires the following two input files:
 
-1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character. Refer to the paper for more details. 
+1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character. Refer to the paper for more details. Note that for numerical stability, by default LAML deduplicates the character matrix and input tree, and places the duplicate sequences back in as polytomies.
 
 | cell_name  | site_1 | site_2 |
 | ------------- | ------------- | ------------- |
@@ -113,6 +113,8 @@ by default. However, if possible we highly recommend specifying mutation prior u
 [examples/example1/priors.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/priors.csv).
 
 **Not recommended** We also accept [Python-pickled files](https://docs.python.org/3/library/pickle.html#data-stream-format), as this is the indel prior output format for [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/notebooks/reconstruct.html). We print a warning if the keys of the pickled prior dictionary do not match the site names in your provided character matrix file. 
+
+Note that if the mutation priors are provided, we let this define the alphabet of possible edits for each target site.
 
 ### The output prefix and verbose option
 The user can change the output prefix using `-o`. The default prefix is `LAML_output`. The software can be run in verbose mode using `-v`.

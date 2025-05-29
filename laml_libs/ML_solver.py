@@ -30,9 +30,24 @@ class ML_solver(Virtual_solver):
             tree_obj.suppress_unifurcations()
             self.num_edges += len(list(tree_obj.traverse_postorder()))
             self.trees.append(tree_obj)
+        
+        Q_filtered = Q
+        """
+        # Note: If the priors are provided, let the priors define the alphabet!
+        # remove states we don't observe in charMtrx
+        num_sites = len(next(iter(charMtrx.values())))
+        obs = [set() for _ in range(num_sites)]
+        for seq in charMtrx.values():
+            for i, state in enumerate(seq):
+                obs[i].add(state)
+        Q_filtered = [
+            {k: v for k, v in q.items() if k in obs[i] or k == 0}
+            for i, q in enumerate(Q)
+        ]
+        """
         # normalize Q
         self.Q = []
-        for Q_i in Q:
+        for Q_i in Q_filtered: # Q
             s = sum([Q_i[x] for x in Q_i])
             Q_i_norm = {x:Q_i[x]/s for x in Q_i}
             self.Q.append(Q_i_norm)        

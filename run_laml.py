@@ -2,7 +2,7 @@
 import os
 import pickle
 import laml_libs as laml
-from laml_libs.sequence_lib import read_sequences, read_priors
+from laml_libs.sequence_lib import read_sequences, read_priors, dedup, add_dup
 from laml_libs.ML_solver import ML_solver
 from laml_libs.EM_solver import EM_solver
 from laml_libs.fastEM_solver import fastEM_solver, parse_data, parse_tree
@@ -121,10 +121,15 @@ def main():
     else:
         os.environ['JAX_PLATFORM_NAME'] = 'cpu'
 
-    print(f"JAX version: {jax.__version__}")
-    print(f"Using JAX backend with {jax.devices()} devices.")
-    print(f"Using device {jax.devices()[-1]} for computation.")
-    jax.config.update("jax_default_device", jax.devices()[-1])
+    if args["solver"].lower() == "fastem-cpu" or args["solver"].lower() == "fastem-gpu":
+        print(f"JAX version: {jax.__version__}")
+        print(f"Using JAX backend with {jax.devices()} devices.")
+        print(f"Using device {jax.devices()[-1]} for computation.")
+        jax.config.update("jax_default_device", jax.devices()[-1])
+
+    if args["solver"].lower() not in {"fastem-cpu", "fastem-gpu", "em", "scipy"}:
+        print("Specified solver not recognized.")
+        exit(0)
     
     # preprocessing: read and analyze input
     delim_map = {'tab':'\t','comma':',','whitespace':' '}
@@ -136,6 +141,9 @@ def main():
         input_trees = []
         for line in f:
             input_trees.append(line.strip())
+
+    # deduplicate msa and input_trees
+    has_dup, dup_map, msa, input_trees = dedup(msa, input_trees)
 
     k = len(msa[next(iter(msa.keys()))])
     if args["compute_llh"]:
@@ -190,6 +198,7 @@ def main():
         selected_solver = ML_solver   
         em_selected = False
 
+
     # main tasks        
     data = {'charMtrx':msa} 
     prior = {'Q':Q} 
@@ -231,7 +240,7 @@ def main():
         # setup the strategy
         my_strategy = deepcopy(laml.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
-        my_strategy['ultra_constr'] = args["noultrametric"] #True #args["ultrametric"] # TODO: Remove this flag
+        my_strategy['ultra_constr'] = args["noultrametric"] #True 
         # resolve polytomies or not?
         resolve_polytomies = not args["keep_polytomies"]
         # only resolve polytomies or do full search?
@@ -250,7 +259,7 @@ def main():
             else:    
                 print("Optimization by generic solver (Scipy-SLSQP)")        
             mySolver = myTopoSearch.get_solver()
-            nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True) #args["ultrametric"]) # TODO: Remove this flag
+            nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=True) 
             myTopoSearch.update_from_solver(mySolver)
             opt_trees = myTopoSearch.treeTopoList
             opt_params = myTopoSearch.params
@@ -283,6 +292,11 @@ def main():
     
     # post-processing: analyze results and output 
     
+    # add the duplicate sequences back into the tree 
+    # if there are duplicates, then check
+    if has_dup:
+        opt_trees = add_dup(opt_trees, dup_map) # is anything below this incompatible with this?
+
     if not args["compute_llh"]:
         out_tree = prefix + "_trees.nwk"
         out_annotate = prefix + "_annotations.txt"
