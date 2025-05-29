@@ -1,13 +1,14 @@
 #! /usr/bin/env python
 import os
 import pickle
-import laml_libs as scmail
+import laml_libs as laml
 from laml_libs.sequence_lib import read_sequences, read_priors
 from laml_libs.ML_solver import ML_solver
 from laml_libs.EM_solver import EM_solver
 from laml_libs.fastEM_solver import fastEM_solver, parse_data, parse_tree
 from laml_libs.Topology_search_parallel import Topology_search_parallel as Topology_search_parallel
 from laml_libs.Topology_search import Topology_search as Topology_search_sequential
+from laml_libs.starting_tree import build_starting_tree
 from math import *
 from treeswift import *
 import random
@@ -44,9 +45,9 @@ def main():
     parser._action_groups.append(otherOptions)
 
     # input arguments
-    requiredNamed.add_argument("-t","--topology",required=True,help="[REQUIRED] The input tree topology in newick format. Branch lengths will be ignored.") 
     requiredNamed.add_argument("-c","--characters",required=True,help="[REQUIRED] The input character matrix. Must have header.")
 
+    inputOptions.add_argument("-t","--topology",required=False,help="The input tree topology in newick format. Branch lengths will be ignored. If you do not provide an input tree topology, we will use NJ with weighted Hamming distances.") 
     inputOptions.add_argument("-p","--priors",required=False, default="uniform", help="The input prior matrix Q. Default: if not specified, use a uniform prior.")
     inputOptions.add_argument("--delimiter",required=False,default="comma",help="The delimiter of the input character matrix. Can be one of {'comma','tab','whitespace'} .Default: 'comma'.")
     inputOptions.add_argument("-m","--missing_data",required=False,default="?",help="Missing data character. Default: if not specified, assumes '?'.")
@@ -90,12 +91,19 @@ def main():
         print("MOSEK license not found in environment variables. Please set the MOSEK license!")
         exit(0)
 
-    if not os.path.isfile(args["characters"]) or not os.path.isfile(args["topology"]):
+    if not os.path.isfile(args["characters"]):
         print("Input files not found.")
         exit(0)
+
+    if not os.path.isfile(args["topology"]):
+        print("No input topology found, using NJ with weighted Hamming distance and unedited sequence as heuristic rooting.")
+        tree_file = f"{prefix}_input.nj.nwk"
+        build_starting_tree(args["characters"], tree_file)
+    else:
+        tree_file = args["topology"]
     
-    print("Launching " + scmail.PROGRAM_NAME + " version " + scmail.PROGRAM_VERSION)
-    print(scmail.PROGRAM_NAME + " was called as follows: " + " ".join(argv))
+    print("Launching " + laml.PROGRAM_NAME + " version " + laml.PROGRAM_VERSION)
+    print(laml.PROGRAM_NAME + " was called as follows: " + " ".join(argv))
     start_time = timeit.default_timer()
 
     if args['gpu']:
@@ -116,8 +124,7 @@ def main():
     msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["missing_data"])
     #prefix = '.'.join(args["output"].split('.')[:-1])
 
-
-    with open(args["topology"],'r') as f:
+    with open(tree_file,'r') as f:
         input_trees = []
         for line in f:
             input_trees.append(line.strip())
@@ -179,7 +186,7 @@ def main():
     data = {'charMtrx':msa} 
     prior = {'Q':Q} 
     
-    params = {'nu':fixed_nu if fixed_nu is not None else scmail.eps,'phi':fixed_phi if fixed_phi is not None else scmail.eps}  
+    params = {'nu':fixed_nu if fixed_nu is not None else laml.eps,'phi':fixed_phi if fixed_phi is not None else laml.eps}  
 
     # do additional input processing if fastem is selected
     if fastem_selected:
@@ -214,7 +221,7 @@ def main():
         print("Tree log-likelihood: " + str(-nllh))
     else:
         # setup the strategy
-        my_strategy = deepcopy(scmail.DEFAULT_STRATEGY)
+        my_strategy = deepcopy(laml.DEFAULT_STRATEGY)
         # enforce ultrametric or not?
         my_strategy['ultra_constr'] = args["noultrametric"] #True #args["ultrametric"] # TODO: Remove this flag
         # resolve polytomies or not?

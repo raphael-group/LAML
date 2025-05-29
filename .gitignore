@@ -9,3 +9,5 @@ unit_tests/results_*
 scripts/__pycache__/*
 **/*.pyc
 **/__pycache__/*
+# macOS Finder metadata
+.DS_Store
