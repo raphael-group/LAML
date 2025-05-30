@@ -36,9 +36,10 @@ param = {
         'scripts': ['run_laml.py', 'laml_tests.py', 'extra_laml_tests.py'],
         'zip_safe': True,
         'install_requires': ['scipy>=1.3.1', 'cvxpy>=1.4', 'treeswift>=1.1.39', 'Mosek>=10.1.16', 
-                             'Biopython>=1.71','matplotlib>=2.2.2','setuptools'], 
+                             'Biopython>=1.71','matplotlib>=2.2.2','setuptools',"jax>=0.4.30,<0.5",
+                             "loguru>=0.7.3,<1.0", "networkx>=3.2.1,<4.0", "optax>=0.2.4,<1.0", "pandas>=2.2.3,<3.0"], 
         'keywords': 'Phylogenetics Evolution Computational Maximum-likelihood Lineage Tracing',
-        'long_description': """LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML will find a maximum likelihood tree topology and estimate branch lengths as well as stochastic dropout and heritable silencing missing data rates.""",
+        'long_description': """LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML finds a maximum likelihood tree topology and estimates parameters including time-resolved branch lengths, heritable silencing rate and non-heritable dropout probability.""",
         'classifiers': [
             "Environment :: Console",
             "Intended Audience :: Developers",

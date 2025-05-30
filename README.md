@@ -8,7 +8,7 @@ For additional information about the method refer to the [paper](https://www.bio
 ## Precursors 
 The following precursors **are required** to install and run LAML
 ### Python and pip
-The software requires python >= 3.8 and pip.
+The software requires python >= 3.9 and pip.
 
 ### [IMPORTANT] MOSEK License
 The software uses [MOSEK](https://www.mosek.com) for numerical optimization, which requires a license. Please do the following 2 steps:
