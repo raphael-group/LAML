@@ -1,0 +1,5 @@
+python /Users/gc3045/laml2_experiments/simulations/cass_nj.py /Users/gc3045/git/LAML/examples/example1/character_matrix.csv /Users/gc3045/git/LAML/examples/example1/cass.nj.nwk 
+python /Users/gc3045/git/LAML/scripts/starting_tree/get_nj_starting.py /Users/gc3045/git/LAML/examples/example1/character_matrix.csv /Users/gc3045/git/LAML/examples/example1/own.nj.nwk
+
+ python /Users/gc3045/laml2_experiments/simulations/cass_nj.py test_cmat.csv test_nj.nwk
+ python get_nj_starting.py

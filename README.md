@@ -56,11 +56,15 @@ Alternatively, if you wish to install the (developing) version available on Gith
 ```
 run_laml -c <character_matrix> -t <tree_topology> 
 ```
+Users may consider one of three primary modes for running LAML: 
+1. Computing the likelihood of a tree and parameters (branch lengths, silencing rate, and dropout probability) under the PMM model.  
+2. Estimating parameters (branch lengths, silencing rate, and dropout probability) on a fixed tree topology. 
+3. Jointly estimate a tree topology and parameters (branch lengths, silencing rate, and dropout probability) under the PMM model.
+
 ## Input
 LAML requires the following two input files:
 
-
-1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character. Refer to the paper for more details. 
+1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character. Refer to the paper for more details. Note that for numerical stability, by default LAML deduplicates the character matrix and input tree, and places the duplicate sequences back in as polytomies.
 
 | cell_name  | site_1 | site_2 |
 | ------------- | ------------- | ------------- |
@@ -68,7 +72,7 @@ LAML requires the following two input files:
 | cell_2  | 0  | 2  |
 | cell_3  | 1  | 0  |
 
-2. A tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). 
+2. (*soft requirement*) tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). The tree topology is a **soft requirement** because if no tree topology is provided, we will use weighted Hamming distance to construct a distance matrix from your provided character matrix (ignoring priors for simplicity), then use Neighbor Joining to construct an unrooted tree. We will root heuristically using an unedited sequence. However, *for all modes of running LAML* we recommend the user provide their own tree instead.
 
 See an example character matrix in [examples/example1/character_matrix.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/character_matrix.csv) and an example tree topology in [examples/example1/starting.tree](https://github.com/raphael-group/LAML/tree/laml/examples/example1/starting.tree)
 
@@ -110,6 +114,8 @@ by default. However, if possible we highly recommend specifying mutation prior u
 
 **Not recommended** We also accept [Python-pickled files](https://docs.python.org/3/library/pickle.html#data-stream-format), as this is the indel prior output format for [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/notebooks/reconstruct.html). We print a warning if the keys of the pickled prior dictionary do not match the site names in your provided character matrix file. 
 
+Note that if the mutation priors are provided, we let this define the alphabet of possible edits for each target site.
+
 ### The output prefix and verbose option
 The user can change the output prefix using `-o`. The default prefix is `LAML_output`. The software can be run in verbose mode using `-v`.
 
@@ -134,3 +140,4 @@ Below are some other important options available in LAML. For full documentation
   --randomreps RANDOMREPS    Number of replicates to run for the random strategy of topology search.
   --maxIters MAXITERS   Maximum number of iterations to run topology search.
 ```
+

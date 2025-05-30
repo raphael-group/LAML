@@ -1,8 +1,87 @@
 #! /usr/bin/env python
 from statistics import mean
 import pickle
+from collections import defaultdict
+from treeswift import * 
+from laml_libs import dmin
 
 recognized_missing = set(['-', '?', '-1'])
+
+def dedup(char_mtrx, input_tree_strings):
+    seq_to_taxa = defaultdict(list)
+    for taxon, seq in char_mtrx.items():
+        seq_tuple = tuple(seq)  # lists are unhashable, convert to tuple
+        seq_to_taxa[seq_tuple].append(taxon)
+    has_dup = False
+    dup_map = dict()
+    deduped_char_mtrx = dict()
+
+    if len(seq_to_taxa) != len(char_mtrx.keys()):
+        print(f"Started with {len(char_mtrx.keys())} sequences. Deduplication removes {len(char_mtrx.keys()) - len(seq_to_taxa)} sequences.")
+        has_dup = True
+    else:
+        print(f"No duplicates, {len(seq_to_taxa)} unique sequences remain.")
+        return has_dup, dup_map, char_mtrx, input_tree_strings
+
+    # pick one to keep arbitrarily, call it x
+    for taxa_group in seq_to_taxa.values():
+        x = taxa_group[0]               # pick one to keep
+        if len(taxa_group) > 1:
+            y = taxa_group[1:]             # others to remove
+            deduped_char_mtrx[x] = char_mtrx[x]
+            # keep all the other taxa names which map to this x taxa
+            dup_map[x] = y
+            #print(x, y)
+        else:
+            deduped_char_mtrx[x] = char_mtrx[x]
+    # no need for deduped_char_mtrx 
+
+    input_trees = [read_tree_newick(s) for s in input_tree_strings]
+    # prune the input trees to remove all y for each x
+    for i, tree in enumerate(input_trees):
+        for rep in dup_map:
+            #print("repr:", rep, len(list(tree.labels(leaves=True, internal=False))))
+            tree = tree.extract_tree_without(dup_map[rep], suppress_unifurcations=True)
+            #print("repr:", rep, len(list(tree.labels(leaves=True, internal=False))))
+        input_trees[i] = tree  # overwrite the tree in the list
+
+    # transform back into newick strings
+    output_tree_strings = [tree.newick() for tree in input_trees]
+    #print(output_tree_strings)
+
+    return has_dup, dup_map, char_mtrx, output_tree_strings
+
+def add_dup(input_tree_strings, dup_map):
+    input_trees = [read_tree_newick(s) for s in input_tree_strings]
+    # add the taxa back to the input trees as polytomies using treeswift functions.
+    new_polytomies = set()
+    for i, tree in enumerate(input_trees):
+        l2n = tree.label_to_node(selection='leaves')
+        for representative in dup_map:
+            dups = dup_map[representative]
+            node = l2n[representative]
+            if not node is None:
+                p = node.get_parent()
+
+                edge_len = node.get_edge_length()
+                dummy = Node(label=None)
+                dummy.set_edge_length(edge_len)
+
+                p.remove_child(node)
+                p.add_child(dummy)
+                node.set_edge_length(dmin)
+                dummy.add_child(node)
+                dummy.set_label(f"node_dummy_{representative}")
+
+                for taxon in dups:
+                    dup_node = Node(label=taxon)
+                    dup_node.set_edge_length(dmin)
+                    dummy.add_child(dup_node)
+        input_trees[i] = tree  # overwrite the tree in the list
+
+    print(f"Added back the identical sequences, creating {len(dup_map)} dummy nodes.")
+    output_tree_strings = [tree.newick() for tree in input_trees]
+    return output_tree_strings 
 
 def write_sequences(char_mtrx,nsites,outFile,delimiter=","):
     with open(outFile,'w') as fout:
@@ -153,6 +232,23 @@ def load_pickle(f):
 
 def read_priors(pfile, msa, site_names=None):
     file_extension = pfile.strip().split(".")[-1]
+
+    # check for observed site alphabet in input msa (dict of lists
+    """
+    obs_alphabet = {}
+    if site_names is None:
+        seq_lens = set([len(x) for x in msa])
+        if len(seq_lens) > 1:
+            print("Sequences are of different lengths!")
+            exit(0)
+        else:
+            site_names = [i for i in range(list(seq_lens)[0])]
+    for x in site_names:
+        obs_alphabet[x] = {}
+        for cell in msa:
+            obs_alphabet[x].add(msa[cell][x])
+    """
+
     if file_extension == "pkl" or file_extension == "pickle": #pickled file
         infile = open(pfile, "rb")
         priors = pickle.load(infile)
@@ -208,6 +304,7 @@ def read_priors(pfile, msa, site_names=None):
                         print(f"Missing priors at site {site_name}, filling in uniform priors...")
                         # fill in uniform priors at site i
                         M_i = set(msa[x][i] for x in msa if msa[x][i] not in [0,"?"])
+
                         if len(M_i) == 0:
                             # add pseudo-mutated state
                             m_i = 1
@@ -219,8 +316,6 @@ def read_priors(pfile, msa, site_names=None):
                     Q.append(q)
                 print(mapping)
                 return Q
-
-
         for i in sorted(priors.keys()):
             q = {int(x):priors[i][x] for x in priors[i]}
             q[0] = 0

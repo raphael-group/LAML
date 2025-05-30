@@ -1,1 +1,3 @@
-Purpose: test problin on optimizing branch lengths, phi, and nu on a fully resolved tree (true phi = 0, true nu = 0)
+# Trying out the uninformative sites
+
+python ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v

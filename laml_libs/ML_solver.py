@@ -17,6 +17,7 @@ class Params:
 
 class ML_solver(Virtual_solver):
     def __init__(self,treeList,data,prior,params={'nu':eps,'phi':eps}):
+        self.solver_name = "ML_solver"
         charMtrx = data['charMtrx']
         Q = prior['Q']
         nu = params['nu']
@@ -29,9 +30,45 @@ class ML_solver(Virtual_solver):
             tree_obj.suppress_unifurcations()
             self.num_edges += len(list(tree_obj.traverse_postorder()))
             self.trees.append(tree_obj)
+        Q_filtered = Q
+        """
+        # Note: If the priors are provided, let the priors define the alphabet!
+        # remove states we don't observe in charMtrx
+        num_sites = len(next(iter(charMtrx.values())))
+        obs = [set() for _ in range(num_sites)]
+        for seq in charMtrx.values():
+            for i, state in enumerate(seq):
+                obs[i].add(state)
+        Q_filtered = [
+            {k: v for k, v in q.items() if k in obs[i] or k == 0}
+            for i, q in enumerate(Q)
+        ]
+        """
+        # check for uninformative sites, and drop columns corresponding to that if 
+        site_matrix = list(zip(*charMtrx.values())) # transpose matrix, get a list of columns
+        uninformative_sites = [
+            i for i, site in enumerate(site_matrix)
+            if all(val in (0, -1, '?') for val in site)
+        ]
+        informative_indices = [
+            i for i in range(len(site_matrix)) if i not in uninformative_sites
+        ]
+        
+        if len(Q) != len(site_matrix):
+            print(f"Warning: Q has {len(Q)} entries, {len(site_matrix)} sites in charMtrx. Identified {len(uninformative_sites)} uninformative sites.")
+            # if removing the uninformative sites would help us handle the input priors, let's drop them
+            if len(uninformative_sites) == max(len(Q), len(site_matrix)) - min(len(Q), len(site_matrix)):
+                charMtrx = {
+                    cell: [values[i] for i in informative_indices]
+                    for cell, values in charMtrx.items()
+                }
+            else:
+                print(f"Warning: Removing the uninformative sites would not help us resolve the discrepancy between the priors and the character matrix, so let's not change anything.")
+        self.charMtrx = charMtrx
+
         # normalize Q
         self.Q = []
-        for Q_i in Q:
+        for Q_i in Q_filtered: # Q
             s = sum([Q_i[x] for x in Q_i])
             Q_i_norm = {x:Q_i[x]/s for x in Q_i}
             self.Q.append(Q_i_norm)        

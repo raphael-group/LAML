@@ -1,0 +1,45 @@
+Launching LAML version 0.0.4
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv
+JAX version: 0.4.30
+Using JAX backend with [CpuDevice(id=0)] devices.
+Using device TFRT_CPU_0 for computation.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+Initial point 1. Random seed: 4139
+Numerical optimization started with ultrametric constraint (default)
+Initial phi: 0.7418196491595819. Initial nu: 0.8519160845304486. Initial nllh: 48530.1132396447
+EM finished after 53 iterations.
+Optimal phi: 0.14374337090716843. Optimal nu: 0.13374716495573225. Optimal nllh: 6987.352385652875
+Optimal point found for initial point 1
+Initial point 2. Random seed: 5248
+Numerical optimization started with ultrametric constraint (default)
+Initial phi: 0.9056680944690745. Initial nu: 0.7924598508955568. Initial nllh: 18810.50266638714
+EM finished after 41 iterations.
+Optimal phi: 0.14388631243510833. Optimal nu: 0.13328222652442423. Optimal nllh: 6987.352171426893
+Optimal point found for initial point 2
+Initial point 3. Random seed: 9174
+Numerical optimization started with ultrametric constraint (default)
+Initial phi: 0.13505447119796085. Initial nu: 0.9748367190905642. Initial nllh: 7726.4243342512955
+EM finished after 45 iterations.
+Optimal phi: 0.14375632507414773. Optimal nu: 0.1337041298906215. Optimal nllh: 6987.352337748607
+Optimal point found for initial point 3
+Initial point 4. Random seed: 7531
+Numerical optimization started with ultrametric constraint (default)
+Initial phi: 0.5278222329358544. Initial nu: 0.6609063379431952. Initial nllh: 9790.468791058387
+EM finished after 20 iterations.
+Optimal phi: 0.14381509263846284. Optimal nu: 0.13353137446995267. Optimal nllh: 6987.351936338532
+Optimal point found for initial point 4
+Initial point 5. Random seed: 409
+Numerical optimization started with ultrametric constraint (default)
+Initial phi: 0.7807411113002886. Initial nu: 0.662227122108862. Initial nllh: 13838.873372439046
+EM finished after 41 iterations.
+Optimal phi: 0.14388685685684482. Optimal nu: 0.13328222199981252. Optimal nllh: 6987.352249759073
+Optimal point found for initial point 5
+Initial point 6. Random seed: 6658
+Numerical optimization started with ultrametric constraint (default)
+Initial phi: 0.8794617289446394. Initial nu: 0.4998084463720901. Initial nllh: 16897.374461918575
+Warning: EM failed to optimize parameters in one Mstep.
+Warning: EM failed to optimize parameters in one Mstep.
+Warning: EM failed to optimize parameters in one Mstep.
+Warning: EM failed to optimize parameters in one Mstep.
+Warning: EM failed to optimize parameters in one Mstep.

@@ -1,0 +1,2736 @@
+Launching LAML version 0.0.4
+LAML was called as follows: run_laml.py -c examples/example2/character_matrix.csv -t examples/example2/starting.tree -p examples/example2/priors.csv -o example2_bothscores --nInitials 1 --randomreps 1 --topology_search -v --timescale 10 --solver fastEM
+No polytomy detected.
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Current fastEM_solver score: -1127.27734375, 0.007926973514258862, 0.009746131487190723, 2.024992 seconds
+avg brlen diff between EMsolvers (old - new): [0.0021189533392470677]
+llh diff between EMsolvers (old - new): -7.4266357421875
+time diff between EMsolvers (old - new): -0.8281149864196777
+param (phi) diff between EMsolvers (old - new): -0.007926973514258862
+param (nu) diff between EMsolvers (old - new): 0.02870575338602066
+Initial score: -1127.2773
+NNI Iter: 0
+Current fastEM_solver score: -1137.4083251953125, 0.007926973514258862, 0.009746131487190723, 0.142928 seconds
+avg brlen diff between EMsolvers (old - new): [0.003499038448244514]
+llh diff between EMsolvers (old - new): -4.6588134765625
+time diff between EMsolvers (old - new): 6.565250873565674
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.1328125, 0.007926973514258862, 0.009746131487190723, 0.115727 seconds
+avg brlen diff between EMsolvers (old - new): [0.0032932086751462615]
+llh diff between EMsolvers (old - new): -7.9344482421875
+time diff between EMsolvers (old - new): 8.307639598846436
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.7176513671875, 0.007926973514258862, 0.009746131487190723, 0.137193 seconds
+avg brlen diff between EMsolvers (old - new): [0.00287917516416062]
+llh diff between EMsolvers (old - new): -7.19189453125
+time diff between EMsolvers (old - new): 6.183361291885376
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.8953857421875, 0.007926973514258862, 0.009746131487190723, 0.116214 seconds
+avg brlen diff between EMsolvers (old - new): [0.0030016382037201567]
+llh diff between EMsolvers (old - new): -3.01416015625
+time diff between EMsolvers (old - new): 6.30044960975647
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.3154296875, 0.007926973514258862, 0.009746131487190723, 0.115885 seconds
+avg brlen diff between EMsolvers (old - new): [0.0028144257864125537]
+llh diff between EMsolvers (old - new): -7.259765625
+time diff between EMsolvers (old - new): 10.332649230957031
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.07275390625, 0.007926973514258862, 0.009746131487190723, 0.396788 seconds
+avg brlen diff between EMsolvers (old - new): [0.002515459795726704]
+llh diff between EMsolvers (old - new): -8.50244140625
+time diff between EMsolvers (old - new): 18.059839010238647
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.6925048828125, 0.007926973514258862, 0.009746131487190723, 0.145557 seconds
+avg brlen diff between EMsolvers (old - new): [0.0025544905421095243]
+llh diff between EMsolvers (old - new): -7.3826904296875
+time diff between EMsolvers (old - new): 16.198688983917236
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.8363037109375, 0.007926973514258862, 0.009746131487190723, 0.117029 seconds
+avg brlen diff between EMsolvers (old - new): [0.002551074477999061]
+llh diff between EMsolvers (old - new): -7.2098388671875
+time diff between EMsolvers (old - new): 16.290910959243774
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.188720703125, 0.007926973514258862, 0.009746131487190723, 0.093822 seconds
+avg brlen diff between EMsolvers (old - new): [0.003392522198594413]
+llh diff between EMsolvers (old - new): -8.3795166015625
+time diff between EMsolvers (old - new): 6.261429071426392
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.885986328125, 0.007926973514258862, 0.009746131487190723, 0.159742 seconds
+avg brlen diff between EMsolvers (old - new): [0.0036615924752205764]
+llh diff between EMsolvers (old - new): -6.6832275390625
+time diff between EMsolvers (old - new): 6.475207328796387
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.2275390625, 0.007926973514258862, 0.009746131487190723, 0.124603 seconds
+avg brlen diff between EMsolvers (old - new): [0.002953743333709518]
+llh diff between EMsolvers (old - new): -8.71484375
+time diff between EMsolvers (old - new): 6.213721990585327
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.4400634765625, 0.007926973514258862, 0.009746131487190723, 0.159163 seconds
+avg brlen diff between EMsolvers (old - new): [0.0030675440042912797]
+llh diff between EMsolvers (old - new): -8.5018310546875
+time diff between EMsolvers (old - new): 8.382023811340332
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.351806640625, 0.007926973514258862, 0.009746131487190723, 0.165727 seconds
+avg brlen diff between EMsolvers (old - new): [0.003949013532411141]
+llh diff between EMsolvers (old - new): -7.779052734375
+time diff between EMsolvers (old - new): 8.245508909225464
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.322021484375, 0.007926973514258862, 0.009746131487190723, 0.137001 seconds
+avg brlen diff between EMsolvers (old - new): [0.003948718038979392]
+llh diff between EMsolvers (old - new): -7.808349609375
+time diff between EMsolvers (old - new): 8.623414039611816
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.998046875, 0.007926973514258862, 0.009746131487190723, 0.146288 seconds
+avg brlen diff between EMsolvers (old - new): [0.00334245792849556]
+llh diff between EMsolvers (old - new): -8.644775390625
+time diff between EMsolvers (old - new): 8.228845357894897
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.34619140625, 0.007926973514258862, 0.009746131487190723, 0.116210 seconds
+avg brlen diff between EMsolvers (old - new): [0.0034305326229162048]
+llh diff between EMsolvers (old - new): -8.297607421875
+time diff between EMsolvers (old - new): 10.45819878578186
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.2255859375, 0.007926973514258862, 0.009746131487190723, 0.135672 seconds
+avg brlen diff between EMsolvers (old - new): [0.001601904986035946]
+llh diff between EMsolvers (old - new): -7.3447265625
+time diff between EMsolvers (old - new): 14.34377384185791
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1127.2256
+Runtime (s): 172.01510066599985
+NNI Iter: 1
+Current fastEM_solver score: -1129.6517333984375, 0.007926973514258862, 0.009746131487190723, 0.118533 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018695206289694219]
+llh diff between EMsolvers (old - new): -8.0242919921875
+time diff between EMsolvers (old - new): 8.409546136856079
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.3394775390625, 0.007926973514258862, 0.009746131487190723, 0.158150 seconds
+avg brlen diff between EMsolvers (old - new): [0.00218368833768429]
+llh diff between EMsolvers (old - new): -6.3365478515625
+time diff between EMsolvers (old - new): 8.20483112335205
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1131.3395
+Runtime (s): 17.312075916999675
+NNI Iter: 2
+Current fastEM_solver score: -1136.635009765625, 0.007926973514258862, 0.009746131487190723, 0.137128 seconds
+avg brlen diff between EMsolvers (old - new): [0.001558334374398741]
+llh diff between EMsolvers (old - new): -7.322265625
+time diff between EMsolvers (old - new): 10.39915680885315
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.9293212890625, 0.007926973514258862, 0.009746131487190723, 0.116093 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019037888223920401]
+llh diff between EMsolvers (old - new): -5.98681640625
+time diff between EMsolvers (old - new): 18.436216115951538
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.6966552734375, 0.007926973514258862, 0.009746131487190723, 0.136291 seconds
+avg brlen diff between EMsolvers (old - new): [0.0024072131758205713]
+llh diff between EMsolvers (old - new): -7.493896484375
+time diff between EMsolvers (old - new): 10.54608678817749
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.302001953125, 0.007926973514258862, 0.009746131487190723, 0.096443 seconds
+avg brlen diff between EMsolvers (old - new): [0.0022888284728575]
+llh diff between EMsolvers (old - new): -7.89013671875
+time diff between EMsolvers (old - new): 6.310276746749878
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.6998291015625, 0.007926973514258862, 0.009746131487190723, 0.136453 seconds
+avg brlen diff between EMsolvers (old - new): [0.0025427653675370848]
+llh diff between EMsolvers (old - new): -6.6651611328125
+time diff between EMsolvers (old - new): 10.48949909210205
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.7293701171875, 0.007926973514258862, 0.009746131487190723, 0.156864 seconds
+avg brlen diff between EMsolvers (old - new): [0.0023930095928452197]
+llh diff between EMsolvers (old - new): -7.63623046875
+time diff between EMsolvers (old - new): 14.407288789749146
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1144.7491455078125, 0.007926973514258862, 0.009746131487190723, 0.149709 seconds
+avg brlen diff between EMsolvers (old - new): [0.002406688066098471]
+llh diff between EMsolvers (old - new): -8.0504150390625
+time diff between EMsolvers (old - new): 6.418130159378052
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1145.268798828125, 0.007926973514258862, 0.009746131487190723, 0.153142 seconds
+avg brlen diff between EMsolvers (old - new): [0.002542708279869059]
+llh diff between EMsolvers (old - new): -7.52978515625
+time diff between EMsolvers (old - new): 6.179888963699341
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.3529052734375, 0.007926973514258862, 0.009746131487190723, 0.119694 seconds
+avg brlen diff between EMsolvers (old - new): [0.0026262049015844985]
+llh diff between EMsolvers (old - new): -3.9951171875
+time diff between EMsolvers (old - new): 10.560657739639282
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.3841552734375, 0.007926973514258862, 0.009746131487190723, 0.136676 seconds
+avg brlen diff between EMsolvers (old - new): [0.0022651590529233654]
+llh diff between EMsolvers (old - new): -7.9637451171875
+time diff between EMsolvers (old - new): 8.205661058425903
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.9813232421875, 0.007926973514258862, 0.009746131487190723, 0.073342 seconds
+avg brlen diff between EMsolvers (old - new): [0.0024056832840341985]
+llh diff between EMsolvers (old - new): -6.9510498046875
+time diff between EMsolvers (old - new): 6.581773042678833
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.1865234375, 0.007926973514258862, 0.009746131487190723, 0.095531 seconds
+avg brlen diff between EMsolvers (old - new): [0.0024349142705505904]
+llh diff between EMsolvers (old - new): -7.745361328125
+time diff between EMsolvers (old - new): 6.352296829223633
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.8543701171875, 0.007926973514258862, 0.009746131487190723, 0.158312 seconds
+avg brlen diff between EMsolvers (old - new): [0.0024360162303750476]
+llh diff between EMsolvers (old - new): -7.3441162109375
+time diff between EMsolvers (old - new): 10.501936197280884
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.533447265625, 0.007926973514258862, 0.009746131487190723, 0.115394 seconds
+avg brlen diff between EMsolvers (old - new): [0.002351645502954615]
+llh diff between EMsolvers (old - new): -7.66455078125
+time diff between EMsolvers (old - new): 6.23194694519043
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.180908203125, 0.007926973514258862, 0.009746131487190723, 0.162203 seconds
+avg brlen diff between EMsolvers (old - new): [0.0023271112576654742]
+llh diff between EMsolvers (old - new): -7.23193359375
+time diff between EMsolvers (old - new): 6.422400951385498
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.80224609375, 0.007926973514258862, 0.009746131487190723, 0.157534 seconds
+avg brlen diff between EMsolvers (old - new): [0.0022527841503483213]
+llh diff between EMsolvers (old - new): -7.6099853515625
+time diff between EMsolvers (old - new): 8.162673234939575
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.1229248046875, 0.007926973514258862, 0.009746131487190723, 0.144501 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019539281499358664]
+llh diff between EMsolvers (old - new): -7.8953857421875
+time diff between EMsolvers (old - new): 10.484678030014038
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.813720703125, 0.007926973514258862, 0.009746131487190723, 0.178423 seconds
+avg brlen diff between EMsolvers (old - new): [0.0021411848688448532]
+llh diff between EMsolvers (old - new): -7.2066650390625
+time diff between EMsolvers (old - new): 8.20811676979065
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.974853515625, 0.007926973514258862, 0.009746131487190723, 0.194388 seconds
+avg brlen diff between EMsolvers (old - new): [0.0022652050285059504]
+llh diff between EMsolvers (old - new): -7.78515625
+time diff between EMsolvers (old - new): 10.60213589668274
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.653076171875, 0.007926973514258862, 0.009746131487190723, 0.139272 seconds
+avg brlen diff between EMsolvers (old - new): [0.002535511505635877]
+llh diff between EMsolvers (old - new): -6.1080322265625
+time diff between EMsolvers (old - new): 10.445004940032959
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.4031982421875, 0.007926973514258862, 0.009746131487190723, 0.160195 seconds
+avg brlen diff between EMsolvers (old - new): [0.001161417927018601]
+llh diff between EMsolvers (old - new): -6.7596435546875
+time diff between EMsolvers (old - new): 12.699100971221924
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1130.4032
+Runtime (s): 206.01447816699874
+NNI Iter: 3
+Current fastEM_solver score: -1137.898193359375, 0.007926973514258862, 0.009746131487190723, 0.162984 seconds
+avg brlen diff between EMsolvers (old - new): [0.001273744922014729]
+llh diff between EMsolvers (old - new): -6.7176513671875
+time diff between EMsolvers (old - new): 12.401403188705444
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.6224365234375, 0.007926973514258862, 0.009746131487190723, 0.150294 seconds
+avg brlen diff between EMsolvers (old - new): [0.00122160204171262]
+llh diff between EMsolvers (old - new): -6.992431640625
+time diff between EMsolvers (old - new): 18.61739706993103
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.8812255859375, 0.007926973514258862, 0.009746131487190723, 0.116002 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012791526196737541]
+llh diff between EMsolvers (old - new): -7.2474365234375
+time diff between EMsolvers (old - new): 6.3022050857543945
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.371826171875, 0.007926973514258862, 0.009746131487190723, 0.116916 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013863616585921086]
+llh diff between EMsolvers (old - new): -6.7568359375
+time diff between EMsolvers (old - new): 6.590381145477295
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.6475830078125, 0.007926973514258862, 0.009746131487190723, 0.181764 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015701517745771386]
+llh diff between EMsolvers (old - new): -7.0203857421875
+time diff between EMsolvers (old - new): 6.170021295547485
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.3428955078125, 0.007926973514258862, 0.009746131487190723, 0.150191 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018815056031010033]
+llh diff between EMsolvers (old - new): -3.32763671875
+time diff between EMsolvers (old - new): 10.456004858016968
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.581298828125, 0.007926973514258862, 0.009746131487190723, 0.127497 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016300992487516626]
+llh diff between EMsolvers (old - new): -6.715576171875
+time diff between EMsolvers (old - new): 6.277091979980469
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.9451904296875, 0.007926973514258862, 0.009746131487190723, 0.094391 seconds
+avg brlen diff between EMsolvers (old - new): [0.001501707907897413]
+llh diff between EMsolvers (old - new): -7.3497314453125
+time diff between EMsolvers (old - new): 6.5478761196136475
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.1937255859375, 0.007926973514258862, 0.009746131487190723, 0.139744 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015582093298933623]
+llh diff between EMsolvers (old - new): -6.9473876953125
+time diff between EMsolvers (old - new): 6.237448215484619
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1130.1937
+Runtime (s): 82.72600583300118
+NNI Iter: 4
+Current fastEM_solver score: -1130.27587890625, 0.007926973514258862, 0.009746131487190723, 0.180811 seconds
+avg brlen diff between EMsolvers (old - new): [0.001590982383782162]
+llh diff between EMsolvers (old - new): -6.8663330078125
+time diff between EMsolvers (old - new): 14.475188970565796
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.282470703125, 0.007926973514258862, 0.009746131487190723, 0.137841 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015858868768242982]
+llh diff between EMsolvers (old - new): -6.8583984375
+time diff between EMsolvers (old - new): 12.405965089797974
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1130.2825
+Runtime (s): 27.66902900000059
+NNI Iter: 5
+Current fastEM_solver score: -1144.60595703125, 0.007926973514258862, 0.009746131487190723, 0.142546 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019167213315753914]
+llh diff between EMsolvers (old - new): -7.70947265625
+time diff between EMsolvers (old - new): 10.505529403686523
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1147.602294921875, 0.007926973514258862, 0.009746131487190723, 0.126312 seconds
+avg brlen diff between EMsolvers (old - new): [0.0023543715425964943]
+llh diff between EMsolvers (old - new): -4.7120361328125
+time diff between EMsolvers (old - new): 8.36621904373169
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.6435546875, 0.007926973514258862, 0.009746131487190723, 0.138015 seconds
+avg brlen diff between EMsolvers (old - new): [0.001955579673000845]
+llh diff between EMsolvers (old - new): -7.2005615234375
+time diff between EMsolvers (old - new): 12.50975513458252
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.6483154296875, 0.007926973514258862, 0.009746131487190723, 0.138313 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019721544050922747]
+llh diff between EMsolvers (old - new): -7.1954345703125
+time diff between EMsolvers (old - new): 12.353106021881104
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.6282958984375, 0.007926973514258862, 0.009746131487190723, 0.116764 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018643993023234012]
+llh diff between EMsolvers (old - new): -7.4620361328125
+time diff between EMsolvers (old - new): 10.50209927558899
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.84716796875, 0.007926973514258862, 0.009746131487190723, 0.128933 seconds
+avg brlen diff between EMsolvers (old - new): [0.00219294050333502]
+llh diff between EMsolvers (old - new): -5.2427978515625
+time diff between EMsolvers (old - new): 6.2943689823150635
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.6827392578125, 0.007926973514258862, 0.009746131487190723, 0.117528 seconds
+avg brlen diff between EMsolvers (old - new): [0.002021075509560416]
+llh diff between EMsolvers (old - new): -7.004150390625
+time diff between EMsolvers (old - new): 10.467031240463257
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.3076171875, 0.007926973514258862, 0.009746131487190723, 0.095628 seconds
+avg brlen diff between EMsolvers (old - new): [0.001911175175224981]
+llh diff between EMsolvers (old - new): -7.3802490234375
+time diff between EMsolvers (old - new): 8.379220962524414
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.98046875, 0.007926973514258862, 0.009746131487190723, 0.116212 seconds
+avg brlen diff between EMsolvers (old - new): [0.001720311037448749]
+llh diff between EMsolvers (old - new): -6.5556640625
+time diff between EMsolvers (old - new): 8.541082859039307
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.2396240234375, 0.007926973514258862, 0.009746131487190723, 0.117148 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015814766669252681]
+llh diff between EMsolvers (old - new): -7.29443359375
+time diff between EMsolvers (old - new): 6.23186182975769
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.189697265625, 0.007926973514258862, 0.009746131487190723, 0.175910 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017895589096689197]
+llh diff between EMsolvers (old - new): -6.9737548828125
+time diff between EMsolvers (old - new): 6.501776218414307
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.783203125, 0.007926973514258862, 0.009746131487190723, 0.168885 seconds
+avg brlen diff between EMsolvers (old - new): [0.0014576542661282295]
+llh diff between EMsolvers (old - new): -7.3802490234375
+time diff between EMsolvers (old - new): 6.3639280796051025
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.02392578125, 0.007926973514258862, 0.009746131487190723, 0.159366 seconds
+avg brlen diff between EMsolvers (old - new): [0.002228171300025231]
+llh diff between EMsolvers (old - new): -2.825439453125
+time diff between EMsolvers (old - new): 8.399863958358765
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.2552490234375, 0.007926973514258862, 0.009746131487190723, 0.140415 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018394319414746015]
+llh diff between EMsolvers (old - new): -7.5933837890625
+time diff between EMsolvers (old - new): 8.328748226165771
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.5948486328125, 0.007926973514258862, 0.009746131487190723, 0.136622 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018268315571242871]
+llh diff between EMsolvers (old - new): -7.6357421875
+time diff between EMsolvers (old - new): 12.622337341308594
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.509033203125, 0.007926973514258862, 0.009746131487190723, 0.139279 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017783454509660809]
+llh diff between EMsolvers (old - new): -7.72265625
+time diff between EMsolvers (old - new): 6.300671815872192
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.467041015625, 0.007926973514258862, 0.009746131487190723, 0.117545 seconds
+avg brlen diff between EMsolvers (old - new): [0.001554892411240955]
+llh diff between EMsolvers (old - new): -5.0057373046875
+time diff between EMsolvers (old - new): 14.648195028305054
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.496337890625, 0.007926973514258862, 0.009746131487190723, 0.117254 seconds
+avg brlen diff between EMsolvers (old - new): [0.0014088780876241479]
+llh diff between EMsolvers (old - new): -5.9356689453125
+time diff between EMsolvers (old - new): 14.403301239013672
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.8751220703125, 0.007926973514258862, 0.009746131487190723, 0.123706 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020025135073141855]
+llh diff between EMsolvers (old - new): -6.8385009765625
+time diff between EMsolvers (old - new): 12.518555879592896
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.1146240234375, 0.007926973514258862, 0.009746131487190723, 0.124779 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020427248606449118]
+llh diff between EMsolvers (old - new): -6.599609375
+time diff between EMsolvers (old - new): 6.332324981689453
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.08642578125, 0.007926973514258862, 0.009746131487190723, 0.135707 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009692716195250513]
+llh diff between EMsolvers (old - new): -6.8519287109375
+time diff between EMsolvers (old - new): 10.467259168624878
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.7001953125, 0.007926973514258862, 0.009746131487190723, 0.117607 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011547979241836605]
+llh diff between EMsolvers (old - new): -6.2386474609375
+time diff between EMsolvers (old - new): 16.045294046401978
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.5877685546875, 0.007926973514258862, 0.009746131487190723, 0.149462 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020730125869729043]
+llh diff between EMsolvers (old - new): -6.2760009765625
+time diff between EMsolvers (old - new): 6.548908948898315
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.3201904296875, 0.007926973514258862, 0.009746131487190723, 0.117617 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018295097287000053]
+llh diff between EMsolvers (old - new): -7.543701171875
+time diff between EMsolvers (old - new): 6.274956941604614
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.463134765625, 0.007926973514258862, 0.009746131487190723, 0.144347 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019529349849330016]
+llh diff between EMsolvers (old - new): -6.4649658203125
+time diff between EMsolvers (old - new): 6.450258493423462
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.845947265625, 0.007926973514258862, 0.009746131487190723, 0.138746 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018096540593707615]
+llh diff between EMsolvers (old - new): -7.08251953125
+time diff between EMsolvers (old - new): 10.320749044418335
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.7713623046875, 0.007926973514258862, 0.009746131487190723, 0.151136 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019330407793209032]
+llh diff between EMsolvers (old - new): -7.5152587890625
+time diff between EMsolvers (old - new): 8.466073989868164
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.1656494140625, 0.007926973514258862, 0.009746131487190723, 0.151429 seconds
+avg brlen diff between EMsolvers (old - new): [0.001445860490303417]
+llh diff between EMsolvers (old - new): -8.1209716796875
+time diff between EMsolvers (old - new): 8.323574781417847
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.5009765625, 0.007926973514258862, 0.009746131487190723, 0.117283 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013792006498843305]
+llh diff between EMsolvers (old - new): -7.7320556640625
+time diff between EMsolvers (old - new): 18.806718826293945
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1129.501
+Runtime (s): 292.13521933300035
+NNI Iter: 6
+Current fastEM_solver score: -1135.487060546875, 0.007926973514258862, 0.009746131487190723, 0.117651 seconds
+avg brlen diff between EMsolvers (old - new): [0.0023659745404989788]
+llh diff between EMsolvers (old - new): -5.5921630859375
+time diff between EMsolvers (old - new): 10.422417879104614
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.353759765625, 0.007926973514258862, 0.009746131487190723, 0.137417 seconds
+avg brlen diff between EMsolvers (old - new): [0.002247340111598327]
+llh diff between EMsolvers (old - new): -6.7249755859375
+time diff between EMsolvers (old - new): 6.542144298553467
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.743408203125, 0.007926973514258862, 0.009746131487190723, 0.117998 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017391617897239441]
+llh diff between EMsolvers (old - new): -6.3211669921875
+time diff between EMsolvers (old - new): 8.498383283615112
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.989013671875, 0.007926973514258862, 0.009746131487190723, 0.137328 seconds
+avg brlen diff between EMsolvers (old - new): [0.00159986390850728]
+llh diff between EMsolvers (old - new): -7.0755615234375
+time diff between EMsolvers (old - new): 6.487094402313232
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.7445068359375, 0.007926973514258862, 0.009746131487190723, 0.136701 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013365393472876909]
+llh diff between EMsolvers (old - new): -7.1817626953125
+time diff between EMsolvers (old - new): 6.269228219985962
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1129.7445
+Runtime (s): 39.881364875000145
+NNI Iter: 7
+Current fastEM_solver score: -1139.366455078125, 0.007926973514258862, 0.009746131487190723, 0.130544 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016386182137478169]
+llh diff between EMsolvers (old - new): -7.9998779296875
+time diff between EMsolvers (old - new): 6.4547741413116455
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.5966796875, 0.007926973514258862, 0.009746131487190723, 0.173034 seconds
+avg brlen diff between EMsolvers (old - new): [0.002075334771522049]
+llh diff between EMsolvers (old - new): -6.7696533203125
+time diff between EMsolvers (old - new): 8.267124891281128
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.0059814453125, 0.007926973514258862, 0.009746131487190723, 0.118623 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009558717930156145]
+llh diff between EMsolvers (old - new): -7.703369140625
+time diff between EMsolvers (old - new): 10.547616958618164
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.373779296875, 0.007926973514258862, 0.009746131487190723, 0.157349 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011248840133876667]
+llh diff between EMsolvers (old - new): -7.2906494140625
+time diff between EMsolvers (old - new): 35.02851915359497
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.995849609375, 0.007926973514258862, 0.009746131487190723, 0.145694 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020832039620959915]
+llh diff between EMsolvers (old - new): -7.3338623046875
+time diff between EMsolvers (old - new): 20.502099752426147
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.7799072265625, 0.007926973514258862, 0.009746131487190723, 0.083404 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019524904699092598]
+llh diff between EMsolvers (old - new): -7.5498046875
+time diff between EMsolvers (old - new): 10.663747072219849
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.304443359375, 0.007926973514258862, 0.009746131487190723, 0.094759 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011875509539163547]
+llh diff between EMsolvers (old - new): -6.796142578125
+time diff between EMsolvers (old - new): 10.396998882293701
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.36669921875, 0.007926973514258862, 0.009746131487190723, 0.163760 seconds
+avg brlen diff between EMsolvers (old - new): [0.0014662046736613572]
+llh diff between EMsolvers (old - new): -5.7535400390625
+time diff between EMsolvers (old - new): 10.614059925079346
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1154.9283447265625, 0.007926973514258862, 0.009746131487190723, 0.117632 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015810925703894974]
+llh diff between EMsolvers (old - new): -7.2081298828125
+time diff between EMsolvers (old - new): 8.322417736053467
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1155.6597900390625, 0.007926973514258862, 0.009746131487190723, 0.145768 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017273825903452891]
+llh diff between EMsolvers (old - new): -6.4766845703125
+time diff between EMsolvers (old - new): 6.572689056396484
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.007568359375, 0.007926973514258862, 0.009746131487190723, 0.118210 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019044168655586605]
+llh diff between EMsolvers (old - new): -7.65576171875
+time diff between EMsolvers (old - new): 6.276238203048706
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.324951171875, 0.007926973514258862, 0.009746131487190723, 0.117585 seconds
+avg brlen diff between EMsolvers (old - new): [0.002000676291073204]
+llh diff between EMsolvers (old - new): -7.3394775390625
+time diff between EMsolvers (old - new): 8.660820960998535
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.7620849609375, 0.007926973514258862, 0.009746131487190723, 0.116716 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017111512100236644]
+llh diff between EMsolvers (old - new): -6.80224609375
+time diff between EMsolvers (old - new): 10.375809907913208
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.4964599609375, 0.007926973514258862, 0.009746131487190723, 0.116523 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016462013227552805]
+llh diff between EMsolvers (old - new): -7.070068359375
+time diff between EMsolvers (old - new): 16.743319034576416
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.9029541015625, 0.007926973514258862, 0.009746131487190723, 0.117259 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012562174252665028]
+llh diff between EMsolvers (old - new): -6.1888427734375
+time diff between EMsolvers (old - new): 18.67270255088806
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.0748291015625, 0.007926973514258862, 0.009746131487190723, 0.104999 seconds
+avg brlen diff between EMsolvers (old - new): [0.000922396092645742]
+llh diff between EMsolvers (old - new): -6.9879150390625
+time diff between EMsolvers (old - new): 14.573548078536987
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.9200439453125, 0.007926973514258862, 0.009746131487190723, 0.117328 seconds
+avg brlen diff between EMsolvers (old - new): [0.001876337035580839]
+llh diff between EMsolvers (old - new): -7.0384521484375
+time diff between EMsolvers (old - new): 6.2904651165008545
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.8634033203125, 0.007926973514258862, 0.009746131487190723, 0.118875 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018491930873067533]
+llh diff between EMsolvers (old - new): -7.0955810546875
+time diff between EMsolvers (old - new): 6.5561628341674805
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.274169921875, 0.007926973514258862, 0.009746131487190723, 0.116845 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011154291504741078]
+llh diff between EMsolvers (old - new): -7.897705078125
+time diff between EMsolvers (old - new): 12.3310546875
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1129.2742
+Runtime (s): 233.98494520799977
+NNI Iter: 8
+Current fastEM_solver score: -1132.3052978515625, 0.007926973514258862, 0.009746131487190723, 0.139678 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018628180509593344]
+llh diff between EMsolvers (old - new): -7.5755615234375
+time diff between EMsolvers (old - new): 8.497395753860474
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.169677734375, 0.007926973514258862, 0.009746131487190723, 0.116657 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018188971431665297]
+llh diff between EMsolvers (old - new): -7.711669921875
+time diff between EMsolvers (old - new): 6.420080184936523
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.5032958984375, 0.007926973514258862, 0.009746131487190723, 0.127361 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020027635079829997]
+llh diff between EMsolvers (old - new): -7.1766357421875
+time diff between EMsolvers (old - new): 8.747719049453735
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.436279296875, 0.007926973514258862, 0.009746131487190723, 0.128210 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019863058377479715]
+llh diff between EMsolvers (old - new): -7.2410888671875
+time diff between EMsolvers (old - new): 10.35200023651123
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.0401611328125, 0.007926973514258862, 0.009746131487190723, 0.118389 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006348138170025366]
+llh diff between EMsolvers (old - new): -6.5001220703125
+time diff between EMsolvers (old - new): 14.540421724319458
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.0657958984375, 0.007926973514258862, 0.009746131487190723, 0.138545 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006454115392249434]
+llh diff between EMsolvers (old - new): -6.474365234375
+time diff between EMsolvers (old - new): 10.366129875183105
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.17236328125, 0.007926973514258862, 0.009746131487190723, 0.159982 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016167347571990592]
+llh diff between EMsolvers (old - new): -7.0516357421875
+time diff between EMsolvers (old - new): 6.543066740036011
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.4864501953125, 0.007926973514258862, 0.009746131487190723, 0.144349 seconds
+avg brlen diff between EMsolvers (old - new): [0.001339440576317872]
+llh diff between EMsolvers (old - new): -7.64697265625
+time diff between EMsolvers (old - new): 8.353584051132202
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1126.4865
+Runtime (s): 76.56058595899958
+NNI Iter: 9
+Current fastEM_solver score: -1131.56005859375, 0.007926973514258862, 0.009746131487190723, 0.138770 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020277943310130424]
+llh diff between EMsolvers (old - new): -6.385986328125
+time diff between EMsolvers (old - new): 6.473923444747925
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.18505859375, 0.007926973514258862, 0.009746131487190723, 0.117106 seconds
+avg brlen diff between EMsolvers (old - new): [0.002206973936009738]
+llh diff between EMsolvers (old - new): -3.760009765625
+time diff between EMsolvers (old - new): 8.348555326461792
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.7564697265625, 0.007926973514258862, 0.009746131487190723, 0.182497 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020742936872150844]
+llh diff between EMsolvers (old - new): -6.9716796875
+time diff between EMsolvers (old - new): 16.517632007598877
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.092529296875, 0.007926973514258862, 0.009746131487190723, 0.104503 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018551607646068796]
+llh diff between EMsolvers (old - new): -7.6361083984375
+time diff between EMsolvers (old - new): 6.312961101531982
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.181640625, 0.007926973514258862, 0.009746131487190723, 0.138737 seconds
+avg brlen diff between EMsolvers (old - new): [0.001408917720932094]
+llh diff between EMsolvers (old - new): -6.8570556640625
+time diff between EMsolvers (old - new): 12.5664381980896
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.1275634765625, 0.007926973514258862, 0.009746131487190723, 0.136828 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007743371110499767]
+llh diff between EMsolvers (old - new): -7.9090576171875
+time diff between EMsolvers (old - new): 10.385992050170898
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.84228515625, 0.007926973514258862, 0.009746131487190723, 0.165900 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019057507825557026]
+llh diff between EMsolvers (old - new): -7.2403564453125
+time diff between EMsolvers (old - new): 10.431536436080933
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.2960205078125, 0.007926973514258862, 0.009746131487190723, 0.121219 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016705463973962238]
+llh diff between EMsolvers (old - new): -7.7861328125
+time diff between EMsolvers (old - new): 10.289050340652466
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.3638916015625, 0.007926973514258862, 0.009746131487190723, 0.136012 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016834958983891132]
+llh diff between EMsolvers (old - new): -7.5704345703125
+time diff between EMsolvers (old - new): 10.496793985366821
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.255859375, 0.007926973514258862, 0.009746131487190723, 0.138258 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016318708568785663]
+llh diff between EMsolvers (old - new): -7.6783447265625
+time diff between EMsolvers (old - new): 6.198870658874512
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.0299072265625, 0.007926973514258862, 0.009746131487190723, 0.117026 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015963151264142678]
+llh diff between EMsolvers (old - new): -7.2423095703125
+time diff between EMsolvers (old - new): 6.551352262496948
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.2083740234375, 0.007926973514258862, 0.009746131487190723, 0.120437 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016336694224586947]
+llh diff between EMsolvers (old - new): -7.063232421875
+time diff between EMsolvers (old - new): 8.411886215209961
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.8546142578125, 0.007926973514258862, 0.009746131487190723, 0.138550 seconds
+avg brlen diff between EMsolvers (old - new): [0.001684934715683173]
+llh diff between EMsolvers (old - new): -7.3243408203125
+time diff between EMsolvers (old - new): 10.497165203094482
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.450927734375, 0.007926973514258862, 0.009746131487190723, 0.096996 seconds
+avg brlen diff between EMsolvers (old - new): [0.0014366092177319776]
+llh diff between EMsolvers (old - new): -7.7275390625
+time diff between EMsolvers (old - new): 12.528428792953491
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.6724853515625, 0.007926973514258862, 0.009746131487190723, 0.095227 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017403934912964465]
+llh diff between EMsolvers (old - new): -7.54443359375
+time diff between EMsolvers (old - new): 16.650444746017456
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.4154052734375, 0.007926973514258862, 0.009746131487190723, 0.120084 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016413589916379305]
+llh diff between EMsolvers (old - new): -7.8016357421875
+time diff between EMsolvers (old - new): 6.396379709243774
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.8701171875, 0.007926973514258862, 0.009746131487190723, 0.082157 seconds
+avg brlen diff between EMsolvers (old - new): [0.001852508375522695]
+llh diff between EMsolvers (old - new): -7.088134765625
+time diff between EMsolvers (old - new): 6.537154674530029
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.0689697265625, 0.007926973514258862, 0.009746131487190723, 0.155324 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019068963692058561]
+llh diff between EMsolvers (old - new): -6.8897705078125
+time diff between EMsolvers (old - new): 8.406455755233765
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.128173828125, 0.007926973514258862, 0.009746131487190723, 0.159795 seconds
+avg brlen diff between EMsolvers (old - new): [0.001783837297516617]
+llh diff between EMsolvers (old - new): -6.88525390625
+time diff between EMsolvers (old - new): 8.461669206619263
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.5892333984375, 0.007926973514258862, 0.009746131487190723, 0.165809 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016338675720493556]
+llh diff between EMsolvers (old - new): -7.42529296875
+time diff between EMsolvers (old - new): 6.361338138580322
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.0189208984375, 0.007926973514258862, 0.009746131487190723, 0.137231 seconds
+avg brlen diff between EMsolvers (old - new): [0.001914011675375592]
+llh diff between EMsolvers (old - new): -7.1361083984375
+time diff between EMsolvers (old - new): 8.544360876083374
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.161376953125, 0.007926973514258862, 0.009746131487190723, 0.140995 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019513669412821776]
+llh diff between EMsolvers (old - new): -6.9915771484375
+time diff between EMsolvers (old - new): 6.316090822219849
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.3583984375, 0.007926973514258862, 0.009746131487190723, 0.159984 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010695425295826773]
+llh diff between EMsolvers (old - new): -7.201904296875
+time diff between EMsolvers (old - new): 10.427955150604248
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.7369384765625, 0.007926973514258862, 0.009746131487190723, 0.137831 seconds
+avg brlen diff between EMsolvers (old - new): [0.001176691039425809]
+llh diff between EMsolvers (old - new): -6.7781982421875
+time diff between EMsolvers (old - new): 24.56074285507202
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.078857421875, 0.007926973514258862, 0.009746131487190723, 0.143419 seconds
+avg brlen diff between EMsolvers (old - new): [0.001900207270133145]
+llh diff between EMsolvers (old - new): -6.8359375
+time diff between EMsolvers (old - new): 6.1680498123168945
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.88916015625, 0.007926973514258862, 0.009746131487190723, 0.117342 seconds
+avg brlen diff between EMsolvers (old - new): [0.0021281514831224617]
+llh diff between EMsolvers (old - new): -4.025634765625
+time diff between EMsolvers (old - new): 6.278119802474976
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.2799072265625, 0.007926973514258862, 0.009746131487190723, 0.137812 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015461340031106548]
+llh diff between EMsolvers (old - new): -6.78857421875
+time diff between EMsolvers (old - new): 16.471909046173096
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.6044921875, 0.007926973514258862, 0.009746131487190723, 0.272227 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013223135284698248]
+llh diff between EMsolvers (old - new): -7.468017578125
+time diff between EMsolvers (old - new): 14.184844255447388
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1126.6045
+Runtime (s): 291.7598082080003
+NNI Iter: 10
+Current fastEM_solver score: -1152.339111328125, 0.007926973514258862, 0.009746131487190723, 0.116198 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015824718539268706]
+llh diff between EMsolvers (old - new): -6.6256103515625
+time diff between EMsolvers (old - new): 6.207397937774658
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1152.60693359375, 0.007926973514258862, 0.009746131487190723, 0.334099 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016311934462944714]
+llh diff between EMsolvers (old - new): -6.3577880859375
+time diff between EMsolvers (old - new): 6.1264801025390625
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.6021728515625, 0.007926973514258862, 0.009746131487190723, 0.138043 seconds
+avg brlen diff between EMsolvers (old - new): [0.001548216322156082]
+llh diff between EMsolvers (old - new): -7.5535888671875
+time diff between EMsolvers (old - new): 10.264475107192993
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.92724609375, 0.007926973514258862, 0.009746131487190723, 0.119552 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016869749124010006]
+llh diff between EMsolvers (old - new): -7.2288818359375
+time diff between EMsolvers (old - new): 20.34292483329773
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.956298828125, 0.007926973514258862, 0.009746131487190723, 0.118039 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015510303727797646]
+llh diff between EMsolvers (old - new): -7.2449951171875
+time diff between EMsolvers (old - new): 10.26876425743103
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.9102783203125, 0.007926973514258862, 0.009746131487190723, 0.096615 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015083538457717688]
+llh diff between EMsolvers (old - new): -7.291015625
+time diff between EMsolvers (old - new): 10.314640760421753
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.8009033203125, 0.007926973514258862, 0.009746131487190723, 0.118932 seconds
+avg brlen diff between EMsolvers (old - new): [0.0004762523180450439]
+llh diff between EMsolvers (old - new): -6.5657958984375
+time diff between EMsolvers (old - new): 10.2295401096344
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.5999755859375, 0.007926973514258862, 0.009746131487190723, 0.138973 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006743884247379311]
+llh diff between EMsolvers (old - new): -5.7667236328125
+time diff between EMsolvers (old - new): 10.283339023590088
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.317138671875, 0.007926973514258862, 0.009746131487190723, 0.139512 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019455775933557614]
+llh diff between EMsolvers (old - new): -6.773193359375
+time diff between EMsolvers (old - new): 10.291583061218262
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.3836669921875, 0.007926973514258862, 0.009746131487190723, 0.094433 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019264458874639512]
+llh diff between EMsolvers (old - new): -6.7056884765625
+time diff between EMsolvers (old - new): 8.412388801574707
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.25927734375, 0.007926973514258862, 0.009746131487190723, 0.136922 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017510243979480802]
+llh diff between EMsolvers (old - new): -7.463134765625
+time diff between EMsolvers (old - new): 12.250768661499023
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.025146484375, 0.007926973514258862, 0.009746131487190723, 0.120357 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019319689185244861]
+llh diff between EMsolvers (old - new): -6.6971435546875
+time diff between EMsolvers (old - new): 10.361158847808838
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.4451904296875, 0.007926973514258862, 0.009746131487190723, 0.137295 seconds
+avg brlen diff between EMsolvers (old - new): [0.00228758260137423]
+llh diff between EMsolvers (old - new): -7.52978515625
+time diff between EMsolvers (old - new): 6.130245923995972
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.6220703125, 0.007926973514258862, 0.009746131487190723, 0.115031 seconds
+avg brlen diff between EMsolvers (old - new): [0.0023490625874957012]
+llh diff between EMsolvers (old - new): -7.3536376953125
+time diff between EMsolvers (old - new): 4.378525018692017
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.519287109375, 0.007926973514258862, 0.009746131487190723, 0.096526 seconds
+avg brlen diff between EMsolvers (old - new): [0.002078710476367245]
+llh diff between EMsolvers (old - new): -6.6385498046875
+time diff between EMsolvers (old - new): 8.368797779083252
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.87109375, 0.007926973514258862, 0.009746131487190723, 0.138699 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019695163748247057]
+llh diff between EMsolvers (old - new): -7.2867431640625
+time diff between EMsolvers (old - new): 8.552637338638306
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.721923828125, 0.007926973514258862, 0.009746131487190723, 0.115518 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018898484539675217]
+llh diff between EMsolvers (old - new): -6.98583984375
+time diff between EMsolvers (old - new): 12.230170249938965
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.1783447265625, 0.007926973514258862, 0.009746131487190723, 0.138248 seconds
+avg brlen diff between EMsolvers (old - new): [0.001961591459413754]
+llh diff between EMsolvers (old - new): -6.52880859375
+time diff between EMsolvers (old - new): 10.443317890167236
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.2122802734375, 0.007926973514258862, 0.009746131487190723, 0.118828 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015493125477845338]
+llh diff between EMsolvers (old - new): -6.871337890625
+time diff between EMsolvers (old - new): 14.468054294586182
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.5673828125, 0.007926973514258862, 0.009746131487190723, 0.118911 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013477706757437354]
+llh diff between EMsolvers (old - new): -7.5010986328125
+time diff between EMsolvers (old - new): 14.825486183166504
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1126.5674
+Runtime (s): 211.5172445829994
+NNI Iter: 11
+Current fastEM_solver score: -1129.2052001953125, 0.007926973514258862, 0.009746131487190723, 0.159089 seconds
+avg brlen diff between EMsolvers (old - new): [0.001741281899260745]
+llh diff between EMsolvers (old - new): -7.5269775390625
+time diff between EMsolvers (old - new): 10.328249216079712
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.064208984375, 0.007926973514258862, 0.009746131487190723, 0.097732 seconds
+avg brlen diff between EMsolvers (old - new): [0.0021421150072103946]
+llh diff between EMsolvers (old - new): -4.6673583984375
+time diff between EMsolvers (old - new): 8.525529146194458
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.255126953125, 0.007926973514258862, 0.009746131487190723, 0.160565 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015787683380454715]
+llh diff between EMsolvers (old - new): -6.6298828125
+time diff between EMsolvers (old - new): 10.367626667022705
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.0709228515625, 0.007926973514258862, 0.009746131487190723, 0.139545 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015296576672356836]
+llh diff between EMsolvers (old - new): -6.8140869140625
+time diff between EMsolvers (old - new): 10.59136176109314
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1127.0709
+Runtime (s): 41.21859041700009
+NNI Iter: 12
+Current fastEM_solver score: -1135.2911376953125, 0.007926973514258862, 0.009746131487190723, 0.096414 seconds
+avg brlen diff between EMsolvers (old - new): [0.002030471819056836]
+llh diff between EMsolvers (old - new): -6.3721923828125
+time diff between EMsolvers (old - new): 6.324548959732056
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.6356201171875, 0.007926973514258862, 0.009746131487190723, 0.140398 seconds
+avg brlen diff between EMsolvers (old - new): [0.0021004984328015443]
+llh diff between EMsolvers (old - new): -6.02783203125
+time diff between EMsolvers (old - new): 8.611836194992065
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.35791015625, 0.007926973514258862, 0.009746131487190723, 0.139854 seconds
+avg brlen diff between EMsolvers (old - new): [0.001910767760253668]
+llh diff between EMsolvers (old - new): -6.6890869140625
+time diff between EMsolvers (old - new): 4.26888370513916
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.7069091796875, 0.007926973514258862, 0.009746131487190723, 0.138318 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017575400798911984]
+llh diff between EMsolvers (old - new): -7.3402099609375
+time diff between EMsolvers (old - new): 8.445507287979126
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.4962158203125, 0.007926973514258862, 0.009746131487190723, 0.116597 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019318684360195132]
+llh diff between EMsolvers (old - new): -7.2322998046875
+time diff between EMsolvers (old - new): 6.2638750076293945
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.1107177734375, 0.007926973514258862, 0.009746131487190723, 0.179659 seconds
+avg brlen diff between EMsolvers (old - new): [0.002080547724192747]
+llh diff between EMsolvers (old - new): -6.6173095703125
+time diff between EMsolvers (old - new): 6.471026182174683
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.04833984375, 0.007926973514258862, 0.009746131487190723, 0.162679 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017200068540747747]
+llh diff between EMsolvers (old - new): -6.8441162109375
+time diff between EMsolvers (old - new): 8.285825490951538
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.48193359375, 0.007926973514258862, 0.009746131487190723, 0.157090 seconds
+avg brlen diff between EMsolvers (old - new): [0.001808012135564044]
+llh diff between EMsolvers (old - new): -6.4105224609375
+time diff between EMsolvers (old - new): 6.31233024597168
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1146.514404296875, 0.007926973514258862, 0.009746131487190723, 0.117615 seconds
+avg brlen diff between EMsolvers (old - new): [0.0023451328302395175]
+llh diff between EMsolvers (old - new): -2.713623046875
+time diff between EMsolvers (old - new): 8.297470331192017
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.9229736328125, 0.007926973514258862, 0.009746131487190723, 0.182407 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020157106086665846]
+llh diff between EMsolvers (old - new): -7.3045654296875
+time diff between EMsolvers (old - new): 8.397878885269165
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.252685546875, 0.007926973514258862, 0.009746131487190723, 0.141553 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019996646784197075]
+llh diff between EMsolvers (old - new): -6.6475830078125
+time diff between EMsolvers (old - new): 10.40746283531189
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.0914306640625, 0.007926973514258862, 0.009746131487190723, 0.117571 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019649571461923697]
+llh diff between EMsolvers (old - new): -6.808837890625
+time diff between EMsolvers (old - new): 10.449166297912598
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.5155029296875, 0.007926973514258862, 0.009746131487190723, 0.155938 seconds
+avg brlen diff between EMsolvers (old - new): [0.0022551851393997225]
+llh diff between EMsolvers (old - new): -4.6490478515625
+time diff between EMsolvers (old - new): 10.374308109283447
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.8470458984375, 0.007926973514258862, 0.009746131487190723, 0.104485 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019023721981879318]
+llh diff between EMsolvers (old - new): -7.3175048828125
+time diff between EMsolvers (old - new): 6.4809181690216064
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.3594970703125, 0.007926973514258862, 0.009746131487190723, 0.176475 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020479838682499435]
+llh diff between EMsolvers (old - new): -7.4471435546875
+time diff between EMsolvers (old - new): 8.32622742652893
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.462890625, 0.007926973514258862, 0.009746131487190723, 0.152705 seconds
+avg brlen diff between EMsolvers (old - new): [0.002301358258079628]
+llh diff between EMsolvers (old - new): -6.34326171875
+time diff between EMsolvers (old - new): 6.367928981781006
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1148.8392333984375, 0.007926973514258862, 0.009746131487190723, 0.144153 seconds
+avg brlen diff between EMsolvers (old - new): [0.0021483067780917833]
+llh diff between EMsolvers (old - new): -5.1707763671875
+time diff between EMsolvers (old - new): 8.391501188278198
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1146.78564453125, 0.007926973514258862, 0.009746131487190723, 0.161615 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018702769151322522]
+llh diff between EMsolvers (old - new): -7.2222900390625
+time diff between EMsolvers (old - new): 8.373701333999634
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.4224853515625, 0.007926973514258862, 0.009746131487190723, 0.175395 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020524052288161602]
+llh diff between EMsolvers (old - new): -6.501708984375
+time diff between EMsolvers (old - new): 10.303451299667358
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.6578369140625, 0.007926973514258862, 0.009746131487190723, 0.128573 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018810004513017497]
+llh diff between EMsolvers (old - new): -7.266845703125
+time diff between EMsolvers (old - new): 8.430970907211304
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.78369140625, 0.007926973514258862, 0.009746131487190723, 0.123470 seconds
+avg brlen diff between EMsolvers (old - new): [0.002422922000991858]
+llh diff between EMsolvers (old - new): -3.1123046875
+time diff between EMsolvers (old - new): 6.243420839309692
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.205322265625, 0.007926973514258862, 0.009746131487190723, 0.155808 seconds
+avg brlen diff between EMsolvers (old - new): [0.002365475489342334]
+llh diff between EMsolvers (old - new): -5.6900634765625
+time diff between EMsolvers (old - new): 8.35124397277832
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.2333984375, 0.007926973514258862, 0.009746131487190723, 0.122619 seconds
+avg brlen diff between EMsolvers (old - new): [0.002301912396663174]
+llh diff between EMsolvers (old - new): -5.9129638671875
+time diff between EMsolvers (old - new): 8.195054769515991
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.3753662109375, 0.007926973514258862, 0.009746131487190723, 0.137047 seconds
+avg brlen diff between EMsolvers (old - new): [0.001837657256035763]
+llh diff between EMsolvers (old - new): -7.77099609375
+time diff between EMsolvers (old - new): 8.653776168823242
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.71142578125, 0.007926973514258862, 0.009746131487190723, 0.138078 seconds
+avg brlen diff between EMsolvers (old - new): [0.001207161703787456]
+llh diff between EMsolvers (old - new): -6.074462890625
+time diff between EMsolvers (old - new): 12.255403995513916
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.9708251953125, 0.007926973514258862, 0.009746131487190723, 0.116670 seconds
+avg brlen diff between EMsolvers (old - new): [0.0014318737971031822]
+llh diff between EMsolvers (old - new): -3.8148193359375
+time diff between EMsolvers (old - new): 8.432052612304688
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.969970703125, 0.007926973514258862, 0.009746131487190723, 0.137795 seconds
+avg brlen diff between EMsolvers (old - new): [0.0025746227755929127]
+llh diff between EMsolvers (old - new): -6.994140625
+time diff between EMsolvers (old - new): 12.259926080703735
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.2794189453125, 0.007926973514258862, 0.009746131487190723, 0.137425 seconds
+avg brlen diff between EMsolvers (old - new): [0.0023175172399187414]
+llh diff between EMsolvers (old - new): -7.68408203125
+time diff between EMsolvers (old - new): 8.42204236984253
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.2200927734375, 0.007926973514258862, 0.009746131487190723, 0.137974 seconds
+avg brlen diff between EMsolvers (old - new): [0.001590486237174744]
+llh diff between EMsolvers (old - new): -7.2198486328125
+time diff between EMsolvers (old - new): 10.169854879379272
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.366943359375, 0.007926973514258862, 0.009746131487190723, 0.139218 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018109347662461045]
+llh diff between EMsolvers (old - new): -6.072021484375
+time diff between EMsolvers (old - new): 14.378984212875366
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1147.0853271484375, 0.007926973514258862, 0.009746131487190723, 0.130224 seconds
+avg brlen diff between EMsolvers (old - new): [0.0023156995828085315]
+llh diff between EMsolvers (old - new): -2.0787353515625
+time diff between EMsolvers (old - new): 6.191712141036987
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.3177490234375, 0.007926973514258862, 0.009746131487190723, 0.129685 seconds
+avg brlen diff between EMsolvers (old - new): [0.002128874390585976]
+llh diff between EMsolvers (old - new): -6.8453369140625
+time diff between EMsolvers (old - new): 6.463815927505493
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.4765625, 0.007926973514258862, 0.009746131487190723, 0.151083 seconds
+avg brlen diff between EMsolvers (old - new): [0.002096004916080149]
+llh diff between EMsolvers (old - new): -7.2181396484375
+time diff between EMsolvers (old - new): 10.263789892196655
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.071044921875, 0.007926973514258862, 0.009746131487190723, 0.127358 seconds
+avg brlen diff between EMsolvers (old - new): [0.001962750309840017]
+llh diff between EMsolvers (old - new): -7.623046875
+time diff between EMsolvers (old - new): 10.389073133468628
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.81298828125, 0.007926973514258862, 0.009746131487190723, 0.163657 seconds
+avg brlen diff between EMsolvers (old - new): [0.0014935198480642807]
+llh diff between EMsolvers (old - new): -7.1719970703125
+time diff between EMsolvers (old - new): 8.199917793273926
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1126.813
+Runtime (s): 310.8961825000006
+NNI Iter: 13
+Current fastEM_solver score: -1133.5499267578125, 0.007926973514258862, 0.009746131487190723, 0.096223 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018370547667209223]
+llh diff between EMsolvers (old - new): -6.3397216796875
+time diff between EMsolvers (old - new): 6.6869542598724365
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.973388671875, 0.007926973514258862, 0.009746131487190723, 0.104689 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017254291220992878]
+llh diff between EMsolvers (old - new): -6.916259765625
+time diff between EMsolvers (old - new): 6.290536165237427
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.485107421875, 0.007926973514258862, 0.009746131487190723, 0.116888 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020108667779653424]
+llh diff between EMsolvers (old - new): -7.0469970703125
+time diff between EMsolvers (old - new): 6.603292942047119
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.6981201171875, 0.007926973514258862, 0.009746131487190723, 0.157831 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020399037367567936]
+llh diff between EMsolvers (old - new): -6.8331298828125
+time diff between EMsolvers (old - new): 8.329210996627808
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.9068603515625, 0.007926973514258862, 0.009746131487190723, 0.179905 seconds
+avg brlen diff between EMsolvers (old - new): [0.002147242084261133]
+llh diff between EMsolvers (old - new): -6.5703125
+time diff between EMsolvers (old - new): 6.62087869644165
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.5419921875, 0.007926973514258862, 0.009746131487190723, 0.138987 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015488236224054349]
+llh diff between EMsolvers (old - new): -7.9361572265625
+time diff between EMsolvers (old - new): 10.341302156448364
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.619140625, 0.007926973514258862, 0.009746131487190723, 0.158622 seconds
+avg brlen diff between EMsolvers (old - new): [0.0020877239885601718]
+llh diff between EMsolvers (old - new): -6.4559326171875
+time diff between EMsolvers (old - new): 10.529499053955078
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.4739990234375, 0.007926973514258862, 0.009746131487190723, 0.162349 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018151211215166525]
+llh diff between EMsolvers (old - new): -7.6019287109375
+time diff between EMsolvers (old - new): 6.2371110916137695
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.8974609375, 0.007926973514258862, 0.009746131487190723, 0.137366 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018828912064943685]
+llh diff between EMsolvers (old - new): -6.874755859375
+time diff between EMsolvers (old - new): 6.522789001464844
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.4755859375, 0.007926973514258862, 0.009746131487190723, 0.141336 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019762072625336296]
+llh diff between EMsolvers (old - new): -6.2969970703125
+time diff between EMsolvers (old - new): 10.21322512626648
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.943115234375, 0.007926973514258862, 0.009746131487190723, 0.138227 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009707558716765462]
+llh diff between EMsolvers (old - new): -6.97119140625
+time diff between EMsolvers (old - new): 12.60368299484253
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.13427734375, 0.007926973514258862, 0.009746131487190723, 0.165759 seconds
+avg brlen diff between EMsolvers (old - new): [0.00145312868959764]
+llh diff between EMsolvers (old - new): -5.7994384765625
+time diff between EMsolvers (old - new): 8.313060998916626
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1146.2371826171875, 0.007926973514258862, 0.009746131487190723, 0.075262 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015875535481658975]
+llh diff between EMsolvers (old - new): -7.7698974609375
+time diff between EMsolvers (old - new): 12.61857295036316
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1147.5745849609375, 0.007926973514258862, 0.009746131487190723, 0.159440 seconds
+avg brlen diff between EMsolvers (old - new): [0.002033827490647219]
+llh diff between EMsolvers (old - new): -6.430419921875
+time diff between EMsolvers (old - new): 8.478085994720459
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.33349609375, 0.007926973514258862, 0.009746131487190723, 0.104103 seconds
+avg brlen diff between EMsolvers (old - new): [0.002265750379499353]
+llh diff between EMsolvers (old - new): -6.4697265625
+time diff between EMsolvers (old - new): 6.5916969776153564
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.0623779296875, 0.007926973514258862, 0.009746131487190723, 0.158823 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018694040953733686]
+llh diff between EMsolvers (old - new): -7.7413330078125
+time diff between EMsolvers (old - new): 8.339538097381592
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.3121337890625, 0.007926973514258862, 0.009746131487190723, 0.116392 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018623607131478827]
+llh diff between EMsolvers (old - new): -7.39599609375
+time diff between EMsolvers (old - new): 8.752784252166748
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.48046875, 0.007926973514258862, 0.009746131487190723, 0.140880 seconds
+avg brlen diff between EMsolvers (old - new): [0.0019041325928095094]
+llh diff between EMsolvers (old - new): -7.2275390625
+time diff between EMsolvers (old - new): 8.394837856292725
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.809814453125, 0.007926973514258862, 0.009746131487190723, 0.156995 seconds
+avg brlen diff between EMsolvers (old - new): [0.0018183098569541502]
+llh diff between EMsolvers (old - new): -6.3770751953125
+time diff between EMsolvers (old - new): 6.523828983306885
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.0572509765625, 0.007926973514258862, 0.009746131487190723, 0.158837 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016673223919642266]
+llh diff between EMsolvers (old - new): -7.1297607421875
+time diff between EMsolvers (old - new): 8.253042221069336
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.7828369140625, 0.007926973514258862, 0.009746131487190723, 0.118797 seconds
+avg brlen diff between EMsolvers (old - new): [0.0005961437455469978]
+llh diff between EMsolvers (old - new): -6.569580078125
+time diff between EMsolvers (old - new): 10.630267858505249
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1126.7828
+Runtime (s): 185.19027816699963
+NNI Iter: 14
+Current fastEM_solver score: -1135.518310546875, 0.007926973514258862, 0.009746131487190723, 0.166488 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011991810011881066]
+llh diff between EMsolvers (old - new): -5.82958984375
+time diff between EMsolvers (old - new): 6.256849050521851
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.7626953125, 0.007926973514258862, 0.009746131487190723, 0.138333 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010428353877933133]
+llh diff between EMsolvers (old - new): -6.585205078125
+time diff between EMsolvers (old - new): 6.634448051452637
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.7420654296875, 0.007926973514258862, 0.009746131487190723, 0.175437 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011283652899524797]
+llh diff between EMsolvers (old - new): -6.888427734375
+time diff between EMsolvers (old - new): 6.2097063064575195
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.3538818359375, 0.007926973514258862, 0.009746131487190723, 0.516423 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009338828541825075]
+llh diff between EMsolvers (old - new): -7.277587890625
+time diff between EMsolvers (old - new): 5.957334280014038
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.47265625, 0.007926973514258862, 0.009746131487190723, 0.162680 seconds
+avg brlen diff between EMsolvers (old - new): [0.0004888581896902788]
+llh diff between EMsolvers (old - new): -5.843505859375
+time diff between EMsolvers (old - new): 10.174213171005249
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.68212890625, 0.007926973514258862, 0.009746131487190723, 0.115760 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007075418483590267]
+llh diff between EMsolvers (old - new): -4.634521484375
+time diff between EMsolvers (old - new): 10.499536037445068
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.9200439453125, 0.007926973514258862, 0.009746131487190723, 0.144844 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011226598224024036]
+llh diff between EMsolvers (old - new): -6.5953369140625
+time diff between EMsolvers (old - new): 12.337096214294434
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.1644287109375, 0.007926973514258862, 0.009746131487190723, 0.178859 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013577033326870997]
+llh diff between EMsolvers (old - new): -5.3515625
+time diff between EMsolvers (old - new): 6.578872919082642
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.577880859375, 0.007926973514258862, 0.009746131487190723, 0.142813 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011457595432685591]
+llh diff between EMsolvers (old - new): -6.5804443359375
+time diff between EMsolvers (old - new): 10.402232885360718
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.913818359375, 0.007926973514258862, 0.009746131487190723, 0.159382 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012089663313809115]
+llh diff between EMsolvers (old - new): -6.244873046875
+time diff between EMsolvers (old - new): 10.519427061080933
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.8948974609375, 0.007926973514258862, 0.009746131487190723, 0.116054 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007406043142160266]
+llh diff between EMsolvers (old - new): -6.7623291015625
+time diff between EMsolvers (old - new): 6.233901023864746
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.0667724609375, 0.007926973514258862, 0.009746131487190723, 0.094408 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009800355181785003]
+llh diff between EMsolvers (old - new): -5.5904541015625
+time diff between EMsolvers (old - new): 8.523192405700684
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.916259765625, 0.007926973514258862, 0.009746131487190723, 0.177443 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009442561201360509]
+llh diff between EMsolvers (old - new): -7.051513671875
+time diff between EMsolvers (old - new): 6.181582450866699
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.381591796875, 0.007926973514258862, 0.009746131487190723, 0.125231 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010887277311334457]
+llh diff between EMsolvers (old - new): -6.585205078125
+time diff between EMsolvers (old - new): 6.357542991638184
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.3929443359375, 0.007926973514258862, 0.009746131487190723, 0.101392 seconds
+avg brlen diff between EMsolvers (old - new): [0.00025311400108699137]
+llh diff between EMsolvers (old - new): -5.9827880859375
+time diff between EMsolvers (old - new): 10.187949895858765
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.1854248046875, 0.007926973514258862, 0.009746131487190723, 0.116802 seconds
+avg brlen diff between EMsolvers (old - new): [0.0001457119799353332]
+llh diff between EMsolvers (old - new): -6.161376953125
+time diff between EMsolvers (old - new): 16.35999608039856
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.1717529296875, 0.007926973514258862, 0.009746131487190723, 0.075065 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009002763134784076]
+llh diff between EMsolvers (old - new): -4.1805419921875
+time diff between EMsolvers (old - new): 14.391307592391968
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.6522216796875, 0.007926973514258862, 0.009746131487190723, 0.135279 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007476582859050559]
+llh diff between EMsolvers (old - new): -5.7003173828125
+time diff between EMsolvers (old - new): 8.330097913742065
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.724609375, 0.007926973514258862, 0.009746131487190723, 0.137132 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010221777164688636]
+llh diff between EMsolvers (old - new): -6.6429443359375
+time diff between EMsolvers (old - new): 6.200994968414307
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.58349609375, 0.007926973514258862, 0.009746131487190723, 0.157290 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011790000132883517]
+llh diff between EMsolvers (old - new): -5.7840576171875
+time diff between EMsolvers (old - new): 6.309938192367554
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.5552978515625, 0.007926973514258862, 0.009746131487190723, 0.115561 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013165634920667337]
+llh diff between EMsolvers (old - new): -2.476806640625
+time diff between EMsolvers (old - new): 6.292981147766113
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.366943359375, 0.007926973514258862, 0.009746131487190723, 0.131168 seconds
+avg brlen diff between EMsolvers (old - new): [0.001274162622107498]
+llh diff between EMsolvers (old - new): -4.6656494140625
+time diff between EMsolvers (old - new): 6.4363157749176025
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.3875732421875, 0.007926973514258862, 0.009746131487190723, 0.123761 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011779260003050868]
+llh diff between EMsolvers (old - new): -5.127685546875
+time diff between EMsolvers (old - new): 8.177273750305176
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.06787109375, 0.007926973514258862, 0.009746131487190723, 0.137693 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009818930074082658]
+llh diff between EMsolvers (old - new): -6.4473876953125
+time diff between EMsolvers (old - new): 6.6316022872924805
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.135498046875, 0.007926973514258862, 0.009746131487190723, 0.127198 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010239161548194465]
+llh diff between EMsolvers (old - new): -6.82666015625
+time diff between EMsolvers (old - new): 6.230853796005249
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.0169677734375, 0.007926973514258862, 0.009746131487190723, 0.173268 seconds
+avg brlen diff between EMsolvers (old - new): [0.0014181914116277847]
+llh diff between EMsolvers (old - new): -3.942626953125
+time diff between EMsolvers (old - new): 10.832556009292603
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.3004150390625, 0.007926973514258862, 0.009746131487190723, 0.143723 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011457331862692376]
+llh diff between EMsolvers (old - new): -6.03857421875
+time diff between EMsolvers (old - new): 10.292552947998047
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.8388671875, 0.007926973514258862, 0.009746131487190723, 0.094720 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010327822238906052]
+llh diff between EMsolvers (old - new): -6.5
+time diff between EMsolvers (old - new): 6.609038829803467
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.350830078125, 0.007926973514258862, 0.009746131487190723, 0.156272 seconds
+avg brlen diff between EMsolvers (old - new): [0.001111065937364147]
+llh diff between EMsolvers (old - new): -6.48486328125
+time diff between EMsolvers (old - new): 6.184618234634399
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.86376953125, 0.007926973514258862, 0.009746131487190723, 0.137573 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011939591078444758]
+llh diff between EMsolvers (old - new): -5.9722900390625
+time diff between EMsolvers (old - new): 12.789097785949707
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.78759765625, 0.007926973514258862, 0.009746131487190723, 0.091994 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013740411162390133]
+llh diff between EMsolvers (old - new): -1.4075927734375
+time diff between EMsolvers (old - new): 6.421739339828491
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.1783447265625, 0.007926973514258862, 0.009746131487190723, 0.093516 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009649984321984862]
+llh diff between EMsolvers (old - new): -7.0174560546875
+time diff between EMsolvers (old - new): 8.755755186080933
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.972900390625, 0.007926973514258862, 0.009746131487190723, 0.106981 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010666814280943866]
+llh diff between EMsolvers (old - new): -6.6590576171875
+time diff between EMsolvers (old - new): 6.32217264175415
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.5804443359375, 0.007926973514258862, 0.009746131487190723, 0.174239 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009567826166170069]
+llh diff between EMsolvers (old - new): -7.0513916015625
+time diff between EMsolvers (old - new): 10.552915334701538
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.27880859375, 0.007926973514258862, 0.009746131487190723, 0.114036 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009853210980455]
+llh diff between EMsolvers (old - new): -6.8519287109375
+time diff between EMsolvers (old - new): 6.237274885177612
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.4793701171875, 0.007926973514258862, 0.009746131487190723, 0.138439 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010381806501581553]
+llh diff between EMsolvers (old - new): -6.6512451171875
+time diff between EMsolvers (old - new): 12.589731216430664
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.0032958984375, 0.007926973514258862, 0.009746131487190723, 0.114702 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010633888498925476]
+llh diff between EMsolvers (old - new): -6.9442138671875
+time diff between EMsolvers (old - new): 6.223199129104614
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.02294921875, 0.007926973514258862, 0.009746131487190723, 0.116613 seconds
+avg brlen diff between EMsolvers (old - new): [0.001074362419756328]
+llh diff between EMsolvers (old - new): -6.925537109375
+time diff between EMsolvers (old - new): 6.434671878814697
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.5654296875, 0.007926973514258862, 0.009746131487190723, 0.157795 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009297989840884723]
+llh diff between EMsolvers (old - new): -6.677734375
+time diff between EMsolvers (old - new): 10.293894052505493
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.9095458984375, 0.007926973514258862, 0.009746131487190723, 0.181090 seconds
+avg brlen diff between EMsolvers (old - new): [0.001028601709459022]
+llh diff between EMsolvers (old - new): -6.3331298828125
+time diff between EMsolvers (old - new): 8.400998830795288
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.1478271484375, 0.007926973514258862, 0.009746131487190723, 0.121349 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012006637475528274]
+llh diff between EMsolvers (old - new): -6.5477294921875
+time diff between EMsolvers (old - new): 10.472157716751099
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.824462890625, 0.007926973514258862, 0.009746131487190723, 0.158701 seconds
+avg brlen diff between EMsolvers (old - new): [0.00110743055899591]
+llh diff between EMsolvers (old - new): -6.870361328125
+time diff between EMsolvers (old - new): 8.524196147918701
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.64697265625, 0.007926973514258862, 0.009746131487190723, 0.115849 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012338380371976231]
+llh diff between EMsolvers (old - new): -6.71630859375
+time diff between EMsolvers (old - new): 6.325535774230957
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.3031005859375, 0.007926973514258862, 0.009746131487190723, 0.114449 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010987789118619348]
+llh diff between EMsolvers (old - new): -7.0596923828125
+time diff between EMsolvers (old - new): 8.618119955062866
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.1016845703125, 0.007926973514258862, 0.009746131487190723, 0.120228 seconds
+avg brlen diff between EMsolvers (old - new): [0.00135918443257479]
+llh diff between EMsolvers (old - new): -5.4993896484375
+time diff between EMsolvers (old - new): 12.471421957015991
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.5657958984375, 0.007926973514258862, 0.009746131487190723, 0.136824 seconds
+avg brlen diff between EMsolvers (old - new): [0.001023453224991498]
+llh diff between EMsolvers (old - new): -7.0352783203125
+time diff between EMsolvers (old - new): 6.367321729660034
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.22119140625, 0.007926973514258862, 0.009746131487190723, 0.120421 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007349700533056748]
+llh diff between EMsolvers (old - new): -6.2349853515625
+time diff between EMsolvers (old - new): 8.21483302116394
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.52490234375, 0.007926973514258862, 0.009746131487190723, 0.117317 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007809144463039899]
+llh diff between EMsolvers (old - new): -5.9317626953125
+time diff between EMsolvers (old - new): 8.309581995010376
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.9620361328125, 0.007926973514258862, 0.009746131487190723, 0.140717 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008117034389361336]
+llh diff between EMsolvers (old - new): -1.9136962890625
+time diff between EMsolvers (old - new): 10.115820169448853
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.9454345703125, 0.007926973514258862, 0.009746131487190723, 0.113697 seconds
+avg brlen diff between EMsolvers (old - new): [0.000250210703431286]
+llh diff between EMsolvers (old - new): -6.9305419921875
+time diff between EMsolvers (old - new): 18.076478958129883
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1145.8350830078125, 0.007926973514258862, 0.009746131487190723, 0.145281 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007097361319774844]
+llh diff between EMsolvers (old - new): -7.01220703125
+time diff between EMsolvers (old - new): 6.12631893157959
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1146.9561767578125, 0.007926973514258862, 0.009746131487190723, 0.157896 seconds
+avg brlen diff between EMsolvers (old - new): [0.001005819447701724]
+llh diff between EMsolvers (old - new): -5.8896484375
+time diff between EMsolvers (old - new): 6.338373422622681
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.35546875, 0.007926973514258862, 0.009746131487190723, 0.109113 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011430713437639568]
+llh diff between EMsolvers (old - new): -6.9183349609375
+time diff between EMsolvers (old - new): 8.250433206558228
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.0535888671875, 0.007926973514258862, 0.009746131487190723, 0.149435 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013712048515880492]
+llh diff between EMsolvers (old - new): -6.2197265625
+time diff between EMsolvers (old - new): 8.41343879699707
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.189453125, 0.007926973514258862, 0.009746131487190723, 0.187088 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007313385852931039]
+llh diff between EMsolvers (old - new): -6.6611328125
+time diff between EMsolvers (old - new): 6.153529644012451
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.9771728515625, 0.007926973514258862, 0.009746131487190723, 0.144977 seconds
+avg brlen diff between EMsolvers (old - new): [0.000893666760128949]
+llh diff between EMsolvers (old - new): -5.871337890625
+time diff between EMsolvers (old - new): 10.369620323181152
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.7850341796875, 0.007926973514258862, 0.009746131487190723, 0.155156 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010587447358353264]
+llh diff between EMsolvers (old - new): -6.8653564453125
+time diff between EMsolvers (old - new): 6.109422206878662
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.68310546875, 0.007926973514258862, 0.009746131487190723, 0.199723 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012519307722768185]
+llh diff between EMsolvers (old - new): -5.96728515625
+time diff between EMsolvers (old - new): 10.156940937042236
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.59521484375, 0.007926973514258862, 0.009746131487190723, 0.137217 seconds
+avg brlen diff between EMsolvers (old - new): [0.0002909355285829074]
+llh diff between EMsolvers (old - new): -6.1920166015625
+time diff between EMsolvers (old - new): 18.254831075668335
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.9847412109375, 0.007926973514258862, 0.009746131487190723, 0.137306 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007462776685507617]
+llh diff between EMsolvers (old - new): -3.7618408203125
+time diff between EMsolvers (old - new): 16.344493865966797
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.3726806640625, 0.007926973514258862, 0.009746131487190723, 0.180824 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008586378813358777]
+llh diff between EMsolvers (old - new): -6.4456787109375
+time diff between EMsolvers (old - new): 4.3111982345581055
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.81494140625, 0.007926973514258862, 0.009746131487190723, 0.114498 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006339187085615934]
+llh diff between EMsolvers (old - new): -7.00341796875
+time diff between EMsolvers (old - new): 4.459411382675171
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.005859375, 0.007926973514258862, 0.009746131487190723, 0.175090 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010748418557481466]
+llh diff between EMsolvers (old - new): -7.1556396484375
+time diff between EMsolvers (old - new): 6.1244330406188965
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.4404296875, 0.007926973514258862, 0.009746131487190723, 0.132911 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012433759428555717]
+llh diff between EMsolvers (old - new): -6.7215576171875
+time diff between EMsolvers (old - new): 14.210925579071045
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.778564453125, 0.007926973514258862, 0.009746131487190723, 0.158948 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013045388184706633]
+llh diff between EMsolvers (old - new): -6.1885986328125
+time diff between EMsolvers (old - new): 6.127393960952759
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.388427734375, 0.007926973514258862, 0.009746131487190723, 0.094511 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012056138997934521]
+llh diff between EMsolvers (old - new): -6.57763671875
+time diff between EMsolvers (old - new): 6.371589183807373
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.220703125, 0.007926973514258862, 0.009746131487190723, 0.135321 seconds
+avg brlen diff between EMsolvers (old - new): [0.000580952609653472]
+llh diff between EMsolvers (old - new): -5.1640625
+time diff between EMsolvers (old - new): 10.14713716506958
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.962158203125, 0.007926973514258862, 0.009746131487190723, 0.159169 seconds
+avg brlen diff between EMsolvers (old - new): [0.0005660312876293259]
+llh diff between EMsolvers (old - new): -5.44189453125
+time diff between EMsolvers (old - new): 6.290826320648193
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.2420654296875, 0.007926973514258862, 0.009746131487190723, 0.126543 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008355197772865138]
+llh diff between EMsolvers (old - new): -6.6473388671875
+time diff between EMsolvers (old - new): 8.156760931015015
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.648681640625, 0.007926973514258862, 0.009746131487190723, 0.125890 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009136895443355393]
+llh diff between EMsolvers (old - new): -6.24169921875
+time diff between EMsolvers (old - new): 6.37202000617981
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.9481201171875, 0.007926973514258862, 0.009746131487190723, 0.122704 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011328206685806514]
+llh diff between EMsolvers (old - new): -5.4986572265625
+time diff between EMsolvers (old - new): 6.1613709926605225
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.969970703125, 0.007926973514258862, 0.009746131487190723, 0.115330 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009745729898964868]
+llh diff between EMsolvers (old - new): -6.4779052734375
+time diff between EMsolvers (old - new): 6.487915992736816
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.0474853515625, 0.007926973514258862, 0.009746131487190723, 0.100689 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007025588669724355]
+llh diff between EMsolvers (old - new): -6.4073486328125
+time diff between EMsolvers (old - new): 12.0627760887146
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1127.0475
+Runtime (s): 654.8132074999994
+NNI Iter: 15
+Current fastEM_solver score: -1131.61328125, 0.007926973514258862, 0.009746131487190723, 0.114557 seconds
+avg brlen diff between EMsolvers (old - new): [0.0005235788567500662]
+llh diff between EMsolvers (old - new): -5.70458984375
+time diff between EMsolvers (old - new): 8.329269886016846
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.0494384765625, 0.007926973514258862, 0.009746131487190723, 0.119556 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007258749128705341]
+llh diff between EMsolvers (old - new): -4.2679443359375
+time diff between EMsolvers (old - new): 10.147122859954834
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.914306640625, 0.007926973514258862, 0.009746131487190723, 0.171335 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009842104126643635]
+llh diff between EMsolvers (old - new): -5.9771728515625
+time diff between EMsolvers (old - new): 6.4191648960113525
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.902587890625, 0.007926973514258862, 0.009746131487190723, 0.105863 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007481838948855997]
+llh diff between EMsolvers (old - new): -6.9879150390625
+time diff between EMsolvers (old - new): 8.338667392730713
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.2728271484375, 0.007926973514258862, 0.009746131487190723, 0.102739 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011714627815409893]
+llh diff between EMsolvers (old - new): -6.3787841796875
+time diff between EMsolvers (old - new): 8.477954149246216
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.1806640625, 0.007926973514258862, 0.009746131487190723, 0.150640 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011607369214171538]
+llh diff between EMsolvers (old - new): -6.470947265625
+time diff between EMsolvers (old - new): 6.243262052536011
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.568115234375, 0.007926973514258862, 0.009746131487190723, 0.141647 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008233144277426909]
+llh diff between EMsolvers (old - new): -6.9482421875
+time diff between EMsolvers (old - new): 6.259494781494141
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.71142578125, 0.007926973514258862, 0.009746131487190723, 0.136436 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009000277415732525]
+llh diff between EMsolvers (old - new): -6.804931640625
+time diff between EMsolvers (old - new): 7.985728025436401
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.9971923828125, 0.007926973514258862, 0.009746131487190723, 0.141723 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011373808439429673]
+llh diff between EMsolvers (old - new): -6.5904541015625
+time diff between EMsolvers (old - new): 8.203285932540894
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.837646484375, 0.007926973514258862, 0.009746131487190723, 0.159410 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011096590805543094]
+llh diff between EMsolvers (old - new): -6.751953125
+time diff between EMsolvers (old - new): 6.179110050201416
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.23291015625, 0.007926973514258862, 0.009746131487190723, 0.396051 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010511348825082457]
+llh diff between EMsolvers (old - new): -6.7359619140625
+time diff between EMsolvers (old - new): 5.982889652252197
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.9112548828125, 0.007926973514258862, 0.009746131487190723, 0.147391 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012045009568594828]
+llh diff between EMsolvers (old - new): -6.056640625
+time diff between EMsolvers (old - new): 12.072573900222778
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.01220703125, 0.007926973514258862, 0.009746131487190723, 0.146388 seconds
+avg brlen diff between EMsolvers (old - new): [0.0005716418311888452]
+llh diff between EMsolvers (old - new): -6.52490234375
+time diff between EMsolvers (old - new): 18.50990891456604
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1127.0122
+Runtime (s): 118.76105900000039
+NNI Iter: 16
+Current fastEM_solver score: -1146.67431640625, 0.007926973514258862, 0.009746131487190723, 0.139006 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009824172365360735]
+llh diff between EMsolvers (old - new): -6.81201171875
+time diff between EMsolvers (old - new): 8.030967950820923
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1146.4078369140625, 0.007926973514258862, 0.009746131487190723, 0.115426 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008879017074172787]
+llh diff between EMsolvers (old - new): -7.076416015625
+time diff between EMsolvers (old - new): 8.510044813156128
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.197265625, 0.007926973514258862, 0.009746131487190723, 0.160954 seconds
+avg brlen diff between EMsolvers (old - new): [0.000485605226803109]
+llh diff between EMsolvers (old - new): -6.7294921875
+time diff between EMsolvers (old - new): 8.249994277954102
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.9476318359375, 0.007926973514258862, 0.009746131487190723, 0.139514 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006637120504239242]
+llh diff between EMsolvers (old - new): -5.979248046875
+time diff between EMsolvers (old - new): 10.545818328857422
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.301025390625, 0.007926973514258862, 0.009746131487190723, 0.116669 seconds
+avg brlen diff between EMsolvers (old - new): [0.0004918416838402339]
+llh diff between EMsolvers (old - new): -7.0677490234375
+time diff between EMsolvers (old - new): 8.363265752792358
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.5001220703125, 0.007926973514258862, 0.009746131487190723, 0.138983 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006731964172978478]
+llh diff between EMsolvers (old - new): -6.8687744140625
+time diff between EMsolvers (old - new): 6.461349964141846
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.0570068359375, 0.007926973514258862, 0.009746131487190723, 0.138109 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011671706524760796]
+llh diff between EMsolvers (old - new): -6.1302490234375
+time diff between EMsolvers (old - new): 6.330987930297852
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.539306640625, 0.007926973514258862, 0.009746131487190723, 0.140173 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010675320206620382]
+llh diff between EMsolvers (old - new): -6.6478271484375
+time diff between EMsolvers (old - new): 8.57023000717163
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.1209716796875, 0.007926973514258862, 0.009746131487190723, 0.138307 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011945884270385754]
+llh diff between EMsolvers (old - new): -6.4891357421875
+time diff between EMsolvers (old - new): 6.248265981674194
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.5311279296875, 0.007926973514258862, 0.009746131487190723, 0.502791 seconds
+avg brlen diff between EMsolvers (old - new): [0.000992390658891212]
+llh diff between EMsolvers (old - new): -7.0789794921875
+time diff between EMsolvers (old - new): 5.95366096496582
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.55419921875, 0.007926973514258862, 0.009746131487190723, 0.135862 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008657505441880777]
+llh diff between EMsolvers (old - new): -7.21728515625
+time diff between EMsolvers (old - new): 6.176919937133789
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.15625, 0.007926973514258862, 0.009746131487190723, 0.162947 seconds
+avg brlen diff between EMsolvers (old - new): [0.001157890811310809]
+llh diff between EMsolvers (old - new): -6.61474609375
+time diff between EMsolvers (old - new): 10.187911987304688
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.69775390625, 0.007926973514258862, 0.009746131487190723, 0.136680 seconds
+avg brlen diff between EMsolvers (old - new): [0.0005424462025294807]
+llh diff between EMsolvers (old - new): -6.6636962890625
+time diff between EMsolvers (old - new): 8.08949899673462
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current score: -1126.6978
+Runtime (s): 107.28087766700082
+NNI Iter: 17
+Current fastEM_solver score: -1129.2005615234375, 0.007926973514258862, 0.009746131487190723, 0.180920 seconds
+avg brlen diff between EMsolvers (old - new): [0.000988836136721556]
+llh diff between EMsolvers (old - new): -6.9720458984375
+time diff between EMsolvers (old - new): 12.471841096878052
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.7777099609375, 0.007926973514258862, 0.009746131487190723, 0.143602 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013861831988974734]
+llh diff between EMsolvers (old - new): -3.3944091796875
+time diff between EMsolvers (old - new): 8.181168794631958
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.220703125, 0.007926973514258862, 0.009746131487190723, 0.117189 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013793295879822717]
+llh diff between EMsolvers (old - new): -5.55029296875
+time diff between EMsolvers (old - new): 6.526044130325317
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.8885498046875, 0.007926973514258862, 0.009746131487190723, 0.184370 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013261137424459006]
+llh diff between EMsolvers (old - new): -5.8829345703125
+time diff between EMsolvers (old - new): 8.165405035018921
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.8829345703125, 0.007926973514258862, 0.009746131487190723, 0.094411 seconds
+avg brlen diff between EMsolvers (old - new): [0.001831127249518984]
+llh diff between EMsolvers (old - new): -5.55712890625
+time diff between EMsolvers (old - new): 6.574156999588013
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.1893310546875, 0.007926973514258862, 0.009746131487190723, 0.134941 seconds
+avg brlen diff between EMsolvers (old - new): [0.0017507983067312468]
+llh diff between EMsolvers (old - new): -6.251220703125
+time diff between EMsolvers (old - new): 6.201757907867432
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.3056640625, 0.007926973514258862, 0.009746131487190723, 0.141332 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010464105588135473]
+llh diff between EMsolvers (old - new): -6.218505859375
+time diff between EMsolvers (old - new): 8.384618043899536
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.8177490234375, 0.007926973514258862, 0.009746131487190723, 0.116547 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011159407210507733]
+llh diff between EMsolvers (old - new): -5.7064208984375
+time diff between EMsolvers (old - new): 8.231083869934082
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.8453369140625, 0.007926973514258862, 0.009746131487190723, 0.104632 seconds
+avg brlen diff between EMsolvers (old - new): [0.001333414146293255]
+llh diff between EMsolvers (old - new): -4.7955322265625
+time diff between EMsolvers (old - new): 10.432034730911255
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.447265625, 0.007926973514258862, 0.009746131487190723, 0.127642 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011960838720720861]
+llh diff between EMsolvers (old - new): -6.193603515625
+time diff between EMsolvers (old - new): 10.2122323513031
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.4976806640625, 0.007926973514258862, 0.009746131487190723, 0.142742 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006595683859817799]
+llh diff between EMsolvers (old - new): -1.88720703125
+time diff between EMsolvers (old - new): 8.55473017692566
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.2962646484375, 0.007926973514258862, 0.009746131487190723, 0.201675 seconds
+avg brlen diff between EMsolvers (old - new): [0.00045946464819961104]
+llh diff between EMsolvers (old - new): -5.0595703125
+time diff between EMsolvers (old - new): 16.384910583496094
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.0133056640625, 0.007926973514258862, 0.009746131487190723, 0.143717 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012280031859317048]
+llh diff between EMsolvers (old - new): -3.6212158203125
+time diff between EMsolvers (old - new): 4.529795408248901
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.061279296875, 0.007926973514258862, 0.009746131487190723, 0.137299 seconds
+avg brlen diff between EMsolvers (old - new): [0.000911412803439508]
+llh diff between EMsolvers (old - new): -6.5732421875
+time diff between EMsolvers (old - new): 4.298676013946533
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.0445556640625, 0.007926973514258862, 0.009746131487190723, 0.159117 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011262051664478858]
+llh diff between EMsolvers (old - new): -6.5096435546875
+time diff between EMsolvers (old - new): 8.585734367370605
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.737060546875, 0.007926973514258862, 0.009746131487190723, 0.157789 seconds
+avg brlen diff between EMsolvers (old - new): [0.00104697054611664]
+llh diff between EMsolvers (old - new): -6.818115234375
+time diff between EMsolvers (old - new): 6.062058448791504
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.88818359375, 0.007926973514258862, 0.009746131487190723, 0.137402 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007252006329138976]
+llh diff between EMsolvers (old - new): -4.4375
+time diff between EMsolvers (old - new): 10.671896696090698
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.3228759765625, 0.007926973514258862, 0.009746131487190723, 0.116964 seconds
+avg brlen diff between EMsolvers (old - new): [0.00042773777116376287]
+llh diff between EMsolvers (old - new): -6.00244140625
+time diff between EMsolvers (old - new): 8.338104724884033
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.0689697265625, 0.007926973514258862, 0.009746131487190723, 0.148354 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006643712440311062]
+llh diff between EMsolvers (old - new): -6.29248046875
+time diff between EMsolvers (old - new): 10.488985061645508
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.873291015625, 0.007926973514258862, 0.009746131487190723, 0.160605 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006174085310550937]
+llh diff between EMsolvers (old - new): -6.4873046875
+time diff between EMsolvers (old - new): 10.559955835342407
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.7171630859375, 0.007926973514258862, 0.009746131487190723, 0.076112 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006217401574650749]
+llh diff between EMsolvers (old - new): -6.83154296875
+time diff between EMsolvers (old - new): 12.864175796508789
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.1865234375, 0.007926973514258862, 0.009746131487190723, 0.150967 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006661129758733527]
+llh diff between EMsolvers (old - new): -6.3466796875
+time diff between EMsolvers (old - new): 21.188289165496826
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.3812255859375, 0.007926973514258862, 0.009746131487190723, 0.181094 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011554695776556287]
+llh diff between EMsolvers (old - new): -6.0111083984375
+time diff between EMsolvers (old - new): 4.532737731933594
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.426513671875, 0.007926973514258862, 0.009746131487190723, 0.200389 seconds
+avg brlen diff between EMsolvers (old - new): [0.001175134237645375]
+llh diff between EMsolvers (old - new): -5.96484375
+time diff between EMsolvers (old - new): 4.349315881729126
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.1119384765625, 0.007926973514258862, 0.009746131487190723, 0.136334 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008881483989786306]
+llh diff between EMsolvers (old - new): -6.2557373046875
+time diff between EMsolvers (old - new): 6.617938280105591
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.2166748046875, 0.007926973514258862, 0.009746131487190723, 0.137871 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009003382361505467]
+llh diff between EMsolvers (old - new): -6.1510009765625
+time diff between EMsolvers (old - new): 8.673953771591187
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.4520263671875, 0.007926973514258862, 0.009746131487190723, 0.161852 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015312413971021468]
+llh diff between EMsolvers (old - new): -3.52392578125
+time diff between EMsolvers (old - new): 6.4665687084198
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.7203369140625, 0.007926973514258862, 0.009746131487190723, 0.144331 seconds
+avg brlen diff between EMsolvers (old - new): [0.001411317164278081]
+llh diff between EMsolvers (old - new): -5.254638671875
+time diff between EMsolvers (old - new): 8.184538841247559
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.3306884765625, 0.007926973514258862, 0.009746131487190723, 0.137116 seconds
+avg brlen diff between EMsolvers (old - new): [0.0005986224224405662]
+llh diff between EMsolvers (old - new): -5.06298828125
+time diff between EMsolvers (old - new): 10.772167205810547
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.6077880859375, 0.007926973514258862, 0.009746131487190723, 0.136882 seconds
+avg brlen diff between EMsolvers (old - new): [0.00045476231436762465]
+llh diff between EMsolvers (old - new): -5.8052978515625
+time diff between EMsolvers (old - new): 10.528741121292114
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.7430419921875, 0.007926973514258862, 0.009746131487190723, 0.117415 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012895366641793456]
+llh diff between EMsolvers (old - new): -6.628662109375
+time diff between EMsolvers (old - new): 6.767164945602417
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.5743408203125, 0.007926973514258862, 0.009746131487190723, 0.105211 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011937597133185305]
+llh diff between EMsolvers (old - new): -6.7978515625
+time diff between EMsolvers (old - new): 10.69685673713684
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.0523681640625, 0.007926973514258862, 0.009746131487190723, 0.158214 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011839936866161458]
+llh diff between EMsolvers (old - new): -6.651611328125
+time diff between EMsolvers (old - new): 8.851811408996582
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.72119140625, 0.007926973514258862, 0.009746131487190723, 0.126699 seconds
+avg brlen diff between EMsolvers (old - new): [0.001315938648637979]
+llh diff between EMsolvers (old - new): -5.9832763671875
+time diff between EMsolvers (old - new): 8.412567853927612
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.0413818359375, 0.007926973514258862, 0.009746131487190723, 0.117051 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012588780317026628]
+llh diff between EMsolvers (old - new): -4.210205078125
+time diff between EMsolvers (old - new): 10.505011796951294
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.895263671875, 0.007926973514258862, 0.009746131487190723, 0.137506 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010162323381126032]
+llh diff between EMsolvers (old - new): -6.3568115234375
+time diff between EMsolvers (old - new): 10.12938117980957
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.8863525390625, 0.007926973514258862, 0.009746131487190723, 0.159200 seconds
+avg brlen diff between EMsolvers (old - new): [0.001081815272415221]
+llh diff between EMsolvers (old - new): -6.4615478515625
+time diff between EMsolvers (old - new): 6.4426538944244385
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.275634765625, 0.007926973514258862, 0.009746131487190723, 0.123338 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008861433435099807]
+llh diff between EMsolvers (old - new): -7.072265625
+time diff between EMsolvers (old - new): 8.358795166015625
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.7908935546875, 0.007926973514258862, 0.009746131487190723, 0.153563 seconds
+avg brlen diff between EMsolvers (old - new): [0.0014048172038108183]
+llh diff between EMsolvers (old - new): -3.8685302734375
+time diff between EMsolvers (old - new): 6.680485248565674
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.9842529296875, 0.007926973514258862, 0.009746131487190723, 0.149213 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010902764124822687]
+llh diff between EMsolvers (old - new): -6.6751708984375
+time diff between EMsolvers (old - new): 6.300610780715942
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.0377197265625, 0.007926973514258862, 0.009746131487190723, 0.149864 seconds
+avg brlen diff between EMsolvers (old - new): [0.001246757913897995]
+llh diff between EMsolvers (old - new): -5.930908203125
+time diff between EMsolvers (old - new): 8.608234882354736
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.49169921875, 0.007926973514258862, 0.009746131487190723, 0.173947 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012989133994584237]
+llh diff between EMsolvers (old - new): -5.4793701171875
+time diff between EMsolvers (old - new): 10.316086769104004
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.357177734375, 0.007926973514258862, 0.009746131487190723, 0.117467 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008785741626681331]
+llh diff between EMsolvers (old - new): -7.23828125
+time diff between EMsolvers (old - new): 16.973912000656128
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.4847412109375, 0.007926973514258862, 0.009746131487190723, 0.140502 seconds
+avg brlen diff between EMsolvers (old - new): [0.001227952676183943]
+llh diff between EMsolvers (old - new): -6.1126708984375
+time diff between EMsolvers (old - new): 6.261521100997925
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.3970947265625, 0.007926973514258862, 0.009746131487190723, 0.118604 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012870065209315644]
+llh diff between EMsolvers (old - new): -5.2723388671875
+time diff between EMsolvers (old - new): 12.472125053405762
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.63671875, 0.007926973514258862, 0.009746131487190723, 0.161088 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009366357004024988]
+llh diff between EMsolvers (old - new): -7.03369140625
+time diff between EMsolvers (old - new): 16.353435039520264
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.4932861328125, 0.007926973514258862, 0.009746131487190723, 0.144744 seconds
+avg brlen diff between EMsolvers (old - new): [0.00028904661228983894]
+llh diff between EMsolvers (old - new): -5.7691650390625
+time diff between EMsolvers (old - new): 10.503626823425293
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.7445068359375, 0.007926973514258862, 0.009746131487190723, 0.118080 seconds
+avg brlen diff between EMsolvers (old - new): [-0.00026430995344851974]
+llh diff between EMsolvers (old - new): -6.517578125
+time diff between EMsolvers (old - new): 16.33330774307251
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.518798828125, 0.007926973514258862, 0.009746131487190723, 0.116292 seconds
+avg brlen diff between EMsolvers (old - new): [0.0003394755293723036]
+llh diff between EMsolvers (old - new): -6.4837646484375
+time diff between EMsolvers (old - new): 10.64426589012146
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.4312744140625, 0.007926973514258862, 0.009746131487190723, 0.115757 seconds
+avg brlen diff between EMsolvers (old - new): [0.00032867009391328897]
+llh diff between EMsolvers (old - new): -6.5263671875
+time diff between EMsolvers (old - new): 14.485236167907715
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.5382080078125, 0.007926973514258862, 0.009746131487190723, 0.129125 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011215918312315245]
+llh diff between EMsolvers (old - new): -6.4256591796875
+time diff between EMsolvers (old - new): 8.564330816268921
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.813720703125, 0.007926973514258862, 0.009746131487190723, 0.151602 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008850909296538283]
+llh diff between EMsolvers (old - new): -7.1492919921875
+time diff between EMsolvers (old - new): 6.204393148422241
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.9564208984375, 0.007926973514258862, 0.009746131487190723, 0.136772 seconds
+avg brlen diff between EMsolvers (old - new): [0.00046841501383382115]
+llh diff between EMsolvers (old - new): -5.8399658203125
+time diff between EMsolvers (old - new): 10.472562074661255
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.605712890625, 0.007926973514258862, 0.009746131487190723, 0.115834 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007126298347896143]
+llh diff between EMsolvers (old - new): -4.149658203125
+time diff between EMsolvers (old - new): 14.103063583374023
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.790283203125, 0.007926973514258862, 0.009746131487190723, 0.135542 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010477699868110671]
+llh diff between EMsolvers (old - new): -6.5863037109375
+time diff between EMsolvers (old - new): 6.512130975723267
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.449462890625, 0.007926973514258862, 0.009746131487190723, 0.117007 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009387475719675942]
+llh diff between EMsolvers (old - new): -6.9271240234375
+time diff between EMsolvers (old - new): 6.35392689704895
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.439697265625, 0.007926973514258862, 0.009746131487190723, 0.156519 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012216287115985067]
+llh diff between EMsolvers (old - new): -5.9735107421875
+time diff between EMsolvers (old - new): 8.349671125411987
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.2725830078125, 0.007926973514258862, 0.009746131487190723, 0.137466 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011779406944337001]
+llh diff between EMsolvers (old - new): -6.1405029296875
+time diff between EMsolvers (old - new): 10.175936222076416
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.1429443359375, 0.007926973514258862, 0.009746131487190723, 0.160793 seconds
+avg brlen diff between EMsolvers (old - new): [0.00046887828255147684]
+llh diff between EMsolvers (old - new): -6.7838134765625
+time diff between EMsolvers (old - new): 8.459668159484863
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.2559814453125, 0.007926973514258862, 0.009746131487190723, 0.135924 seconds
+avg brlen diff between EMsolvers (old - new): [0.000505723209435214]
+llh diff between EMsolvers (old - new): -6.6708984375
+time diff between EMsolvers (old - new): 8.225404977798462
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1146.37890625, 0.007926973514258862, 0.009746131487190723, 0.135717 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008701614890965738]
+llh diff between EMsolvers (old - new): -7.107421875
+time diff between EMsolvers (old - new): 8.285068988800049
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1147.482177734375, 0.007926973514258862, 0.009746131487190723, 0.125322 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011605858529856]
+llh diff between EMsolvers (old - new): -6.0020751953125
+time diff between EMsolvers (old - new): 12.111924648284912
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.85107421875, 0.007926973514258862, 0.009746131487190723, 0.094943 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006388030811163321]
+llh diff between EMsolvers (old - new): -6.97607421875
+time diff between EMsolvers (old - new): 6.459388256072998
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.01708984375, 0.007926973514258862, 0.009746131487190723, 0.123905 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007347798922746584]
+llh diff between EMsolvers (old - new): -6.81005859375
+time diff between EMsolvers (old - new): 6.129486560821533
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.3355712890625, 0.007926973514258862, 0.009746131487190723, 0.137756 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007145614846420123]
+llh diff between EMsolvers (old - new): -6.02587890625
+time diff between EMsolvers (old - new): 8.43303108215332
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.029296875, 0.007926973514258862, 0.009746131487190723, 0.146239 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006495004206905782]
+llh diff between EMsolvers (old - new): -6.3311767578125
+time diff between EMsolvers (old - new): 8.233932971954346
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.93603515625, 0.007926973514258862, 0.009746131487190723, 0.156701 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008563531892536415]
+llh diff between EMsolvers (old - new): -6.5189208984375
+time diff between EMsolvers (old - new): 6.555171012878418
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.2720947265625, 0.007926973514258862, 0.009746131487190723, 0.129687 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010543707321327075]
+llh diff between EMsolvers (old - new): -5.1827392578125
+time diff between EMsolvers (old - new): 6.306074380874634
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.1273193359375, 0.007926973514258862, 0.009746131487190723, 0.157520 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010588724624063528]
+llh diff between EMsolvers (old - new): -5.3046875
+time diff between EMsolvers (old - new): 6.521969795227051
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.618408203125, 0.007926973514258862, 0.009746131487190723, 0.164033 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007545642345716326]
+llh diff between EMsolvers (old - new): -6.8135986328125
+time diff between EMsolvers (old - new): 6.215358018875122
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.5286865234375, 0.007926973514258862, 0.009746131487190723, 0.136098 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006219854915256917]
+llh diff between EMsolvers (old - new): -7.137451171875
+time diff between EMsolvers (old - new): 14.552251815795898
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.467041015625, 0.007926973514258862, 0.009746131487190723, 0.117040 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008852708012056255]
+llh diff between EMsolvers (old - new): -6.19921875
+time diff between EMsolvers (old - new): 6.2345051765441895
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1142.76220703125, 0.007926973514258862, 0.009746131487190723, 0.148605 seconds
+avg brlen diff between EMsolvers (old - new): [0.001338738500334259]
+llh diff between EMsolvers (old - new): -5.8782958984375
+time diff between EMsolvers (old - new): 6.576568841934204
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1141.7081298828125, 0.007926973514258862, 0.009746131487190723, 0.106591 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010720635461978763]
+llh diff between EMsolvers (old - new): -6.931396484375
+time diff between EMsolvers (old - new): 8.529481887817383
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.9962158203125, 0.007926973514258862, 0.009746131487190723, 0.094784 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008407096298020521]
+llh diff between EMsolvers (old - new): -7.19091796875
+time diff between EMsolvers (old - new): 8.592663049697876
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1136.829833984375, 0.007926973514258862, 0.009746131487190723, 0.094658 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012654065399190526]
+llh diff between EMsolvers (old - new): -5.357421875
+time diff between EMsolvers (old - new): 8.522007942199707
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.1060791015625, 0.007926973514258862, 0.009746131487190723, 0.139546 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012588421220569295]
+llh diff between EMsolvers (old - new): -6.5166015625
+time diff between EMsolvers (old - new): 6.549243688583374
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.4473876953125, 0.007926973514258862, 0.009746131487190723, 0.136986 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013327443575714365]
+llh diff between EMsolvers (old - new): -6.1754150390625
+time diff between EMsolvers (old - new): 10.311930179595947
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.053955078125, 0.007926973514258862, 0.009746131487190723, 0.148118 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011656914100563653]
+llh diff between EMsolvers (old - new): -6.470947265625
+time diff between EMsolvers (old - new): 8.697874784469604
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.6312255859375, 0.007926973514258862, 0.009746131487190723, 0.137684 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012941879091533785]
+llh diff between EMsolvers (old - new): -5.8931884765625
+time diff between EMsolvers (old - new): 14.52544093132019
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1146.3675537109375, 0.007926973514258862, 0.009746131487190723, 0.139904 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009049283657240792]
+llh diff between EMsolvers (old - new): -6.4886474609375
+time diff between EMsolvers (old - new): 6.497820138931274
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1146.85595703125, 0.007926973514258862, 0.009746131487190723, 0.137387 seconds
+avg brlen diff between EMsolvers (old - new): [0.001015641224947498]
+llh diff between EMsolvers (old - new): -5.998779296875
+time diff between EMsolvers (old - new): 6.320012331008911
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1133.489501953125, 0.007926973514258862, 0.009746131487190723, 0.098108 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011007767404638258]
+llh diff between EMsolvers (old - new): -6.3551025390625
+time diff between EMsolvers (old - new): 8.615399837493896
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.397705078125, 0.007926973514258862, 0.009746131487190723, 0.116097 seconds
+avg brlen diff between EMsolvers (old - new): [0.0013382077318824692]
+llh diff between EMsolvers (old - new): -4.4473876953125
+time diff between EMsolvers (old - new): 8.262763261795044
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.937744140625, 0.007926973514258862, 0.009746131487190723, 0.096237 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008115874264150652]
+llh diff between EMsolvers (old - new): -7.26708984375
+time diff between EMsolvers (old - new): 6.465954065322876
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1129.9541015625, 0.007926973514258862, 0.009746131487190723, 0.118187 seconds
+avg brlen diff between EMsolvers (old - new): [0.001172321645608857]
+llh diff between EMsolvers (old - new): -6.2501220703125
+time diff between EMsolvers (old - new): 6.3012001514434814
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.3876953125, 0.007926973514258862, 0.009746131487190723, 0.161066 seconds
+avg brlen diff between EMsolvers (old - new): [0.00043702062875916614]
+llh diff between EMsolvers (old - new): -6.4969482421875
+time diff between EMsolvers (old - new): 16.518720865249634
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.7154541015625, 0.007926973514258862, 0.009746131487190723, 0.135451 seconds
+avg brlen diff between EMsolvers (old - new): [0.0005551065802707922]
+llh diff between EMsolvers (old - new): -6.16943359375
+time diff between EMsolvers (old - new): 12.214431047439575
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.0521240234375, 0.007926973514258862, 0.009746131487190723, 0.156431 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008065071402864972]
+llh diff between EMsolvers (old - new): -6.8792724609375
+time diff between EMsolvers (old - new): 6.390568971633911
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.9495849609375, 0.007926973514258862, 0.009746131487190723, 0.137816 seconds
+avg brlen diff between EMsolvers (old - new): [0.001043037873186339]
+llh diff between EMsolvers (old - new): -5.98291015625
+time diff between EMsolvers (old - new): 8.531402111053467
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.642822265625, 0.007926973514258862, 0.009746131487190723, 0.158118 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008743776587884621]
+llh diff between EMsolvers (old - new): -6.81298828125
+time diff between EMsolvers (old - new): 6.37761116027832
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1130.5531005859375, 0.007926973514258862, 0.009746131487190723, 0.121074 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008378651297193126]
+llh diff between EMsolvers (old - new): -6.9036865234375
+time diff between EMsolvers (old - new): 6.305223226547241
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.7540283203125, 0.007926973514258862, 0.009746131487190723, 0.156832 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006761903475719576]
+llh diff between EMsolvers (old - new): -7.1444091796875
+time diff between EMsolvers (old - new): 8.46348786354065
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.8251953125, 0.007926973514258862, 0.009746131487190723, 0.128017 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011448315157814057]
+llh diff between EMsolvers (old - new): -4.07421875
+time diff between EMsolvers (old - new): 8.545010089874268
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.203857421875, 0.007926973514258862, 0.009746131487190723, 0.116154 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007686227674814085]
+llh diff between EMsolvers (old - new): -7.40625
+time diff between EMsolvers (old - new): 6.53255295753479
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.068359375, 0.007926973514258862, 0.009746131487190723, 0.140083 seconds
+avg brlen diff between EMsolvers (old - new): [0.001193744793734833]
+llh diff between EMsolvers (old - new): -6.541748046875
+time diff between EMsolvers (old - new): 8.288940191268921
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.9161376953125, 0.007926973514258862, 0.009746131487190723, 0.074690 seconds
+avg brlen diff between EMsolvers (old - new): [0.000942404271417263]
+llh diff between EMsolvers (old - new): -7.0413818359375
+time diff between EMsolvers (old - new): 6.592723369598389
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.2650146484375, 0.007926973514258862, 0.009746131487190723, 0.141919 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011620581865340585]
+llh diff between EMsolvers (old - new): -6.6915283203125
+time diff between EMsolvers (old - new): 10.597490549087524
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.1143798828125, 0.007926973514258862, 0.009746131487190723, 0.141548 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010366921005664446]
+llh diff between EMsolvers (old - new): -6.8958740234375
+time diff between EMsolvers (old - new): 8.684070110321045
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.917236328125, 0.007926973514258862, 0.009746131487190723, 0.140407 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012074356816611487]
+llh diff between EMsolvers (old - new): -6.093994140625
+time diff between EMsolvers (old - new): 6.3339550495147705
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.6763916015625, 0.007926973514258862, 0.009746131487190723, 0.159161 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010437939094758543]
+llh diff between EMsolvers (old - new): -6.72412109375
+time diff between EMsolvers (old - new): 10.38510513305664
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.419921875, 0.007926973514258862, 0.009746131487190723, 0.094989 seconds
+avg brlen diff between EMsolvers (old - new): [0.00094144337034827]
+llh diff between EMsolvers (old - new): -6.9810791015625
+time diff between EMsolvers (old - new): 10.30088996887207
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1143.0494384765625, 0.007926973514258862, 0.009746131487190723, 0.148884 seconds
+avg brlen diff between EMsolvers (old - new): [0.0008977114859697892]
+llh diff between EMsolvers (old - new): -6.57177734375
+time diff between EMsolvers (old - new): 6.4575395584106445
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1145.6705322265625, 0.007926973514258862, 0.009746131487190723, 0.137518 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012699447307272151]
+llh diff between EMsolvers (old - new): -3.9501953125
+time diff between EMsolvers (old - new): 6.244175910949707
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.812255859375, 0.007926973514258862, 0.009746131487190723, 0.136011 seconds
+avg brlen diff between EMsolvers (old - new): [0.0005918599213295611]
+llh diff between EMsolvers (old - new): -6.5491943359375
+time diff between EMsolvers (old - new): 8.529619932174683
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.1820068359375, 0.007926973514258862, 0.009746131487190723, 0.159069 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006941828756770549]
+llh diff between EMsolvers (old - new): -6.179443359375
+time diff between EMsolvers (old - new): 8.195857048034668
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1134.7930908203125, 0.007926973514258862, 0.009746131487190723, 0.115852 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010994234042088252]
+llh diff between EMsolvers (old - new): -6.3466796875
+time diff between EMsolvers (old - new): 6.5123207569122314
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1135.8582763671875, 0.007926973514258862, 0.009746131487190723, 0.137145 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012592142834165455]
+llh diff between EMsolvers (old - new): -5.281494140625
+time diff between EMsolvers (old - new): 8.221449851989746
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.7783203125, 0.007926973514258862, 0.009746131487190723, 0.125387 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012196328748893149]
+llh diff between EMsolvers (old - new): -5.2628173828125
+time diff between EMsolvers (old - new): 6.398008108139038
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1138.7042236328125, 0.007926973514258862, 0.009746131487190723, 0.154173 seconds
+avg brlen diff between EMsolvers (old - new): [0.001054755277525533]
+llh diff between EMsolvers (old - new): -6.3372802734375
+time diff between EMsolvers (old - new): 4.2217302322387695
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.17919921875, 0.007926973514258862, 0.009746131487190723, 0.159887 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011347048173190521]
+llh diff between EMsolvers (old - new): -6.9918212890625
+time diff between EMsolvers (old - new): 12.333604097366333
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1140.3023681640625, 0.007926973514258862, 0.009746131487190723, 0.151616 seconds
+avg brlen diff between EMsolvers (old - new): [0.0011925388872841606]
+llh diff between EMsolvers (old - new): -6.8681640625
+time diff between EMsolvers (old - new): 6.280580997467041
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.702880859375, 0.007926973514258862, 0.009746131487190723, 0.102148 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007244747207877386]
+llh diff between EMsolvers (old - new): -6.445068359375
+time diff between EMsolvers (old - new): 10.34994888305664
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1132.8369140625, 0.007926973514258862, 0.009746131487190723, 0.094985 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007376473549039991]
+llh diff between EMsolvers (old - new): -6.3111572265625
+time diff between EMsolvers (old - new): 12.413264274597168
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.9327392578125, 0.007926973514258862, 0.009746131487190723, 0.159302 seconds
+avg brlen diff between EMsolvers (old - new): [0.0006728707199106495]
+llh diff between EMsolvers (old - new): -6.5284423828125
+time diff between EMsolvers (old - new): 12.678220987319946
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1126.934326171875, 0.007926973514258862, 0.009746131487190723, 0.146163 seconds
+avg brlen diff between EMsolvers (old - new): [0.000672161789408879]
+llh diff between EMsolvers (old - new): -6.52783203125
+time diff between EMsolvers (old - new): 10.295448064804077
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1131.948486328125, 0.007926973514258862, 0.009746131487190723, 0.156516 seconds
+avg brlen diff between EMsolvers (old - new): [0.0015819471625637678]
+llh diff between EMsolvers (old - new): -3.3338623046875
+time diff between EMsolvers (old - new): 8.388770580291748
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1128.6900634765625, 0.007926973514258862, 0.009746131487190723, 0.132447 seconds
+avg brlen diff between EMsolvers (old - new): [0.0012805665547628276]
+llh diff between EMsolvers (old - new): -6.5927734375
+time diff between EMsolvers (old - new): 8.258705854415894
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.3199462890625, 0.007926973514258862, 0.009746131487190723, 0.114325 seconds
+avg brlen diff between EMsolvers (old - new): [0.0005504496580736141]
+llh diff between EMsolvers (old - new): -6.5743408203125
+time diff between EMsolvers (old - new): 12.391526222229004
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.047119140625, 0.007926973514258862, 0.009746131487190723, 0.159791 seconds
+avg brlen diff between EMsolvers (old - new): [0.0004870543918164583]
+llh diff between EMsolvers (old - new): -6.846435546875
+time diff between EMsolvers (old - new): 12.349510192871094
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1139.0765380859375, 0.007926973514258862, 0.009746131487190723, 0.118363 seconds
+avg brlen diff between EMsolvers (old - new): [0.0010498951164952992]
+llh diff between EMsolvers (old - new): -3.7808837890625
+time diff between EMsolvers (old - new): 6.31708025932312
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1137.5821533203125, 0.007926973514258862, 0.009746131487190723, 0.139481 seconds
+avg brlen diff between EMsolvers (old - new): [0.0009596645028263035]
+llh diff between EMsolvers (old - new): -5.27734375
+time diff between EMsolvers (old - new): 10.20016622543335
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.6131591796875, 0.007926973514258862, 0.009746131487190723, 0.139688 seconds
+avg brlen diff between EMsolvers (old - new): [0.000808866483510758]
+llh diff between EMsolvers (old - new): -5.8519287109375
+time diff between EMsolvers (old - new): 8.44640064239502
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Current fastEM_solver score: -1127.6033935546875, 0.007926973514258862, 0.009746131487190723, 0.119173 seconds
+avg brlen diff between EMsolvers (old - new): [0.0007918498795072378]
+llh diff between EMsolvers (old - new): -5.8623046875
+time diff between EMsolvers (old - new): 10.351621627807617
+param (phi) diff between EMsolvers (old - new): 0.0
+param (nu) diff between EMsolvers (old - new): 0.0
+Best score for this search: -1126.4865
+Optimal topology found. Re-optimizing other parameters ...
+Current fastEM_solver score: -1126.4808349609375, 0.008339839056134224, 0.008463351055979729, 0.076781 seconds
+avg brlen diff between EMsolvers (old - new): [0.0016419227586619866]
+llh diff between EMsolvers (old - new): -1.143310546875
+time diff between EMsolvers (old - new): 1.8795506954193115
+param (phi) diff between EMsolvers (old - new): -0.00043471623212099075
+param (nu) diff between EMsolvers (old - new): 0.0012127133086323738
+Optimal score for this search: -1126.4808
+Tree height pre-scaling: 2.328920257823473, input timescale: 10
+Tree height after scaling: 10.0, mutation rate: 0.2328920257823473
+Runtime (s): 4229.975740125001

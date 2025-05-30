@@ -21,7 +21,7 @@ class EMTest(unittest.TestCase):
         mySolver.az_partition()
         my_nllh = mySolver.negative_llh()
         self.assertAlmostEqual(true_nllh,my_nllh,places=5,msg="EMTest: test_1 failed.")
-    
+
     def test_2(self): 
         Q = [{1:1}]
         T = "((a:1,b:1):1,c:1):1;"

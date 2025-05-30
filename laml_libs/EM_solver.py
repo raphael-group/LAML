@@ -18,6 +18,7 @@ def pseudo_log(x):
 class EM_solver(ML_solver):
     def __init__(self,treeList,data,prior,params={'nu':0,'phi':0,'sigma':0}):
         super(EM_solver,self).__init__(treeList,data,prior,params)
+        self.solver_name = "EM_solver"
         self.has_polytomy = False
         self.__mark_polytomies__(eps_len=self.dmin*0.01)
         self.num_edges = sum([len(list(tree.traverse_postorder())) for tree in self.trees])
@@ -396,7 +397,11 @@ class EM_solver(ML_solver):
             C3 = -var_nu*S3.T @ d
             C4 = S4.T @ cp.log(1-cp.exp(-var_nu*d)) if sum(S4) > 0 else 0
             objective = cp.Maximize(C0+C1+C2+C3+C4)
-            prob = cp.Problem(objective)
+            constraints = [
+            var_nu >= 0,
+            var_nu <= 1
+            ]
+            prob = cp.Problem(objective, constraints=constraints)
             prob.solve(verbose=False,solver=cp.MOSEK)
             #prob.solve(verbose=False,solver=cp.ECOS,max_iters=400)
             return var_nu.value[0],prob.status
@@ -464,6 +469,7 @@ class EM_solver(ML_solver):
         if verbose >= 0:
             print("Initial phi: " + str(self.params.phi) + ". Initial nu: " + str(self.params.nu) + ". Initial nllh: " + str(-pre_llh))
         em_iter = 1
+        #print(f"initial oldEM: {[t.newick() for t in self.trees]}")
         converged = False
         if ultra_constr:
             ultra_constr_cache = self.ultrametric_constr(local_brlen_opt=True) 
