@@ -64,7 +64,8 @@ Users may consider one of three primary modes for running LAML:
 ## Input
 LAML requires the following two input files:
 
-1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character. Refer to the paper for more details. Note that for numerical stability, by default LAML deduplicates the character matrix and input tree, and places the duplicate sequences back in as polytomies.
+1. A file containing the character matrix, a [comma-separated values (CSV) file](https://en.wikipedia.org/wiki/Comma-separated_values) that has rows representing  cells and columns representing target sites. This file must have a header showing a list of site names and every subsequent line must begin with the cell name. Values of the character matrix must be either non-negative integers or '?', with 0 indicating the unmutated state, other integers indicating mutated state, and '?' as the missing data character. Refer to the paper for more details. 
+
 
 | cell_name  | site_1 | site_2 |
 | ------------- | ------------- | ------------- |
@@ -99,6 +100,12 @@ output options:
     -o OUTPUT, --output OUTPUT    Output prefix. Default: LAML_output
     -v, --verbose         Show verbose messages.
 ```
+
+### Pre-processing Notes
+LAML automatically performs the following pre-processing checks:
+1. If there are duplicate sequences (identical edited states and missing data) in the input character matrix, we will keep one and prune all duplicate sequences from the tree for the main logic in LAML. At the end of the main logic, we will add duplicate sequences back into the tree, creating polytomies if there are more than 2 taxa with identical sequences.
+2. If there is discrepancy between the alphabet of possible edits for a target site in the input character matrix and the priors file, we will default to using the priors' alphabet. 
+2. In the event of mismatch between the number of target sites in the input character matrix and priors file, we will do our best to match based on site names. If we are missing priors for a target site with an alphabet of edits, we will fill in uniform priors based on the observed alphabet of edits. As a last resort, if there is still a mismatch between the number of target sites, we will filter out all target sites in the character matrix which are uninformative (all taxa are 0 or missing) *only* if this resolves the mismatch between the number of target sites. In each of these instances, the logfile should contain warnings.
 
 ### Customize the format of the input character matrix 
 The software allows some flexibility on the format of the input character matrix, using `-m` and `--delimiter` options. For example, if the character matrix is in the [tab-separated values (CSV) file](https://en.wikipedia.org/wiki/Tab-separated_values) format, it will still be accepted if `--delimiter Tab` is specified. The placeholder of the missing character can also be adjusted using `-m`. For instance, if the input file has missing entries represented by "-" instead of "?", it will still be accepted if `-m -` is specified. 
