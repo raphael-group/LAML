@@ -10,105 +10,105 @@ Starting topology search
 Running topology search sequentially...
 Performing nni-search 1
 Perform nni moves for full topology search
-Initial score: -1126.5549
+Initial score: -1127.1178
 NNI Iter: 0
-Number of trees checked: 32
-Current score: -1126.5547
-Runtime (s): 1.676560125
+Number of trees checked: 16
+Current score: -1127.1176
+Runtime (s): 0.9059787499999992
 NNI Iter: 1
-Number of trees checked: 34
-Current score: -1126.5548
-Runtime (s): 1.9880604170000007
-NNI Iter: 2
-Number of trees checked: 18
-Current score: -1126.5546
-Runtime (s): 0.8958732089999994
-NNI Iter: 3
-Number of trees checked: 42
-Current score: -1126.5543
-Runtime (s): 2.4653791669999983
-NNI Iter: 4
-Number of trees checked: 2
-Current score: -1126.5544
-Runtime (s): 0.06753175000000056
-NNI Iter: 5
 Number of trees checked: 24
-Current score: -1126.5546
-Runtime (s): 1.457722833
-NNI Iter: 6
-Number of trees checked: 10
-Current score: -1126.5544
-Runtime (s): 0.7436834579999996
-NNI Iter: 7
+Current score: -1128.6306
+Runtime (s): 1.278331542
+NNI Iter: 2
 Number of trees checked: 4
-Current score: -1126.5544
-Runtime (s): 0.17625504200000108
+Current score: -1128.6294
+Runtime (s): 0.26367862499999983
+NNI Iter: 3
+Number of trees checked: 48
+Current score: -1128.6294
+Runtime (s): 2.7430255830000005
+NNI Iter: 4
+Number of trees checked: 18
+Current score: -1128.6293
+Runtime (s): 0.8947412500000009
+NNI Iter: 5
+Number of trees checked: 4
+Current score: -1128.6292
+Runtime (s): 0.26420183399999964
+NNI Iter: 6
+Number of trees checked: 16
+Current score: -1128.6289
+Runtime (s): 0.790256458
+NNI Iter: 7
+Number of trees checked: 6
+Current score: -1128.629
+Runtime (s): 0.26847637500000054
 NNI Iter: 8
-Number of trees checked: 2
-Current score: -1126.5546
-Runtime (s): 0.0658665420000002
+Number of trees checked: 4
+Current score: -1128.6292
+Runtime (s): 0.16297254200000033
 NNI Iter: 9
 Number of trees checked: 4
-Current score: -1126.5542
-Runtime (s): 0.17483079199999985
+Current score: -1128.6292
+Runtime (s): 0.16539729200000153
 NNI Iter: 10
-Number of trees checked: 14
-Current score: -1126.5543
-Runtime (s): 0.7451294170000011
+Number of trees checked: 2
+Current score: -1128.6293
+Runtime (s): 0.059503292000000485
 NNI Iter: 11
-Number of trees checked: 6
-Current score: -1126.5546
-Runtime (s): 0.2941022500000017
+Number of trees checked: 20
+Current score: -1128.6292
+Runtime (s): 1.2115765829999994
 NNI Iter: 12
-Number of trees checked: 18
-Current score: -1126.5544
-Runtime (s): 1.0647411250000012
-NNI Iter: 13
-Number of trees checked: 10
-Current score: -1126.5544
-Runtime (s): 0.4868251249999993
-NNI Iter: 14
-Number of trees checked: 38
-Current score: -1126.5544
-Runtime (s): 2.1344365829999994
-NNI Iter: 15
-Number of trees checked: 4
-Current score: -1126.5543
-Runtime (s): 0.16495087499999883
-NNI Iter: 16
-Number of trees checked: 8
-Current score: -1126.5543
-Runtime (s): 0.3834625410000001
-NNI Iter: 17
 Number of trees checked: 16
-Current score: -1126.5544
-Runtime (s): 1.0506785
+Current score: -1128.6293
+Runtime (s): 0.7928611659999998
+NNI Iter: 13
+Number of trees checked: 16
+Current score: -1128.6292
+Runtime (s): 0.9223454590000006
+NNI Iter: 14
+Number of trees checked: 10
+Current score: -1127.1178
+Runtime (s): 0.6014000420000016
+NNI Iter: 15
+Number of trees checked: 28
+Current score: -1127.1172
+Runtime (s): 1.5546356669999994
+NNI Iter: 16
+Number of trees checked: 10
+Current score: -1127.1172
+Runtime (s): 0.6293511669999994
+NNI Iter: 17
+Number of trees checked: 30
+Current score: -1127.1172
+Runtime (s): 1.814593833
 NNI Iter: 18
-Number of trees checked: 14
-Current score: -1126.5544
-Runtime (s): 0.7067221250000024
+Number of trees checked: 46
+Current score: -1127.1172
+Runtime (s): 2.6572784170000006
 NNI Iter: 19
-Number of trees checked: 4
-Current score: -1126.5544
-Runtime (s): 0.18402174999999943
+Number of trees checked: 14
+Current score: -1127.1173
+Runtime (s): 0.7252879169999993
 NNI Iter: 20
 Number of trees checked: 2
-Current score: -1126.5543
-Runtime (s): 0.06338487500000056
+Current score: -1127.1082
+Runtime (s): 0.11505520900000121
 NNI Iter: 21
-Number of trees checked: 48
-Current score: -1126.5543
-Runtime (s): 3.0418535839999983
+Number of trees checked: 20
+Current score: -1127.1082
+Runtime (s): 1.3967275420000007
 NNI Iter: 22
-Number of trees checked: 72
-Current score: -1126.5448
-Runtime (s): 4.450930625000002
+Number of trees checked: 42
+Current score: -1127.108
+Runtime (s): 2.308497333000002
 NNI Iter: 23
 Number of trees checked: 120
-Best score for this search: -1126.5448
+Best score for this search: -1127.108
 Optimal topology found. Re-optimizing other parameters ...
-Optimal score for this search: -1124.4495480361256
+Optimal score for this search: -1124.4446493093433
 Added back the identical sequences, creating 2 dummy nodes.
-Tree height pre-scaling: 2.3306332704981125, input timescale: 10
-Tree height after scaling: 10.0, mutation rate: 0.23306332704981125
-Runtime (s): 37.9671495
+Tree height pre-scaling: 2.330247709876108, input timescale: 10
+Tree height after scaling: 9.999999999999996, mutation rate: 0.23302477098761082
+Runtime (s): 37.047201625

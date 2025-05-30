@@ -30,7 +30,6 @@ class ML_solver(Virtual_solver):
             tree_obj.suppress_unifurcations()
             self.num_edges += len(list(tree_obj.traverse_postorder()))
             self.trees.append(tree_obj)
-        
         Q_filtered = Q
         """
         # Note: If the priors are provided, let the priors define the alphabet!
@@ -45,6 +44,28 @@ class ML_solver(Virtual_solver):
             for i, q in enumerate(Q)
         ]
         """
+        # check for uninformative sites, and drop columns corresponding to that if 
+        site_matrix = list(zip(*charMtrx.values())) # transpose matrix, get a list of columns
+        uninformative_sites = [
+            i for i, site in enumerate(site_matrix)
+            if all(val in (0, -1, '?') for val in site)
+        ]
+        informative_indices = [
+            i for i in range(len(site_matrix)) if i not in uninformative_sites
+        ]
+        
+        if len(Q) != len(site_matrix):
+            print(f"Warning: Q has {len(Q)} entries, {len(site_matrix)} sites in charMtrx. Identified {len(uninformative_sites)} uninformative sites.")
+            # if removing the uninformative sites would help us handle the input priors, let's drop them
+            if len(uninformative_sites) == max(len(Q), len(site_matrix)) - min(len(Q), len(site_matrix)):
+                charMtrx = {
+                    cell: [values[i] for i in informative_indices]
+                    for cell, values in charMtrx.items()
+                }
+            else:
+                print(f"Warning: Removing the uninformative sites would not help us resolve the discrepancy between the priors and the character matrix, so let's not change anything.")
+        self.charMtrx = charMtrx
+
         # normalize Q
         self.Q = []
         for Q_i in Q_filtered: # Q

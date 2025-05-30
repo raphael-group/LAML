@@ -3,8 +3,24 @@
 # Option 1:
 python ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example2 --nInitials 1 --randomreps 1 --topology_search -v --timescale 10
 
+# evaluate with:
+python ../../scripts/compare_two_trees.py -t1 example2_trees.nwk -t2 ../out_example2/example2_trees.nwk
+
 # Option 2: 
 python ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example2_fastEM_cpu --nInitials 1 --randomreps 1 --topology_search -v --solver fastEM-cpu --timescale 10
 
+# evaluate with:
+python ../../scripts/compare_two_trees.py -t1 example2_fastEM_cpu_trees.nwk -t2 ../out_example2_fastEM_cpu/example2_fastEM_cpu_trees.nwk
+
 # Option 3: 
 python ../../run_laml.py -c character_matrix.csv -p priors.csv -o example2_fastEM_cpu_nostart --nInitials 1 --randomreps 1 --topology_search -v --solver fastEM-cpu --timescale 10
+
+# evaluate with:
+python ../../scripts/compare_two_trees.py -t1 example2_fastEM_cpu_nostart_trees.nwk -t2 ../out_example2_fastEM_cpu_nostart/example2_fastEM_cpu_nostart_trees.nwk
+
+# evaluate the trees we converged to
+# fastEM_cpu vs regular EM solver
+python ../../scripts/compare_two_trees.py -t1 ../out_example2_fastEM_cpu/example2_fastEM_cpu_trees.nwk -t2 ../out_example2/example2_trees.nwk
+# fastEM_cpu vs nj start
+python ../../scripts/compare_two_trees.py -t1 ../out_example2_fastEM_cpu/example2_fastEM_cpu_trees.nwk -t2 ../out_example2_fastEM_cpu_nostart/example2_fastEM_cpu_nostart_trees.nwk
+

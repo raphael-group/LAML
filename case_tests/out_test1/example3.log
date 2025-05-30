@@ -1,0 +1,126 @@
+Launching LAML version 1.0.0
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v
+No duplicates, 3 unique sequences remain.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+Optimization start with 1 initials
+Initial point 1. Random seed: 8961
+Numerical optimization started with ultrametric constraint (default)
+Launching LAML version 1.0.0
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v
+No duplicates, 3 unique sequences remain.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+Optimization start with 1 initials
+Initial point 1. Random seed: 7467
+Numerical optimization started with ultrametric constraint (default)
+Launching LAML version 1.0.0
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v
+No duplicates, 3 unique sequences remain.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+1 3
+Optimization start with 1 initials
+Initial point 1. Random seed: 9299
+Numerical optimization started with ultrametric constraint (default)
+Launching LAML version 1.0.0
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v
+No duplicates, 3 unique sequences remain.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+1 3
+Optimization start with 1 initials
+Initial point 1. Random seed: 9916
+Numerical optimization started with ultrametric constraint (default)
+Launching LAML version 1.0.0
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v
+No duplicates, 3 unique sequences remain.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+Q len: 1 site matrix 3
+Optimization start with 1 initials
+Initial point 1. Random seed: 3744
+Numerical optimization started with ultrametric constraint (default)
+Launching LAML version 1.0.0
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v
+No duplicates, 3 unique sequences remain.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+Q len: 1 , site matrix: 3
+Warning: Q has 1 entries but only 3 sites in charMtrx. Identified 2 uninformative sites.
+Optimization start with 1 initials
+Initial point 1. Random seed: 5551
+Numerical optimization started with ultrametric constraint (default)
+Launching LAML version 1.0.0
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v
+No duplicates, 3 unique sequences remain.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+Warning: Q has 1 entries, 3 sites in charMtrx. Identified 2 uninformative sites.
+Optimization start with 1 initials
+Initial point 1. Random seed: 5686
+Numerical optimization started with ultrametric constraint (default)
+Launching LAML version 1.0.0
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v
+No duplicates, 3 unique sequences remain.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+Warning: Q has 1 entries, 3 sites in charMtrx. Identified 2 uninformative sites.
+Optimization start with 1 initials
+Initial point 1. Random seed: 9246
+Numerical optimization started with ultrametric constraint (default)
+Launching LAML version 1.0.0
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v
+No duplicates, 3 unique sequences remain.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+Warning: Q has 1 entries, 3 sites in charMtrx. Identified 2 uninformative sites.
+Optimization start with 1 initials
+Initial point 1. Random seed: 6904
+Numerical optimization started with ultrametric constraint (default)
+Launching LAML version 1.0.0
+LAML was called as follows: ../../run_laml.py -c character_matrix.csv -t starting.tree -p priors.csv -o example3 --nInitials 1 --randomreps 1 -v
+No duplicates, 3 unique sequences remain.
+Optimizing branch lengths, phi, and nu without topology search
+Optimization by EM algorithm
+Warning: Q has 1 entries, 3 sites in charMtrx. Identified 2 uninformative sites.
+Optimization start with 1 initials
+Initial point 1. Random seed: 3899
+Numerical optimization started with ultrametric constraint (default)
+Initial phi: 0.18270781473556189. Initial nu: 0.3854349407540523. Initial nllh: 19.19599756531932
+Starting EM iter: 1
+Estep
+Estep runtime (s): 7.510185241699219e-05
+Mstep
+Optimizing phi
+Optimizing branch lengths. Current phi: 0. Current nu:0.3854349407540523
+Optimizing nu
+Mstep runtime (s): 0.05722784996032715
+Finished EM iter: 1. Current nllh: 3.512994961887864
+Starting EM iter: 2
+Estep
+Estep runtime (s): 9.298324584960938e-05
+Mstep
+Optimizing phi
+Optimizing branch lengths. Current phi: 0. Current nu:4.6165086636370056e-06
+Optimizing nu
+Mstep runtime (s): 0.031507015228271484
+Finished EM iter: 2. Current nllh: 3.3033497510466696
+Starting EM iter: 3
+Estep
+Estep runtime (s): 9.202957153320312e-05
+Mstep
+Optimizing phi
+Optimizing branch lengths. Current phi: 0. Current nu:2.481270658391181e-06
+Optimizing nu
+Mstep runtime (s): 0.02944183349609375
+Finished EM iter: 3. Current nllh: 3.3033497524754867
+EM finished after 3 iterations.
+Optimal phi: 0. Optimal nu: 2.481710016212404e-06. Optimal nllh: 3.3033497524754867
+Optimal point found for initial point 1
+Numerical optimization finished successfully
+Warning: Q has 1 entries, 3 sites in charMtrx. Identified 2 uninformative sites.
+Tree height pre-scaling: 1.1061115018134888, input timescale: 1.0
+Tree height after scaling: 1.0, mutation rate: 1.1061115018134888
+Warning: Q has 1 entries, 3 sites in charMtrx. Identified 2 uninformative sites.
+Runtime (s): 0.12105520800000047
