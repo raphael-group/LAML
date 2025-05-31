@@ -1,6 +1,6 @@
 # below we define the constants that are shared among all libraries
 
-PROGRAM_NAME = "laml" 
+PROGRAM_NAME = "LAML" 
 PROGRAM_AUTHOR = ["Gillian Chu", "Uyen Mai", "Henri Schmidt", "Ben Raphael"]
 PROGRAM_LICENSE = "GNU General Public License, version 3"
 PROGRAM_VERSION = "1.0.1"
