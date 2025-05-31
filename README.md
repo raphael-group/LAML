@@ -27,8 +27,9 @@ laml_tests.py
 If LAML was installed properly, you would see on the screen `Running tests for LAML...` to begin, and print progress dots (one for each test passed). 
 At the end, you should see the following message:
 ```
+........................................................................................
 ----------------------------------------------------------------------
-Ran 80 tests in 13.486s
+Ran 88 tests in 60.571s
 
 OK
 ```
@@ -46,7 +47,7 @@ You can install the developer version on Github by installing from source with t
 ``git clone https://github.com/raphael-group/LAML.git``
 2. Change directory to the ``LAML`` folder. Then use ``pip`` to install from source.
 ``pip install .``
-3. After installation, run `laml_tests.py` as instructed above.
+3. After installation, run the executable `laml_tests.py` as instructed above.
 
 # Usage
 ```

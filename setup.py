@@ -3,6 +3,7 @@ from setuptools.command.install import install
 import sysconfig
 import os
 import laml_libs 
+import fast_em
 from os import walk, listdir
 from os.path import join, normpath, isfile
 
@@ -53,6 +54,7 @@ param = {
         'entry_points': {
             'console_scripts': [
                 'run_laml= run_laml:main',
+                'laml_tests=laml_tests:main',
              ],
         },
 }
