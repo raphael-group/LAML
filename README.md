@@ -41,12 +41,8 @@ run_laml -h
 to see the commandline help of LAML.
 
 ## [For developers] Other installation options
-New releases are available on the [github releases](https://github.com/raphael-group/LAML/releases). To get a specific release version, simply download the corresponding `.whl` file and install using pip. For instance, to install [LAML version 0.0.2](https://github.com/raphael-group/LAML/releases/tag/v0.0.2), you need to download the file [LAML-0.0.2-py3-none-any.whl](https://github.com/raphael-group/LAML/releases/download/v0.0.2/LAML-0.0.2-py3-none-any.whl), then use `pip` to install it, as follows:
-```
-    pip install LAML-0.0.2-py3-none-any.whl
-```
-Alternatively, if you wish to install the (developing) version available on Github, you need to install from source. Do the following steps:
-1. Clone the LAML github to your machine:
+You can install the developer version on Github by installing from source with the following steps:
+1. Clone the LAML github repository to your machine:
 ``git clone https://github.com/raphael-group/LAML.git``
 2. Change directory to the ``LAML`` folder. Then use ``pip`` to install from source.
 ``pip install .``
