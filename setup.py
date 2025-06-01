@@ -8,14 +8,12 @@ from os import walk, listdir
 from os.path import join, normpath, isfile
 
 def recursive_list_dir(path):
-    listing=[]
-    for x in walk(path):
-        if isfile(x[0]):
-            listing.append(x[0].split(path+'/')[1])
-        for y in listdir(x[0]):
-            z = normpath(join(x[0],y))
-            if isfile(z):
-                listing.append(z.split(path+'/')[1])
+    listing = []
+    for root, dirs, files in os.walk(path):
+        for f in files:
+            full_path = os.path.join(root, f)
+            rel_path = os.path.relpath(full_path, path)
+            listing.append(rel_path)
     return listing
 
 # Note from GC
@@ -38,7 +36,8 @@ param = {
         'zip_safe': True,
         'install_requires': ['scipy>=1.3.1', 'cvxpy>=1.4', 'treeswift>=1.1.39', 'Mosek>=10.1.16', 
                              'Biopython>=1.71','matplotlib>=2.2.2','setuptools',"jax>=0.4.30,<0.5",
-                             "loguru>=0.7.3,<1.0", "networkx>=3.2.1,<4.0", "optax>=0.2.4,<1.0", "pandas>=2.2.3,<3.0", 'numpy>=1.21', 'numba>=0.56', 'scikit-bio>=0.5.8'], 
+                             "loguru>=0.7.3,<1.0", "networkx>=3.2.1,<4.0", "optax>=0.2.4,<1.0", "pandas>=2.2.3,<3.0", 'numpy>=1.21', 'numba>=0.56'],
+        'extras_require' : {'bio': ['scikit-bio>=0.5.8']},
         'keywords': 'Phylogenetics Evolution Computational Maximum-likelihood Lineage Tracing',
         'long_description': """LAML is a maximum likelihood algorithm under the Probabilistic Mixed-type Missing (PMM) model. Given a lineage tracing experiment character matrix with heterogeneous per-site alphabets and mutation probabilities, LAML finds a maximum likelihood tree topology and estimates parameters including time-resolved branch lengths, heritable silencing rate and non-heritable dropout probability.""",
         'classifiers': [

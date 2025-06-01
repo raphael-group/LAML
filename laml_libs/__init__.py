@@ -3,7 +3,7 @@
 PROGRAM_NAME = "LAML" 
 PROGRAM_AUTHOR = ["Gillian Chu", "Uyen Mai", "Henri Schmidt", "Ben Raphael"]
 PROGRAM_LICENSE = "GNU General Public License, version 3"
-PROGRAM_VERSION = "1.0.1"
+PROGRAM_VERSION = "1.0.5"
 PROGRAM_YEAR = "2025"
 PROGRAM_INSTITUTE = "Computer Science Department, Princeton University"
 PROGRAM_DESCRIPTION = "LAML: Lineage Analysis via Maximum Likelihood"

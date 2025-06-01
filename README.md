@@ -8,7 +8,7 @@ For additional information about the method refer to the [paper](https://www.bio
 ## Precursors 
 The following precursors **are required** to install and run LAML
 ### Python and pip
-The software requires python >= 3.9 and pip.
+The software requires python >= 3.10 and pip.
 
 ### [IMPORTANT] MOSEK License
 The software uses [MOSEK](https://www.mosek.com) for numerical optimization, which requires a license. Please do the following 2 steps:
@@ -20,6 +20,8 @@ The latest stable version is available on PyPI. To install, use the following co
 ```
 pip install laml 
 ```
+**Note: If you anticipate running LAML to also estimate starting trees, please run `pip install laml[bio]`. Note that this will install scikit-bio, which may require additional installation handling on Windows.**
+
 After installation, type the following for testing
 ```
 laml_tests.py 
@@ -33,6 +35,7 @@ Ran 88 tests in 60.571s
 
 OK
 ```
+**Note: On Windows, you may need to run `where laml_tests.py`, change to this directory and run `laml_tests.py` in this directory.**
 
 Now, type
 
@@ -57,6 +60,7 @@ Users may consider one of three primary modes for running LAML:
 1. Computing the likelihood of a tree and parameters (branch lengths, silencing rate, and dropout probability) under the PMM model.  
 2. Estimating parameters (branch lengths, silencing rate, and dropout probability) on a fixed tree topology. 
 3. Jointly estimate a tree topology and parameters (branch lengths, silencing rate, and dropout probability) under the PMM model.
+
 
 ## Input
 LAML requires the following two input files:
@@ -132,9 +136,10 @@ Below are some other important options available in LAML. For full documentation
   --noSilence         Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing. Does not necessarily produce ultrametric trees, and cannot be time-scaled. This option has higher priority than --timescale or --ultrametric.
   --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
   --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. Default: 1.0.
-  --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM'. Default: EM
+  --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM' or 'fastEM-gpu' or 'fastEM-cpu'. Default: EM
   --nInitials NINITIALS    The number of initial points. Default: 20.
 ```
+
 ### Topology search
 ```
   --topology_search     Perform topology search using NNI operations. Always returns a fully resolved (i.e. binary) tree.
