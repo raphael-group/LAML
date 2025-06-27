@@ -20,7 +20,7 @@ The latest stable version is available on PyPI. To install, use the following co
 ```
 pip install laml 
 ```
-**Note: If you anticipate running LAML to also estimate starting trees, please run `pip install laml[bio]`. Note that this will install scikit-bio, which may require additional installation handling on Windows.**
+**Note: If you anticipate running LAML to also estimate starting trees, please run `pip install 'laml[bio]'`. Note that this will install scikit-bio, which may require additional installation handling on Windows.**
 
 After installation, type the following for testing
 ```
