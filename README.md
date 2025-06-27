@@ -35,7 +35,7 @@ Ran 88 tests in 60.571s
 
 OK
 ```
-**Note: On Windows, you may need to run `where laml_tests.py`, change to this directory and run `laml_tests.py` in this directory.**
+**Note: On Windows, you may need to run `where laml_tests.py`, and either add this path or change to this directory for your runs. You should be able to run `python laml_tests.py` in this directory.**
 
 Now, type
 
