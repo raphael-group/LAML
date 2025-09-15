@@ -82,7 +82,8 @@ See an example character matrix in [examples/example1/character_matrix.csv](http
 ## Output
 There are four output files: 
 
-1. `LAML_output_trees.nwk`: The output tree with time-resolved branch lengths
+1. `LAML_output_trees.nwk`: The output tree with time-resolved branch lengths.
+1. `LAML_output_trees.collapsed.nwk`: The output tree with time-resolved branch lengths. Branches with length close to minimum branch length (0.005 + eps = 0.006) are collapsed to polytomies.
 2. `LAML_output_params.txt`: This file reports the dropout rate, silencing rate, and negative log-likelihood.
 3. `LAML_output_annotations.txt`: This file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
 4. `LAML_output.log`: The LAML logfile.
