@@ -11,6 +11,10 @@ from laml_libs.Topology_search import Topology_search as Topology_search_sequent
 from laml_libs.starting_tree import build_starting_tree
 from math import *
 from treeswift import *
+import datetime
+from datetime import date
+import re
+import math
 import random
 import argparse
 import mosek
@@ -90,6 +94,18 @@ def main():
     if 'MOSEKLM_LICENSE_FILE' not in os.environ and not os.path.isfile(lic_file):
         print("MOSEK license not found in environment variables. Please set the MOSEK license!")
         exit(0)
+
+    ### since the MOSEK license file exists, check the license expiration date manually
+    p = (os.getenv("MOSEKLM_LICENSE_FILE","").split(os.pathsep)[0]
+     or os.path.expanduser("~/mosek/mosek.lic"))
+    if not os.path.isfile(p): raise SystemExit("MOSEK license file not found")
+    s = open(p, encoding="utf-8", errors="ignore").read()
+    if "permanent" in s.lower(): print("MOSEK license OK (permanent)"); raise SystemExit(0)
+    ds = re.findall(r"\b\d{1,2}-[A-Za-z]{3}-\d{2,4}\b", s)
+    if not ds: raise SystemExit("No expiry date found in license file")
+    exp = min(datetime.datetime.strptime(d, "%d-%b-%Y" if len(d.split("-")[-1])==4 else "%d-%b-%y").date() for d in ds)
+    print(f"MOSEK license OK; expires {exp} ({(exp - date.today()).days} days left)") if exp >= date.today() \
+        else (_ for _ in ()).throw(SystemExit(f"MOSEK license expired on {exp}"))
 
     if not os.path.isfile(args["characters"]):
         print("Input files not found.")
@@ -402,8 +418,8 @@ def main():
                         if not node.is_root():
                             if node.alpha[j] == '?' and node.parent.alpha[j] != 'z':
                                 node.alpha[j] = node.parent.alpha[j]
-                        p0 = round(exp(node.post0[j]),2)
-                        p_minus_1 = round(exp(node.post1[j]),2)
+                        p0 = round(math.exp(node.post0[j]),2)
+                        p_minus_1 = round(math.exp(node.post1[j]),2)
                         p_alpha = round(1-p0-p_minus_1,2)
                         if node.posterior != '':
                             node.posterior += ','

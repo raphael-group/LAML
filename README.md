@@ -74,7 +74,7 @@ LAML requires the following two input files:
 | cell_2  | 0  | 2  |
 | cell_3  | 1  | 0  |
 
-2. (*soft requirement*) tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). The tree topology is a **soft requirement** because if no tree topology is provided, we will use weighted Hamming distance to construct a distance matrix from your provided character matrix (ignoring priors for simplicity), then use Neighbor Joining to construct an unrooted tree. We will root heuristically using an unedited sequence. However, *for all modes of running LAML* we recommend the user provide their own tree instead.
+2. (*soft requirement*) tree topology, given in [newick format](https://en.wikipedia.org/wiki/Newick_format). The tree topology is a **soft requirement** because if no tree topology is provided, we will use weighted Hamming distance to construct a distance matrix from your provided character matrix (ignoring priors for simplicity), then use Neighbor Joining to construct an unrooted tree. We will root heuristically using an unedited sequence. However, *for all modes of running LAML* we recommend the user provide their own tree instead. Note that if the tree is provided, we expect the character matrix and the tree to have the same set of leaves (cell names). Extra cells in one may cause errors or warnings.
 
 See an example character matrix in [examples/example1/character_matrix.csv](https://github.com/raphael-group/LAML/tree/laml/examples/example1/character_matrix.csv) and an example tree topology in [examples/example1/starting.tree](https://github.com/raphael-group/LAML/tree/laml/examples/example1/starting.tree)
 
