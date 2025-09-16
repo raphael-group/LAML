@@ -6,7 +6,7 @@ from laml_libs.ML_solver import ML_solver
 from treeswift import *
 from math import log
 from random import random
-from laml_libs import DEFAULT_STRATEGY
+from laml_libs.core_constants import DEFAULT_STRATEGY
 from copy import deepcopy
 import pkg_resources
 

@@ -1,6 +1,6 @@
 import os 
 import unittest
-from laml_libs import *
+from laml_libs.core_constants import *
 from laml_libs.fastEM_solver import fastEM_solver, parse_data, parse_tree
 from laml_libs.EM_solver import EM_solver
 from laml_libs.ML_solver import ML_solver

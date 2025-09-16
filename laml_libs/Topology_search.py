@@ -1,7 +1,7 @@
 from math import log,isclose,exp
 import timeit
 from random import choice, shuffle, random
-from laml_libs import *
+from laml_libs.core_constants import *
 from treeswift import *
 from laml_libs.EM_solver import EM_solver
 from copy import deepcopy

@@ -1,0 +1,548 @@
+MOSEK license OK; expires 2026-03-14 (179 days left)
+Launching LAML version 1.0.5
+LAML was called as follows: run_laml_api.py
+JAX version: 0.6.2
+Using JAX backend with [CpuDevice(id=0)] devices.
+Using device TFRT_CPU_0 for computation.
+Started with 64 sequences. Deduplication removes 2 sequences.
+Note: XLA_PYTHON_CLIENT_PREALLOCATE defaults to TRUE; recorded memory may look higher.
+No polytomy detected.
+Starting topology search
+Running topology search sequentially...
+Performing nni-search 1
+Perform nni moves for full topology search
+Initial score: -1126.5503
+NNI Iter: 0
+Number of trees checked: 20
+Current score: -1126.5386
+Runtime (s): 0.8159251670585945
+NNI Iter: 1
+Number of trees checked: 20
+Current score: -1126.5385
+Runtime (s): 0.877320957952179
+NNI Iter: 2
+Number of trees checked: 10
+Current score: -1126.5386
+Runtime (s): 0.43055637495126575
+NNI Iter: 3
+Number of trees checked: 10
+Current score: -1126.5386
+Runtime (s): 0.43935620901174843
+NNI Iter: 4
+Number of trees checked: 6
+Current score: -1126.5386
+Runtime (s): 0.23290045897010714
+NNI Iter: 5
+Number of trees checked: 18
+Current score: -1126.5385
+Runtime (s): 0.8437311670277268
+NNI Iter: 6
+Number of trees checked: 6
+Current score: -1126.5385
+Runtime (s): 0.2417826249729842
+NNI Iter: 7
+Number of trees checked: 40
+Current score: -1126.5386
+Runtime (s): 1.7993854579981416
+NNI Iter: 8
+Number of trees checked: 30
+Current score: -1126.5322
+Runtime (s): 1.2553272499935701
+NNI Iter: 9
+Number of trees checked: 8
+Current score: -1126.5322
+Runtime (s): 0.3489498329581693
+NNI Iter: 10
+Number of trees checked: 12
+Current score: -1126.5387
+Runtime (s): 0.5618418750818819
+NNI Iter: 11
+Number of trees checked: 18
+Current score: -1126.5386
+Runtime (s): 0.718205124954693
+NNI Iter: 12
+Number of trees checked: 10
+Current score: -1126.5387
+Runtime (s): 0.35520258406177163
+NNI Iter: 13
+Number of trees checked: 30
+Current score: -1126.5386
+Runtime (s): 1.282692415989004
+NNI Iter: 14
+Number of trees checked: 42
+Current score: -1126.5383
+Runtime (s): 1.9163420419208705
+NNI Iter: 15
+Number of trees checked: 12
+Current score: -1126.5383
+Runtime (s): 0.5027382919797674
+NNI Iter: 16
+Number of trees checked: 2
+Current score: -1126.5386
+Runtime (s): 0.05491233291104436
+NNI Iter: 17
+Number of trees checked: 32
+Current score: -1126.5386
+Runtime (s): 1.6456350829685107
+NNI Iter: 18
+Number of trees checked: 6
+Current score: -1126.5386
+Runtime (s): 0.342980416957289
+NNI Iter: 19
+Number of trees checked: 12
+Current score: -1126.5386
+Runtime (s): 0.5042795001063496
+NNI Iter: 20
+Number of trees checked: 92
+Current score: -1126.5385
+Runtime (s): 4.6291071670129895
+NNI Iter: 21
+Number of trees checked: 62
+Current score: -1126.531
+Runtime (s): 2.7153726250398904
+NNI Iter: 22
+Number of trees checked: 12
+Current score: -1126.531
+Runtime (s): 0.4579529999755323
+NNI Iter: 23
+Number of trees checked: 68
+Current score: -1126.531
+Runtime (s): 3.201723749982193
+NNI Iter: 24
+Number of trees checked: 36
+Current score: -1126.531
+Runtime (s): 1.8107988749397919
+NNI Iter: 25
+Number of trees checked: 94
+Current score: -1126.531
+Runtime (s): 4.825562332989648
+NNI Iter: 26
+Number of trees checked: 120
+Best score for this search: -1126.531
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -1170.2229455555973
+Performing nni-search 2
+Perform nni moves for full topology search
+Initial score: -1125.9403
+NNI Iter: 0
+Number of trees checked: 6
+Current score: -1125.9384
+Runtime (s): 0.23675016697961837
+NNI Iter: 1
+Number of trees checked: 48
+Current score: -1125.9382
+Runtime (s): 2.3064079579198733
+NNI Iter: 2
+Number of trees checked: 4
+Current score: -1125.9382
+Runtime (s): 0.1303891671122983
+NNI Iter: 3
+Number of trees checked: 2
+Current score: -1125.9382
+Runtime (s): 0.04826824995689094
+NNI Iter: 4
+Number of trees checked: 2
+Current score: -1125.9382
+Runtime (s): 0.04521841590758413
+NNI Iter: 5
+Number of trees checked: 24
+Current score: -1125.9382
+Runtime (s): 0.916855207993649
+NNI Iter: 6
+Number of trees checked: 4
+Current score: -1125.9384
+Runtime (s): 0.12676108302548528
+NNI Iter: 7
+Number of trees checked: 6
+Current score: -1125.9382
+Runtime (s): 0.2364676669239998
+NNI Iter: 8
+Number of trees checked: 6
+Current score: -1125.9382
+Runtime (s): 0.317966916016303
+NNI Iter: 9
+Number of trees checked: 16
+Current score: -1125.9382
+Runtime (s): 0.6173031670041382
+NNI Iter: 10
+Number of trees checked: 18
+Current score: -1125.9382
+Runtime (s): 0.696601250092499
+NNI Iter: 11
+Number of trees checked: 18
+Current score: -1125.9382
+Runtime (s): 0.6647806249093264
+NNI Iter: 12
+Number of trees checked: 10
+Current score: -1125.9382
+Runtime (s): 0.39008570893201977
+NNI Iter: 13
+Number of trees checked: 2
+Current score: -1125.9382
+Runtime (s): 0.055398166994564235
+NNI Iter: 14
+Number of trees checked: 4
+Current score: -1125.9381
+Runtime (s): 0.19856958300806582
+NNI Iter: 15
+Number of trees checked: 14
+Current score: -1125.9381
+Runtime (s): 0.6529133330332115
+NNI Iter: 16
+Number of trees checked: 18
+Current score: -1125.9381
+Runtime (s): 0.7063630000920966
+NNI Iter: 17
+Number of trees checked: 10
+Current score: -1125.9381
+Runtime (s): 0.3695606250548735
+NNI Iter: 18
+Number of trees checked: 12
+Current score: -1125.9381
+Runtime (s): 0.5831607079599053
+NNI Iter: 19
+Number of trees checked: 10
+Current score: -1125.9381
+Runtime (s): 0.548208791995421
+NNI Iter: 20
+Number of trees checked: 54
+Current score: -1125.9381
+Runtime (s): 2.6693634589901194
+NNI Iter: 21
+Number of trees checked: 24
+Current score: -1125.9381
+Runtime (s): 1.1930665830150247
+NNI Iter: 22
+Number of trees checked: 6
+Current score: -1125.9381
+Runtime (s): 0.22185325005557388
+NNI Iter: 23
+Number of trees checked: 32
+Current score: -1125.9381
+Runtime (s): 1.7865967919351533
+NNI Iter: 24
+Number of trees checked: 24
+Current score: -1125.9381
+Runtime (s): 1.1509587080217898
+NNI Iter: 25
+Number of trees checked: 18
+Current score: -1125.9381
+Runtime (s): 0.7504272910300642
+NNI Iter: 26
+Number of trees checked: 46
+Current score: -1125.938
+Runtime (s): 2.055827207979746
+NNI Iter: 27
+Number of trees checked: 120
+Best score for this search: -1125.938
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -1171.7965462951279
+Performing nni-search 3
+Perform nni moves for full topology search
+Initial score: -1125.9475
+NNI Iter: 0
+Number of trees checked: 28
+Current score: -1125.9359
+Runtime (s): 1.3681107090087608
+NNI Iter: 1
+Number of trees checked: 4
+Current score: -1125.9359
+Runtime (s): 0.16605433402583003
+NNI Iter: 2
+Number of trees checked: 14
+Current score: -1125.9359
+Runtime (s): 0.5888580000028014
+NNI Iter: 3
+Number of trees checked: 14
+Current score: -1125.9359
+Runtime (s): 0.5106507500167936
+NNI Iter: 4
+Number of trees checked: 18
+Current score: -1125.9359
+Runtime (s): 0.8385797910159454
+NNI Iter: 5
+Number of trees checked: 12
+Current score: -1125.9358
+Runtime (s): 0.5301040420308709
+NNI Iter: 6
+Number of trees checked: 30
+Current score: -1125.9358
+Runtime (s): 1.2585955830290914
+NNI Iter: 7
+Number of trees checked: 8
+Current score: -1125.9359
+Runtime (s): 0.2699389170156792
+NNI Iter: 8
+Number of trees checked: 10
+Current score: -1125.9355
+Runtime (s): 0.3605851660249755
+NNI Iter: 9
+Number of trees checked: 42
+Current score: -1125.9355
+Runtime (s): 2.0053215000079945
+NNI Iter: 10
+Number of trees checked: 26
+Current score: -1125.936
+Runtime (s): 1.1623505840543658
+NNI Iter: 11
+Number of trees checked: 24
+Current score: -1125.9359
+Runtime (s): 1.0755520830862224
+NNI Iter: 12
+Number of trees checked: 8
+Current score: -1125.9362
+Runtime (s): 0.40043833397794515
+NNI Iter: 13
+Number of trees checked: 22
+Current score: -1125.9358
+Runtime (s): 0.964290083036758
+NNI Iter: 14
+Number of trees checked: 14
+Current score: -1125.9355
+Runtime (s): 0.6826643749373034
+NNI Iter: 15
+Number of trees checked: 54
+Current score: -1125.9357
+Runtime (s): 2.45758137491066
+NNI Iter: 16
+Number of trees checked: 12
+Current score: -1125.9357
+Runtime (s): 0.44457054091617465
+NNI Iter: 17
+Number of trees checked: 20
+Current score: -1125.9358
+Runtime (s): 0.7574404999613762
+NNI Iter: 18
+Number of trees checked: 38
+Current score: -1125.9355
+Runtime (s): 1.7148685000138357
+NNI Iter: 19
+Number of trees checked: 18
+Current score: -1125.9358
+Runtime (s): 0.9180398340104148
+NNI Iter: 20
+Number of trees checked: 56
+Current score: -1125.9358
+Runtime (s): 2.5605254580732435
+NNI Iter: 21
+Number of trees checked: 2
+Current score: -1125.9355
+Runtime (s): 0.08642691699787974
+NNI Iter: 22
+Number of trees checked: 120
+Best score for this search: -1125.9355
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -1171.1955966441585
+Performing nni-search 4
+Perform nni moves for full topology search
+Initial score: -1125.9985
+NNI Iter: 0
+Number of trees checked: 14
+Current score: -1125.9983
+Runtime (s): 0.4986900419462472
+NNI Iter: 1
+Number of trees checked: 10
+Current score: -1125.9983
+Runtime (s): 0.34954312501940876
+NNI Iter: 2
+Number of trees checked: 2
+Current score: -1125.9983
+Runtime (s): 0.042819792055524886
+NNI Iter: 3
+Number of trees checked: 8
+Current score: -1125.9984
+Runtime (s): 0.2698237500153482
+NNI Iter: 4
+Number of trees checked: 2
+Current score: -1125.9984
+Runtime (s): 0.0433552919421345
+NNI Iter: 5
+Number of trees checked: 28
+Current score: -1125.9985
+Runtime (s): 1.4128252919763327
+NNI Iter: 6
+Number of trees checked: 40
+Current score: -1125.998
+Runtime (s): 1.7385174999944866
+NNI Iter: 7
+Number of trees checked: 12
+Current score: -1125.9884
+Runtime (s): 0.6252492499770597
+NNI Iter: 8
+Number of trees checked: 36
+Current score: -1125.9888
+Runtime (s): 1.6880188339855522
+NNI Iter: 9
+Number of trees checked: 10
+Current score: -1125.9886
+Runtime (s): 0.4099339589010924
+NNI Iter: 10
+Number of trees checked: 32
+Current score: -1125.9886
+Runtime (s): 1.3337821250315756
+NNI Iter: 11
+Number of trees checked: 4
+Current score: -1125.9983
+Runtime (s): 0.1285149590112269
+NNI Iter: 12
+Number of trees checked: 12
+Current score: -1125.9984
+Runtime (s): 0.4387340000830591
+NNI Iter: 13
+Number of trees checked: 12
+Current score: -1125.9983
+Runtime (s): 0.43000587495043874
+NNI Iter: 14
+Number of trees checked: 4
+Current score: -1125.9983
+Runtime (s): 0.12289500003680587
+NNI Iter: 15
+Number of trees checked: 16
+Current score: -1125.9983
+Runtime (s): 0.7425344169605523
+NNI Iter: 16
+Number of trees checked: 14
+Current score: -1125.9985
+Runtime (s): 0.4998502080561593
+NNI Iter: 17
+Number of trees checked: 12
+Current score: -1125.9984
+Runtime (s): 0.4701955419732258
+NNI Iter: 18
+Number of trees checked: 4
+Current score: -1125.9984
+Runtime (s): 0.12135599995963275
+NNI Iter: 19
+Number of trees checked: 26
+Current score: -1125.998
+Runtime (s): 1.3720713750226423
+NNI Iter: 20
+Number of trees checked: 120
+Best score for this search: -1125.9884
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -1168.3841303822578
+Performing nni-search 5
+Perform nni moves for full topology search
+Initial score: -1125.739
+NNI Iter: 0
+Number of trees checked: 14
+Current score: -1125.7435
+Runtime (s): 0.5012684580869973
+NNI Iter: 1
+Number of trees checked: 38
+Current score: -1125.7435
+Runtime (s): 1.5955433750059456
+NNI Iter: 2
+Number of trees checked: 40
+Current score: -1127.2352
+Runtime (s): 1.9616352500161156
+NNI Iter: 3
+Number of trees checked: 12
+Current score: -1127.2352
+Runtime (s): 0.4504270830657333
+NNI Iter: 4
+Number of trees checked: 12
+Current score: -1127.2352
+Runtime (s): 0.47836983401793987
+NNI Iter: 5
+Number of trees checked: 22
+Current score: -1125.7451
+Runtime (s): 0.9133617080515251
+NNI Iter: 6
+Number of trees checked: 12
+Current score: -1125.7441
+Runtime (s): 0.5068498750915751
+NNI Iter: 7
+Number of trees checked: 16
+Current score: -1125.7441
+Runtime (s): 0.7391315000131726
+NNI Iter: 8
+Number of trees checked: 2
+Current score: -1125.7443
+Runtime (s): 0.04974133300129324
+NNI Iter: 9
+Number of trees checked: 22
+Current score: -1125.7443
+Runtime (s): 0.9872072919970378
+NNI Iter: 10
+Number of trees checked: 2
+Current score: -1125.7441
+Runtime (s): 0.06285366602241993
+NNI Iter: 11
+Number of trees checked: 4
+Current score: -1125.7441
+Runtime (s): 0.1566314590163529
+NNI Iter: 12
+Number of trees checked: 16
+Current score: -1125.7452
+Runtime (s): 0.617863874998875
+NNI Iter: 13
+Number of trees checked: 4
+Current score: -1125.7451
+Runtime (s): 0.1360522919567302
+NNI Iter: 14
+Number of trees checked: 6
+Current score: -1125.7441
+Runtime (s): 0.2236711250152439
+NNI Iter: 15
+Number of trees checked: 28
+Current score: -1125.7441
+Runtime (s): 1.3491458339849487
+NNI Iter: 16
+Number of trees checked: 2
+Current score: -1125.7441
+Runtime (s): 0.05342770798597485
+NNI Iter: 17
+Number of trees checked: 16
+Current score: -1125.7441
+Runtime (s): 0.7782296249642968
+NNI Iter: 18
+Number of trees checked: 2
+Current score: -1125.7443
+Runtime (s): 0.04561854200437665
+NNI Iter: 19
+Number of trees checked: 8
+Current score: -1125.7441
+Runtime (s): 0.2733475000131875
+NNI Iter: 20
+Number of trees checked: 6
+Current score: -1125.7441
+Runtime (s): 0.2046745829284191
+NNI Iter: 21
+Number of trees checked: 50
+Current score: -1125.744
+Runtime (s): 1.965853916015476
+NNI Iter: 22
+Number of trees checked: 104
+Current score: -1125.744
+Runtime (s): 5.040288542048074
+NNI Iter: 23
+Number of trees checked: 20
+Current score: -1125.744
+Runtime (s): 0.8360026669688523
+NNI Iter: 24
+Number of trees checked: 14
+Current score: -1125.744
+Runtime (s): 0.5625650830334052
+NNI Iter: 25
+Number of trees checked: 110
+Current score: -1125.744
+Runtime (s): 4.877463750075549
+NNI Iter: 26
+Number of trees checked: 46
+Current score: -1125.744
+Runtime (s): 2.2511947919847444
+NNI Iter: 27
+Number of trees checked: 12
+Current score: -1125.744
+Runtime (s): 0.5403623329475522
+NNI Iter: 28
+Number of trees checked: 120
+Best score for this search: -1125.739
+Optimal topology found. Re-optimizing other parameters ...
+Optimal score for this search: -1170.6259608045536
+Added back the identical sequences, creating 2 dummy nodes.
+Tree height pre-scaling: 1.0737189112228884, input timescale: 10.0
+Runtime (s): 155.37559262500145
+LAMLParams(lambda_edit=0.10737189112228884, nu_silence=0.010748193893885536, phi_dropout=0.008091323558598398, neg_log_likelihood=nan)
+[&R] (((((((76:2.019,77:1.019)node_21:0.989,(78:2.008,79:0.008)node_18:1)node_17:2.006,((84:0.038,85:4.218)node_28:3.01, ...

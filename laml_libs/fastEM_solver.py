@@ -4,7 +4,7 @@ from laml_libs.EM_solver import *
 from math import exp,log
 from treeswift import * 
 import cvxpy as cp
-from laml_libs import min_llh, conv_eps, eps
+from laml_libs.core_constants import min_llh, conv_eps, eps
 import numpy as np
 import time
 import networkx as nx

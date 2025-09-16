@@ -3,7 +3,7 @@ from statistics import mean
 import pickle
 from collections import defaultdict
 from treeswift import * 
-from laml_libs import dmin
+from laml_libs.core_constants import dmin
 
 recognized_missing = set(['-', '?', '-1'])
 

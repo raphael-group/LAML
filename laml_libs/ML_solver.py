@@ -4,7 +4,7 @@ from random import random, seed, choice
 from scipy import optimize
 import warnings
 import numpy as np
-from laml_libs import min_llh, eps, nni_conv_eps, dmin, dmax
+from laml_libs.core_constants import min_llh, eps, nni_conv_eps, dmin, dmax
 from laml_libs.Virtual_solver import Virtual_solver
 from scipy.sparse import csr_matrix
 from copy import deepcopy

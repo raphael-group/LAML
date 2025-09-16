@@ -1,6 +1,6 @@
 import os 
 import unittest
-from laml_libs import *
+from laml_libs.core_constants import *
 from laml_libs.EM_solver import EM_solver
 from laml_libs.ML_solver import ML_solver
 from laml_libs.Topology_search import Topology_search

@@ -82,8 +82,8 @@ See an example character matrix in [examples/example1/character_matrix.csv](http
 ## Output
 There are four output files: 
 
-1. `LAML_output_trees.nwk`: The output tree with time-resolved branch lengths.
-1. `LAML_output_trees.collapsed.nwk`: The output tree with time-resolved branch lengths. Branches with length close to minimum branch length (0.005 + eps = 0.006) are collapsed to polytomies.
+1a. `LAML_output_trees.nwk`: The output tree with time-resolved branch lengths.
+1b. `LAML_output_trees.collapsed.nwk`: The ultrametric output tree with time-resolved branch lengths. Branches with length close to minimum branch length (0.005 + eps = 0.006) are collapsed to polytomies.
 2. `LAML_output_params.txt`: This file reports the dropout rate, silencing rate, and negative log-likelihood.
 3. `LAML_output_annotations.txt`: This file contains the inferred maximum likelihood sequences for all internal nodes and leaf nodes, with possible characters and associated probabilities for sites with more than one possibility.
 4. `LAML_output.log`: The LAML logfile.
@@ -134,7 +134,7 @@ Below are some other important options available in LAML. For full documentation
 ### Numerical optimization
 ```
   -L COMPUTE_LLH, --compute_llh COMPUTE_LLH Compute log-likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topology_search and --resolve_search.
-  --noSilence         Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing. Does not necessarily produce ultrametric trees, and cannot be time-scaled. This option has higher priority than --timescale or --ultrametric.
+  --noSilence         Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing. May not necessarily produce ultrametric trees, and cannot be time-scaled. This option has higher priority than --timescale.
   --noDropout           Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.
   --timescale TIMESCALE Timeframe of experiment. Scales ultrametric output tree branches to this timescale. Default: 1.0.
   --solver SOLVER       Specify a solver. Options are 'Scipy' or 'EM' or 'fastEM-gpu' or 'fastEM-cpu'. Default: EM
@@ -151,3 +151,5 @@ Below are some other important options available in LAML. For full documentation
   --maxIters MAXITERS   Maximum number of iterations to run topology search.
 ```
 
+### Python API
+See example in `examples/example2/run_laml_api.py`.
