@@ -8,7 +8,7 @@ import math
 import random
 import sys
 import jax
-import fast_em.phylogeny
+import fast_em.phylogeny as phylogeny
 import os
 import json
 
@@ -44,17 +44,36 @@ are non-missing states, and -1 is the unknown (?) state.
 
 M_STEP_DESCENT_STEPS  = 100
 EM_STOPPING_CRITERION = 1e-5
+calc_eps = 1e-10
+
+def exp_safe(theta):
+    lo = jnp.log(calc_eps) # exp(log(1e-10)) = 0.000045
+    return jnp.exp(jnp.clip(theta, lo, -lo))
+
+def log1mexp_pos(x):
+    """Stable log(1 - exp(-x)) for x > 0."""
+    log2 = jnp.log(2.0)
+    return jnp.where(x > log2, jnp.log1p(-jnp.exp(-x)), jnp.log(-jnp.expm1(-x)))
+
+def sigmoid_clamped(x):
+    p = jax.nn.sigmoid(x)
+    return jnp.clip(p, calc_eps, 1.0 - calc_eps)
 
 def M_step_loss_fn(parameters, args):
     log_branch_lengths, logit_model_parameters = parameters
     edge_responsibilities, leaf_responsibilities, num_missing, num_not_missing = args[:4]
-    branch_lengths = jnp.exp(log_branch_lengths)
-    ν, ϕ           = jax.nn.sigmoid(logit_model_parameters)
+
+    branch_lengths = exp_safe(log_branch_lengths) #jnp.exp(log_branch_lengths) 
+    ν, ϕ           = sigmoid_clamped(logit_model_parameters) # jax.nn.sigmoid(logit_model_parameters)
+    log1m_e_b = log1mexp_pos(branch_lengths)
+    log1m_e_bnu = log1mexp_pos(branch_lengths * ν)
+
     c1 = -edge_responsibilities[:, 0] * branch_lengths *  (1.0 + ν)
-    c2 =  edge_responsibilities[:, 1] * (jnp.log(1 - jnp.exp(-branch_lengths)) - branch_lengths * ν)
-    c3 =  edge_responsibilities[:, 2] * jnp.log(1 - jnp.exp(-branch_lengths * ν))
+    c2 =  edge_responsibilities[:, 1] * (log1m_e_b - branch_lengths * ν) 
+    #jnp.log(1 - jnp.exp(-branch_lengths)) - branch_lengths * ν)
+    c3 =  edge_responsibilities[:, 2] * log1m_e_bnu #jnp.log(1 - jnp.exp(-branch_lengths * ν))
     c4 = -edge_responsibilities[:, 3] * branch_lengths * ν
-    c5 =  edge_responsibilities[:, 4] * jnp.log(1 - jnp.exp(-branch_lengths * ν))
+    c5 =  edge_responsibilities[:, 4] * log1m_e_bnu #jnp.log(1 - jnp.exp(-branch_lengths * ν))
     c6 = num_not_missing * jnp.log(1 - ϕ) + (num_missing - jnp.sum(leaf_responsibilities)) * jnp.log(ϕ)
     return -(jnp.sum(c1 + c2 + c3 + c4 + c5) + c6)
 
@@ -136,8 +155,8 @@ def optimize_parameters_expectation_maximization(
 
         _, edge_responsibilities, leaf_responsibilities = calc.compute_E_step(
             jnp.exp(params[0]), mutation_priors, leaves, 
-            internal_postorder, internal_postorder_children, 
-            parent_sibling, level_order, inside_log_likelihoods, 
+            internal_postorder, internal_postorder_children,
+            parent_sibling, level_order, inside_log_likelihoods,
             jax.nn.sigmoid(params[1]), character_matrix, root
         )
         
@@ -147,18 +166,29 @@ def optimize_parameters_expectation_maximization(
             branch_mask, model_parameters_mask
         )
 
-        params, its = M_step(params, args)
-        current_nllh = compute_llh(params)
+        has_nan_edge = jnp.isnan(edge_responsibilities).any().item()
+        has_nan_leaf = jnp.isnan(leaf_responsibilities).any().item()
 
+        new_params, its = M_step(params, args)
+        current_nllh = compute_llh(new_params)
+
+        is_nan = bool(jnp.isnan(current_nllh))
         if verbose:
-            lg.logger.info(f"M-step descent steps: {its}")
-            lg.logger.info(f"EM iteration {iteration}, Previous NLLH: {previous_nllh}, Current NLLH: {current_nllh}")
+            lg.logger.info(f"M-step descent steps: {iteration}")
+            lg.logger.info(f"EM iteration {iteration}, Previous NLLH: {previous_nllh}, Current NLLH: {current_nllh}, is_nan: {is_nan}")
             lg.logger.info(f"Relative Improvement: {jnp.abs(current_nllh - previous_nllh) / jnp.abs(previous_nllh)}")
-            lg.logger.info(f"Params: {jnp.sum(branch_lengths != jnp.exp(params[0])), jax.nn.sigmoid(params[1])}")
+            #lg.logger.info(f"raw-check Params: min branchlen and (nu, phi) {min(jnp.exp(new_params[0])), new_params[1]}")
+            lg.logger.info(f"Params: {jnp.sum(branch_lengths != jnp.exp(new_params[0])), jax.nn.sigmoid(new_params[1])}")
 
         if jnp.abs(current_nllh - previous_nllh) / jnp.abs(previous_nllh) < EM_STOPPING_CRITERION:
             break
+       
+        if is_nan:
+            lg.logger.info(f"Current NLLH hit NAN.")
+            current_nllh = previous_nllh
+            break
 
+        params = new_params
         previous_nllh = current_nllh
 
     return current_nllh, jnp.exp(params[0]), jax.nn.sigmoid(params[1]), iteration
@@ -293,7 +323,7 @@ def main(mode, phylo_opt):
         lg.logger.info(f"Log likelihood at root {root}: {llh}")
         lg.logger.info(f"Average runtime (s): {avg_runtime}")
     elif mode == "optimize-em":
-        def optimize_helper(verbose):
+        def optimize_helper(verbose=False):
             return optimize_parameters_expectation_maximization(
                 leaves, 
                 internal_postorder, 
@@ -312,7 +342,7 @@ def main(mode, phylo_opt):
             )
 
         start = time.time()
-        optimize_helper(False)[0] # warm start jit compiled functions
+        optimize_helper(True)[0] # warm start jit compiled functions
         end = time.time()
         compile_time = end - start
 
