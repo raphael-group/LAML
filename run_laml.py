@@ -317,10 +317,10 @@ def main():
                 mutation_rate = scaling_factor # not divided per site
                 print(f"Tree height after scaling: {tree_height}, mutation rate: {mutation_rate}")
                 tstr = tree.__str__().split()
-                    if len(tstr) > 1:
-                        fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
-                    else:
-                        fout.write(''.join(["(", tstr[0][:-1], ");\n"]))
+                if len(tstr) > 1:
+                    fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
+                else:
+                    fout.write(''.join(["(", tstr[0][:-1], ");\n"]))
 
         with open(out_tree2,'w') as fout:
             for tstr in opt_trees:
@@ -333,10 +333,10 @@ def main():
                 tree_height = tree.height(weighted=True) 
                 mutation_rate = scaling_factor # not divided per site
                 tstr = tree.__str__().split()
-                    if len(tstr) > 1:
-                        fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
-                    else:
-                        fout.write(''.join(["(", tstr[0][:-1], ");\n"]))
+                if len(tstr) > 1:
+                    fout.write(''.join([tstr[0], "(", tstr[1][:-1], ");\n"]))
+                else:
+                    fout.write(''.join(["(", tstr[0][:-1], ");\n"]))
 
         # output annotations
         def format_posterior(p0,p_minus_1,p_alpha,alpha,q):

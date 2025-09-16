@@ -174,8 +174,7 @@ class fastEM_solver(EM_solver):
             # set up an object of class EMOptimizer
             self.ordered_leaf_labels.append(data['ordered_leaf_labels'][tidx])
             parser_tree_out = parse_tree(swift_tree, has_branch_mask=False, ordered_leaf_labels=self.ordered_leaf_labels[tidx])
-            self.myEMOptimizers.append(EMOptimizer(prior['Q_recode'][tidx], data['charMtrx_recode'][tidx], verbose=False))
-
+            self.myEMOptimizers.append(EMOptimizer(prior['Q_recode'][tidx], data['charMtrx_recode'][tidx], verbose=False)) ## can change this to True for debugging the fastEM part
 
     def score_tree(self, strategy={'ultra_constr':False,'fixed_phi':None,'fixed_nu':None,'fixed_brlen':None, 'nodes_to_recompute': None}, compare=False): 
         if compare: 
@@ -238,8 +237,7 @@ class fastEM_solver(EM_solver):
                 #print(f"Optimize_nu: {optimize_nu} optimize_phi: {optimize_phi}")
                 
                 # call laml API from fast_em
-                out = self.myEMOptimizers[tidx].optimize(parser_tree_out['nxtree'], parser_tree_out['branch_lengths'], 
-                                                         nu, phi, parser_tree_out['branch_mask'], optimize_nu, optimize_phi)
+                out = self.myEMOptimizers[tidx].optimize(parser_tree_out['nxtree'], parser_tree_out['branch_lengths'], nu, phi, parser_tree_out['branch_mask'], optimize_nu, optimize_phi)
                 
                 #print("relabeling_vector", parser_tree_out['relabeling_vector'])
                 all_relabeling_vectors.append(parser_tree_out['relabeling_vector'])
