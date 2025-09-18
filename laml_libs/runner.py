@@ -101,9 +101,10 @@ def run_from_namespace(args) -> Tuple[str, Dict[str, float], Optional[Path], Opt
         print("MOSEK license not found in environment variables. Please set the MOSEK license!")
         sys.exit(0)
 
-    p = (os.getenv("MOSEKLM_LICENSE_FILE","").split(os.pathsep)[0] + "/mosek.lic" 
-         or os.path.expanduser("~/mosek/mosek.lic"))
+    p0 = os.getenv("MOSEKLM_LICENSE_FILE", "").split(os.pathsep)[0]
+    p = p0 if (p0 and os.path.isfile(p0)) else os.path.expanduser("~/mosek/mosek.lic")
     if not os.path.isfile(p): raise SystemExit("MOSEK license file not found")
+
     s = open(p, encoding="utf-8", errors="ignore").read()
     if "permanent" in s.lower():
         print("MOSEK license OK (permanent)")
@@ -352,7 +353,11 @@ def run_from_namespace(args) -> Tuple[str, Dict[str, float], Optional[Path], Opt
             tree_height = tree.height(weighted=True)
             scaling_factor = tree_height / float(canon['timescale'])
             for node in tree.traverse_preorder():
-                node.edge_length = node.edge_length / scaling_factor
+                if node.edge_length:
+                    # problematic since we just collapsed short branches
+                    node.edge_length = node.edge_length / scaling_factor
+                else:
+                    node.edge_length = laml.core_constants.dmin / scaling_factor
             tparts = tree.__str__().split()
             if len(tparts) > 1:
                 fout.write(''.join([tparts[0], "(", tparts[1][:-1], ");\n"]))
